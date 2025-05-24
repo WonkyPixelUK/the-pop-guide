@@ -27,12 +27,34 @@ export const CollectionScreen = () => {
   const fetchCollection = async () => {
     try {
       const { data, error } = await supabase
-        .from('funkos')
-        .select('*')
-        .order('name');
+        .from('list_items')
+        .select(`
+          id,
+          is_wishlist,
+          is_trade,
+          funko_pops (
+            id,
+            name,
+            series,
+            image_url,
+            barcode
+          )
+        `)
+        // .eq('user_id', user.id) // Uncomment and use user id if available
+        .order('created_at', { ascending: false });
 
       if (error) throw error;
-      if (data) setCollection(data);
+      if (data) {
+        // Flatten funko_pops fields into each item for easier rendering
+        setCollection(
+          data.map((item: any) => ({
+            ...item.funko_pops,
+            id: item.id, // Use list_item id for toggling
+            is_wishlist: item.is_wishlist,
+            is_trade: item.is_trade,
+          }))
+        );
+      }
     } catch (error) {
       console.error('Error fetching collection:', error);
       alert('Error loading collection');
