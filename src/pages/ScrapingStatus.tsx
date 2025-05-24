@@ -1,9 +1,9 @@
-
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
 import { Progress } from '@/components/ui/progress';
 import { useScrapingJobs, useStartScraping } from '@/hooks/usePriceScraping';
+import { useForceScraping } from '@/hooks/useForceScraping';
 import { 
   RefreshCw, 
   Clock, 
@@ -15,13 +15,16 @@ import {
   Calendar,
   Database,
   TrendingUp,
-  Activity
+  Activity,
+  Zap
 } from 'lucide-react';
 import Navigation from '@/components/Navigation';
+import FunkoPopTable from '@/components/FunkoPopTable';
 
 const ScrapingStatus = () => {
   const { data: jobs, isLoading: jobsLoading } = useScrapingJobs();
   const startScraping = useStartScraping();
+  const forceScraping = useForceScraping();
 
   const getStatusIcon = (status: string) => {
     switch (status) {
@@ -131,7 +134,7 @@ const ScrapingStatus = () => {
           </Card>
         </div>
 
-        <div className="grid grid-cols-1 lg:grid-cols-2 gap-8">
+        <div className="grid grid-cols-1 lg:grid-cols-2 gap-8 mb-8">
           {/* Control Panel */}
           <Card>
             <CardHeader>
@@ -149,15 +152,28 @@ const ScrapingStatus = () => {
                 </div>
               </div>
 
-              <Button 
-                onClick={() => startScraping.mutate()}
-                disabled={startScraping.isPending}
-                className="w-full flex items-center gap-2"
-                size="lg"
-              >
-                <Play className="w-4 h-4" />
-                {startScraping.isPending ? 'Starting Bulk Scraping...' : 'Start Bulk Scraping Now'}
-              </Button>
+              <div className="grid grid-cols-1 gap-3">
+                <Button 
+                  onClick={() => startScraping.mutate()}
+                  disabled={startScraping.isPending}
+                  className="w-full flex items-center gap-2"
+                  size="lg"
+                >
+                  <Play className="w-4 h-4" />
+                  {startScraping.isPending ? 'Starting Bulk Scraping...' : 'Start Bulk Scraping Now'}
+                </Button>
+
+                <Button 
+                  onClick={() => forceScraping.mutate()}
+                  disabled={forceScraping.isPending}
+                  variant="outline"
+                  className="w-full flex items-center gap-2"
+                  size="lg"
+                >
+                  <Zap className="w-4 h-4" />
+                  {forceScraping.isPending ? 'Force Starting...' : 'Force Scrape All Items'}
+                </Button>
+              </div>
 
               <div className="grid grid-cols-2 gap-4 pt-4">
                 <div className="text-center">
@@ -203,8 +219,18 @@ const ScrapingStatus = () => {
           </Card>
         </div>
 
+        {/* Funko Pop Database Table */}
+        <Card className="mb-8">
+          <CardHeader>
+            <CardTitle>Database Contents & Manual Scraping</CardTitle>
+          </CardHeader>
+          <CardContent>
+            <FunkoPopTable />
+          </CardContent>
+        </Card>
+
         {/* Recent Activity */}
-        <Card className="mt-8">
+        <Card>
           <CardHeader>
             <CardTitle>Recent Scraping Activity</CardTitle>
           </CardHeader>
