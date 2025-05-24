@@ -12,7 +12,7 @@ export default defineConfig(({ mode }) => ({
   preview: {
     host: "0.0.0.0",
     port: 8080,
-    allowedHosts: ["the-pop-guide-hldjw.ondigitalocean.app"]
+    allowedHosts: ["the-pop-guide-hldjw.ondigitalocean.app", "popguide.co.uk"]
   },
   plugins: [
     react(),
