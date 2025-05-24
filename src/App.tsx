@@ -1,4 +1,3 @@
-
 import { Toaster } from "@/components/ui/toaster";
 import { Toaster as Sonner } from "@/components/ui/sonner";
 import { TooltipProvider } from "@/components/ui/tooltip";
@@ -17,6 +16,7 @@ import ScrapingStatus from "./pages/ScrapingStatus";
 import PublicListView from "./pages/PublicListView";
 import BrowseLists from "./pages/BrowseLists";
 import NotFound from "./pages/NotFound";
+import Help from "./pages/Help";
 
 const queryClient = new QueryClient();
 
@@ -39,6 +39,7 @@ const App = () => (
           <Route path="/scraping-status" element={<ScrapingStatus />} />
           <Route path="/lists/:listId" element={<PublicListView />} />
           <Route path="/browse-lists" element={<BrowseLists />} />
+          <Route path="/help" element={<Help />} />
           {/* ADD ALL CUSTOM ROUTES ABOVE THE CATCH-ALL "*" ROUTE */}
           <Route path="*" element={<NotFound />} />
         </Routes>
