@@ -25,9 +25,11 @@ const CollectionAnalytics = ({ userCollection, funkoPops }: CollectionAnalyticsP
   const numericTotalInvested = typeof totalInvested === 'number' ? totalInvested : 0;
   const roi = numericTotalInvested > 0 ? ((numericTotalValue - numericTotalInvested) / numericTotalInvested) * 100 : 0;
   
-  const seriesDistribution = userCollection.reduce((acc, item) => {
+  // Fix type safety for series distribution
+  const seriesDistribution = userCollection.reduce((acc: Record<string, number>, item) => {
     const series = item.funko_pops?.series || 'Unknown';
-    acc[series] = (acc[series] || 0) + 1;
+    const currentCount = acc[series];
+    acc[series] = (typeof currentCount === 'number' ? currentCount : 0) + 1;
     return acc;
   }, {} as Record<string, number>);
 
@@ -162,7 +164,9 @@ const CollectionAnalytics = ({ userCollection, funkoPops }: CollectionAnalyticsP
                   cx="50%"
                   cy="50%"
                   labelLine={false}
-                  label={({ name, percent }) => `${name} ${(percent * 100).toFixed(0)}%`}
+                  label={({ name, percent }: { name: string; percent: number }) => 
+                    `${String(name)} ${(percent * 100).toFixed(0)}%`
+                  }
                   outerRadius={80}
                   fill="#8884d8"
                   dataKey="value"
