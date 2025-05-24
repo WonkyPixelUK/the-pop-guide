@@ -3,7 +3,8 @@ import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
 import { useStartScraping, useScrapingJobs } from '@/hooks/usePriceScraping';
-import { RefreshCw, Play, Clock, CheckCircle, XCircle, AlertCircle, Zap } from 'lucide-react';
+import { RefreshCw, Play, Clock, CheckCircle, XCircle, AlertCircle, Zap, BarChart3 } from 'lucide-react';
+import { Link } from 'react-router-dom';
 
 const ScrapingManager = () => {
   const { data: jobs, isLoading: jobsLoading } = useScrapingJobs();
@@ -50,14 +51,22 @@ const ScrapingManager = () => {
         <CardHeader>
           <CardTitle className="flex items-center justify-between">
             <span>Price Scraping Manager</span>
-            <Button 
-              onClick={() => startScraping.mutate()}
-              disabled={startScraping.isPending}
-              className="flex items-center gap-2"
-            >
-              <Play className="w-4 h-4" />
-              {startScraping.isPending ? 'Starting...' : 'Start Bulk Scraping'}
-            </Button>
+            <div className="flex gap-3">
+              <Link to="/scraping-status">
+                <Button variant="outline" className="flex items-center gap-2">
+                  <BarChart3 className="w-4 h-4" />
+                  View Detailed Status
+                </Button>
+              </Link>
+              <Button 
+                onClick={() => startScraping.mutate()}
+                disabled={startScraping.isPending}
+                className="flex items-center gap-2"
+              >
+                <Play className="w-4 h-4" />
+                {startScraping.isPending ? 'Starting...' : 'Start Bulk Scraping'}
+              </Button>
+            </div>
           </CardTitle>
         </CardHeader>
         <CardContent>
@@ -70,6 +79,7 @@ const ScrapingManager = () => {
               <li>• <strong>Manual Updates:</strong> Click the refresh button on any Funko Pop to update its pricing</li>
               <li>• <strong>Real Web Scraping:</strong> Uses Firecrawl API for live eBay pricing data</li>
               <li>• <strong>Instant Results:</strong> Manual scraping processes immediately</li>
+              <li>• <strong>Status Monitoring:</strong> View detailed scraping logs and schedules</li>
             </ul>
           </div>
           

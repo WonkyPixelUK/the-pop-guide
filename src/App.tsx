@@ -13,6 +13,7 @@ import About from "./pages/About";
 import Contact from "./pages/Contact";
 import Profile from "./pages/Profile";
 import ProfileSettings from "./pages/ProfileSettings";
+import ScrapingStatus from "./pages/ScrapingStatus";
 import NotFound from "./pages/NotFound";
 
 const queryClient = new QueryClient();
@@ -33,6 +34,7 @@ const App = () => (
           <Route path="/contact" element={<Contact />} />
           <Route path="/profile/:username" element={<Profile />} />
           <Route path="/profile-settings" element={<ProfileSettings />} />
+          <Route path="/scraping-status" element={<ScrapingStatus />} />
           {/* ADD ALL CUSTOM ROUTES ABOVE THE CATCH-ALL "*" ROUTE */}
           <Route path="*" element={<NotFound />} />
         </Routes>
