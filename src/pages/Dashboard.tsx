@@ -3,14 +3,14 @@ import { useState, useEffect } from "react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Card, CardContent } from "@/components/ui/card";
-import { Search, Plus, BarChart3, Users, Zap, LogOut } from "lucide-react";
+import { Search, Plus, BarChart3, Users, Zap, LogOut, Settings } from "lucide-react";
 import CollectionGrid from "@/components/CollectionGrid";
 import AddItemDialog from "@/components/AddItemDialog";
 import ItemDetailsDialog from "@/components/ItemDetailsDialog";
 import { useAuth } from "@/hooks/useAuth";
 import { useFunkoPops, useUserCollection } from "@/hooks/useFunkoPops";
 import { useToast } from "@/hooks/use-toast";
-import { useNavigate } from "react-router-dom";
+import { useNavigate, Link } from "react-router-dom";
 
 const Dashboard = () => {
   const [searchQuery, setSearchQuery] = useState("");
@@ -106,6 +106,15 @@ const Dashboard = () => {
                 <Plus className="w-4 h-4 mr-2" />
                 Add Item
               </Button>
+              <Link to="/profile-settings">
+                <Button 
+                  variant="outline"
+                  className="border-gray-600 text-white hover:bg-gray-700"
+                >
+                  <Settings className="w-4 h-4 mr-2" />
+                  Profile
+                </Button>
+              </Link>
               <Button 
                 onClick={handleSignOut}
                 variant="outline"

@@ -156,6 +156,60 @@ export type Database = {
         }
         Relationships: []
       }
+      public_profiles: {
+        Row: {
+          avatar_url: string | null
+          bio: string | null
+          created_at: string
+          discord_username: string | null
+          display_name: string | null
+          ebay_store_url: string | null
+          id: string
+          instagram_handle: string | null
+          is_public: boolean
+          spotify_username: string | null
+          tiktok_handle: string | null
+          twitter_handle: string | null
+          updated_at: string
+          user_id: string
+          username: string | null
+        }
+        Insert: {
+          avatar_url?: string | null
+          bio?: string | null
+          created_at?: string
+          discord_username?: string | null
+          display_name?: string | null
+          ebay_store_url?: string | null
+          id?: string
+          instagram_handle?: string | null
+          is_public?: boolean
+          spotify_username?: string | null
+          tiktok_handle?: string | null
+          twitter_handle?: string | null
+          updated_at?: string
+          user_id: string
+          username?: string | null
+        }
+        Update: {
+          avatar_url?: string | null
+          bio?: string | null
+          created_at?: string
+          discord_username?: string | null
+          display_name?: string | null
+          ebay_store_url?: string | null
+          id?: string
+          instagram_handle?: string | null
+          is_public?: boolean
+          spotify_username?: string | null
+          tiktok_handle?: string | null
+          twitter_handle?: string | null
+          updated_at?: string
+          user_id?: string
+          username?: string | null
+        }
+        Relationships: []
+      }
       user_collections: {
         Row: {
           condition: string | null
