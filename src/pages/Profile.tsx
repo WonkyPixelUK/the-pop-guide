@@ -1,13 +1,15 @@
-
 import { useParams, Link } from 'react-router-dom';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
 import { usePublicProfileByUsername } from '@/hooks/usePublicProfile';
 import { useFunkoPops, useUserCollection } from '@/hooks/useFunkoPops';
-import { Music, MessageCircle, Twitter, Instagram, Video, ShoppingBag, ArrowLeft, ExternalLink } from 'lucide-react';
+import { useProfileActivities } from '@/hooks/useProfileActivities';
+import { Music, MessageCircle, Twitter, Instagram, Video, ShoppingBag, ArrowLeft, ExternalLink, Gamepad2 } from 'lucide-react';
 import CollectionGrid from '@/components/CollectionGrid';
 import CollectionInsights from '@/components/CollectionInsights';
+import ActivityFeed from '@/components/ActivityFeed';
+import GamingDashboard from '@/components/GamingDashboard';
 import { useState } from 'react';
 
 const Profile = () => {
@@ -15,6 +17,7 @@ const Profile = () => {
   const { profile, loading } = usePublicProfileByUsername(username || '');
   const { data: funkoPops = [] } = useFunkoPops();
   const { data: userCollection = [] } = useUserCollection(profile?.user_id);
+  const { activities, loading: activitiesLoading } = useProfileActivities(profile?.user_id);
   const [selectedItem, setSelectedItem] = useState(null);
 
   if (loading) {
@@ -113,6 +116,33 @@ const Profile = () => {
     }
   ].filter(link => link.value);
 
+  const gamingPlatforms = [
+    {
+      name: 'PlayStation',
+      value: profile.playstation_username,
+      icon: Gamepad2,
+      color: 'text-blue-600'
+    },
+    {
+      name: 'Xbox',
+      value: profile.xbox_gamertag,
+      icon: Gamepad2,
+      color: 'text-green-600'
+    },
+    {
+      name: 'Nintendo',
+      value: profile.nintendo_friend_code,
+      icon: Gamepad2,
+      color: 'text-red-500'
+    },
+    {
+      name: 'Steam',
+      value: profile.steam_username,
+      icon: Gamepad2,
+      color: 'text-gray-500'
+    }
+  ].filter(platform => platform.value);
+
   return (
     <div className="min-h-screen bg-gradient-to-br from-gray-900 via-gray-800 to-black">
       {/* Header */}
@@ -138,6 +168,7 @@ const Profile = () => {
       {/* Profile Section */}
       <section className="py-8 px-4">
         <div className="container mx-auto max-w-6xl">
+          {/* Profile Card */}
           <Card className="bg-gray-800/50 border-gray-700 mb-8">
             <CardHeader>
               <div className="flex items-start gap-6">
@@ -177,35 +208,82 @@ const Profile = () => {
               </div>
             </CardHeader>
             
-            {socialLinks.length > 0 && (
+            {/* Social & Gaming Links */}
+            {(socialLinks.length > 0 || gamingPlatforms.length > 0) && (
               <CardContent>
-                <h3 className="text-white font-semibold mb-4">Connect</h3>
-                <div className="grid grid-cols-2 md:grid-cols-3 gap-3">
-                  {socialLinks.map((link) => {
-                    const Icon = link.icon;
-                    return (
-                      <div key={link.name} className="flex items-center gap-2">
-                        <Icon className={`w-4 h-4 ${link.color}`} />
-                        {link.url ? (
-                          <a
-                            href={link.url}
-                            target="_blank"
-                            rel="noopener noreferrer"
-                            className="text-gray-300 hover:text-white flex items-center gap-1 text-sm"
-                          >
-                            {link.value}
-                            <ExternalLink className="w-3 h-3" />
-                          </a>
-                        ) : (
-                          <span className="text-gray-300 text-sm">{link.value}</span>
-                        )}
+                <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+                  {socialLinks.length > 0 && (
+                    <div>
+                      <h3 className="text-white font-semibold mb-4">Connect</h3>
+                      <div className="grid grid-cols-2 gap-3">
+                        {socialLinks.map((link) => {
+                          const Icon = link.icon;
+                          return (
+                            <div key={link.name} className="flex items-center gap-2">
+                              <Icon className={`w-4 h-4 ${link.color}`} />
+                              {link.url ? (
+                                <a
+                                  href={link.url}
+                                  target="_blank"
+                                  rel="noopener noreferrer"
+                                  className="text-gray-300 hover:text-white flex items-center gap-1 text-sm"
+                                >
+                                  {link.value}
+                                  <ExternalLink className="w-3 h-3" />
+                                </a>
+                              ) : (
+                                <span className="text-gray-300 text-sm">{link.value}</span>
+                              )}
+                            </div>
+                          );
+                        })}
                       </div>
-                    );
-                  })}
+                    </div>
+                  )}
+
+                  {gamingPlatforms.length > 0 && (
+                    <div>
+                      <h3 className="text-white font-semibold mb-4 flex items-center gap-2">
+                        <Gamepad2 className="w-4 h-4" />
+                        Gaming
+                      </h3>
+                      <div className="grid grid-cols-2 gap-3">
+                        {gamingPlatforms.map((platform) => {
+                          const Icon = platform.icon;
+                          return (
+                            <div key={platform.name} className="flex items-center gap-2">
+                              <Icon className={`w-4 h-4 ${platform.color}`} />
+                              <div className="flex-1 min-w-0">
+                                <p className="text-gray-300 text-sm">{platform.name}</p>
+                                <p className="text-gray-400 text-xs truncate">{platform.value}</p>
+                              </div>
+                            </div>
+                          );
+                        })}
+                      </div>
+                    </div>
+                  )}
                 </div>
               </CardContent>
             )}
           </Card>
+
+          {/* Activity Dashboard */}
+          <div className="grid grid-cols-1 lg:grid-cols-2 gap-6 mb-8">
+            {!activitiesLoading && activities.length > 0 && (
+              <ActivityFeed 
+                activities={activities} 
+                displayName={profile.display_name || profile.username || 'User'} 
+              />
+            )}
+            
+            {(profile.playstation_username || profile.xbox_gamertag || profile.nintendo_friend_code || profile.steam_username) && (
+              <GamingDashboard 
+                profile={profile} 
+                activities={activities} 
+              />
+            )}
+          </div>
 
           {/* Collection Insights */}
           {transformedItems.length > 0 && (

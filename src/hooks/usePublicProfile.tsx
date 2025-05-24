@@ -18,6 +18,10 @@ export interface PublicProfile {
   instagram_handle?: string;
   tiktok_handle?: string;
   ebay_store_url?: string;
+  playstation_username?: string;
+  xbox_gamertag?: string;
+  nintendo_friend_code?: string;
+  steam_username?: string;
   created_at: string;
   updated_at: string;
 }

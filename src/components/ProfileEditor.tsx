@@ -8,7 +8,7 @@ import { Textarea } from '@/components/ui/textarea';
 import { Switch } from '@/components/ui/switch';
 import { usePublicProfile } from '@/hooks/usePublicProfile';
 import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
-import { User, Music, MessageCircle, Twitter, Instagram, Video, ShoppingBag } from 'lucide-react';
+import { User, Music, MessageCircle, Twitter, Instagram, Video, ShoppingBag, Gamepad2 } from 'lucide-react';
 
 const ProfileEditor = () => {
   const { profile, loading, createProfile, updateProfile } = usePublicProfile();
@@ -24,6 +24,10 @@ const ProfileEditor = () => {
     instagram_handle: '',
     tiktok_handle: '',
     ebay_store_url: '',
+    playstation_username: '',
+    xbox_gamertag: '',
+    nintendo_friend_code: '',
+    steam_username: '',
   });
   const [isSubmitting, setIsSubmitting] = useState(false);
 
@@ -41,6 +45,10 @@ const ProfileEditor = () => {
         instagram_handle: profile.instagram_handle || '',
         tiktok_handle: profile.tiktok_handle || '',
         ebay_store_url: profile.ebay_store_url || '',
+        playstation_username: profile.playstation_username || '',
+        xbox_gamertag: profile.xbox_gamertag || '',
+        nintendo_friend_code: profile.nintendo_friend_code || '',
+        steam_username: profile.steam_username || '',
       });
     }
   }, [profile]);
@@ -237,6 +245,72 @@ const ProfileEditor = () => {
                   value={formData.ebay_store_url}
                   onChange={(e) => handleInputChange('ebay_store_url', e.target.value)}
                   placeholder="https://ebay.com/str/yourstore"
+                  className="bg-gray-700 border-gray-600 text-white"
+                />
+              </div>
+            </div>
+          </div>
+
+          {/* Gaming Platforms */}
+          <div className="space-y-4">
+            <h3 className="text-lg font-semibold text-white flex items-center gap-2">
+              <Gamepad2 className="w-5 h-5" />
+              Gaming Platforms
+            </h3>
+            
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+              <div>
+                <Label htmlFor="playstation_username" className="text-gray-300 flex items-center gap-2">
+                  <div className="w-4 h-4 bg-blue-600 rounded"></div>
+                  PlayStation ID
+                </Label>
+                <Input
+                  id="playstation_username"
+                  value={formData.playstation_username}
+                  onChange={(e) => handleInputChange('playstation_username', e.target.value)}
+                  placeholder="your_psn_id"
+                  className="bg-gray-700 border-gray-600 text-white"
+                />
+              </div>
+
+              <div>
+                <Label htmlFor="xbox_gamertag" className="text-gray-300 flex items-center gap-2">
+                  <div className="w-4 h-4 bg-green-600 rounded"></div>
+                  Xbox Gamertag
+                </Label>
+                <Input
+                  id="xbox_gamertag"
+                  value={formData.xbox_gamertag}
+                  onChange={(e) => handleInputChange('xbox_gamertag', e.target.value)}
+                  placeholder="YourGamertag"
+                  className="bg-gray-700 border-gray-600 text-white"
+                />
+              </div>
+
+              <div>
+                <Label htmlFor="nintendo_friend_code" className="text-gray-300 flex items-center gap-2">
+                  <div className="w-4 h-4 bg-red-500 rounded"></div>
+                  Nintendo Friend Code
+                </Label>
+                <Input
+                  id="nintendo_friend_code"
+                  value={formData.nintendo_friend_code}
+                  onChange={(e) => handleInputChange('nintendo_friend_code', e.target.value)}
+                  placeholder="SW-1234-5678-9012"
+                  className="bg-gray-700 border-gray-600 text-white"
+                />
+              </div>
+
+              <div>
+                <Label htmlFor="steam_username" className="text-gray-300 flex items-center gap-2">
+                  <div className="w-4 h-4 bg-gray-700 rounded"></div>
+                  Steam Username
+                </Label>
+                <Input
+                  id="steam_username"
+                  value={formData.steam_username}
+                  onChange={(e) => handleInputChange('steam_username', e.target.value)}
+                  placeholder="steamusername"
                   className="bg-gray-700 border-gray-600 text-white"
                 />
               </div>

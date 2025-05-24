@@ -129,6 +129,54 @@ export type Database = {
           },
         ]
       }
+      profile_activities: {
+        Row: {
+          activity_type: string
+          created_at: string
+          details: Json | null
+          ended_at: string | null
+          id: string
+          image_url: string | null
+          is_current: boolean | null
+          platform: string
+          started_at: string | null
+          subtitle: string | null
+          title: string
+          updated_at: string
+          user_id: string
+        }
+        Insert: {
+          activity_type: string
+          created_at?: string
+          details?: Json | null
+          ended_at?: string | null
+          id?: string
+          image_url?: string | null
+          is_current?: boolean | null
+          platform: string
+          started_at?: string | null
+          subtitle?: string | null
+          title: string
+          updated_at?: string
+          user_id: string
+        }
+        Update: {
+          activity_type?: string
+          created_at?: string
+          details?: Json | null
+          ended_at?: string | null
+          id?: string
+          image_url?: string | null
+          is_current?: boolean | null
+          platform?: string
+          started_at?: string | null
+          subtitle?: string | null
+          title?: string
+          updated_at?: string
+          user_id?: string
+        }
+        Relationships: []
+      }
       profiles: {
         Row: {
           avatar_url: string | null
@@ -167,12 +215,16 @@ export type Database = {
           id: string
           instagram_handle: string | null
           is_public: boolean
+          nintendo_friend_code: string | null
+          playstation_username: string | null
           spotify_username: string | null
+          steam_username: string | null
           tiktok_handle: string | null
           twitter_handle: string | null
           updated_at: string
           user_id: string
           username: string | null
+          xbox_gamertag: string | null
         }
         Insert: {
           avatar_url?: string | null
@@ -184,12 +236,16 @@ export type Database = {
           id?: string
           instagram_handle?: string | null
           is_public?: boolean
+          nintendo_friend_code?: string | null
+          playstation_username?: string | null
           spotify_username?: string | null
+          steam_username?: string | null
           tiktok_handle?: string | null
           twitter_handle?: string | null
           updated_at?: string
           user_id: string
           username?: string | null
+          xbox_gamertag?: string | null
         }
         Update: {
           avatar_url?: string | null
@@ -201,12 +257,16 @@ export type Database = {
           id?: string
           instagram_handle?: string | null
           is_public?: boolean
+          nintendo_friend_code?: string | null
+          playstation_username?: string | null
           spotify_username?: string | null
+          steam_username?: string | null
           tiktok_handle?: string | null
           twitter_handle?: string | null
           updated_at?: string
           user_id?: string
           username?: string | null
+          xbox_gamertag?: string | null
         }
         Relationships: []
       }
