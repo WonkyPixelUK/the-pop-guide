@@ -3,10 +3,13 @@ import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
 import { useStartScraping, useScrapingJobs } from '@/hooks/usePriceScraping';
-import { RefreshCw, Play, Clock, CheckCircle, XCircle, AlertCircle, Zap } from 'lucide-react';
+import { useFunkoPops } from '@/hooks/useFunkoPops';
+import { RefreshCw, Play, Clock, CheckCircle, XCircle, AlertCircle, Zap, Database, TrendingUp } from 'lucide-react';
+import DataImportManager from './DataImportManager';
 
 const ScrapingManager = () => {
   const { data: jobs, isLoading: jobsLoading } = useScrapingJobs();
+  const { data: funkoPops } = useFunkoPops();
   const startScraping = useStartScraping();
 
   const getStatusIcon = (status: string) => {
@@ -44,8 +47,39 @@ const ScrapingManager = () => {
     return acc;
   }, {} as Record<string, number>) || {};
 
+  const currentFunkoCount = funkoPops?.length || 0;
+
   return (
     <div className="space-y-6">
+      {/* Database Expansion Section */}
+      {currentFunkoCount < 50 && (
+        <Card className="border-blue-200 bg-blue-50">
+          <CardHeader>
+            <CardTitle className="flex items-center gap-2 text-blue-800">
+              <Database className="w-5 h-5" />
+              Expand Your Database
+            </CardTitle>
+          </CardHeader>
+          <CardContent>
+            <div className="flex items-center justify-between">
+              <div>
+                <p className="text-blue-700 mb-2">
+                  Your database currently has only {currentFunkoCount} Funko Pops. Import thousands more to unlock the full potential of your collection tracker!
+                </p>
+                <div className="flex items-center gap-2 text-sm text-blue-600">
+                  <TrendingUp className="w-4 h-4" />
+                  <span>More data = Better pricing insights and collection analytics</span>
+                </div>
+              </div>
+            </div>
+          </CardContent>
+        </Card>
+      )}
+
+      {/* Data Import Manager */}
+      <DataImportManager />
+
+      {/* Original Scraping Manager Content */}
       <Card>
         <CardHeader>
           <CardTitle className="flex items-center justify-between">
