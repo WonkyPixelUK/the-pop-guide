@@ -62,7 +62,7 @@ const StickerEducation = () => {
                 <li>• <strong>Exclusivity:</strong> Limited production runs at specific events or stores</li>
                 <li>• <strong>Authenticity:</strong> Proves the Pop is genuine and from the exclusive release</li>
                 <li>• <strong>Collectibility:</strong> Stickers significantly increase desirability and value</li>
-                <li>• <strong>Condition:</strong> Sticker condition affects pricing (mint > good > damaged)</li>
+                <li>• <strong>Condition:</strong> Sticker condition affects pricing (mint {'>'}  good {'>'}  damaged)</li>
               </ul>
             </div>
             <div>
