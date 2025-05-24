@@ -1,9 +1,14 @@
 
 import { Card, CardContent } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
+import { Button } from "@/components/ui/button";
+import { Plus, Minus } from "lucide-react";
+import { useAuth } from "@/hooks/useAuth";
+import { useAddToCollection, useRemoveFromCollection } from "@/hooks/useFunkoPops";
+import { useToast } from "@/hooks/use-toast";
 
 interface CollectionItem {
-  id: number;
+  id: string;
   name: string;
   series: string;
   number: string;
@@ -11,19 +16,33 @@ interface CollectionItem {
   value: number;
   rarity: string;
   owned: boolean;
+  condition?: string;
+  purchase_price?: number;
 }
 
 interface CollectionGridProps {
   items: CollectionItem[];
   onItemClick: (item: CollectionItem) => void;
   searchQuery: string;
+  showWishlistOnly?: boolean;
 }
 
-const CollectionGrid = ({ items, onItemClick, searchQuery }: CollectionGridProps) => {
-  const filteredItems = items.filter(item =>
-    item.name.toLowerCase().includes(searchQuery.toLowerCase()) ||
-    item.series.toLowerCase().includes(searchQuery.toLowerCase())
-  );
+const CollectionGrid = ({ items, onItemClick, searchQuery, showWishlistOnly = false }: CollectionGridProps) => {
+  const { user } = useAuth();
+  const { toast } = useToast();
+  const addToCollection = useAddToCollection();
+  const removeFromCollection = useRemoveFromCollection();
+
+  const filteredItems = items.filter(item => {
+    const matchesSearch = item.name.toLowerCase().includes(searchQuery.toLowerCase()) ||
+      item.series.toLowerCase().includes(searchQuery.toLowerCase());
+    
+    if (showWishlistOnly) {
+      return matchesSearch && !item.owned;
+    }
+    
+    return matchesSearch;
+  });
 
   const getRarityColor = (rarity: string) => {
     switch (rarity.toLowerCase()) {
@@ -35,6 +54,57 @@ const CollectionGrid = ({ items, onItemClick, searchQuery }: CollectionGridProps
         return 'bg-red-500/20 text-red-300 border-red-500/30';
       default:
         return 'bg-gray-500/20 text-gray-300 border-gray-500/30';
+    }
+  };
+
+  const handleAddToCollection = async (item: CollectionItem, e: React.MouseEvent) => {
+    e.stopPropagation();
+    if (!user) {
+      toast({
+        title: "Sign in required",
+        description: "Please sign in to add items to your collection",
+        variant: "destructive",
+      });
+      return;
+    }
+
+    try {
+      await addToCollection.mutateAsync({
+        funkoPopId: item.id,
+        userId: user.id,
+      });
+      toast({
+        title: "Added to collection",
+        description: `${item.name} has been added to your collection`,
+      });
+    } catch (error) {
+      toast({
+        title: "Error",
+        description: "Failed to add item to collection",
+        variant: "destructive",
+      });
+    }
+  };
+
+  const handleRemoveFromCollection = async (item: CollectionItem, e: React.MouseEvent) => {
+    e.stopPropagation();
+    if (!user) return;
+
+    try {
+      await removeFromCollection.mutateAsync({
+        funkoPopId: item.id,
+        userId: user.id,
+      });
+      toast({
+        title: "Removed from collection",
+        description: `${item.name} has been removed from your collection`,
+      });
+    } catch (error) {
+      toast({
+        title: "Error",
+        description: "Failed to remove item from collection",
+        variant: "destructive",
+      });
     }
   };
 
@@ -65,10 +135,28 @@ const CollectionGrid = ({ items, onItemClick, searchQuery }: CollectionGridProps
             <div className="space-y-2">
               <div className="flex items-start justify-between">
                 <h3 className="font-semibold text-white text-sm leading-tight">{item.name}</h3>
-                {!item.owned && (
-                  <Badge variant="outline" className="text-xs text-gray-400 border-gray-600">
-                    Wishlist
-                  </Badge>
+                {user && (
+                  <div className="flex items-center space-x-1">
+                    {item.owned ? (
+                      <Button
+                        size="sm"
+                        variant="outline"
+                        className="h-6 w-6 p-0 border-red-500 text-red-500 hover:bg-red-500 hover:text-white"
+                        onClick={(e) => handleRemoveFromCollection(item, e)}
+                      >
+                        <Minus className="w-3 h-3" />
+                      </Button>
+                    ) : (
+                      <Button
+                        size="sm"
+                        variant="outline"
+                        className="h-6 w-6 p-0 border-green-500 text-green-500 hover:bg-green-500 hover:text-white"
+                        onClick={(e) => handleAddToCollection(item, e)}
+                      >
+                        <Plus className="w-3 h-3" />
+                      </Button>
+                    )}
+                  </div>
                 )}
               </div>
               
@@ -82,6 +170,10 @@ const CollectionGrid = ({ items, onItemClick, searchQuery }: CollectionGridProps
                   ${item.value.toFixed(2)}
                 </span>
               </div>
+
+              {item.owned && item.condition && (
+                <p className="text-xs text-gray-500">Condition: {item.condition}</p>
+              )}
             </div>
           </CardContent>
         </Card>
