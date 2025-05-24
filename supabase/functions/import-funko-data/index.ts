@@ -1,4 +1,3 @@
-
 import { serve } from "https://deno.land/std@0.168.0/http/server.ts"
 import { createClient } from 'https://esm.sh/@supabase/supabase-js@2'
 
@@ -17,7 +16,7 @@ interface FunkoData {
   [key: string]: any;
 }
 
-// Sample data to use if GitHub source is unavailable
+// Expanded sample data with more variety
 const sampleFunkoData: FunkoData[] = [
   {
     name: "Spider-Man",
@@ -44,18 +43,58 @@ const sampleFunkoData: FunkoData[] = [
     vaulted: false
   },
   {
-    name: "The Joker",
+    name: "Wonder Woman",
     series: "DC Comics",
+    number: "3",
+    exclusive: "SDCC",
+    image: "",
+    vaulted: false
+  },
+  {
+    name: "Captain America",
+    series: "Marvel",
     number: "6",
     exclusive: "",
     image: "",
     vaulted: true
   },
   {
-    name: "Iron Man",
+    name: "Harley Quinn",
+    series: "DC Comics",
+    number: "12",
+    exclusive: "Hot Topic",
+    image: "",
+    vaulted: false
+  },
+  {
+    name: "Thor",
     series: "Marvel",
-    number: "4",
-    exclusive: "SDCC",
+    number: "8",
+    exclusive: "Funko Shop",
+    image: "",
+    vaulted: false
+  },
+  {
+    name: "The Flash",
+    series: "DC Comics",
+    number: "10",
+    exclusive: "",
+    image: "",
+    vaulted: false
+  },
+  {
+    name: "Wolverine",
+    series: "Marvel",
+    number: "05",
+    exclusive: "X-Men",
+    image: "",
+    vaulted: true
+  },
+  {
+    name: "Aquaman",
+    series: "DC Comics",
+    number: "87",
+    exclusive: "",
     image: "",
     vaulted: false
   }
@@ -75,23 +114,25 @@ serve(async (req) => {
 
     console.log('Starting Funko Pop data import...');
 
-    // Updated URLs based on common repository patterns
+    // More comprehensive list of URLs to try, based on common GitHub patterns
     const possibleUrls = [
-      // Most likely correct paths based on repository naming patterns
-      'https://raw.githubusercontent.com/kennymkchan/funko-pop-data/master/data.json',
-      'https://raw.githubusercontent.com/kennymkchan/funko-pop-data/main/data.json',
+      // Try the repository we know exists - different possible file names
+      'https://raw.githubusercontent.com/kennymkchan/funko-pop-data/master/data/funkos.json',
+      'https://raw.githubusercontent.com/kennymkchan/funko-pop-data/main/data/funkos.json',
       'https://raw.githubusercontent.com/kennymkchan/funko-pop-data/master/funkos.json',
       'https://raw.githubusercontent.com/kennymkchan/funko-pop-data/main/funkos.json',
+      'https://raw.githubusercontent.com/kennymkchan/funko-pop-data/master/data.json',
+      'https://raw.githubusercontent.com/kennymkchan/funko-pop-data/main/data.json',
       'https://raw.githubusercontent.com/kennymkchan/funko-pop-data/master/funko-data.json',
       'https://raw.githubusercontent.com/kennymkchan/funko-pop-data/main/funko-data.json',
-      // Try with subdirectories
-      'https://raw.githubusercontent.com/kennymkchan/funko-pop-data/master/data/data.json',
-      'https://raw.githubusercontent.com/kennymkchan/funko-pop-data/main/data/data.json',
-      'https://raw.githubusercontent.com/kennymkchan/funko-pop-data/master/src/data.json',
-      'https://raw.githubusercontent.com/kennymkchan/funko-pop-data/main/src/data.json',
-      // Alternative repositories as backup
-      'https://raw.githubusercontent.com/funko-pop-database/funko-pops/main/data.json',
-      'https://raw.githubusercontent.com/funko-pop-database/funko-pops/master/data.json'
+      // Try exploring subdirectories
+      'https://raw.githubusercontent.com/kennymkchan/funko-pop-data/master/src/data/funkos.json',
+      'https://raw.githubusercontent.com/kennymkchan/funko-pop-data/main/src/data/funkos.json',
+      'https://raw.githubusercontent.com/kennymkchan/funko-pop-data/master/dataset/funkos.json',
+      'https://raw.githubusercontent.com/kennymkchan/funko-pop-data/main/dataset/funkos.json',
+      // Alternative repos
+      'https://raw.githubusercontent.com/funko-pops/database/main/data.json',
+      'https://raw.githubusercontent.com/funko-collector/data/master/funkos.json'
     ];
 
     let rawData: FunkoData[] = [];
@@ -101,45 +142,57 @@ serve(async (req) => {
     // Try each URL until one works
     for (const url of possibleUrls) {
       try {
-        console.log(`Attempting to fetch from: ${url}`);
+        console.log(`🔍 Attempting to fetch from: ${url}`);
         const response = await fetch(url);
         
-        console.log(`Response status: ${response.status} ${response.statusText}`);
+        console.log(`📊 Response status: ${response.status} ${response.statusText}`);
         
         if (response.ok) {
-          const contentType = response.headers.get('content-type');
-          console.log(`Content-Type: ${contentType}`);
+          const contentType = response.headers.get('content-type') || '';
+          console.log(`📄 Content-Type: ${contentType}`);
           
           const responseText = await response.text();
-          console.log(`Response text length: ${responseText.length}`);
-          console.log(`First 200 chars: ${responseText.substring(0, 200)}`);
+          console.log(`📏 Response text length: ${responseText.length}`);
+          
+          if (responseText.length < 200) {
+            console.log(`📝 Full response text: ${responseText}`);
+          } else {
+            console.log(`📝 First 300 chars: ${responseText.substring(0, 300)}`);
+          }
           
           try {
             const data = JSON.parse(responseText);
-            console.log(`Parsed data type: ${typeof data}`);
-            console.log(`Is array: ${Array.isArray(data)}`);
+            console.log(`🔧 Parsed data type: ${typeof data}`);
+            console.log(`📋 Is array: ${Array.isArray(data)}`);
             
-            if (Array.isArray(data)) {
-              console.log(`Array length: ${data.length}`);
-              if (data.length > 0) {
-                console.log(`First item keys: ${Object.keys(data[0]).join(', ')}`);
-                rawData = data;
-                successfulUrl = url;
-                console.log(`✅ Successfully fetched ${rawData.length} records from: ${url}`);
-                break;
-              }
+            if (Array.isArray(data) && data.length > 0) {
+              console.log(`📊 Array length: ${data.length}`);
+              console.log(`🔑 First item keys: ${Object.keys(data[0]).join(', ')}`);
+              console.log(`📄 First item sample:`, JSON.stringify(data[0], null, 2));
+              
+              rawData = data;
+              successfulUrl = url;
+              console.log(`✅ Successfully fetched ${rawData.length} records from: ${url}`);
+              break;
             } else if (data && typeof data === 'object') {
-              // Check if it's an object with a data property
-              if (data.data && Array.isArray(data.data)) {
-                console.log(`Found data array in object, length: ${data.data.length}`);
-                rawData = data.data;
-                successfulUrl = url;
-                console.log(`✅ Successfully fetched ${rawData.length} records from data property: ${url}`);
-                break;
+              // Check for common data wrapper patterns
+              const possibleDataKeys = ['data', 'items', 'funkos', 'results', 'pops'];
+              for (const key of possibleDataKeys) {
+                if (data[key] && Array.isArray(data[key]) && data[key].length > 0) {
+                  console.log(`📊 Found data array in '${key}' property, length: ${data[key].length}`);
+                  console.log(`🔑 First item keys: ${Object.keys(data[key][0]).join(', ')}`);
+                  rawData = data[key];
+                  successfulUrl = url;
+                  console.log(`✅ Successfully fetched ${rawData.length} records from ${key} property: ${url}`);
+                  break;
+                }
               }
+              if (rawData.length > 0) break;
             }
+            
+            console.log(`⚠️ Data found but not in expected format for ${url}`);
           } catch (parseError) {
-            console.log(`JSON parse error for ${url}:`, parseError.message);
+            console.log(`❌ JSON parse error for ${url}:`, parseError.message);
           }
         } else {
           console.log(`❌ HTTP ${response.status}: ${response.statusText} for ${url}`);
@@ -150,12 +203,29 @@ serve(async (req) => {
       }
     }
 
-    // If no URLs worked, use sample data
+    // If no URLs worked, use expanded sample data
     if (rawData.length === 0) {
-      console.log('⚠️ No external data source available, using sample data');
+      console.log('⚠️ No external data source available, using expanded sample data');
       rawData = sampleFunkoData;
       usedSampleData = true;
-      successfulUrl = 'Sample Data';
+      successfulUrl = 'Expanded Sample Data';
+    }
+
+    // Check what's currently in the database for debugging
+    const { data: existingPops, error: existingError } = await supabase
+      .from('funko_pops')
+      .select('name, series, number')
+      .limit(10);
+
+    if (existingError) {
+      console.error('Error fetching existing pops:', existingError);
+    } else {
+      console.log(`📚 Current database has ${existingPops?.length || 0} records (showing first 10)`);
+      if (existingPops && existingPops.length > 0) {
+        existingPops.forEach((pop, index) => {
+          console.log(`  ${index + 1}. ${pop.name} - ${pop.series} #${pop.number || 'N/A'}`);
+        });
+      }
     }
 
     // Transform and filter data
@@ -185,22 +255,32 @@ serve(async (req) => {
       };
     });
 
+    console.log(`🔄 Transformed ${transformedData.length} records`);
+
     // Check for existing records to avoid duplicates
-    const { data: existingPops } = await supabase
+    const { data: allExistingPops } = await supabase
       .from('funko_pops')
       .select('name, series, number');
 
     const existingKeys = new Set(
-      existingPops?.map(pop => `${pop.name}-${pop.series}-${pop.number || 'null'}`) || []
+      allExistingPops?.map(pop => `${pop.name}-${pop.series}-${pop.number || 'null'}`) || []
     );
 
-    // Filter out duplicates
+    console.log(`🔍 Found ${existingKeys.size} existing unique combinations in database`);
+
+    // Filter out duplicates and log what we're checking
     const newRecords = transformedData.filter(record => {
       const key = `${record.name}-${record.series}-${record.number || 'null'}`;
-      return !existingKeys.has(key);
+      const isDuplicate = existingKeys.has(key);
+      if (isDuplicate) {
+        console.log(`⏭️ Skipping duplicate: ${key}`);
+      } else {
+        console.log(`✨ New record: ${key}`);
+      }
+      return !isDuplicate;
     });
 
-    console.log(`Found ${newRecords.length} new records to import`);
+    console.log(`📊 Found ${newRecords.length} new records to import out of ${transformedData.length} total`);
 
     let importedCount = 0;
     let errorCount = 0;
@@ -216,14 +296,14 @@ serve(async (req) => {
           .insert(batch);
 
         if (error) {
-          console.error(`Batch error:`, error);
+          console.error(`❌ Batch error:`, error);
           errorCount += batch.length;
         } else {
           importedCount += batch.length;
-          console.log(`Imported batch ${Math.floor(i / batchSize) + 1}, total: ${importedCount}`);
+          console.log(`✅ Imported batch ${Math.floor(i / batchSize) + 1}, total: ${importedCount}`);
         }
       } catch (batchError) {
-        console.error(`Batch ${Math.floor(i / batchSize) + 1} failed:`, batchError);
+        console.error(`❌ Batch ${Math.floor(i / batchSize) + 1} failed:`, batchError);
         errorCount += batch.length;
       }
     }
@@ -256,7 +336,7 @@ serve(async (req) => {
           await supabase.from('scraping_jobs').insert(jobBatch);
         }
 
-        console.log(`Created ${scrapingJobs.length} scraping jobs`);
+        console.log(`🎯 Created ${scrapingJobs.length} scraping jobs`);
       }
     }
 
@@ -268,13 +348,18 @@ serve(async (req) => {
       errors: errorCount,
       duplicatesSkipped: transformedData.length - newRecords.length,
       message: usedSampleData 
-        ? `Successfully imported ${importedCount} sample Funko Pops (external data source unavailable)`
+        ? `Successfully imported ${importedCount} new Funko Pops using expanded sample data (external source unavailable)`
         : `Successfully imported ${importedCount} new Funko Pops from ${successfulUrl}`,
       dataSource: successfulUrl,
-      usedSampleData
+      usedSampleData,
+      debugInfo: {
+        existingDatabaseSize: allExistingPops?.length || 0,
+        attempedUrls: possibleUrls.length,
+        dataFormat: rawData.length > 0 ? Object.keys(rawData[0]) : []
+      }
     };
 
-    console.log('Import completed:', result);
+    console.log('📋 Import completed:', result);
 
     return new Response(
       JSON.stringify(result),
@@ -285,7 +370,7 @@ serve(async (req) => {
     );
 
   } catch (error) {
-    console.error('Import failed:', error);
+    console.error('💥 Import failed:', error);
     
     return new Response(
       JSON.stringify({ 
