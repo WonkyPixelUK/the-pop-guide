@@ -1,4 +1,5 @@
 
+
 import { serve } from "https://deno.land/std@0.190.0/http/server.ts";
 import { Resend } from "npm:resend@2.0.0";
 
@@ -37,7 +38,7 @@ const handler = async (req: Request): Promise<Response> => {
           html: `
             <div style="font-family: Arial, sans-serif; max-width: 600px; margin: 0 auto;">
               <div style="background: linear-gradient(135deg, #1f2937, #111827); padding: 40px; text-align: center;">
-                <img src="https://Maintainhq-pull-zone.b-cdn.net/02_the_pop_guide/pop-guide-logo-trans-white.svg" alt="PopGuide" style="height: 80px; margin-bottom: 20px;">
+                <img src="https://Maintainhq-pull-zone.b-cdn.net/02_the_pop_guide/pop-guide-logo-trans-white.svg" alt="PopGuide" style="height: 100px; margin-bottom: 20px;">
                 <h1 style="color: #f97316; font-size: 28px; margin: 0;">Confirm Your Account</h1>
               </div>
               <div style="padding: 40px; background: #ffffff;">
@@ -69,7 +70,7 @@ const handler = async (req: Request): Promise<Response> => {
           html: `
             <div style="font-family: Arial, sans-serif; max-width: 600px; margin: 0 auto;">
               <div style="background: linear-gradient(135deg, #1f2937, #111827); padding: 40px; text-align: center;">
-                <img src="https://Maintainhq-pull-zone.b-cdn.net/02_the_pop_guide/pop-guide-logo-trans-white.svg" alt="PopGuide" style="height: 80px; margin-bottom: 20px;">
+                <img src="https://Maintainhq-pull-zone.b-cdn.net/02_the_pop_guide/pop-guide-logo-trans-white.svg" alt="PopGuide" style="height: 100px; margin-bottom: 20px;">
                 <h1 style="color: #f97316; font-size: 32px; margin: 0;">PopGuide</h1>
                 <p style="color: #d1d5db; font-size: 18px; margin: 10px 0 0 0;">Your Ultimate Funko Pop Collection Manager</p>
               </div>
@@ -132,7 +133,7 @@ const handler = async (req: Request): Promise<Response> => {
           html: `
             <div style="font-family: Arial, sans-serif; max-width: 600px; margin: 0 auto;">
               <div style="background: linear-gradient(135deg, #1f2937, #111827); padding: 30px; text-align: center;">
-                <img src="https://Maintainhq-pull-zone.b-cdn.net/02_the_pop_guide/pop-guide-logo-trans-white.svg" alt="PopGuide" style="height: 60px; margin-bottom: 10px;">
+                <img src="https://Maintainhq-pull-zone.b-cdn.net/02_the_pop_guide/pop-guide-logo-trans-white.svg" alt="PopGuide" style="height: 80px; margin-bottom: 10px;">
                 <h1 style="color: #f97316; font-size: 28px; margin: 0;">PopGuide</h1>
               </div>
               <div style="padding: 30px; background: #ffffff;">
@@ -163,7 +164,7 @@ const handler = async (req: Request): Promise<Response> => {
           html: `
             <div style="font-family: Arial, sans-serif; max-width: 600px; margin: 0 auto;">
               <div style="background: linear-gradient(135deg, #1f2937, #111827); padding: 40px; text-align: center;">
-                <img src="https://Maintainhq-pull-zone.b-cdn.net/02_the_pop_guide/pop-guide-logo-trans-white.svg" alt="PopGuide" style="height: 80px; margin-bottom: 20px;">
+                <img src="https://Maintainhq-pull-zone.b-cdn.net/02_the_pop_guide/pop-guide-logo-trans-white.svg" alt="PopGuide" style="height: 100px; margin-bottom: 20px;">
                 <h1 style="color: #f97316; font-size: 32px; margin: 0;">🎉 Milestone Reached!</h1>
               </div>
               <div style="padding: 40px; background: #ffffff; text-align: center;">
@@ -212,3 +213,4 @@ const handler = async (req: Request): Promise<Response> => {
 };
 
 serve(handler);
+

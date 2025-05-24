@@ -14,7 +14,7 @@ const Landing = () => {
               <img 
                 src="https://Maintainhq-pull-zone.b-cdn.net/02_the_pop_guide/pop-guide-logo-trans-white.svg" 
                 alt="PopGuide Logo" 
-                className="h-16 w-auto"
+                className="h-24 w-auto"
               />
             </div>
             <nav className="hidden md:flex items-center space-x-6">
@@ -213,7 +213,7 @@ const Landing = () => {
               <img 
                 src="https://Maintainhq-pull-zone.b-cdn.net/02_the_pop_guide/pop-guide-logo-trans-white.svg" 
                 alt="PopGuide Logo" 
-                className="h-12 w-auto mb-4"
+                className="h-16 w-auto mb-4"
               />
               <p className="text-gray-400">
                 The ultimate platform for Funko Pop collectors to track, value, and showcase their collections.
