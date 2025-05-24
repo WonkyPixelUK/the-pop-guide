@@ -1,4 +1,3 @@
-
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import { supabase } from '@/integrations/supabase/client';
 import { useAuth } from './useAuth';
@@ -51,7 +50,24 @@ export const useCustomLists = () => {
         .eq('is_public', true)
         .order('created_at', { ascending: false });
       
-      if (error) throw error;
+      if (error) {
+        console.log('Error fetching public lists:', error);
+        // Fallback query without profiles join if the foreign key doesn't exist
+        const { data: fallbackData, error: fallbackError } = await supabase
+          .from('custom_lists')
+          .select(`
+            *,
+            list_items (
+              id,
+              funko_pops (*)
+            )
+          `)
+          .eq('is_public', true)
+          .order('created_at', { ascending: false });
+        
+        if (fallbackError) throw fallbackError;
+        return fallbackData;
+      }
       return data;
     },
   });
@@ -215,7 +231,24 @@ export const useListById = (listId: string) => {
         .eq('id', listId)
         .single();
       
-      if (error) throw error;
+      if (error) {
+        console.log('Error fetching list with profiles:', error);
+        // Fallback query without profiles join
+        const { data: fallbackData, error: fallbackError } = await supabase
+          .from('custom_lists')
+          .select(`
+            *,
+            list_items (
+              id,
+              funko_pops (*)
+            )
+          `)
+          .eq('id', listId)
+          .single();
+        
+        if (fallbackError) throw fallbackError;
+        return fallbackData;
+      }
       return data;
     },
     enabled: !!listId,
