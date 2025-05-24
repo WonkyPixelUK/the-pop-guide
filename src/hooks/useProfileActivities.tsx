@@ -6,8 +6,8 @@ import { useAuth } from './useAuth';
 export interface ProfileActivity {
   id: string;
   user_id: string;
-  activity_type: 'listening' | 'playing' | 'achievement';
-  platform: 'spotify' | 'playstation' | 'xbox' | 'nintendo' | 'steam';
+  activity_type: string; // Changed from union type to string for flexibility
+  platform: string; // Changed from union type to string for flexibility
   title: string;
   subtitle?: string;
   image_url?: string;
