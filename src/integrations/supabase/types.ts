@@ -42,6 +42,7 @@ export type Database = {
       funko_pops: {
         Row: {
           average_price_30d: number | null
+          base_estimated_value: number | null
           created_at: string
           data_sources: string[] | null
           description: string | null
@@ -51,6 +52,7 @@ export type Database = {
           image_url: string | null
           is_chase: boolean | null
           is_exclusive: boolean | null
+          is_stickered: boolean | null
           is_vaulted: boolean | null
           last_price_update: string | null
           name: string
@@ -58,11 +60,15 @@ export type Database = {
           price_trend: string | null
           release_date: string | null
           series: string
+          sticker_condition: string | null
+          sticker_multiplier: number | null
+          sticker_type: string | null
           updated_at: string
           variant: string | null
         }
         Insert: {
           average_price_30d?: number | null
+          base_estimated_value?: number | null
           created_at?: string
           data_sources?: string[] | null
           description?: string | null
@@ -72,6 +78,7 @@ export type Database = {
           image_url?: string | null
           is_chase?: boolean | null
           is_exclusive?: boolean | null
+          is_stickered?: boolean | null
           is_vaulted?: boolean | null
           last_price_update?: string | null
           name: string
@@ -79,11 +86,15 @@ export type Database = {
           price_trend?: string | null
           release_date?: string | null
           series: string
+          sticker_condition?: string | null
+          sticker_multiplier?: number | null
+          sticker_type?: string | null
           updated_at?: string
           variant?: string | null
         }
         Update: {
           average_price_30d?: number | null
+          base_estimated_value?: number | null
           created_at?: string
           data_sources?: string[] | null
           description?: string | null
@@ -93,6 +104,7 @@ export type Database = {
           image_url?: string | null
           is_chase?: boolean | null
           is_exclusive?: boolean | null
+          is_stickered?: boolean | null
           is_vaulted?: boolean | null
           last_price_update?: string | null
           name?: string
@@ -100,6 +112,9 @@ export type Database = {
           price_trend?: string | null
           release_date?: string | null
           series?: string
+          sticker_condition?: string | null
+          sticker_multiplier?: number | null
+          sticker_type?: string | null
           updated_at?: string
           variant?: string | null
         }
@@ -456,6 +471,14 @@ export type Database = {
     Functions: {
       calculate_average_price: {
         Args: { pop_id: string; days_back?: number }
+        Returns: number
+      }
+      calculate_sticker_aware_price: {
+        Args: { pop_id: string; days_back?: number }
+        Returns: number
+      }
+      get_sticker_multiplier: {
+        Args: { sticker_type: string }
         Returns: number
       }
       update_funko_pricing: {

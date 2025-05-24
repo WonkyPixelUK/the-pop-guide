@@ -16,10 +16,13 @@ import {
   Database,
   TrendingUp,
   Activity,
-  Zap
+  Zap,
+  BookOpen
 } from 'lucide-react';
 import Navigation from '@/components/Navigation';
 import FunkoPopTable from '@/components/FunkoPopTable';
+import StickerEducation from '@/components/StickerEducation';
+import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 
 const ScrapingStatus = () => {
   const { data: jobs, isLoading: jobsLoading } = useScrapingJobs();
@@ -83,7 +86,7 @@ const ScrapingStatus = () => {
         <div className="mb-8">
           <h1 className="text-4xl font-bold tracking-tight">Scraping Status</h1>
           <p className="text-muted-foreground mt-2">
-            Monitor price scraping operations and system performance
+            Monitor price scraping operations with advanced sticker detection and valuation
           </p>
         </div>
 
@@ -134,159 +137,176 @@ const ScrapingStatus = () => {
           </Card>
         </div>
 
-        <div className="grid grid-cols-1 lg:grid-cols-2 gap-8 mb-8">
-          {/* Control Panel */}
-          <Card>
-            <CardHeader>
-              <CardTitle className="flex items-center gap-2">
-                <BarChart3 className="w-5 h-5" />
-                Scraping Controls
-              </CardTitle>
-            </CardHeader>
-            <CardContent className="space-y-4">
-              <div className="p-4 bg-blue-50 rounded-lg border border-blue-200">
-                <h3 className="font-medium text-blue-900 mb-2">Next Scheduled Run</h3>
-                <div className="flex items-center gap-2 text-blue-700">
-                  <Calendar className="w-4 h-4" />
-                  <span className="text-sm">Every 6 hours (automatic)</span>
-                </div>
-              </div>
+        <Tabs defaultValue="database" className="space-y-8">
+          <TabsList className="grid w-full grid-cols-4">
+            <TabsTrigger value="database">Database & Scraping</TabsTrigger>
+            <TabsTrigger value="controls">Controls & Stats</TabsTrigger>
+            <TabsTrigger value="education">Sticker Guide</TabsTrigger>
+            <TabsTrigger value="activity">Recent Activity</TabsTrigger>
+          </TabsList>
 
-              <div className="grid grid-cols-1 gap-3">
-                <Button 
-                  onClick={() => startScraping.mutate()}
-                  disabled={startScraping.isPending}
-                  className="w-full flex items-center gap-2"
-                  size="lg"
-                >
-                  <Play className="w-4 h-4" />
-                  {startScraping.isPending ? 'Starting Bulk Scraping...' : 'Start Bulk Scraping Now'}
-                </Button>
+          <TabsContent value="database" className="space-y-8">
+            <Card>
+              <CardHeader>
+                <CardTitle>Database Contents & Manual Scraping</CardTitle>
+              </CardHeader>
+              <CardContent>
+                <FunkoPopTable />
+              </CardContent>
+            </Card>
+          </TabsContent>
 
-                <Button 
-                  onClick={() => forceScraping.mutate()}
-                  disabled={forceScraping.isPending}
-                  variant="outline"
-                  className="w-full flex items-center gap-2"
-                  size="lg"
-                >
-                  <Zap className="w-4 h-4" />
-                  {forceScraping.isPending ? 'Force Starting...' : 'Force Scrape All Items'}
-                </Button>
-              </div>
-
-              <div className="grid grid-cols-2 gap-4 pt-4">
-                <div className="text-center">
-                  <div className="text-lg font-bold text-green-600">{jobStats.completed || 0}</div>
-                  <div className="text-sm text-muted-foreground">Completed</div>
-                </div>
-                <div className="text-center">
-                  <div className="text-lg font-bold text-red-600">{jobStats.failed || 0}</div>
-                  <div className="text-sm text-muted-foreground">Failed</div>
-                </div>
-              </div>
-            </CardContent>
-          </Card>
-
-          {/* Source Performance */}
-          <Card>
-            <CardHeader>
-              <CardTitle>Performance by Source</CardTitle>
-            </CardHeader>
-            <CardContent>
-              <div className="space-y-4">
-                {Object.entries(sourceStats).map(([source, stats]) => {
-                  const sourceSuccessRate = stats.total > 0 ? Math.round((stats.completed / stats.total) * 100) : 0;
-                  return (
-                    <div key={source} className="space-y-2">
-                      <div className="flex justify-between items-center">
-                        <span className="font-medium capitalize">{source}</span>
-                        <span className="text-sm text-muted-foreground">
-                          {stats.completed}/{stats.total} ({sourceSuccessRate}%)
-                        </span>
-                      </div>
-                      <Progress value={sourceSuccessRate} className="h-2" />
+          <TabsContent value="controls" className="space-y-8">
+            <div className="grid grid-cols-1 lg:grid-cols-2 gap-8">
+              {/* Control Panel */}
+              <Card>
+                <CardHeader>
+                  <CardTitle className="flex items-center gap-2">
+                    <BarChart3 className="w-5 h-5" />
+                    Scraping Controls
+                  </CardTitle>
+                </CardHeader>
+                <CardContent className="space-y-4">
+                  <div className="p-4 bg-blue-50 rounded-lg border border-blue-200">
+                    <h3 className="font-medium text-blue-900 mb-2">Next Scheduled Run</h3>
+                    <div className="flex items-center gap-2 text-blue-700">
+                      <Calendar className="w-4 h-4" />
+                      <span className="text-sm">Every 6 hours (automatic)</span>
                     </div>
-                  );
-                })}
-                {Object.keys(sourceStats).length === 0 && (
-                  <p className="text-center text-muted-foreground py-4">
-                    No scraping data available yet
-                  </p>
-                )}
-              </div>
-            </CardContent>
-          </Card>
-        </div>
+                  </div>
 
-        {/* Funko Pop Database Table */}
-        <Card className="mb-8">
-          <CardHeader>
-            <CardTitle>Database Contents & Manual Scraping</CardTitle>
-          </CardHeader>
-          <CardContent>
-            <FunkoPopTable />
-          </CardContent>
-        </Card>
+                  <div className="grid grid-cols-1 gap-3">
+                    <Button 
+                      onClick={() => startScraping.mutate()}
+                      disabled={startScraping.isPending}
+                      className="w-full flex items-center gap-2"
+                      size="lg"
+                    >
+                      <Play className="w-4 h-4" />
+                      {startScraping.isPending ? 'Starting Bulk Scraping...' : 'Start Bulk Scraping Now'}
+                    </Button>
 
-        {/* Recent Activity */}
-        <Card>
-          <CardHeader>
-            <CardTitle>Recent Scraping Activity</CardTitle>
-          </CardHeader>
-          <CardContent>
-            {jobsLoading ? (
-              <div className="text-center py-8">
-                <RefreshCw className="w-6 h-6 animate-spin mx-auto mb-2" />
-                <p className="text-muted-foreground">Loading recent activity...</p>
-              </div>
-            ) : (
-              <div className="space-y-3 max-h-96 overflow-y-auto">
-                {jobs?.slice(0, 20).map((job) => (
-                  <div key={job.id} className="flex items-center justify-between p-4 border rounded-lg hover:bg-muted/50 transition-colors">
-                    <div className="flex items-center gap-3">
-                      {getStatusIcon(job.status)}
-                      <div className="flex-1 min-w-0">
-                        <p className="font-medium truncate">
-                          {job.funko_pops?.name} - {job.funko_pops?.series}
-                        </p>
-                        <div className="flex items-center gap-2 mt-1">
-                          <span className="text-sm text-muted-foreground capitalize">
-                            {job.source}
-                          </span>
-                          {job.error_message && (
-                            <span className="text-xs text-red-600 truncate max-w-xs">
-                              {job.error_message}
+                    <Button 
+                      onClick={() => forceScraping.mutate()}
+                      disabled={forceScraping.isPending}
+                      variant="outline"
+                      className="w-full flex items-center gap-2"
+                      size="lg"
+                    >
+                      <Zap className="w-4 h-4" />
+                      {forceScraping.isPending ? 'Force Starting...' : 'Force Scrape All Items'}
+                    </Button>
+                  </div>
+
+                  <div className="grid grid-cols-2 gap-4 pt-4">
+                    <div className="text-center">
+                      <div className="text-lg font-bold text-green-600">{jobStats.completed || 0}</div>
+                      <div className="text-sm text-muted-foreground">Completed</div>
+                    </div>
+                    <div className="text-center">
+                      <div className="text-lg font-bold text-red-600">{jobStats.failed || 0}</div>
+                      <div className="text-sm text-muted-foreground">Failed</div>
+                    </div>
+                  </div>
+                </CardContent>
+              </Card>
+
+              {/* Source Performance */}
+              <Card>
+                <CardHeader>
+                  <CardTitle>Performance by Source</CardTitle>
+                </CardHeader>
+                <CardContent>
+                  <div className="space-y-4">
+                    {Object.entries(sourceStats).map(([source, stats]) => {
+                      const sourceSuccessRate = stats.total > 0 ? Math.round((stats.completed / stats.total) * 100) : 0;
+                      return (
+                        <div key={source} className="space-y-2">
+                          <div className="flex justify-between items-center">
+                            <span className="font-medium capitalize">{source}</span>
+                            <span className="text-sm text-muted-foreground">
+                              {stats.completed}/{stats.total} ({sourceSuccessRate}%)
+                            </span>
+                          </div>
+                          <Progress value={sourceSuccessRate} className="h-2" />
+                        </div>
+                      );
+                    })}
+                    {Object.keys(sourceStats).length === 0 && (
+                      <p className="text-center text-muted-foreground py-4">
+                        No scraping data available yet
+                      </p>
+                    )}
+                  </div>
+                </CardContent>
+              </Card>
+            </div>
+          </TabsContent>
+
+          <TabsContent value="education">
+            <StickerEducation />
+          </TabsContent>
+
+          <TabsContent value="activity" className="space-y-8">
+            <Card>
+              <CardHeader>
+                <CardTitle>Recent Scraping Activity</CardTitle>
+              </CardHeader>
+              <CardContent>
+                {jobsLoading ? (
+                  <div className="text-center py-8">
+                    <RefreshCw className="w-6 h-6 animate-spin mx-auto mb-2" />
+                    <p className="text-muted-foreground">Loading recent activity...</p>
+                  </div>
+                ) : (
+                  <div className="space-y-3 max-h-96 overflow-y-auto">
+                    {jobs?.slice(0, 20).map((job) => (
+                      <div key={job.id} className="flex items-center justify-between p-4 border rounded-lg hover:bg-muted/50 transition-colors">
+                        <div className="flex items-center gap-3">
+                          {getStatusIcon(job.status)}
+                          <div className="flex-1 min-w-0">
+                            <p className="font-medium truncate">
+                              {job.funko_pops?.name} - {job.funko_pops?.series}
+                            </p>
+                            <div className="flex items-center gap-2 mt-1">
+                              <span className="text-sm text-muted-foreground capitalize">
+                                {job.source}
+                              </span>
+                              {job.error_message && (
+                                <span className="text-xs text-red-600 truncate max-w-xs">
+                                  {job.error_message}
+                                </span>
+                              )}
+                            </div>
+                          </div>
+                        </div>
+                        <div className="flex items-center gap-2 flex-shrink-0">
+                          <Badge variant="outline" className={getStatusColor(job.status)}>
+                            {job.status}
+                          </Badge>
+                          {job.last_scraped && (
+                            <span className="text-xs text-muted-foreground">
+                              {new Date(job.last_scraped).toLocaleDateString()}
                             </span>
                           )}
                         </div>
                       </div>
-                    </div>
-                    <div className="flex items-center gap-2 flex-shrink-0">
-                      <Badge variant="outline" className={getStatusColor(job.status)}>
-                        {job.status}
-                      </Badge>
-                      {job.last_scraped && (
-                        <span className="text-xs text-muted-foreground">
-                          {new Date(job.last_scraped).toLocaleDateString()}
-                        </span>
-                      )}
-                    </div>
-                  </div>
-                ))}
-                {!jobs?.length && (
-                  <div className="text-center py-12">
-                    <Database className="w-12 h-12 text-muted-foreground mx-auto mb-4" />
-                    <h3 className="font-medium mb-2">No Scraping Jobs Yet</h3>
-                    <p className="text-muted-foreground mb-4">
-                      Start bulk scraping or use manual refresh on individual items to see activity here.
-                    </p>
+                    ))}
+                    {!jobs?.length && (
+                      <div className="text-center py-12">
+                        <Database className="w-12 h-12 text-muted-foreground mx-auto mb-4" />
+                        <h3 className="font-medium mb-2">No Scraping Jobs Yet</h3>
+                        <p className="text-muted-foreground mb-4">
+                          Start bulk scraping or use manual refresh on individual items to see activity here.
+                        </p>
+                      </div>
+                    )}
                   </div>
                 )}
-              </div>
-            )}
-          </CardContent>
-        </Card>
+              </CardContent>
+            </Card>
+          </TabsContent>
+        </Tabs>
       </div>
     </div>
   );
