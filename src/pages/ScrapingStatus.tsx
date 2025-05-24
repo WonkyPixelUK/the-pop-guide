@@ -22,6 +22,7 @@ import {
 import Navigation from '@/components/Navigation';
 import FunkoPopTable from '@/components/FunkoPopTable';
 import StickerEducation from '@/components/StickerEducation';
+import DataImportManager from '@/components/DataImportManager';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 
 const ScrapingStatus = () => {
@@ -139,13 +140,14 @@ const ScrapingStatus = () => {
 
         <Tabs defaultValue="database" className="space-y-8">
           <TabsList className="grid w-full grid-cols-4">
-            <TabsTrigger value="database">Database & Scraping</TabsTrigger>
+            <TabsTrigger value="database">Database & Import</TabsTrigger>
             <TabsTrigger value="controls">Controls & Stats</TabsTrigger>
             <TabsTrigger value="education">Sticker Guide</TabsTrigger>
             <TabsTrigger value="activity">Recent Activity</TabsTrigger>
           </TabsList>
 
           <TabsContent value="database" className="space-y-8">
+            <DataImportManager />
             <Card>
               <CardHeader>
                 <CardTitle>Database Contents & Manual Scraping</CardTitle>
