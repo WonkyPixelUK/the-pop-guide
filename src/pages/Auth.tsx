@@ -1,4 +1,3 @@
-
 import { useState, useEffect } from 'react';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
@@ -74,7 +73,7 @@ const Auth = () => {
             <img 
               src="https://Maintainhq-pull-zone.b-cdn.net/02_the_pop_guide/pop-guide-logo-trans-white.svg" 
               alt="PopGuide Logo" 
-              className="h-12 w-auto mx-auto"
+              className="h-20 w-auto mx-auto"
             />
           </Link>
           <p className="text-gray-400 mt-2">
