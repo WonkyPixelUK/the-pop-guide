@@ -12,6 +12,7 @@ export interface PublicProfile {
   bio?: string;
   avatar_url?: string;
   is_public: boolean;
+  is_premium?: boolean;
   spotify_username?: string;
   discord_username?: string;
   twitter_handle?: string;

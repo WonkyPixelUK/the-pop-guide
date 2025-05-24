@@ -23,6 +23,9 @@ const handler = async (req: Request): Promise<Response> => {
   try {
     const { type, to, data }: EmailRequest = await req.json();
 
+    // Get the correct base URL - use production URL or fallback to localhost
+    const baseUrl = Deno.env.get("SITE_URL") || "https://popguide.lovable.app";
+
     let emailOptions;
 
     switch (type) {
@@ -53,10 +56,10 @@ const handler = async (req: Request): Promise<Response> => {
                   </ul>
                 </div>
                 <div style="text-align: center; margin: 30px 0;">
-                  <a href="https://popguide.com/dashboard" style="background: #f97316; color: white; padding: 15px 30px; text-decoration: none; border-radius: 8px; display: inline-block; font-weight: bold;">Start Building Your Collection</a>
+                  <a href="${baseUrl}/dashboard" style="background: #f97316; color: white; padding: 15px 30px; text-decoration: none; border-radius: 8px; display: inline-block; font-weight: bold;">Start Building Your Collection</a>
                 </div>
                 <p style="color: #6b7280; font-size: 14px; text-align: center;">
-                  Need help getting started? Check out our <a href="https://popguide.com/help" style="color: #f97316;">Help Center</a> or reply to this email.
+                  Need help getting started? Check out our <a href="${baseUrl}/help" style="color: #f97316;">Help Center</a> or reply to this email.
                 </p>
               </div>
             </div>
@@ -141,7 +144,7 @@ const handler = async (req: Request): Promise<Response> => {
                   Keep up the amazing work building your Funko Pop empire!
                 </p>
                 <div style="margin: 30px 0;">
-                  <a href="https://popguide.com/dashboard" style="background: #f97316; color: white; padding: 15px 30px; text-decoration: none; border-radius: 8px; display: inline-block; font-weight: bold;">View Your Collection</a>
+                  <a href="${baseUrl}/dashboard" style="background: #f97316; color: white; padding: 15px 30px; text-decoration: none; border-radius: 8px; display: inline-block; font-weight: bold;">View Your Collection</a>
                 </div>
               </div>
             </div>

@@ -10,6 +10,7 @@ import CollectionGrid from '@/components/CollectionGrid';
 import CollectionInsights from '@/components/CollectionInsights';
 import ActivityFeed from '@/components/ActivityFeed';
 import GamingDashboard from '@/components/GamingDashboard';
+import PremiumBadge from '@/components/PremiumBadge';
 import { useState } from 'react';
 
 const Profile = () => {
@@ -179,9 +180,12 @@ const Profile = () => {
                   </AvatarFallback>
                 </Avatar>
                 <div className="flex-1">
-                  <CardTitle className="text-white text-2xl mb-2">
-                    {profile.display_name || profile.username}
-                  </CardTitle>
+                  <div className="flex items-center gap-3 mb-2">
+                    <CardTitle className="text-white text-2xl">
+                      {profile.display_name || profile.username}
+                    </CardTitle>
+                    <PremiumBadge isPremium={profile.is_premium || false} />
+                  </div>
                   {profile.username && (
                     <p className="text-gray-400 mb-3">@{profile.username}</p>
                   )}
