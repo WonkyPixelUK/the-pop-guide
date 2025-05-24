@@ -1,4 +1,3 @@
-
 import { Link, useLocation } from 'react-router-dom';
 import { Button } from '@/components/ui/button';
 import { Activity, LogIn, LogOut, Plus } from 'lucide-react';
@@ -61,6 +60,8 @@ const Navigation = () => {
                 <Activity className="w-4 h-4" />
                 Scraping Status
               </Link>
+              <a
+                href="https://statuslist.app/status/z8kbza"
               <Link to="/pricing" className="text-gray-300 hover:text-orange-500 transition-colors">
                 Pricing
               </Link>
