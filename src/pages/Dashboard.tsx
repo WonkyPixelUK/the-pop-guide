@@ -3,12 +3,17 @@ import { useState, useEffect } from "react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Card, CardContent } from "@/components/ui/card";
-import { Search, Plus, BarChart3, Users, Zap, LogOut, Settings } from "lucide-react";
+import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
+import { Search, Plus, BarChart3, Users, Zap, LogOut, Settings, Heart, List, TrendingUp } from "lucide-react";
 import CollectionGrid from "@/components/CollectionGrid";
-import AddItemDialog from "@/components/AddItemDialog";
+import WishlistGrid from "@/components/WishlistGrid";
+import CustomListsManager from "@/components/CustomListsManager";
+import CollectionAnalytics from "@/components/CollectionAnalytics";
+import EnhancedAddItemDialog from "@/components/EnhancedAddItemDialog";
 import ItemDetailsDialog from "@/components/ItemDetailsDialog";
 import { useAuth } from "@/hooks/useAuth";
 import { useFunkoPops, useUserCollection } from "@/hooks/useFunkoPops";
+import { useWishlist } from "@/hooks/useWishlist";
 import { useToast } from "@/hooks/use-toast";
 import { useNavigate, Link } from "react-router-dom";
 
@@ -20,6 +25,7 @@ const Dashboard = () => {
   const { user, loading: authLoading, signOut } = useAuth();
   const { data: funkoPops = [], isLoading: funkoLoading } = useFunkoPops();
   const { data: userCollection = [], isLoading: collectionLoading } = useUserCollection(user?.id);
+  const { wishlist, isLoading: wishlistLoading } = useWishlist();
   const { toast } = useToast();
   const navigate = useNavigate();
 
@@ -72,6 +78,7 @@ const Dashboard = () => {
 
   const ownedCount = userCollection.length;
   const uniqueSeries = new Set(userCollection.map(item => item.funko_pops?.series)).size;
+  const wishlistCount = wishlist.length;
 
   if (authLoading || funkoLoading) {
     return (
@@ -131,7 +138,7 @@ const Dashboard = () => {
       {/* Stats Section */}
       <section className="py-8 px-4">
         <div className="container mx-auto">
-          <div className="grid grid-cols-1 md:grid-cols-3 gap-6 max-w-4xl mx-auto mb-8">
+          <div className="grid grid-cols-1 md:grid-cols-4 gap-6 max-w-6xl mx-auto mb-8">
             <Card className="bg-gray-800/50 border-gray-700">
               <CardContent className="p-6 text-center">
                 <BarChart3 className="w-8 h-8 text-orange-500 mx-auto mb-3" />
@@ -148,6 +155,13 @@ const Dashboard = () => {
             </Card>
             <Card className="bg-gray-800/50 border-gray-700">
               <CardContent className="p-6 text-center">
+                <Heart className="w-8 h-8 text-orange-500 mx-auto mb-3" />
+                <div className="text-2xl font-bold text-white">{wishlistCount}</div>
+                <div className="text-gray-400">Wishlist Items</div>
+              </CardContent>
+            </Card>
+            <Card className="bg-gray-800/50 border-gray-700">
+              <CardContent className="p-6 text-center">
                 <Users className="w-8 h-8 text-orange-500 mx-auto mb-3" />
                 <div className="text-2xl font-bold text-white">{uniqueSeries}</div>
                 <div className="text-gray-400">Series Collected</div>
@@ -157,35 +171,89 @@ const Dashboard = () => {
         </div>
       </section>
 
-      {/* Collection Section */}
+      {/* Main Content */}
       <section className="py-8 px-4">
         <div className="container mx-auto">
-          <div className="flex flex-col md:flex-row md:items-center md:justify-between mb-8">
-            <h2 className="text-3xl font-bold text-white mb-4 md:mb-0">My Collection</h2>
-            <div className="flex items-center space-x-4">
-              <div className="relative flex-1 md:w-80">
-                <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400 w-4 h-4" />
-                <Input
-                  placeholder="Search collection..."
-                  value={searchQuery}
-                  onChange={(e) => setSearchQuery(e.target.value)}
-                  className="pl-10 bg-gray-800 border-gray-700 text-white placeholder-gray-400"
-                />
-              </div>
-            </div>
-          </div>
+          <Tabs defaultValue="collection" className="w-full">
+            <TabsList className="grid w-full grid-cols-4 bg-gray-800 mb-8">
+              <TabsTrigger value="collection" className="data-[state=active]:bg-orange-500">
+                <Zap className="w-4 h-4 mr-2" />
+                Collection
+              </TabsTrigger>
+              <TabsTrigger value="wishlist" className="data-[state=active]:bg-orange-500">
+                <Heart className="w-4 h-4 mr-2" />
+                Wishlist
+              </TabsTrigger>
+              <TabsTrigger value="lists" className="data-[state=active]:bg-orange-500">
+                <List className="w-4 h-4 mr-2" />
+                Custom Lists
+              </TabsTrigger>
+              <TabsTrigger value="analytics" className="data-[state=active]:bg-orange-500">
+                <TrendingUp className="w-4 h-4 mr-2" />
+                Analytics
+              </TabsTrigger>
+            </TabsList>
 
-          <CollectionGrid 
-            items={transformedItems} 
-            onItemClick={setSelectedItem}
-            searchQuery={searchQuery}
-            showWishlistOnly={false}
-          />
+            <TabsContent value="collection" className="space-y-6">
+              <div className="flex flex-col md:flex-row md:items-center md:justify-between mb-8">
+                <h2 className="text-3xl font-bold text-white mb-4 md:mb-0">My Collection</h2>
+                <div className="flex items-center space-x-4">
+                  <div className="relative flex-1 md:w-80">
+                    <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400 w-4 h-4" />
+                    <Input
+                      placeholder="Search collection..."
+                      value={searchQuery}
+                      onChange={(e) => setSearchQuery(e.target.value)}
+                      className="pl-10 bg-gray-800 border-gray-700 text-white placeholder-gray-400"
+                    />
+                  </div>
+                </div>
+              </div>
+
+              <CollectionGrid 
+                items={transformedItems} 
+                onItemClick={setSelectedItem}
+                searchQuery={searchQuery}
+                showWishlistOnly={false}
+              />
+            </TabsContent>
+
+            <TabsContent value="wishlist" className="space-y-6">
+              <div className="flex flex-col md:flex-row md:items-center md:justify-between mb-8">
+                <h2 className="text-3xl font-bold text-white mb-4 md:mb-0">My Wishlist</h2>
+                <div className="flex items-center space-x-4">
+                  <div className="relative flex-1 md:w-80">
+                    <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400 w-4 h-4" />
+                    <Input
+                      placeholder="Search wishlist..."
+                      value={searchQuery}
+                      onChange={(e) => setSearchQuery(e.target.value)}
+                      className="pl-10 bg-gray-800 border-gray-700 text-white placeholder-gray-400"
+                    />
+                  </div>
+                </div>
+              </div>
+
+              {wishlistLoading ? (
+                <div className="text-white">Loading wishlist...</div>
+              ) : (
+                <WishlistGrid items={wishlist} searchQuery={searchQuery} />
+              )}
+            </TabsContent>
+
+            <TabsContent value="lists">
+              <CustomListsManager />
+            </TabsContent>
+
+            <TabsContent value="analytics">
+              <CollectionAnalytics userCollection={userCollection} funkoPops={funkoPops} />
+            </TabsContent>
+          </Tabs>
         </div>
       </section>
 
       {/* Dialogs */}
-      <AddItemDialog 
+      <EnhancedAddItemDialog 
         open={isAddDialogOpen} 
         onOpenChange={setIsAddDialogOpen} 
       />

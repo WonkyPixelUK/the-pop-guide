@@ -5,7 +5,7 @@ import { Input } from "@/components/ui/input";
 import { Card, CardContent } from "@/components/ui/card";
 import { Search, Plus, BarChart3, Users, Zap, LogIn, LogOut } from "lucide-react";
 import CollectionGrid from "@/components/CollectionGrid";
-import AddItemDialog from "@/components/AddItemDialog";
+import EnhancedAddItemDialog from "@/components/EnhancedAddItemDialog";
 import ItemDetailsDialog from "@/components/ItemDetailsDialog";
 import AuthDialog from "@/components/AuthDialog";
 import { useAuth } from "@/hooks/useAuth";
@@ -126,7 +126,7 @@ const Index = () => {
             Your <span className="text-orange-500">Ultimate</span> Funko Pop Collection
           </h1>
           <p className="text-xl text-gray-300 mb-8 max-w-2xl mx-auto">
-            Track, value, and showcase your Funko Pop collection with real-time market data and comprehensive management tools.
+            Track, value, and showcase your Funko Pop collection with real-time market data, comprehensive analytics, and social features.
           </p>
           
           {/* Stats Cards */}
@@ -178,7 +178,7 @@ const Index = () => {
 
           {!user && (
             <div className="text-center py-8 bg-gray-800/30 rounded-lg mb-8">
-              <p className="text-gray-300 mb-4">Sign in to start tracking your personal collection!</p>
+              <p className="text-gray-300 mb-4">Sign in to start tracking your personal collection with advanced features!</p>
               <Button 
                 onClick={() => setIsAuthDialogOpen(true)}
                 className="bg-orange-500 hover:bg-orange-600 text-white"
@@ -203,7 +203,7 @@ const Index = () => {
         onOpenChange={setIsAuthDialogOpen} 
       />
       
-      <AddItemDialog 
+      <EnhancedAddItemDialog 
         open={isAddDialogOpen} 
         onOpenChange={setIsAddDialogOpen} 
       />
