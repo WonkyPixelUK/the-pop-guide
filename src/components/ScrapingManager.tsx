@@ -3,7 +3,7 @@ import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
 import { useStartScraping, useScrapingJobs } from '@/hooks/usePriceScraping';
-import { RefreshCw, Play, Clock, CheckCircle, XCircle, AlertCircle } from 'lucide-react';
+import { RefreshCw, Play, Clock, CheckCircle, XCircle, AlertCircle, Zap } from 'lucide-react';
 
 const ScrapingManager = () => {
   const { data: jobs, isLoading: jobsLoading } = useScrapingJobs();
@@ -56,11 +56,23 @@ const ScrapingManager = () => {
               className="flex items-center gap-2"
             >
               <Play className="w-4 h-4" />
-              {startScraping.isPending ? 'Starting...' : 'Start Scraping'}
+              {startScraping.isPending ? 'Starting...' : 'Start Bulk Scraping'}
             </Button>
           </CardTitle>
         </CardHeader>
         <CardContent>
+          <div className="mb-4 p-3 bg-blue-50 rounded-lg border">
+            <div className="flex items-center gap-2 mb-2">
+              <Zap className="w-4 h-4 text-blue-600" />
+              <span className="font-medium text-blue-800">Enhanced Features</span>
+            </div>
+            <ul className="text-sm text-blue-700 space-y-1">
+              <li>• <strong>Manual Updates:</strong> Click the refresh button on any Funko Pop to update its pricing</li>
+              <li>• <strong>Real Web Scraping:</strong> Uses Firecrawl API for live eBay pricing data</li>
+              <li>• <strong>Instant Results:</strong> Manual scraping processes immediately</li>
+            </ul>
+          </div>
+          
           <div className="grid grid-cols-2 md:grid-cols-4 gap-4 mb-6">
             <div className="text-center">
               <div className="text-2xl font-bold text-yellow-600">{jobStats.pending || 0}</div>
@@ -118,7 +130,7 @@ const ScrapingManager = () => {
               ))}
               {!jobs?.length && (
                 <div className="text-center py-8 text-gray-500">
-                  No scraping jobs found. Click "Start Scraping" to begin.
+                  No scraping jobs found. Click "Start Bulk Scraping" or use the refresh button on individual items.
                 </div>
               )}
             </div>

@@ -2,9 +2,10 @@
 import { Card, CardContent } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
-import { Plus, Minus } from "lucide-react";
+import { Plus, Minus, RefreshCw } from "lucide-react";
 import { useAuth } from "@/hooks/useAuth";
 import { useAddToCollection, useRemoveFromCollection } from "@/hooks/useFunkoPops";
+import { useManualScraping } from "@/hooks/useManualScraping";
 import { useToast } from "@/hooks/use-toast";
 
 interface CollectionItem {
@@ -32,6 +33,7 @@ const CollectionGrid = ({ items, onItemClick, searchQuery, showWishlistOnly = fa
   const { toast } = useToast();
   const addToCollection = useAddToCollection();
   const removeFromCollection = useRemoveFromCollection();
+  const manualScraping = useManualScraping();
 
   const filteredItems = items.filter(item => {
     const matchesSearch = item.name.toLowerCase().includes(searchQuery.toLowerCase()) ||
@@ -108,6 +110,26 @@ const CollectionGrid = ({ items, onItemClick, searchQuery, showWishlistOnly = fa
     }
   };
 
+  const handleUpdatePricing = async (item: CollectionItem, e: React.MouseEvent) => {
+    e.stopPropagation();
+    if (!user) {
+      toast({
+        title: "Sign in required",
+        description: "Please sign in to update pricing",
+        variant: "destructive",
+      });
+      return;
+    }
+
+    try {
+      await manualScraping.mutateAsync({
+        funkoPopId: item.id,
+      });
+    } catch (error) {
+      // Error handling is done in the hook
+    }
+  };
+
   return (
     <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6">
       {filteredItems.map((item) => (
@@ -137,6 +159,16 @@ const CollectionGrid = ({ items, onItemClick, searchQuery, showWishlistOnly = fa
                 <h3 className="font-semibold text-white text-sm leading-tight">{item.name}</h3>
                 {user && (
                   <div className="flex items-center space-x-1">
+                    <Button
+                      size="sm"
+                      variant="outline"
+                      className="h-6 w-6 p-0 border-blue-500 text-blue-500 hover:bg-blue-500 hover:text-white"
+                      onClick={(e) => handleUpdatePricing(item, e)}
+                      disabled={manualScraping.isPending}
+                      title="Update pricing"
+                    >
+                      <RefreshCw className={`w-3 h-3 ${manualScraping.isPending ? 'animate-spin' : ''}`} />
+                    </Button>
                     {item.owned ? (
                       <Button
                         size="sm"
