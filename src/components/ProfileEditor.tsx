@@ -1,4 +1,3 @@
-
 import { useState, useEffect } from 'react';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
@@ -9,9 +8,12 @@ import { Switch } from '@/components/ui/switch';
 import { usePublicProfile } from '@/hooks/usePublicProfile';
 import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
 import { User, Music, MessageCircle, Twitter, Instagram, Video, ShoppingBag, Gamepad2 } from 'lucide-react';
+import { useCustomLists } from '@/hooks/useCustomLists';
+import { supabase } from '@/integrations/supabase/client';
 
 const ProfileEditor = () => {
   const { profile, loading, createProfile, updateProfile } = usePublicProfile();
+  const { lists } = useCustomLists();
   const [formData, setFormData] = useState({
     username: '',
     display_name: '',
@@ -30,6 +32,8 @@ const ProfileEditor = () => {
     steam_username: '',
   });
   const [isSubmitting, setIsSubmitting] = useState(false);
+  const [usernameError, setUsernameError] = useState("");
+  const [selectedListIds, setSelectedListIds] = useState<string[]>(profile?.profile_list_ids || []);
 
   useEffect(() => {
     if (profile) {
@@ -50,18 +54,52 @@ const ProfileEditor = () => {
         nintendo_friend_code: profile.nintendo_friend_code || '',
         steam_username: profile.steam_username || '',
       });
+      setSelectedListIds(profile.profile_list_ids || []);
     }
   }, [profile]);
+
+  const validateUsername = (username: string) => /^[a-z0-9-_]+$/.test(username);
+  const checkUsernameAvailability = async (username: string) => {
+    if (!validateUsername(username)) {
+      setUsernameError('Only a-z, 0-9, hyphens, and underscores allowed');
+      return false;
+    }
+    if (profile && username === profile.username) {
+      setUsernameError('');
+      return true;
+    }
+    const { data } = await updateProfile.mutateAsync.supabase
+      .from('public_profiles')
+      .select('id')
+      .eq('username', username)
+      .maybeSingle();
+    if (data) {
+      setUsernameError('Username is already taken');
+      return false;
+    }
+    setUsernameError('');
+    return true;
+  };
+
+  const handleListSelection = (listId: string) => {
+    setSelectedListIds(prev =>
+      prev.includes(listId) ? prev.filter(id => id !== listId) : [...prev, listId]
+    );
+  };
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     setIsSubmitting(true);
-
+    if (formData.username && !(await checkUsernameAvailability(formData.username))) {
+      setIsSubmitting(false);
+      return;
+    }
     try {
+      const profileData = { ...formData, profile_list_ids: selectedListIds };
       if (profile) {
-        await updateProfile(formData);
+        await updateProfile(profileData);
       } else {
-        await createProfile(formData);
+        await createProfile(profileData);
       }
     } finally {
       setIsSubmitting(false);
@@ -69,7 +107,26 @@ const ProfileEditor = () => {
   };
 
   const handleInputChange = (field: string, value: string | boolean) => {
-    setFormData(prev => ({ ...prev, [field]: value }));
+    if (field === 'username') {
+      value = (value as string).replace(/[^a-z0-9-_]/gi, '').toLowerCase();
+      setFormData(prev => ({ ...prev, [field]: value }));
+      setUsernameError("");
+    } else {
+      setFormData(prev => ({ ...prev, [field]: value }));
+    }
+  };
+
+  const handleConnectProvider = async (provider: 'spotify' | 'discord') => {
+    const { data, error } = await supabase.auth.signInWithOAuth({
+      provider,
+      options: {
+        redirectTo: window.location.origin + '/profile-settings',
+      },
+    });
+    if (error) {
+      alert(`Failed to connect ${provider}: ${error.message}`);
+    }
+    // On success, Supabase will redirect and session will update
   };
 
   if (loading) {
@@ -115,9 +172,13 @@ const ProfileEditor = () => {
                 id="username"
                 value={formData.username}
                 onChange={(e) => handleInputChange('username', e.target.value)}
+                onBlur={() => formData.username && checkUsernameAvailability(formData.username)}
                 placeholder="mycoolpopguide"
                 className="bg-gray-700 border-gray-600 text-white"
               />
+              {usernameError && (
+                <span className="text-red-500 text-xs">{usernameError}</span>
+              )}
               {formData.username && (
                 <p className="text-sm text-gray-400 mt-1">
                   Your profile will be at: /profile/{formData.username}
@@ -168,7 +229,19 @@ const ProfileEditor = () => {
               <div>
                 <Label htmlFor="spotify_username" className="text-gray-300 flex items-center gap-2">
                   <Music className="w-4 h-4 text-green-500" />
-                  Spotify Username
+                  Spotify
+                  {formData.spotify_username ? (
+                    <span className="ml-2 text-xs text-green-400">Connected as {formData.spotify_username}</span>
+                  ) : (
+                    <Button
+                      type="button"
+                      size="sm"
+                      className="ml-2 bg-green-600 hover:bg-green-700 text-white"
+                      onClick={() => handleConnectProvider('spotify')}
+                    >
+                      Connect
+                    </Button>
+                  )}
                 </Label>
                 <Input
                   id="spotify_username"
@@ -176,13 +249,26 @@ const ProfileEditor = () => {
                   onChange={(e) => handleInputChange('spotify_username', e.target.value)}
                   placeholder="spotify_username"
                   className="bg-gray-700 border-gray-600 text-white"
+                  disabled={!!formData.spotify_username}
                 />
               </div>
 
               <div>
                 <Label htmlFor="discord_username" className="text-gray-300 flex items-center gap-2">
                   <MessageCircle className="w-4 h-4 text-indigo-500" />
-                  Discord Username
+                  Discord
+                  {formData.discord_username ? (
+                    <span className="ml-2 text-xs text-indigo-400">Connected as {formData.discord_username}</span>
+                  ) : (
+                    <Button
+                      type="button"
+                      size="sm"
+                      className="ml-2 bg-indigo-600 hover:bg-indigo-700 text-white"
+                      onClick={() => handleConnectProvider('discord')}
+                    >
+                      Connect
+                    </Button>
+                  )}
                 </Label>
                 <Input
                   id="discord_username"
@@ -190,6 +276,7 @@ const ProfileEditor = () => {
                   onChange={(e) => handleInputChange('discord_username', e.target.value)}
                   placeholder="discord#1234"
                   className="bg-gray-700 border-gray-600 text-white"
+                  disabled={!!formData.discord_username}
                 />
               </div>
 
@@ -314,6 +401,28 @@ const ProfileEditor = () => {
                   className="bg-gray-700 border-gray-600 text-white"
                 />
               </div>
+            </div>
+          </div>
+
+          {/* Add Lists to Public Profile */}
+          <div className="space-y-4">
+            <h3 className="text-lg font-semibold text-white">Add Lists to Your Public Profile</h3>
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+              {lists.map(list => (
+                <label key={list.id} className="flex items-center gap-2 bg-gray-700 p-3 rounded cursor-pointer">
+                  <input
+                    type="checkbox"
+                    checked={selectedListIds.includes(list.id)}
+                    onChange={() => handleListSelection(list.id)}
+                    className="accent-orange-500"
+                  />
+                  <span className="text-white font-medium">{list.name}</span>
+                  <span className="text-gray-400 text-xs">{list.description}</span>
+                </label>
+              ))}
+              {lists.length === 0 && (
+                <span className="text-gray-400">You have no custom lists yet.</span>
+              )}
             </div>
           </div>
 

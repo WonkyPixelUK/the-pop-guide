@@ -1,4 +1,3 @@
-
 import { useState } from "react";
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/components/ui/dialog";
 import { Button } from "@/components/ui/button";
@@ -25,6 +24,8 @@ const ListManagementDialog = ({ listId, open, onOpenChange }: ListManagementDial
   const [editName, setEditName] = useState("");
   const [editDescription, setEditDescription] = useState("");
   const [editIsPublic, setEditIsPublic] = useState(false);
+  const [editSlug, setEditSlug] = useState("");
+  const [slugError, setSlugError] = useState("");
 
   const { toast } = useToast();
   const { lists, updateList, addItemToList, removeItemFromList } = useCustomLists();
@@ -42,19 +43,46 @@ const ListManagementDialog = ({ listId, open, onOpenChange }: ListManagementDial
      pop.series.toLowerCase().includes(searchTerm.toLowerCase()))
   );
 
+  const validateSlug = (slug: string) => /^[a-z0-9-]+$/.test(slug);
+  const checkSlugAvailability = async (slug: string) => {
+    if (!validateSlug(slug)) {
+      setSlugError('Only a-z, 0-9, and hyphens allowed');
+      return false;
+    }
+    if (slug === currentList.slug) {
+      setSlugError('');
+      return true;
+    }
+    const { data } = await updateList.mutateAsync.supabase
+      .from('custom_lists')
+      .select('id')
+      .eq('slug', slug)
+      .maybeSingle();
+    if (data) {
+      setSlugError('Slug is already taken');
+      return false;
+    }
+    setSlugError('');
+    return true;
+  };
+
   const handleEdit = () => {
     setEditName(currentList.name);
     setEditDescription(currentList.description || "");
     setEditIsPublic(currentList.is_public || false);
+    setEditSlug(currentList.slug || "");
+    setSlugError("");
     setEditMode(true);
   };
 
   const handleSaveEdit = async () => {
+    if (editSlug && !(await checkSlugAvailability(editSlug))) return;
     await updateList.mutateAsync({
       listId: currentList.id,
       name: editName,
       description: editDescription,
       isPublic: editIsPublic,
+      slug: editSlug || null,
     });
     setEditMode(false);
   };
@@ -238,6 +266,18 @@ const ListManagementDialog = ({ listId, open, onOpenChange }: ListManagementDial
                     onChange={(e) => setEditDescription(e.target.value)}
                     className="bg-gray-800 border-gray-700"
                   />
+                </div>
+                <div>
+                  <Label htmlFor="editSlug">Custom URL (optional)</Label>
+                  <Input
+                    id="editSlug"
+                    value={editSlug}
+                    onChange={e => setEditSlug(e.target.value.replace(/[^a-z0-9-]/gi, '').toLowerCase())}
+                    onBlur={e => editSlug && checkSlugAvailability(e.target.value)}
+                    placeholder="e.g. richs-funkos-for-sale-v1"
+                    className="bg-gray-800 border-gray-700"
+                  />
+                  {slugError && <span className="text-red-500 text-xs">{slugError}</span>}
                 </div>
                 <div className="flex items-center space-x-2">
                   <Switch

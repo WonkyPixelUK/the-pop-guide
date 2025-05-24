@@ -18,6 +18,7 @@ const CustomListsManager = () => {
   const [isPublic, setIsPublic] = useState(false);
   const [customSlug, setCustomSlug] = useState("");
   const [slugError, setSlugError] = useState("");
+  const [createError, setCreateError] = useState("");
 
   const { lists, isLoading, createList, deleteList } = useCustomLists();
 
@@ -41,6 +42,7 @@ const CustomListsManager = () => {
   };
 
   const handleCreateList = async () => {
+    setCreateError("");
     if (!newListName.trim()) return;
     if (customSlug && !(await checkSlugAvailability(customSlug))) return;
     try {
@@ -55,8 +57,8 @@ const CustomListsManager = () => {
       setIsPublic(false);
       setCustomSlug("");
       setIsCreateDialogOpen(false);
-    } catch (error) {
-      console.error('Error creating list:', error);
+    } catch (error: any) {
+      setCreateError(error?.message || 'Failed to create list. Please log in and try again.');
     }
   };
 
@@ -132,11 +134,12 @@ const CustomListsManager = () => {
               </div>
               <Button 
                 onClick={handleCreateList}
-                className="w-full bg-orange-500 hover:bg-orange-600"
+                className="w-full bg-orange-500 text-white hover:bg-orange-600"
                 disabled={!newListName.trim()}
               >
                 Create List
               </Button>
+              {createError && <div className="text-red-500 text-xs mt-2">{createError}</div>}
             </div>
           </DialogContent>
         </Dialog>

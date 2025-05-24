@@ -12,6 +12,7 @@ import ActivityFeed from '@/components/ActivityFeed';
 import GamingDashboard from '@/components/GamingDashboard';
 import PremiumBadge from '@/components/PremiumBadge';
 import { useState } from 'react';
+import { useCustomLists } from '@/hooks/useCustomLists';
 
 const Profile = () => {
   const { username } = useParams<{ username: string }>();
@@ -20,6 +21,7 @@ const Profile = () => {
   const { data: userCollection = [] } = useUserCollection(profile?.user_id);
   const { activities, loading: activitiesLoading } = useProfileActivities(profile?.user_id);
   const [selectedItem, setSelectedItem] = useState(null);
+  const { publicLists } = useCustomLists();
 
   if (loading) {
     return (
@@ -296,6 +298,52 @@ const Profile = () => {
                 items={transformedItems} 
                 displayName={profile.display_name || profile.username || 'User'} 
               />
+            </div>
+          )}
+
+          {/* Featured Lists */}
+          {profile.profile_list_ids && profile.profile_list_ids.length > 0 && (
+            <div className="mb-8">
+              <h2 className="text-2xl font-bold text-white mb-4">Featured Lists</h2>
+              <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+                {publicLists
+                  .filter(list => profile.profile_list_ids.includes(list.id))
+                  .map(list => (
+                    <Card key={list.id} className="bg-gray-800/70 border-gray-700 hover:bg-gray-800/90 transition-colors">
+                      <CardHeader>
+                        <CardTitle className="text-white text-lg flex items-center gap-2">
+                          {list.name}
+                          <span className="text-xs text-gray-400 font-normal">{list.is_public ? 'Public' : 'Private'}</span>
+                        </CardTitle>
+                      </CardHeader>
+                      <CardContent>
+                        <p className="text-gray-400 text-sm mb-2 line-clamp-2">{list.description}</p>
+                        <div className="flex items-center gap-2 mb-2">
+                          {(list.list_items || []).slice(0, 4).map(item => (
+                            item.funko_pops?.image_url ? (
+                              <img
+                                key={item.id}
+                                src={item.funko_pops.image_url}
+                                alt={item.funko_pops.name}
+                                className="w-10 h-10 object-cover rounded border border-gray-700"
+                              />
+                            ) : null
+                          ))}
+                          {list.list_items && list.list_items.length > 4 && (
+                            <span className="text-xs text-gray-400 ml-2">+{list.list_items.length - 4} more</span>
+                          )}
+                        </div>
+                        <div className="flex justify-between items-center text-xs text-gray-400 mb-2">
+                          <span>{list.list_items?.length || 0} items</span>
+                          <span>{new Date(list.created_at).toLocaleDateString()}</span>
+                        </div>
+                        <Link to={`/lists/${list.slug || list.id}`}>
+                          <Button className="w-full bg-orange-500 hover:bg-orange-600 text-white">View List</Button>
+                        </Link>
+                      </CardContent>
+                    </Card>
+                  ))}
+              </div>
             </div>
           )}
 
