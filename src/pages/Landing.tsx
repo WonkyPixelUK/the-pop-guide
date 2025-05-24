@@ -1,3 +1,4 @@
+
 import { Button } from "@/components/ui/button";
 import { Card, CardContent } from "@/components/ui/card";
 import { BarChart3, Users, Zap, Star, Shield, TrendingUp, Smartphone, Globe, Monitor } from "lucide-react";
@@ -33,7 +34,7 @@ const Landing = () => {
             </nav>
             <div className="flex items-center space-x-4">
               <Link to="/auth">
-                <Button variant="outline" className="border-gray-600 text-white hover:bg-gray-700 hover:text-white">
+                <Button variant="outline" className="border-gray-600 text-blue-900 hover:bg-gray-700 hover:text-white">
                   Sign In
                 </Button>
               </Link>
@@ -63,7 +64,7 @@ const Landing = () => {
                 Start Your Collection Journey
               </Button>
             </Link>
-            <Button size="lg" variant="outline" className="border-gray-600 text-white hover:bg-gray-700 hover:text-white px-8 py-3">
+            <Button size="lg" variant="outline" className="border-gray-600 text-blue-900 hover:bg-gray-700 hover:text-white px-8 py-3">
               Watch Demo
             </Button>
           </div>
