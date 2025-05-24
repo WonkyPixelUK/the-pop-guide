@@ -1,4 +1,3 @@
-
 import { serve } from "https://deno.land/std@0.168.0/http/server.ts"
 import { createClient } from 'https://esm.sh/@supabase/supabase-js@2'
 
@@ -31,16 +30,42 @@ serve(async (req) => {
 
     console.log('Starting Funko Pop data import...');
 
-    // Fetch data from the GitHub repository
-    const githubUrl = 'https://raw.githubusercontent.com/kennymkchan/funko-pop-data/master/data/funkos.json';
-    const response = await fetch(githubUrl);
-    
-    if (!response.ok) {
-      throw new Error(`Failed to fetch data: ${response.statusText}`);
+    // Try multiple potential GitHub URLs as fallbacks
+    const possibleUrls = [
+      'https://raw.githubusercontent.com/kennymkchan/funko-pop-data/main/data/funkos.json',
+      'https://raw.githubusercontent.com/kennymkchan/funko-pop-data/master/data/funkos.json',
+      'https://raw.githubusercontent.com/kennymkchan/funko-pop-data/main/funkos.json',
+      'https://raw.githubusercontent.com/kennymkchan/funko-pop-data/master/funkos.json'
+    ];
+
+    let rawData: GitHubFunkoData[] = [];
+    let successfulUrl = '';
+
+    // Try each URL until one works
+    for (const url of possibleUrls) {
+      try {
+        console.log(`Trying URL: ${url}`);
+        const response = await fetch(url);
+        
+        if (response.ok) {
+          const data = await response.json();
+          if (Array.isArray(data) && data.length > 0) {
+            rawData = data;
+            successfulUrl = url;
+            console.log(`Successfully fetched ${rawData.length} records from: ${url}`);
+            break;
+          }
+        }
+      } catch (urlError) {
+        console.log(`Failed to fetch from ${url}:`, urlError.message);
+        continue;
+      }
     }
 
-    const rawData: GitHubFunkoData[] = await response.json();
-    console.log(`Fetched ${rawData.length} records from GitHub`);
+    // If no URLs worked, return error
+    if (rawData.length === 0) {
+      throw new Error('Unable to fetch data from any known GitHub repository URLs. The data source may be unavailable or moved.');
+    }
 
     // Transform and filter data
     const transformedData = rawData.map(item => {
@@ -151,7 +176,8 @@ serve(async (req) => {
       imported: importedCount,
       errors: errorCount,
       duplicatesSkipped: transformedData.length - newRecords.length,
-      message: `Successfully imported ${importedCount} new Funko Pops`
+      message: `Successfully imported ${importedCount} new Funko Pops from ${successfulUrl}`,
+      dataSource: successfulUrl
     };
 
     console.log('Import completed:', result);
@@ -171,7 +197,12 @@ serve(async (req) => {
       JSON.stringify({ 
         success: false, 
         error: error.message,
-        message: 'Import failed'
+        message: 'Import failed - please check the logs for details',
+        totalFetched: 0,
+        newRecords: 0,
+        imported: 0,
+        errors: 0,
+        duplicatesSkipped: 0
       }),
       { 
         headers: { ...corsHeaders, 'Content-Type': 'application/json' },
