@@ -1,4 +1,3 @@
-
 import { useState } from "react";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
@@ -17,22 +16,44 @@ const CustomListsManager = () => {
   const [newListName, setNewListName] = useState("");
   const [newListDescription, setNewListDescription] = useState("");
   const [isPublic, setIsPublic] = useState(false);
+  const [customSlug, setCustomSlug] = useState("");
+  const [slugError, setSlugError] = useState("");
 
   const { lists, isLoading, createList, deleteList } = useCustomLists();
 
+  const validateSlug = (slug: string) => /^[a-z0-9-]+$/.test(slug);
+  const checkSlugAvailability = async (slug: string) => {
+    if (!validateSlug(slug)) {
+      setSlugError('Only a-z, 0-9, and hyphens allowed');
+      return false;
+    }
+    const { data } = await createList.mutateAsync.supabase
+      .from('custom_lists')
+      .select('id')
+      .eq('slug', slug)
+      .maybeSingle();
+    if (data) {
+      setSlugError('Slug is already taken');
+      return false;
+    }
+    setSlugError('');
+    return true;
+  };
+
   const handleCreateList = async () => {
     if (!newListName.trim()) return;
-
+    if (customSlug && !(await checkSlugAvailability(customSlug))) return;
     try {
       await createList.mutateAsync({
         name: newListName,
         description: newListDescription,
         isPublic,
+        slug: customSlug || null,
       });
-      
       setNewListName("");
       setNewListDescription("");
       setIsPublic(false);
+      setCustomSlug("");
       setIsCreateDialogOpen(false);
     } catch (error) {
       console.error('Error creating list:', error);
@@ -96,6 +117,18 @@ const CustomListsManager = () => {
                   onCheckedChange={setIsPublic}
                 />
                 <Label htmlFor="isPublic">Make this list public</Label>
+              </div>
+              <div>
+                <Label htmlFor="customSlug">Custom URL (optional)</Label>
+                <Input
+                  id="customSlug"
+                  value={customSlug}
+                  onChange={e => setCustomSlug(e.target.value.replace(/[^a-z0-9-]/gi, '').toLowerCase())}
+                  onBlur={e => customSlug && checkSlugAvailability(e.target.value)}
+                  placeholder="e.g. richs-funkos-for-sale-v1"
+                  className="bg-gray-800 border-gray-700"
+                />
+                {slugError && <span className="text-red-500 text-xs">{slugError}</span>}
               </div>
               <Button 
                 onClick={handleCreateList}

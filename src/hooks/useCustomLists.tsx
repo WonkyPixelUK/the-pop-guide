@@ -73,10 +73,11 @@ export const useCustomLists = () => {
   });
 
   const createList = useMutation({
-    mutationFn: async ({ name, description, isPublic }: { 
+    mutationFn: async ({ name, description, isPublic, slug }: { 
       name: string; 
       description?: string; 
       isPublic?: boolean;
+      slug?: string | null;
     }) => {
       if (!user) throw new Error('User not authenticated');
       
@@ -87,6 +88,7 @@ export const useCustomLists = () => {
           name,
           description,
           is_public: isPublic || false,
+          slug: slug || null,
         })
         .select()
         .single();
@@ -108,17 +110,20 @@ export const useCustomLists = () => {
       listId, 
       name, 
       description, 
-      isPublic 
+      isPublic, 
+      slug 
     }: { 
       listId: string; 
       name?: string; 
       description?: string; 
       isPublic?: boolean; 
+      slug?: string | null;
     }) => {
       const updateData: any = {};
       if (name !== undefined) updateData.name = name;
       if (description !== undefined) updateData.description = description;
       if (isPublic !== undefined) updateData.is_public = isPublic;
+      if (slug !== undefined) updateData.slug = slug;
       updateData.updated_at = new Date().toISOString();
 
       const { data, error } = await supabase
