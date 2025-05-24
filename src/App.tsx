@@ -14,6 +14,8 @@ import Contact from "./pages/Contact";
 import Profile from "./pages/Profile";
 import ProfileSettings from "./pages/ProfileSettings";
 import ScrapingStatus from "./pages/ScrapingStatus";
+import PublicListView from "./pages/PublicListView";
+import BrowseLists from "./pages/BrowseLists";
 import NotFound from "./pages/NotFound";
 
 const queryClient = new QueryClient();
@@ -35,6 +37,8 @@ const App = () => (
           <Route path="/profile/:username" element={<Profile />} />
           <Route path="/profile-settings" element={<ProfileSettings />} />
           <Route path="/scraping-status" element={<ScrapingStatus />} />
+          <Route path="/lists/:listId" element={<PublicListView />} />
+          <Route path="/browse-lists" element={<BrowseLists />} />
           {/* ADD ALL CUSTOM ROUTES ABOVE THE CATCH-ALL "*" ROUTE */}
           <Route path="*" element={<NotFound />} />
         </Routes>

@@ -7,16 +7,18 @@ import { Label } from "@/components/ui/label";
 import { Textarea } from "@/components/ui/textarea";
 import { Switch } from "@/components/ui/switch";
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger } from "@/components/ui/dialog";
-import { Plus, List, Eye, EyeOff } from "lucide-react";
+import { Plus, List, Eye, EyeOff, Settings, Trash2 } from "lucide-react";
 import { useCustomLists } from "@/hooks/useCustomLists";
+import ListManagementDialog from "./ListManagementDialog";
 
 const CustomListsManager = () => {
   const [isCreateDialogOpen, setIsCreateDialogOpen] = useState(false);
+  const [managingListId, setManagingListId] = useState<string | null>(null);
   const [newListName, setNewListName] = useState("");
   const [newListDescription, setNewListDescription] = useState("");
   const [isPublic, setIsPublic] = useState(false);
 
-  const { lists, isLoading, createList } = useCustomLists();
+  const { lists, isLoading, createList, deleteList } = useCustomLists();
 
   const handleCreateList = async () => {
     if (!newListName.trim()) return;
@@ -34,6 +36,16 @@ const CustomListsManager = () => {
       setIsCreateDialogOpen(false);
     } catch (error) {
       console.error('Error creating list:', error);
+    }
+  };
+
+  const handleDeleteList = async (listId: string, listName: string) => {
+    if (confirm(`Are you sure you want to delete "${listName}"? This action cannot be undone.`)) {
+      try {
+        await deleteList.mutateAsync(listId);
+      } catch (error) {
+        console.error('Error deleting list:', error);
+      }
     }
   };
 
@@ -104,26 +116,62 @@ const CustomListsManager = () => {
               <CardTitle className="flex items-center justify-between text-white">
                 <div className="flex items-center space-x-2">
                   <List className="w-5 h-5" />
-                  <span>{list.name}</span>
+                  <span className="line-clamp-1">{list.name}</span>
                 </div>
-                {list.is_public ? (
-                  <Eye className="w-4 h-4 text-green-500" />
-                ) : (
-                  <EyeOff className="w-4 h-4 text-gray-500" />
-                )}
+                <div className="flex items-center space-x-2">
+                  {list.is_public ? (
+                    <Eye className="w-4 h-4 text-green-500" />
+                  ) : (
+                    <EyeOff className="w-4 h-4 text-gray-500" />
+                  )}
+                  <Button
+                    variant="ghost"
+                    size="sm"
+                    onClick={() => handleDeleteList(list.id, list.name)}
+                    className="text-red-400 hover:text-red-300 p-1"
+                  >
+                    <Trash2 className="w-4 h-4" />
+                  </Button>
+                </div>
               </CardTitle>
             </CardHeader>
             <CardContent>
               {list.description && (
-                <p className="text-gray-400 text-sm mb-3">{list.description}</p>
+                <p className="text-gray-400 text-sm mb-3 line-clamp-2">{list.description}</p>
               )}
-              <div className="flex justify-between items-center">
-                <span className="text-gray-300 text-sm">
-                  {list.list_items?.length || 0} items
-                </span>
-                <Button variant="outline" size="sm" className="border-gray-600">
-                  Manage
-                </Button>
+              <div className="space-y-3">
+                <div className="flex justify-between items-center">
+                  <span className="text-gray-300 text-sm">
+                    {list.list_items?.length || 0} items
+                  </span>
+                  <span className="text-gray-300 text-sm">
+                    {list.is_public ? 'Public' : 'Private'}
+                  </span>
+                </div>
+                <div className="flex space-x-2">
+                  <Button 
+                    variant="outline" 
+                    size="sm" 
+                    className="border-gray-600 flex-1"
+                    onClick={() => setManagingListId(list.id)}
+                  >
+                    <Settings className="w-4 h-4 mr-2" />
+                    Manage
+                  </Button>
+                  {list.is_public && (
+                    <Button 
+                      variant="outline" 
+                      size="sm" 
+                      className="border-gray-600"
+                      onClick={() => {
+                        const shareUrl = `${window.location.origin}/lists/${list.id}`;
+                        navigator.clipboard.writeText(shareUrl);
+                      }}
+                    >
+                      Share
+                    </Button>
+                  )}
+                </div>
               </div>
             </CardContent>
           </Card>
@@ -140,6 +188,15 @@ const CustomListsManager = () => {
             </p>
           </CardContent>
         </Card>
+      )}
+
+      {/* List Management Dialog */}
+      {managingListId && (
+        <ListManagementDialog
+          listId={managingListId}
+          open={!!managingListId}
+          onOpenChange={(open) => !open && setManagingListId(null)}
+        />
       )}
     </div>
   );

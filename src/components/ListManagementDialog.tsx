@@ -1,0 +1,290 @@
+
+import { useState } from "react";
+import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/components/ui/dialog";
+import { Button } from "@/components/ui/button";
+import { Input } from "@/components/ui/input";
+import { Label } from "@/components/ui/label";
+import { Textarea } from "@/components/ui/textarea";
+import { Switch } from "@/components/ui/switch";
+import { Badge } from "@/components/ui/badge";
+import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
+import { Trash2, Search, Plus, Share2, Copy } from "lucide-react";
+import { useCustomLists } from "@/hooks/useCustomLists";
+import { useFunkoPops } from "@/hooks/useFunkoPops";
+import { useToast } from "@/hooks/use-toast";
+
+interface ListManagementDialogProps {
+  listId: string;
+  open: boolean;
+  onOpenChange: (open: boolean) => void;
+}
+
+const ListManagementDialog = ({ listId, open, onOpenChange }: ListManagementDialogProps) => {
+  const [searchTerm, setSearchTerm] = useState("");
+  const [editMode, setEditMode] = useState(false);
+  const [editName, setEditName] = useState("");
+  const [editDescription, setEditDescription] = useState("");
+  const [editIsPublic, setEditIsPublic] = useState(false);
+
+  const { toast } = useToast();
+  const { lists, updateList, addItemToList, removeItemFromList } = useCustomLists();
+  const { data: allFunkoPops = [] } = useFunkoPops();
+
+  const currentList = lists.find(list => list.id === listId);
+  
+  if (!currentList) return null;
+
+  const listItems = currentList.list_items || [];
+  const availablePops = allFunkoPops.filter(pop => 
+    !listItems.some(item => item.funko_pops?.id === pop.id) &&
+    (searchTerm === "" || 
+     pop.name.toLowerCase().includes(searchTerm.toLowerCase()) ||
+     pop.series.toLowerCase().includes(searchTerm.toLowerCase()))
+  );
+
+  const handleEdit = () => {
+    setEditName(currentList.name);
+    setEditDescription(currentList.description || "");
+    setEditIsPublic(currentList.is_public || false);
+    setEditMode(true);
+  };
+
+  const handleSaveEdit = async () => {
+    await updateList.mutateAsync({
+      listId: currentList.id,
+      name: editName,
+      description: editDescription,
+      isPublic: editIsPublic,
+    });
+    setEditMode(false);
+  };
+
+  const handleShare = () => {
+    const shareUrl = `${window.location.origin}/lists/${listId}`;
+    navigator.clipboard.writeText(shareUrl);
+    toast({
+      title: "Link copied!",
+      description: "The list share link has been copied to your clipboard",
+    });
+  };
+
+  const calculateListValue = () => {
+    return listItems.reduce((total, item) => {
+      return total + (item.funko_pops?.estimated_value || 0);
+    }, 0);
+  };
+
+  return (
+    <Dialog open={open} onOpenChange={onOpenChange}>
+      <DialogContent className="max-w-4xl max-h-[80vh] bg-gray-900 border-gray-700 text-white">
+        <DialogHeader>
+          <DialogTitle className="flex items-center justify-between">
+            <div>
+              {editMode ? (
+                <Input
+                  value={editName}
+                  onChange={(e) => setEditName(e.target.value)}
+                  className="bg-gray-800 border-gray-700 text-white"
+                />
+              ) : (
+                <span>{currentList.name}</span>
+              )}
+            </div>
+            <div className="flex items-center space-x-2">
+              {currentList.is_public && (
+                <Button
+                  variant="outline"
+                  size="sm"
+                  onClick={handleShare}
+                  className="border-gray-600"
+                >
+                  <Share2 className="w-4 h-4 mr-2" />
+                  Share
+                </Button>
+              )}
+              <Button
+                variant="outline"
+                size="sm"
+                onClick={editMode ? handleSaveEdit : handleEdit}
+                className="border-gray-600"
+              >
+                {editMode ? "Save" : "Edit"}
+              </Button>
+            </div>
+          </DialogTitle>
+        </DialogHeader>
+
+        <Tabs defaultValue="items" className="w-full">
+          <TabsList className="grid w-full grid-cols-3 bg-gray-800">
+            <TabsTrigger value="items">Items ({listItems.length})</TabsTrigger>
+            <TabsTrigger value="add">Add Items</TabsTrigger>
+            <TabsTrigger value="settings">Settings</TabsTrigger>
+          </TabsList>
+
+          <TabsContent value="items" className="space-y-4 max-h-96 overflow-y-auto">
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+              <div className="bg-gray-800 p-4 rounded">
+                <h3 className="font-semibold mb-2">List Statistics</h3>
+                <p>Total Items: {listItems.length}</p>
+                <p>Estimated Value: ${calculateListValue().toFixed(2)}</p>
+              </div>
+            </div>
+            
+            {listItems.length === 0 ? (
+              <div className="text-center py-8 text-gray-400">
+                <p>No items in this list yet</p>
+                <p>Switch to the "Add Items" tab to get started</p>
+              </div>
+            ) : (
+              <div className="space-y-2">
+                {listItems.map((item) => (
+                  <div key={item.id} className="flex items-center justify-between bg-gray-800 p-3 rounded">
+                    <div className="flex items-center space-x-3">
+                      {item.funko_pops?.image_url && (
+                        <img 
+                          src={item.funko_pops.image_url} 
+                          alt={item.funko_pops.name}
+                          className="w-12 h-12 object-cover rounded"
+                        />
+                      )}
+                      <div>
+                        <p className="font-medium">{item.funko_pops?.name}</p>
+                        <p className="text-sm text-gray-400">{item.funko_pops?.series}</p>
+                        {item.funko_pops?.estimated_value && (
+                          <Badge variant="secondary">${item.funko_pops.estimated_value}</Badge>
+                        )}
+                      </div>
+                    </div>
+                    <Button
+                      variant="ghost"
+                      size="sm"
+                      onClick={() => removeItemFromList.mutateAsync({
+                        listId: currentList.id,
+                        funkoPopId: item.funko_pops?.id || ''
+                      })}
+                      className="text-red-400 hover:text-red-300"
+                    >
+                      <Trash2 className="w-4 h-4" />
+                    </Button>
+                  </div>
+                ))}
+              </div>
+            )}
+          </TabsContent>
+
+          <TabsContent value="add" className="space-y-4">
+            <div className="relative">
+              <Search className="absolute left-3 top-3 w-4 h-4 text-gray-400" />
+              <Input
+                placeholder="Search Funko Pops to add..."
+                value={searchTerm}
+                onChange={(e) => setSearchTerm(e.target.value)}
+                className="pl-10 bg-gray-800 border-gray-700"
+              />
+            </div>
+            
+            <div className="max-h-96 overflow-y-auto space-y-2">
+              {availablePops.slice(0, 50).map((pop) => (
+                <div key={pop.id} className="flex items-center justify-between bg-gray-800 p-3 rounded">
+                  <div className="flex items-center space-x-3">
+                    {pop.image_url && (
+                      <img 
+                        src={pop.image_url} 
+                        alt={pop.name}
+                        className="w-12 h-12 object-cover rounded"
+                      />
+                    )}
+                    <div>
+                      <p className="font-medium">{pop.name}</p>
+                      <p className="text-sm text-gray-400">{pop.series}</p>
+                      {pop.estimated_value && (
+                        <Badge variant="secondary">${pop.estimated_value}</Badge>
+                      )}
+                    </div>
+                  </div>
+                  <Button
+                    variant="ghost"
+                    size="sm"
+                    onClick={() => addItemToList.mutateAsync({
+                      listId: currentList.id,
+                      funkoPopId: pop.id
+                    })}
+                    className="text-green-400 hover:text-green-300"
+                  >
+                    <Plus className="w-4 h-4" />
+                  </Button>
+                </div>
+              ))}
+            </div>
+          </TabsContent>
+
+          <TabsContent value="settings" className="space-y-4">
+            {editMode ? (
+              <>
+                <div>
+                  <Label htmlFor="editName">List Name</Label>
+                  <Input
+                    id="editName"
+                    value={editName}
+                    onChange={(e) => setEditName(e.target.value)}
+                    className="bg-gray-800 border-gray-700"
+                  />
+                </div>
+                <div>
+                  <Label htmlFor="editDescription">Description</Label>
+                  <Textarea
+                    id="editDescription"
+                    value={editDescription}
+                    onChange={(e) => setEditDescription(e.target.value)}
+                    className="bg-gray-800 border-gray-700"
+                  />
+                </div>
+                <div className="flex items-center space-x-2">
+                  <Switch
+                    id="editIsPublic"
+                    checked={editIsPublic}
+                    onCheckedChange={setEditIsPublic}
+                  />
+                  <Label htmlFor="editIsPublic">Make this list public</Label>
+                </div>
+              </>
+            ) : (
+              <div className="space-y-4">
+                <div>
+                  <h3 className="font-semibold mb-2">Current Settings</h3>
+                  <p><strong>Name:</strong> {currentList.name}</p>
+                  <p><strong>Description:</strong> {currentList.description || 'No description'}</p>
+                  <p><strong>Visibility:</strong> {currentList.is_public ? 'Public' : 'Private'}</p>
+                  <p><strong>Created:</strong> {new Date(currentList.created_at).toLocaleDateString()}</p>
+                </div>
+                
+                {currentList.is_public && (
+                  <div className="bg-gray-800 p-4 rounded">
+                    <h4 className="font-medium mb-2">Share this list</h4>
+                    <div className="flex items-center space-x-2">
+                      <Input
+                        value={`${window.location.origin}/lists/${listId}`}
+                        readOnly
+                        className="bg-gray-700 border-gray-600"
+                      />
+                      <Button
+                        variant="outline"
+                        size="sm"
+                        onClick={handleShare}
+                        className="border-gray-600"
+                      >
+                        <Copy className="w-4 h-4" />
+                      </Button>
+                    </div>
+                  </div>
+                )}
+              </div>
+            )}
+          </TabsContent>
+        </Tabs>
+      </DialogContent>
+    </Dialog>
+  );
+};
+
+export default ListManagementDialog;
