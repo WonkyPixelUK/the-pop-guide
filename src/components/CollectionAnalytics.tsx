@@ -9,14 +9,16 @@ interface CollectionAnalyticsProps {
 }
 
 const CollectionAnalytics = ({ userCollection, funkoPops }: CollectionAnalyticsProps) => {
-  // Calculate analytics data
-  const totalValue = userCollection.reduce((sum, item) => 
-    sum + (item.funko_pops?.estimated_value || 0), 0
-  );
+  // Calculate analytics data with proper type safety
+  const totalValue = userCollection.reduce((sum, item) => {
+    const value = item.funko_pops?.estimated_value;
+    return sum + (typeof value === 'number' ? value : 0);
+  }, 0);
   
-  const totalInvested = userCollection.reduce((sum, item) => 
-    sum + (item.purchase_price || 0), 0
-  );
+  const totalInvested = userCollection.reduce((sum, item) => {
+    const price = item.purchase_price;
+    return sum + (typeof price === 'number' ? price : 0);
+  }, 0);
   
   const roi = totalInvested > 0 ? ((totalValue - totalInvested) / totalInvested) * 100 : 0;
   
@@ -48,6 +50,9 @@ const CollectionAnalytics = ({ userCollection, funkoPops }: CollectionAnalyticsP
   ).length;
 
   const averageValue = userCollection.length > 0 ? totalValue / userCollection.length : 0;
+
+  const topSeriesName = Object.keys(seriesDistribution)[0] || 'N/A';
+  const topSeriesCount = Object.values(seriesDistribution)[0] || 0;
 
   return (
     <div className="space-y-6">
@@ -188,8 +193,8 @@ const CollectionAnalytics = ({ userCollection, funkoPops }: CollectionAnalyticsP
             </div>
             <div className="text-center">
               <h4 className="text-lg font-semibold text-white mb-2">Most Collected Series</h4>
-              <p className="text-gray-400">{Object.keys(seriesDistribution)[0] || 'N/A'}</p>
-              <p className="text-orange-500 font-bold">{Object.values(seriesDistribution)[0] || 0} items</p>
+              <p className="text-gray-400">{topSeriesName}</p>
+              <p className="text-orange-500 font-bold">{topSeriesCount} items</p>
             </div>
             <div className="text-center">
               <h4 className="text-lg font-semibold text-white mb-2">Completion Rate</h4>
