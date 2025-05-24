@@ -16,6 +16,7 @@ import { useWishlist } from "@/hooks/useWishlist";
 import { useToast } from "@/hooks/use-toast";
 import { useNavigate, Link } from "react-router-dom";
 import GlobalSearch from '@/components/GlobalSearch';
+import ScraperStatusWidget from '@/components/ScraperStatusWidget';
 
 const Dashboard = () => {
   const [searchQuery, setSearchQuery] = useState("");
@@ -108,6 +109,7 @@ const Dashboard = () => {
                 className="h-10 w-auto"
               />
               <GlobalSearch />
+              <ScraperStatusWidget />
             </div>
             <div className="flex items-center space-x-2">
               <span className="text-white mr-2">Welcome, {user.user_metadata?.full_name || user.email}</span>
@@ -121,7 +123,7 @@ const Dashboard = () => {
               <Link to="/profile-settings">
                 <Button 
                   variant="outline"
-                  className="border-gray-600 text-white hover:bg-gray-700"
+                  className="border-gray-600 text-blue-900 hover:bg-gray-700 hover:text-white dark:text-gray-200"
                 >
                   <Settings className="w-4 h-4 mr-2" />
                   Profile
@@ -130,7 +132,7 @@ const Dashboard = () => {
               <Button 
                 onClick={handleSignOut}
                 variant="outline"
-                className="border-gray-600 text-white hover:bg-gray-700"
+                className="border-gray-600 text-blue-900 hover:bg-gray-700 hover:text-white dark:text-gray-200"
               >
                 <LogOut className="w-4 h-4 mr-2" />
                 Sign Out
@@ -181,8 +183,8 @@ const Dashboard = () => {
         <div className="container mx-auto">
           <Tabs value={activeSection} onValueChange={setActiveSection} className="w-full">
             <TabsList className="grid w-full grid-cols-6 bg-gray-800 mb-8">
-              <TabsTrigger value="collection" className="data-[state=active]:bg-orange-500">
-                <Zap className="w-4 h-4 mr-2" /> Collection
+              <TabsTrigger value="recently-added" className="data-[state=active]:bg-orange-500">
+                <Zap className="w-4 h-4 mr-2" /> Recently Added
               </TabsTrigger>
               <TabsTrigger value="items-owned" className="data-[state=active]:bg-orange-500">
                 <Zap className="w-4 h-4 mr-2" /> Items Owned
@@ -202,14 +204,14 @@ const Dashboard = () => {
             </TabsList>
 
             {/* Collection Tab */}
-            <TabsContent value="collection" className="space-y-6">
+            <TabsContent value="recently-added" className="space-y-6">
               <div className="flex flex-col md:flex-row md:items-center md:justify-between mb-8">
-                <h2 className="text-3xl font-bold text-white mb-4 md:mb-0">My Collection</h2>
+                <h2 className="text-3xl font-bold text-white mb-4 md:mb-0">Recently Added</h2>
                 <div className="flex items-center space-x-4">
                   <div className="relative flex-1 md:w-80">
                     <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400 w-4 h-4" />
                     <Input
-                      placeholder="Search collection..."
+                      placeholder="Search recently added..."
                       value={searchQuery}
                       onChange={(e) => setSearchQuery(e.target.value)}
                       className="pl-10 bg-gray-800 border-gray-700 text-white placeholder-gray-400"
@@ -218,7 +220,23 @@ const Dashboard = () => {
                 </div>
               </div>
               <CollectionGrid 
-                items={transformedItems} 
+                items={userCollection
+                  .slice()
+                  .sort((a, b) => new Date(b.created_at).getTime() - new Date(a.created_at).getTime())
+                  .slice(0, 24)
+                  .map(item => ({
+                    id: item.funko_pops?.id,
+                    name: item.funko_pops?.name,
+                    series: item.funko_pops?.series,
+                    number: item.funko_pops?.number || "",
+                    image: item.funko_pops?.image_url || "/lovable-uploads/b7333c96-5576-426d-af76-6a6a97e8a1ea.png",
+                    value: item.funko_pops?.estimated_value || 0,
+                    rarity: item.funko_pops?.is_chase ? "Chase" : item.funko_pops?.is_exclusive ? "Exclusive" : "Common",
+                    owned: true,
+                    condition: item.condition,
+                    purchase_price: item.purchase_price,
+                  }))
+                }
                 onItemClick={setSelectedItem}
                 searchQuery={searchQuery}
                 showWishlistOnly={false}

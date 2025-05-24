@@ -1,4 +1,3 @@
-
 import { useState } from "react";
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/components/ui/dialog";
 import { Button } from "@/components/ui/button";
@@ -6,9 +5,9 @@ import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
-import { Search, Scan, Upload, Heart, Plus } from "lucide-react";
+import { Search, Scan, Upload, Heart, Plus, Check } from "lucide-react";
 import { useAuth } from "@/hooks/useAuth";
-import { useAddToCollection } from "@/hooks/useFunkoPops";
+import { useAddToCollection, useFunkoPops, useUserCollection } from "@/hooks/useFunkoPops";
 import { useWishlist } from "@/hooks/useWishlist";
 import { useToast } from "@/hooks/use-toast";
 
@@ -24,30 +23,29 @@ const EnhancedAddItemDialog = ({ open, onOpenChange }: EnhancedAddItemDialogProp
   const { user } = useAuth();
   const { toast } = useToast();
   const addToCollection = useAddToCollection();
-  const { addToWishlist } = useWishlist();
+  const { addToWishlist, wishlist } = useWishlist();
+  const { data: funkoPops = [] } = useFunkoPops();
+  const { data: userCollection = [] } = useUserCollection(user?.id);
 
-  const mockSearchResults = [
-    {
-      id: "1",
-      name: "Iron Man",
-      series: "Marvel",
-      number: "04",
-      image: "/lovable-uploads/b7333c96-5576-426d-af76-6a6a97e8a1ea.png",
-      value: 18.99,
-      is_chase: false,
-      is_exclusive: true,
-    },
-    {
-      id: "2",
-      name: "Wonder Woman",
-      series: "DC Comics",
-      number: "172",
-      image: "/lovable-uploads/b7333c96-5576-426d-af76-6a6a97e8a1ea.png",
-      value: 14.50,
-      is_chase: true,
-      is_exclusive: false,
-    }
-  ];
+  // Helper to normalize strings for search (case-insensitive, ignore punctuation)
+  function normalize(str: string) {
+    return str.toLowerCase().replace(/[^a-z0-9]/gi, '');
+  }
+
+  const normalizedSearch = normalize(searchQuery);
+  const searchResults =
+    normalizedSearch.length > 1
+      ? funkoPops.filter((pop) => {
+          return (
+            normalize(pop.name).includes(normalizedSearch) ||
+            (pop.series && normalize(pop.series).includes(normalizedSearch)) ||
+            (pop.number && normalize(pop.number).includes(normalizedSearch))
+          );
+        })
+      : [];
+
+  const isInWishlist = (id: string) => wishlist.some((item: any) => item.funko_pop_id === id);
+  const isInCollection = (id: string) => userCollection.some((item: any) => item.funko_pop_id === id);
 
   const handleAddToCollection = async (item: any) => {
     if (!user) {
@@ -58,7 +56,6 @@ const EnhancedAddItemDialog = ({ open, onOpenChange }: EnhancedAddItemDialogProp
       });
       return;
     }
-
     try {
       await addToCollection.mutateAsync({
         funkoPopId: item.id,
@@ -66,7 +63,6 @@ const EnhancedAddItemDialog = ({ open, onOpenChange }: EnhancedAddItemDialogProp
         condition: selectedCondition,
         purchasePrice: purchasePrice ? parseFloat(purchasePrice) : undefined,
       });
-      
       onOpenChange(false);
     } catch (error) {
       console.error('Error adding to collection:', error);
@@ -82,7 +78,6 @@ const EnhancedAddItemDialog = ({ open, onOpenChange }: EnhancedAddItemDialogProp
       });
       return;
     }
-
     try {
       await addToWishlist.mutateAsync({
         funkoPopId: item.id,
@@ -158,7 +153,7 @@ const EnhancedAddItemDialog = ({ open, onOpenChange }: EnhancedAddItemDialogProp
             </div>
 
             <div className="space-y-2 max-h-96 overflow-y-auto">
-              {mockSearchResults.map((item) => (
+              {searchResults.map((item) => (
                 <div
                   key={item.id}
                   className="flex items-center space-x-4 p-4 bg-gray-800 rounded-lg hover:bg-gray-700 transition-colors"
@@ -185,21 +180,24 @@ const EnhancedAddItemDialog = ({ open, onOpenChange }: EnhancedAddItemDialogProp
                       ${item.value}
                     </div>
                     <div className="flex space-x-2">
-                      <Button 
-                        size="sm" 
-                        variant="outline"
-                        className="border-gray-600 hover:bg-gray-600"
+                      <Button
+                        size="sm"
+                        variant={isInWishlist(item.id) ? undefined : "outline"}
+                        className={isInWishlist(item.id) ? "bg-pink-600 text-white hover:bg-pink-700" : "border-gray-600 hover:bg-gray-600"}
+                        disabled={isInWishlist(item.id)}
                         onClick={() => handleAddToWishlist(item)}
                       >
-                        <Heart className="w-3 h-3 mr-1" />
+                        {isInWishlist(item.id) ? <Check className="w-3 h-3 mr-1" /> : <Heart className="w-3 h-3 mr-1" />}
                         Wishlist
                       </Button>
-                      <Button 
-                        size="sm" 
-                        className="bg-orange-500 hover:bg-orange-600"
+                      <Button
+                        size="sm"
+                        variant={isInCollection(item.id) ? undefined : "outline"}
+                        className={isInCollection(item.id) ? "bg-orange-500 text-white hover:bg-orange-600" : "border-gray-600 hover:bg-gray-600"}
+                        disabled={isInCollection(item.id)}
                         onClick={() => handleAddToCollection(item)}
                       >
-                        <Plus className="w-3 h-3 mr-1" />
+                        {isInCollection(item.id) ? <Check className="w-3 h-3 mr-1" /> : <Plus className="w-3 h-3 mr-1" />}
                         Add
                       </Button>
                     </div>

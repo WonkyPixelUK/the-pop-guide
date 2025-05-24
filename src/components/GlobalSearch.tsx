@@ -5,6 +5,11 @@ import { useAuth } from '@/hooks/useAuth';
 import { Button } from '@/components/ui/button';
 import { Loader2, Plus, Check } from 'lucide-react';
 
+// Helper to normalize strings for search (case-insensitive, ignore punctuation)
+function normalize(str: string) {
+  return str.toLowerCase().replace(/[^a-z0-9]/gi, '');
+}
+
 const GlobalSearch = () => {
   const { user } = useAuth();
   const { data: funkoPops = [], isLoading: funkoLoading } = useFunkoPops();
@@ -14,14 +19,16 @@ const GlobalSearch = () => {
   const [searchValue, setSearchValue] = useState("");
   const [addedId, setAddedId] = useState<string | null>(null);
 
+  const normalizedSearch = normalize(searchValue);
   const filteredResults =
-    searchValue.length > 1
-      ? funkoPops.filter(
-          (pop) =>
-            pop.name.toLowerCase().includes(searchValue.toLowerCase()) ||
-            (pop.series && pop.series.toLowerCase().includes(searchValue.toLowerCase())) ||
-            (pop.number && pop.number.toLowerCase().includes(searchValue.toLowerCase()))
-        )
+    normalizedSearch.length > 1
+      ? funkoPops.filter((pop) => {
+          return (
+            normalize(pop.name).includes(normalizedSearch) ||
+            (pop.series && normalize(pop.series).includes(normalizedSearch)) ||
+            (pop.number && normalize(pop.number).includes(normalizedSearch))
+          );
+        })
       : [];
 
   const isOwned = (id: string) =>
