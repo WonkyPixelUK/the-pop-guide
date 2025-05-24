@@ -25,11 +25,11 @@ const CollectionAnalytics = ({ userCollection, funkoPops }: CollectionAnalyticsP
   const numericTotalInvested = typeof totalInvested === 'number' ? totalInvested : 0;
   const roi = numericTotalInvested > 0 ? ((numericTotalValue - numericTotalInvested) / numericTotalInvested) * 100 : 0;
   
-  // Fix type safety for series distribution
+  // Fix type safety for series distribution with explicit number initialization
   const seriesDistribution = userCollection.reduce((acc: Record<string, number>, item) => {
     const series = item.funko_pops?.series || 'Unknown';
-    const currentCount = acc[series];
-    acc[series] = (typeof currentCount === 'number' ? currentCount : 0) + 1;
+    // Initialize with 0 if undefined, then add 1
+    acc[series] = (acc[series] ?? 0) + 1;
     return acc;
   }, {} as Record<string, number>);
 
@@ -56,10 +56,10 @@ const CollectionAnalytics = ({ userCollection, funkoPops }: CollectionAnalyticsP
 
   const averageValue = userCollection.length > 0 ? numericTotalValue / userCollection.length : 0;
 
-  // Fix type safety for series distribution
+  // Fix type safety for series distribution with explicit typing
   const seriesEntries = Object.entries(seriesDistribution);
-  const topSeriesName = seriesEntries.length > 0 ? seriesEntries[0][0] : 'N/A';
-  const topSeriesCount = seriesEntries.length > 0 ? seriesEntries[0][1] : 0;
+  const topSeriesName: string = seriesEntries.length > 0 ? seriesEntries[0][0] : 'N/A';
+  const topSeriesCount: number = seriesEntries.length > 0 ? seriesEntries[0][1] : 0;
 
   return (
     <div className="space-y-6">
