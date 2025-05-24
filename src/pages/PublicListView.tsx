@@ -106,7 +106,7 @@ const PublicListView = () => {
                 <p className="text-gray-400">Est. Value</p>
               </div>
               <div className="bg-gray-800 p-4 rounded">
-                <p className="text-lg font-semibold text-blue-400">{list.profiles?.full_name || 'Anonymous'}</p>
+                <p className="text-lg font-semibold text-blue-400">{(list as any).profiles?.full_name || 'Anonymous'}</p>
                 <p className="text-gray-400">Creator</p>
               </div>
               <div className="bg-gray-800 p-4 rounded">

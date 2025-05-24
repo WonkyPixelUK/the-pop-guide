@@ -15,7 +15,7 @@ const BrowseLists = () => {
   const filteredLists = publicLists.filter(list =>
     list.name.toLowerCase().includes(searchTerm.toLowerCase()) ||
     (list.description && list.description.toLowerCase().includes(searchTerm.toLowerCase())) ||
-    (list.profiles?.full_name && list.profiles.full_name.toLowerCase().includes(searchTerm.toLowerCase()))
+    ((list as any).profiles?.full_name && (list as any).profiles.full_name.toLowerCase().includes(searchTerm.toLowerCase()))
   );
 
   const calculateListValue = (list: any) => {
@@ -137,7 +137,7 @@ const BrowseLists = () => {
                     <div className="flex items-center space-x-2">
                       <User className="w-4 h-4 text-gray-400" />
                       <span className="text-sm text-gray-300">
-                        {list.profiles?.full_name || 'Anonymous'}
+                        {(list as any).profiles?.full_name || 'Anonymous'}
                       </span>
                     </div>
                     <div className="flex items-center space-x-1 text-xs text-gray-400">
