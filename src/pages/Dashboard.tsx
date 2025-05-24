@@ -1,4 +1,3 @@
-
 import { useState, useEffect } from "react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -16,11 +15,13 @@ import { useFunkoPops, useUserCollection } from "@/hooks/useFunkoPops";
 import { useWishlist } from "@/hooks/useWishlist";
 import { useToast } from "@/hooks/use-toast";
 import { useNavigate, Link } from "react-router-dom";
+import GlobalSearch from '@/components/GlobalSearch';
 
 const Dashboard = () => {
   const [searchQuery, setSearchQuery] = useState("");
   const [isAddDialogOpen, setIsAddDialogOpen] = useState(false);
   const [selectedItem, setSelectedItem] = useState(null);
+  const [activeSection, setActiveSection] = useState("collection");
   
   const { user, loading: authLoading, signOut } = useAuth();
   const { data: funkoPops = [], isLoading: funkoLoading } = useFunkoPops();
@@ -80,6 +81,8 @@ const Dashboard = () => {
   const uniqueSeries = new Set(userCollection.map(item => item.funko_pops?.series)).size;
   const wishlistCount = wishlist.length;
 
+  const handleStatClick = (section) => setActiveSection(section);
+
   if (authLoading || funkoLoading) {
     return (
       <div className="min-h-screen bg-gradient-to-br from-gray-900 via-gray-800 to-black flex items-center justify-center">
@@ -99,10 +102,12 @@ const Dashboard = () => {
         <div className="container mx-auto px-4 py-4">
           <div className="flex items-center justify-between">
             <div className="flex items-center space-x-3">
-              <div className="text-2xl font-bold">
-                <span className="text-orange-500">Pop</span>
-                <span className="text-white">Guide</span>
-              </div>
+              <img
+                src="https://Maintainhq-pull-zone.b-cdn.net/02_the_pop_guide/pop-guide-logo-trans-white.svg"
+                alt="PopGuide Logo"
+                className="h-10 w-auto"
+              />
+              <GlobalSearch />
             </div>
             <div className="flex items-center space-x-2">
               <span className="text-white mr-2">Welcome, {user.user_metadata?.full_name || user.email}</span>
@@ -139,28 +144,28 @@ const Dashboard = () => {
       <section className="py-8 px-4">
         <div className="container mx-auto">
           <div className="grid grid-cols-1 md:grid-cols-4 gap-6 max-w-6xl mx-auto mb-8">
-            <Card className="bg-gray-800/50 border-gray-700">
+            <Card className="bg-gray-800/50 border-gray-700 cursor-pointer hover:bg-gray-800/70 transition-colors" onClick={() => handleStatClick("analytics")}> 
               <CardContent className="p-6 text-center">
                 <BarChart3 className="w-8 h-8 text-orange-500 mx-auto mb-3" />
                 <div className="text-2xl font-bold text-white">${totalValue.toFixed(2)}</div>
                 <div className="text-gray-400">Collection Value</div>
               </CardContent>
             </Card>
-            <Card className="bg-gray-800/50 border-gray-700">
+            <Card className="bg-gray-800/50 border-gray-700 cursor-pointer hover:bg-gray-800/70 transition-colors" onClick={() => handleStatClick("items-owned")}> 
               <CardContent className="p-6 text-center">
                 <Zap className="w-8 h-8 text-orange-500 mx-auto mb-3" />
                 <div className="text-2xl font-bold text-white">{ownedCount}</div>
                 <div className="text-gray-400">Items Owned</div>
               </CardContent>
             </Card>
-            <Card className="bg-gray-800/50 border-gray-700">
+            <Card className="bg-gray-800/50 border-gray-700 cursor-pointer hover:bg-gray-800/70 transition-colors" onClick={() => handleStatClick("wishlist")}> 
               <CardContent className="p-6 text-center">
                 <Heart className="w-8 h-8 text-orange-500 mx-auto mb-3" />
                 <div className="text-2xl font-bold text-white">{wishlistCount}</div>
                 <div className="text-gray-400">Wishlist Items</div>
               </CardContent>
             </Card>
-            <Card className="bg-gray-800/50 border-gray-700">
+            <Card className="bg-gray-800/50 border-gray-700 cursor-pointer hover:bg-gray-800/70 transition-colors" onClick={() => handleStatClick("series-owned")}> 
               <CardContent className="p-6 text-center">
                 <Users className="w-8 h-8 text-orange-500 mx-auto mb-3" />
                 <div className="text-2xl font-bold text-white">{uniqueSeries}</div>
@@ -174,26 +179,29 @@ const Dashboard = () => {
       {/* Main Content */}
       <section className="py-8 px-4">
         <div className="container mx-auto">
-          <Tabs defaultValue="collection" className="w-full">
-            <TabsList className="grid w-full grid-cols-4 bg-gray-800 mb-8">
+          <Tabs value={activeSection} onValueChange={setActiveSection} className="w-full">
+            <TabsList className="grid w-full grid-cols-6 bg-gray-800 mb-8">
               <TabsTrigger value="collection" className="data-[state=active]:bg-orange-500">
-                <Zap className="w-4 h-4 mr-2" />
-                Collection
+                <Zap className="w-4 h-4 mr-2" /> Collection
+              </TabsTrigger>
+              <TabsTrigger value="items-owned" className="data-[state=active]:bg-orange-500">
+                <Zap className="w-4 h-4 mr-2" /> Items Owned
+              </TabsTrigger>
+              <TabsTrigger value="series-owned" className="data-[state=active]:bg-orange-500">
+                <Users className="w-4 h-4 mr-2" /> Series Owned
               </TabsTrigger>
               <TabsTrigger value="wishlist" className="data-[state=active]:bg-orange-500">
-                <Heart className="w-4 h-4 mr-2" />
-                Wishlist
+                <Heart className="w-4 h-4 mr-2" /> Wishlist
               </TabsTrigger>
               <TabsTrigger value="lists" className="data-[state=active]:bg-orange-500">
-                <List className="w-4 h-4 mr-2" />
-                Custom Lists
+                <List className="w-4 h-4 mr-2" /> Custom Lists
               </TabsTrigger>
               <TabsTrigger value="analytics" className="data-[state=active]:bg-orange-500">
-                <TrendingUp className="w-4 h-4 mr-2" />
-                Analytics
+                <TrendingUp className="w-4 h-4 mr-2" /> Analytics
               </TabsTrigger>
             </TabsList>
 
+            {/* Collection Tab */}
             <TabsContent value="collection" className="space-y-6">
               <div className="flex flex-col md:flex-row md:items-center md:justify-between mb-8">
                 <h2 className="text-3xl font-bold text-white mb-4 md:mb-0">My Collection</h2>
@@ -209,7 +217,6 @@ const Dashboard = () => {
                   </div>
                 </div>
               </div>
-
               <CollectionGrid 
                 items={transformedItems} 
                 onItemClick={setSelectedItem}
@@ -218,6 +225,84 @@ const Dashboard = () => {
               />
             </TabsContent>
 
+            {/* Items Owned Tab */}
+            <TabsContent value="items-owned" className="space-y-6">
+              <div className="flex flex-col md:flex-row md:items-center md:justify-between mb-8">
+                <h2 className="text-3xl font-bold text-white mb-4 md:mb-0">Items Owned</h2>
+                <div className="flex items-center space-x-4">
+                  <div className="relative flex-1 md:w-80">
+                    <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400 w-4 h-4" />
+                    <Input
+                      placeholder="Search owned items..."
+                      value={searchQuery}
+                      onChange={(e) => setSearchQuery(e.target.value)}
+                      className="pl-10 bg-gray-800 border-gray-700 text-white placeholder-gray-400"
+                    />
+                  </div>
+                </div>
+              </div>
+              <CollectionGrid 
+                items={transformedItems.filter(item => item.owned)} 
+                onItemClick={setSelectedItem}
+                searchQuery={searchQuery}
+                showWishlistOnly={false}
+              />
+            </TabsContent>
+
+            {/* Series Owned Tab */}
+            <TabsContent value="series-owned" className="space-y-6">
+              <div className="flex flex-col md:flex-row md:items-center md:justify-between mb-8">
+                <h2 className="text-3xl font-bold text-white mb-4 md:mb-0">Series Owned</h2>
+                <div className="flex items-center space-x-4">
+                  <div className="relative flex-1 md:w-80">
+                    <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400 w-4 h-4" />
+                    <Input
+                      placeholder="Search series..."
+                      value={searchQuery}
+                      onChange={(e) => setSearchQuery(e.target.value)}
+                      className="pl-10 bg-gray-800 border-gray-700 text-white placeholder-gray-400"
+                    />
+                  </div>
+                </div>
+              </div>
+              <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+                {Array.from(new Set(userCollection.map(item => item.funko_pops?.series)))
+                  .filter(series => series && series.toLowerCase().includes(searchQuery.toLowerCase()))
+                  .map(series => {
+                    const seriesItems = userCollection.filter(item => item.funko_pops?.series === series);
+                    const seriesValue = seriesItems.reduce((sum, item) => sum + (item.funko_pops?.estimated_value || 0), 0);
+                    return (
+                      <Card key={series} className="bg-gray-800/50 border-gray-700">
+                        <CardContent className="p-6">
+                          <h3 className="text-xl font-bold text-white mb-2">{series}</h3>
+                          <div className="space-y-2">
+                            <p className="text-gray-400">{seriesItems.length} item{seriesItems.length !== 1 ? 's' : ''}</p>
+                            <p className="text-orange-500 font-semibold">${seriesValue.toFixed(2)} total value</p>
+                            <div className="flex flex-wrap gap-2">
+                              {seriesItems.slice(0, 3).map(item => (
+                                <div key={item.id} className="w-12 h-12 bg-gray-700 rounded-lg overflow-hidden">
+                                  <img 
+                                    src={item.funko_pops?.image_url || "/lovable-uploads/b7333c96-5576-426d-af76-6a6a97e8a1ea.png"} 
+                                    alt={item.funko_pops?.name}
+                                    className="w-full h-full object-cover"
+                                  />
+                                </div>
+                              ))}
+                              {seriesItems.length > 3 && (
+                                <div className="w-12 h-12 bg-gray-700 rounded-lg flex items-center justify-center">
+                                  <span className="text-gray-400 text-sm">+{seriesItems.length - 3}</span>
+                                </div>
+                              )}
+                            </div>
+                          </div>
+                        </CardContent>
+                      </Card>
+                    );
+                  })}
+              </div>
+            </TabsContent>
+
+            {/* Wishlist Tab */}
             <TabsContent value="wishlist" className="space-y-6">
               <div className="flex flex-col md:flex-row md:items-center md:justify-between mb-8">
                 <h2 className="text-3xl font-bold text-white mb-4 md:mb-0">My Wishlist</h2>
@@ -233,7 +318,6 @@ const Dashboard = () => {
                   </div>
                 </div>
               </div>
-
               {wishlistLoading ? (
                 <div className="text-white">Loading wishlist...</div>
               ) : (
@@ -241,10 +325,12 @@ const Dashboard = () => {
               )}
             </TabsContent>
 
+            {/* Lists Tab */}
             <TabsContent value="lists">
               <CustomListsManager />
             </TabsContent>
 
+            {/* Analytics Tab */}
             <TabsContent value="analytics">
               <CollectionAnalytics userCollection={userCollection} funkoPops={funkoPops} />
             </TabsContent>

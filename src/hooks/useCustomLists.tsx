@@ -203,6 +203,26 @@ export const useCustomLists = () => {
     },
   });
 
+  const updateListItem = useMutation({
+    mutationFn: async ({ itemId, updates }: { itemId: string; updates: { is_wishlist?: boolean; is_trade?: boolean } }) => {
+      const { data, error } = await supabase
+        .from('list_items')
+        .update(updates)
+        .eq('id', itemId)
+        .select()
+        .single();
+      if (error) throw error;
+      return data;
+    },
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ['custom-lists'] });
+      toast({
+        title: 'Item updated',
+        description: 'List item updated successfully',
+      });
+    },
+  });
+
   return {
     lists,
     publicLists,
@@ -213,6 +233,7 @@ export const useCustomLists = () => {
     deleteList,
     addItemToList,
     removeItemFromList,
+    updateListItem,
   };
 };
 

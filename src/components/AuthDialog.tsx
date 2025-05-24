@@ -1,4 +1,3 @@
-
 import { useState } from 'react';
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from '@/components/ui/dialog';
 import { Button } from '@/components/ui/button';
@@ -18,7 +17,8 @@ const AuthDialog = ({ open, onOpenChange }: AuthDialogProps) => {
   const [password, setPassword] = useState('');
   const [fullName, setFullName] = useState('');
   const [loading, setLoading] = useState(false);
-  const { signUp, signIn } = useAuth();
+  const [isForgot, setIsForgot] = useState(false);
+  const { signUp, signIn, resetPassword } = useAuth();
   const { toast } = useToast();
 
   const handleSubmit = async (e: React.FormEvent) => {
@@ -26,28 +26,45 @@ const AuthDialog = ({ open, onOpenChange }: AuthDialogProps) => {
     setLoading(true);
 
     try {
-      let result;
-      if (isSignUp) {
-        result = await signUp(email, password, fullName);
+      if (isForgot) {
+        const result = await resetPassword(email);
+        if (result.error) {
+          toast({
+            title: "Error",
+            description: result.error.message,
+            variant: "destructive",
+          });
+        } else {
+          toast({
+            title: "Reset Email Sent",
+            description: "Check your email for a password reset link.",
+          });
+          setIsForgot(false);
+          setEmail("");
+        }
       } else {
-        result = await signIn(email, password);
-      }
-
-      if (result.error) {
-        toast({
-          title: "Error",
-          description: result.error.message,
-          variant: "destructive",
-        });
-      } else {
-        toast({
-          title: "Success",
-          description: isSignUp ? "Account created! Please check your email." : "Welcome back!",
-        });
-        onOpenChange(false);
-        setEmail('');
-        setPassword('');
-        setFullName('');
+        let result;
+        if (isSignUp) {
+          result = await signUp(email, password, fullName);
+        } else {
+          result = await signIn(email, password);
+        }
+        if (result.error) {
+          toast({
+            title: "Error",
+            description: result.error.message,
+            variant: "destructive",
+          });
+        } else {
+          toast({
+            title: "Success",
+            description: isSignUp ? "Account created! Please check your email." : "Welcome back!",
+          });
+          onOpenChange(false);
+          setEmail('');
+          setPassword('');
+          setFullName('');
+        }
       }
     } catch (error) {
       toast({
@@ -64,53 +81,100 @@ const AuthDialog = ({ open, onOpenChange }: AuthDialogProps) => {
     <Dialog open={open} onOpenChange={onOpenChange}>
       <DialogContent className="sm:max-w-[425px]">
         <DialogHeader>
-          <DialogTitle>{isSignUp ? 'Create Account' : 'Sign In'}</DialogTitle>
+          <DialogTitle>
+            {isForgot
+              ? 'Reset Password'
+              : isSignUp
+                ? 'Create Account'
+                : 'Sign In'}
+          </DialogTitle>
         </DialogHeader>
         <form onSubmit={handleSubmit} className="space-y-4">
-          {isSignUp && (
-            <div>
-              <Label htmlFor="fullName">Full Name</Label>
-              <Input
-                id="fullName"
-                type="text"
-                value={fullName}
-                onChange={(e) => setFullName(e.target.value)}
-                required
-              />
-            </div>
+          {isForgot ? (
+            <>
+              <div>
+                <Label htmlFor="forgot-email">Email</Label>
+                <Input
+                  id="forgot-email"
+                  type="email"
+                  value={email}
+                  onChange={(e) => setEmail(e.target.value)}
+                  required
+                />
+              </div>
+              <Button type="submit" className="w-full" disabled={loading}>
+                {loading ? 'Sending...' : 'Send reset link'}
+              </Button>
+              <Button
+                type="button"
+                variant="ghost"
+                className="w-full"
+                onClick={() => setIsForgot(false)}
+              >
+                Back to sign in
+              </Button>
+            </>
+          ) : (
+            <>
+              {isSignUp && (
+                <div>
+                  <Label htmlFor="fullName">Full Name</Label>
+                  <Input
+                    id="fullName"
+                    type="text"
+                    value={fullName}
+                    onChange={(e) => setFullName(e.target.value)}
+                    required
+                  />
+                </div>
+              )}
+              <div>
+                <Label htmlFor="email">Email</Label>
+                <Input
+                  id="email"
+                  type="email"
+                  value={email}
+                  onChange={(e) => setEmail(e.target.value)}
+                  required
+                />
+              </div>
+              {!isSignUp && (
+                <div className="flex items-center justify-between">
+                  <Label htmlFor="password">Password</Label>
+                  <button
+                    type="button"
+                    className="text-xs text-orange-500 hover:underline focus:outline-none"
+                    onClick={() => { setIsForgot(true); setPassword(""); }}
+                  >
+                    Forgot password?
+                  </button>
+                </div>
+              )}
+              {!isForgot && (
+                <>
+                  <Input
+                    id="password"
+                    type="password"
+                    value={password}
+                    onChange={(e) => setPassword(e.target.value)}
+                    required
+                    minLength={6}
+                  />
+                  <Button type="submit" className="w-full" disabled={loading}>
+                    {loading ? 'Loading...' : (isSignUp ? 'Create Account' : 'Sign In')}
+                  </Button>
+                  <Button
+                    type="button"
+                    variant="ghost"
+                    className="w-full"
+                    onClick={() => setIsSignUp(!isSignUp)}
+                  >
+                    {isSignUp ? 'Already have an account? Sign in' : "Don't have an account? Sign up"}
+                  </Button>
+                </>
+              )}
+            </>
           )}
-          <div>
-            <Label htmlFor="email">Email</Label>
-            <Input
-              id="email"
-              type="email"
-              value={email}
-              onChange={(e) => setEmail(e.target.value)}
-              required
-            />
-          </div>
-          <div>
-            <Label htmlFor="password">Password</Label>
-            <Input
-              id="password"
-              type="password"
-              value={password}
-              onChange={(e) => setPassword(e.target.value)}
-              required
-              minLength={6}
-            />
-          </div>
-          <Button type="submit" className="w-full" disabled={loading}>
-            {loading ? 'Loading...' : (isSignUp ? 'Create Account' : 'Sign In')}
-          </Button>
-          <Button
-            type="button"
-            variant="ghost"
-            className="w-full"
-            onClick={() => setIsSignUp(!isSignUp)}
-          >
-            {isSignUp ? 'Already have an account? Sign in' : "Don't have an account? Sign up"}
-          </Button>
         </form>
       </DialogContent>
     </Dialog>

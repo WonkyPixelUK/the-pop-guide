@@ -29,7 +29,7 @@
       [
         "expo-barcode-scanner",
         {
-          "cameraPermission": "Allow Pop Universe to access camera to scan Funko barcodes."
+          "cameraPermission": "Allow The Pop Guide to access camera to scan Funko barcodes."
         }
       ]
     ]

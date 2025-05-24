@@ -1,4 +1,3 @@
-
 import { useEffect, useState } from 'react';
 import { User } from '@supabase/supabase-js';
 import { supabase } from '@/integrations/supabase/client';
@@ -51,11 +50,17 @@ export const useAuth = () => {
     return { error };
   };
 
+  const resetPassword = async (email: string) => {
+    const { data, error } = await supabase.auth.resetPasswordForEmail(email);
+    return { data, error };
+  };
+
   return {
     user,
     loading,
     signUp,
     signIn,
     signOut,
+    resetPassword,
   };
 };
