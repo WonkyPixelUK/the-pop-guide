@@ -7,6 +7,7 @@ import { usePublicProfileByUsername } from '@/hooks/usePublicProfile';
 import { useFunkoPops, useUserCollection } from '@/hooks/useFunkoPops';
 import { Music, MessageCircle, Twitter, Instagram, Video, ShoppingBag, ArrowLeft, ExternalLink } from 'lucide-react';
 import CollectionGrid from '@/components/CollectionGrid';
+import CollectionInsights from '@/components/CollectionInsights';
 import { useState } from 'react';
 
 const Profile = () => {
@@ -136,7 +137,7 @@ const Profile = () => {
 
       {/* Profile Section */}
       <section className="py-8 px-4">
-        <div className="container mx-auto max-w-4xl">
+        <div className="container mx-auto max-w-6xl">
           <Card className="bg-gray-800/50 border-gray-700 mb-8">
             <CardHeader>
               <div className="flex items-start gap-6">
@@ -205,6 +206,16 @@ const Profile = () => {
               </CardContent>
             )}
           </Card>
+
+          {/* Collection Insights */}
+          {transformedItems.length > 0 && (
+            <div className="mb-8">
+              <CollectionInsights 
+                items={transformedItems} 
+                displayName={profile.display_name || profile.username || 'User'} 
+              />
+            </div>
+          )}
 
           {/* Collection Section */}
           <div className="mb-8">
