@@ -3,7 +3,8 @@ import { useState } from "react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Card, CardContent } from "@/components/ui/card";
-import { Search, Plus, BarChart3, Users, Zap, LogIn, LogOut } from "lucide-react";
+import { Search, Plus, BarChart3, Users, Zap, LogIn, LogOut, Activity } from "lucide-react";
+import { Link } from "react-router-dom";
 import CollectionGrid from "@/components/CollectionGrid";
 import EnhancedAddItemDialog from "@/components/EnhancedAddItemDialog";
 import ItemDetailsDialog from "@/components/ItemDetailsDialog";
@@ -85,6 +86,21 @@ const Index = () => {
                 <span className="text-white">Guide</span>
               </div>
             </div>
+            <nav className="hidden md:flex items-center space-x-6">
+              <Link to="/dashboard" className="text-gray-300 hover:text-orange-500 transition-colors">
+                Dashboard
+              </Link>
+              <Link to="/features" className="text-gray-300 hover:text-orange-500 transition-colors">
+                Features
+              </Link>
+              <Link to="/scraping-status" className="text-gray-300 hover:text-orange-500 transition-colors flex items-center gap-1">
+                <Activity className="w-4 h-4" />
+                Scraping Status
+              </Link>
+              <Link to="/pricing" className="text-gray-300 hover:text-orange-500 transition-colors">
+                Pricing
+              </Link>
+            </nav>
             <div className="flex items-center space-x-2">
               {user ? (
                 <>
