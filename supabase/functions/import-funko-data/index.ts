@@ -75,13 +75,21 @@ serve(async (req) => {
 
     console.log('Starting Funko Pop data import...');
 
-    // Try multiple potential GitHub URLs and repositories
+    // Updated URLs based on common repository patterns
     const possibleUrls = [
-      'https://raw.githubusercontent.com/kennymkchan/funko-pop-data/main/data/funkos.json',
-      'https://raw.githubusercontent.com/kennymkchan/funko-pop-data/master/data/funkos.json',
-      'https://raw.githubusercontent.com/kennymkchan/funko-pop-data/main/funkos.json',
+      // Most likely correct paths based on repository naming patterns
+      'https://raw.githubusercontent.com/kennymkchan/funko-pop-data/master/data.json',
+      'https://raw.githubusercontent.com/kennymkchan/funko-pop-data/main/data.json',
       'https://raw.githubusercontent.com/kennymkchan/funko-pop-data/master/funkos.json',
-      // Try alternative repositories
+      'https://raw.githubusercontent.com/kennymkchan/funko-pop-data/main/funkos.json',
+      'https://raw.githubusercontent.com/kennymkchan/funko-pop-data/master/funko-data.json',
+      'https://raw.githubusercontent.com/kennymkchan/funko-pop-data/main/funko-data.json',
+      // Try with subdirectories
+      'https://raw.githubusercontent.com/kennymkchan/funko-pop-data/master/data/data.json',
+      'https://raw.githubusercontent.com/kennymkchan/funko-pop-data/main/data/data.json',
+      'https://raw.githubusercontent.com/kennymkchan/funko-pop-data/master/src/data.json',
+      'https://raw.githubusercontent.com/kennymkchan/funko-pop-data/main/src/data.json',
+      // Alternative repositories as backup
       'https://raw.githubusercontent.com/funko-pop-database/funko-pops/main/data.json',
       'https://raw.githubusercontent.com/funko-pop-database/funko-pops/master/data.json'
     ];
@@ -93,34 +101,58 @@ serve(async (req) => {
     // Try each URL until one works
     for (const url of possibleUrls) {
       try {
-        console.log(`Trying URL: ${url}`);
+        console.log(`Attempting to fetch from: ${url}`);
         const response = await fetch(url);
+        
+        console.log(`Response status: ${response.status} ${response.statusText}`);
         
         if (response.ok) {
           const contentType = response.headers.get('content-type');
-          console.log(`Response content-type: ${contentType}`);
+          console.log(`Content-Type: ${contentType}`);
           
-          const data = await response.json();
-          console.log(`Fetched data type: ${typeof data}, length: ${Array.isArray(data) ? data.length : 'not array'}`);
+          const responseText = await response.text();
+          console.log(`Response text length: ${responseText.length}`);
+          console.log(`First 200 chars: ${responseText.substring(0, 200)}`);
           
-          if (Array.isArray(data) && data.length > 0) {
-            rawData = data;
-            successfulUrl = url;
-            console.log(`Successfully fetched ${rawData.length} records from: ${url}`);
-            break;
+          try {
+            const data = JSON.parse(responseText);
+            console.log(`Parsed data type: ${typeof data}`);
+            console.log(`Is array: ${Array.isArray(data)}`);
+            
+            if (Array.isArray(data)) {
+              console.log(`Array length: ${data.length}`);
+              if (data.length > 0) {
+                console.log(`First item keys: ${Object.keys(data[0]).join(', ')}`);
+                rawData = data;
+                successfulUrl = url;
+                console.log(`✅ Successfully fetched ${rawData.length} records from: ${url}`);
+                break;
+              }
+            } else if (data && typeof data === 'object') {
+              // Check if it's an object with a data property
+              if (data.data && Array.isArray(data.data)) {
+                console.log(`Found data array in object, length: ${data.data.length}`);
+                rawData = data.data;
+                successfulUrl = url;
+                console.log(`✅ Successfully fetched ${rawData.length} records from data property: ${url}`);
+                break;
+              }
+            }
+          } catch (parseError) {
+            console.log(`JSON parse error for ${url}:`, parseError.message);
           }
         } else {
-          console.log(`HTTP ${response.status}: ${response.statusText} for ${url}`);
+          console.log(`❌ HTTP ${response.status}: ${response.statusText} for ${url}`);
         }
       } catch (urlError) {
-        console.log(`Failed to fetch from ${url}:`, urlError.message);
+        console.log(`❌ Network error for ${url}:`, urlError.message);
         continue;
       }
     }
 
     // If no URLs worked, use sample data
     if (rawData.length === 0) {
-      console.log('No external data source available, using sample data');
+      console.log('⚠️ No external data source available, using sample data');
       rawData = sampleFunkoData;
       usedSampleData = true;
       successfulUrl = 'Sample Data';
