@@ -1,3 +1,4 @@
+
 import { serve } from "https://deno.land/std@0.168.0/http/server.ts"
 import { createClient } from 'https://esm.sh/@supabase/supabase-js@2'
 
@@ -7,8 +8,11 @@ const corsHeaders = {
 }
 
 interface FunkoData {
-  name: string;
-  series: string;
+  handle?: string;
+  title?: string;
+  imageName?: string;
+  series?: string[];
+  name?: string;
   number?: string;
   exclusive?: string;
   image?: string;
@@ -116,7 +120,7 @@ serve(async (req) => {
 
     // Updated list with the working URL first
     const possibleUrls = [
-      // WORKING URL - User provided this one!
+      // User provided working URL
       'https://raw.githubusercontent.com/kennymkchan/funko-pop-data/refs/heads/master/funko_pop.json',
       // Alternative branch references for the same repo
       'https://raw.githubusercontent.com/kennymkchan/funko-pop-data/master/funko_pop.json',
@@ -228,19 +232,33 @@ serve(async (req) => {
       }
     }
 
-    // Transform and filter data
+    // Transform and filter data - handle both old and new data formats
     const transformedData = rawData.map(item => {
-      const stickerInfo = detectStickerType(item.name, item.exclusive);
+      // Handle the GitHub data format (handle, title, imageName, series array)
+      const name = item.title || item.name || 'Unknown';
+      const series = Array.isArray(item.series) ? item.series[0] : (item.series || 'Unknown Series');
+      const imageUrl = item.imageName || item.image || null;
+      const exclusive = Array.isArray(item.series) && item.series.length > 1 ? item.series.slice(1).join(', ') : (item.exclusive || null);
+      
+      console.log(`🔄 Processing: ${name} - ${series}`);
+      
+      // Only call sticker detection if we have a valid name
+      const stickerInfo = name ? detectStickerType(name, exclusive) : {
+        isStickered: false,
+        stickerType: null,
+        multiplier: 1.0,
+        isChase: false
+      };
       
       return {
-        name: item.name?.trim() || 'Unknown',
-        series: item.series?.trim() || 'Unknown Series',
+        name: name?.trim() || 'Unknown',
+        series: series?.trim() || 'Unknown Series',
         number: item.number?.toString() || null,
         description: null,
-        image_url: item.image || null,
+        image_url: imageUrl,
         release_date: null,
-        is_exclusive: !!item.exclusive,
-        exclusive_to: item.exclusive || null,
+        is_exclusive: !!exclusive,
+        exclusive_to: exclusive,
         is_vaulted: !!item.vaulted,
         is_chase: stickerInfo.isChase,
         is_stickered: stickerInfo.isStickered,
@@ -399,12 +417,21 @@ serve(async (req) => {
   }
 });
 
-function detectStickerType(name: string, exclusive?: string): {
+function detectStickerType(name: string, exclusive?: string | null): {
   isStickered: boolean;
   stickerType: string | null;
   multiplier: number;
   isChase: boolean;
 } {
+  if (!name) {
+    return {
+      isStickered: false,
+      stickerType: null,
+      multiplier: 1.0,
+      isChase: false
+    };
+  }
+
   const nameUpper = name.toUpperCase();
   const exclusiveUpper = exclusive?.toUpperCase() || '';
   
