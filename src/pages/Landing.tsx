@@ -1,4 +1,3 @@
-
 import { Button } from "@/components/ui/button";
 import { Card, CardContent } from "@/components/ui/card";
 import { BarChart3, Users, Zap, Star, Shield, TrendingUp, Smartphone, Globe, Monitor } from "lucide-react";
@@ -12,10 +11,11 @@ const Landing = () => {
         <div className="container mx-auto px-4 py-4">
           <div className="flex items-center justify-between">
             <div className="flex items-center space-x-3">
-              <div className="text-2xl font-bold">
-                <span className="text-orange-500">Pop</span>
-                <span className="text-white">Guide</span>
-              </div>
+              <img 
+                src="https://Maintainhq-pull-zone.b-cdn.net/02_the_pop_guide/pop-guide-logo-trans-white.svg" 
+                alt="PopGuide Logo" 
+                className="h-8 w-auto"
+              />
             </div>
             <nav className="hidden md:flex items-center space-x-6">
               <Link to="/features" className="text-gray-300 hover:text-orange-500 transition-colors">
@@ -210,10 +210,11 @@ const Landing = () => {
         <div className="container mx-auto">
           <div className="grid grid-cols-1 md:grid-cols-4 gap-8">
             <div>
-              <div className="text-2xl font-bold mb-4">
-                <span className="text-orange-500">Pop</span>
-                <span className="text-white">Guide</span>
-              </div>
+              <img 
+                src="https://Maintainhq-pull-zone.b-cdn.net/02_the_pop_guide/pop-guide-logo-trans-white.svg" 
+                alt="PopGuide Logo" 
+                className="h-8 w-auto mb-4"
+              />
               <p className="text-gray-400">
                 The ultimate platform for Funko Pop collectors to track, value, and showcase their collections.
               </p>

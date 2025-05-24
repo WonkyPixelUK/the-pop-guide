@@ -10,7 +10,7 @@ const corsHeaders = {
 };
 
 interface EmailRequest {
-  type: 'welcome' | 'contact' | 'reset' | 'milestone';
+  type: 'welcome' | 'contact' | 'reset' | 'milestone' | 'confirmation';
   to: string;
   data: any;
 }
@@ -29,6 +29,38 @@ const handler = async (req: Request): Promise<Response> => {
     let emailOptions;
 
     switch (type) {
+      case 'confirmation':
+        emailOptions = {
+          from: "PopGuide <hello@popguide.com>",
+          to: [to],
+          subject: "Confirm Your PopGuide Account ✉️",
+          html: `
+            <div style="font-family: Arial, sans-serif; max-width: 600px; margin: 0 auto;">
+              <div style="background: linear-gradient(135deg, #1f2937, #111827); padding: 40px; text-align: center;">
+                <img src="https://Maintainhq-pull-zone.b-cdn.net/02_the_pop_guide/pop-guide-logo-trans-white.svg" alt="PopGuide" style="height: 48px; margin-bottom: 20px;">
+                <h1 style="color: #f97316; font-size: 28px; margin: 0;">Confirm Your Account</h1>
+              </div>
+              <div style="padding: 40px; background: #ffffff;">
+                <h2 style="color: #1f2937; margin-bottom: 20px;">Welcome to PopGuide, ${data.fullName || 'Collector'}!</h2>
+                <p style="color: #374151; line-height: 1.6; margin-bottom: 20px;">
+                  Thank you for signing up! Please confirm your email address by clicking the button below to activate your account.
+                </p>
+                <div style="text-align: center; margin: 30px 0;">
+                  <a href="${data.confirmationUrl}" style="background: #f97316; color: white; padding: 15px 30px; text-decoration: none; border-radius: 8px; display: inline-block; font-weight: bold;">Confirm My Account</a>
+                </div>
+                <p style="color: #6b7280; font-size: 14px; text-align: center;">
+                  If the button doesn't work, copy and paste this link into your browser:<br>
+                  <a href="${data.confirmationUrl}" style="color: #f97316; word-break: break-all;">${data.confirmationUrl}</a>
+                </p>
+                <p style="color: #6b7280; font-size: 14px; text-align: center; margin-top: 20px;">
+                  If you didn't create this account, you can safely ignore this email.
+                </p>
+              </div>
+            </div>
+          `,
+        };
+        break;
+
       case 'welcome':
         emailOptions = {
           from: "PopGuide <hello@popguide.com>",
@@ -37,6 +69,7 @@ const handler = async (req: Request): Promise<Response> => {
           html: `
             <div style="font-family: Arial, sans-serif; max-width: 600px; margin: 0 auto;">
               <div style="background: linear-gradient(135deg, #1f2937, #111827); padding: 40px; text-align: center;">
+                <img src="https://Maintainhq-pull-zone.b-cdn.net/02_the_pop_guide/pop-guide-logo-trans-white.svg" alt="PopGuide" style="height: 48px; margin-bottom: 20px;">
                 <h1 style="color: #f97316; font-size: 32px; margin: 0;">PopGuide</h1>
                 <p style="color: #d1d5db; font-size: 18px; margin: 10px 0 0 0;">Your Ultimate Funko Pop Collection Manager</p>
               </div>
@@ -99,6 +132,7 @@ const handler = async (req: Request): Promise<Response> => {
           html: `
             <div style="font-family: Arial, sans-serif; max-width: 600px; margin: 0 auto;">
               <div style="background: linear-gradient(135deg, #1f2937, #111827); padding: 30px; text-align: center;">
+                <img src="https://Maintainhq-pull-zone.b-cdn.net/02_the_pop_guide/pop-guide-logo-trans-white.svg" alt="PopGuide" style="height: 40px; margin-bottom: 10px;">
                 <h1 style="color: #f97316; font-size: 28px; margin: 0;">PopGuide</h1>
               </div>
               <div style="padding: 30px; background: #ffffff;">
@@ -129,6 +163,7 @@ const handler = async (req: Request): Promise<Response> => {
           html: `
             <div style="font-family: Arial, sans-serif; max-width: 600px; margin: 0 auto;">
               <div style="background: linear-gradient(135deg, #1f2937, #111827); padding: 40px; text-align: center;">
+                <img src="https://Maintainhq-pull-zone.b-cdn.net/02_the_pop_guide/pop-guide-logo-trans-white.svg" alt="PopGuide" style="height: 48px; margin-bottom: 20px;">
                 <h1 style="color: #f97316; font-size: 32px; margin: 0;">🎉 Milestone Reached!</h1>
               </div>
               <div style="padding: 40px; background: #ffffff; text-align: center;">

@@ -25,11 +25,12 @@ const CollectionAnalytics = ({ userCollection, funkoPops }: CollectionAnalyticsP
   const numericTotalInvested = typeof totalInvested === 'number' ? totalInvested : 0;
   const roi = numericTotalInvested > 0 ? ((numericTotalValue - numericTotalInvested) / numericTotalInvested) * 100 : 0;
   
-  // Fix type safety for series distribution with explicit number initialization
-  const seriesDistribution = userCollection.reduce((acc: Record<string, number>, item) => {
+  // Fix type safety for series distribution with proper number handling
+  const seriesDistribution: Record<string, number> = userCollection.reduce((acc, item) => {
     const series = item.funko_pops?.series || 'Unknown';
-    // Initialize with 0 if undefined, then add 1
-    acc[series] = (acc[series] ?? 0) + 1;
+    // Ensure we're working with numbers
+    const currentCount = acc[series] || 0;
+    acc[series] = currentCount + 1;
     return acc;
   }, {} as Record<string, number>);
 
@@ -165,7 +166,7 @@ const CollectionAnalytics = ({ userCollection, funkoPops }: CollectionAnalyticsP
                   cy="50%"
                   labelLine={false}
                   label={({ name, percent }: { name: string; percent: number }) => 
-                    `${String(name)} ${(percent * 100).toFixed(0)}%`
+                    `${name} ${(percent * 100).toFixed(0)}%`
                   }
                   outerRadius={80}
                   fill="#8884d8"

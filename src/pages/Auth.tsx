@@ -1,3 +1,4 @@
+
 import { useState, useEffect } from 'react';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
@@ -70,10 +71,11 @@ const Auth = () => {
         {/* Header */}
         <div className="text-center mb-8">
           <Link to="/" className="inline-block">
-            <div className="text-3xl font-bold">
-              <span className="text-orange-500">Pop</span>
-              <span className="text-white">Guide</span>
-            </div>
+            <img 
+              src="https://Maintainhq-pull-zone.b-cdn.net/02_the_pop_guide/pop-guide-logo-trans-white.svg" 
+              alt="PopGuide Logo" 
+              className="h-12 w-auto mx-auto"
+            />
           </Link>
           <p className="text-gray-400 mt-2">
             {isSignUp ? 'Create your account to start collecting' : 'Welcome back to your collection'}
