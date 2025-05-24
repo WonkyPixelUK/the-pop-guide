@@ -1,3 +1,4 @@
+
 import { serve } from "https://deno.land/std@0.168.0/http/server.ts"
 import { createClient } from 'https://esm.sh/@supabase/supabase-js@2'
 
@@ -6,7 +7,7 @@ const corsHeaders = {
   'Access-Control-Allow-Headers': 'authorization, x-client-info, apikey, content-type',
 }
 
-interface GitHubFunkoData {
+interface FunkoData {
   name: string;
   series: string;
   number?: string;
@@ -15,6 +16,50 @@ interface GitHubFunkoData {
   vaulted?: boolean;
   [key: string]: any;
 }
+
+// Sample data to use if GitHub source is unavailable
+const sampleFunkoData: FunkoData[] = [
+  {
+    name: "Spider-Man",
+    series: "Marvel",
+    number: "1",
+    exclusive: "",
+    image: "",
+    vaulted: false
+  },
+  {
+    name: "Batman",
+    series: "DC Comics",
+    number: "1",
+    exclusive: "",
+    image: "",
+    vaulted: false
+  },
+  {
+    name: "Deadpool",
+    series: "Marvel",
+    number: "20",
+    exclusive: "Hot Topic",
+    image: "",
+    vaulted: false
+  },
+  {
+    name: "The Joker",
+    series: "DC Comics",
+    number: "6",
+    exclusive: "",
+    image: "",
+    vaulted: true
+  },
+  {
+    name: "Iron Man",
+    series: "Marvel",
+    number: "4",
+    exclusive: "SDCC",
+    image: "",
+    vaulted: false
+  }
+];
 
 serve(async (req) => {
   // Handle CORS preflight requests
@@ -30,16 +75,20 @@ serve(async (req) => {
 
     console.log('Starting Funko Pop data import...');
 
-    // Try multiple potential GitHub URLs as fallbacks
+    // Try multiple potential GitHub URLs and repositories
     const possibleUrls = [
       'https://raw.githubusercontent.com/kennymkchan/funko-pop-data/main/data/funkos.json',
       'https://raw.githubusercontent.com/kennymkchan/funko-pop-data/master/data/funkos.json',
       'https://raw.githubusercontent.com/kennymkchan/funko-pop-data/main/funkos.json',
-      'https://raw.githubusercontent.com/kennymkchan/funko-pop-data/master/funkos.json'
+      'https://raw.githubusercontent.com/kennymkchan/funko-pop-data/master/funkos.json',
+      // Try alternative repositories
+      'https://raw.githubusercontent.com/funko-pop-database/funko-pops/main/data.json',
+      'https://raw.githubusercontent.com/funko-pop-database/funko-pops/master/data.json'
     ];
 
-    let rawData: GitHubFunkoData[] = [];
+    let rawData: FunkoData[] = [];
     let successfulUrl = '';
+    let usedSampleData = false;
 
     // Try each URL until one works
     for (const url of possibleUrls) {
@@ -48,13 +97,20 @@ serve(async (req) => {
         const response = await fetch(url);
         
         if (response.ok) {
+          const contentType = response.headers.get('content-type');
+          console.log(`Response content-type: ${contentType}`);
+          
           const data = await response.json();
+          console.log(`Fetched data type: ${typeof data}, length: ${Array.isArray(data) ? data.length : 'not array'}`);
+          
           if (Array.isArray(data) && data.length > 0) {
             rawData = data;
             successfulUrl = url;
             console.log(`Successfully fetched ${rawData.length} records from: ${url}`);
             break;
           }
+        } else {
+          console.log(`HTTP ${response.status}: ${response.statusText} for ${url}`);
         }
       } catch (urlError) {
         console.log(`Failed to fetch from ${url}:`, urlError.message);
@@ -62,9 +118,12 @@ serve(async (req) => {
       }
     }
 
-    // If no URLs worked, return error
+    // If no URLs worked, use sample data
     if (rawData.length === 0) {
-      throw new Error('Unable to fetch data from any known GitHub repository URLs. The data source may be unavailable or moved.');
+      console.log('No external data source available, using sample data');
+      rawData = sampleFunkoData;
+      usedSampleData = true;
+      successfulUrl = 'Sample Data';
     }
 
     // Transform and filter data
@@ -176,8 +235,11 @@ serve(async (req) => {
       imported: importedCount,
       errors: errorCount,
       duplicatesSkipped: transformedData.length - newRecords.length,
-      message: `Successfully imported ${importedCount} new Funko Pops from ${successfulUrl}`,
-      dataSource: successfulUrl
+      message: usedSampleData 
+        ? `Successfully imported ${importedCount} sample Funko Pops (external data source unavailable)`
+        : `Successfully imported ${importedCount} new Funko Pops from ${successfulUrl}`,
+      dataSource: successfulUrl,
+      usedSampleData
     };
 
     console.log('Import completed:', result);
