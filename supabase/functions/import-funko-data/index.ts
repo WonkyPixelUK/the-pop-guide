@@ -16,7 +16,7 @@ interface FunkoData {
   [key: string]: any;
 }
 
-// Expanded sample data with more variety
+// Expanded sample data as fallback
 const sampleFunkoData: FunkoData[] = [
   {
     name: "Spider-Man",
@@ -114,22 +114,20 @@ serve(async (req) => {
 
     console.log('Starting Funko Pop data import...');
 
-    // More comprehensive list of URLs to try, based on common GitHub patterns
+    // Updated list with the working URL first
     const possibleUrls = [
-      // Try the repository we know exists - different possible file names
+      // WORKING URL - User provided this one!
+      'https://raw.githubusercontent.com/kennymkchan/funko-pop-data/refs/heads/master/funko_pop.json',
+      // Alternative branch references for the same repo
+      'https://raw.githubusercontent.com/kennymkchan/funko-pop-data/master/funko_pop.json',
+      'https://raw.githubusercontent.com/kennymkchan/funko-pop-data/main/funko_pop.json',
+      // Original attempts with different file names
       'https://raw.githubusercontent.com/kennymkchan/funko-pop-data/master/data/funkos.json',
       'https://raw.githubusercontent.com/kennymkchan/funko-pop-data/main/data/funkos.json',
       'https://raw.githubusercontent.com/kennymkchan/funko-pop-data/master/funkos.json',
       'https://raw.githubusercontent.com/kennymkchan/funko-pop-data/main/funkos.json',
       'https://raw.githubusercontent.com/kennymkchan/funko-pop-data/master/data.json',
       'https://raw.githubusercontent.com/kennymkchan/funko-pop-data/main/data.json',
-      'https://raw.githubusercontent.com/kennymkchan/funko-pop-data/master/funko-data.json',
-      'https://raw.githubusercontent.com/kennymkchan/funko-pop-data/main/funko-data.json',
-      // Try exploring subdirectories
-      'https://raw.githubusercontent.com/kennymkchan/funko-pop-data/master/src/data/funkos.json',
-      'https://raw.githubusercontent.com/kennymkchan/funko-pop-data/main/src/data/funkos.json',
-      'https://raw.githubusercontent.com/kennymkchan/funko-pop-data/master/dataset/funkos.json',
-      'https://raw.githubusercontent.com/kennymkchan/funko-pop-data/main/dataset/funkos.json',
       // Alternative repos
       'https://raw.githubusercontent.com/funko-pops/database/main/data.json',
       'https://raw.githubusercontent.com/funko-collector/data/master/funkos.json'
@@ -154,10 +152,10 @@ serve(async (req) => {
           const responseText = await response.text();
           console.log(`📏 Response text length: ${responseText.length}`);
           
-          if (responseText.length < 200) {
+          if (responseText.length < 500) {
             console.log(`📝 Full response text: ${responseText}`);
           } else {
-            console.log(`📝 First 300 chars: ${responseText.substring(0, 300)}`);
+            console.log(`📝 First 500 chars: ${responseText.substring(0, 500)}`);
           }
           
           try {
@@ -176,7 +174,7 @@ serve(async (req) => {
               break;
             } else if (data && typeof data === 'object') {
               // Check for common data wrapper patterns
-              const possibleDataKeys = ['data', 'items', 'funkos', 'results', 'pops'];
+              const possibleDataKeys = ['data', 'items', 'funkos', 'results', 'pops', 'funko_pops'];
               for (const key of possibleDataKeys) {
                 if (data[key] && Array.isArray(data[key]) && data[key].length > 0) {
                   console.log(`📊 Found data array in '${key}' property, length: ${data[key].length}`);
@@ -211,6 +209,8 @@ serve(async (req) => {
       successfulUrl = 'Expanded Sample Data';
     }
 
+    console.log(`🎯 Final dataset size: ${rawData.length} records`);
+
     // Check what's currently in the database for debugging
     const { data: existingPops, error: existingError } = await supabase
       .from('funko_pops')
@@ -220,7 +220,7 @@ serve(async (req) => {
     if (existingError) {
       console.error('Error fetching existing pops:', existingError);
     } else {
-      console.log(`📚 Current database has ${existingPops?.length || 0} records (showing first 10)`);
+      console.log(`📚 Current database has records (showing first 10 of existing data)`);
       if (existingPops && existingPops.length > 0) {
         existingPops.forEach((pop, index) => {
           console.log(`  ${index + 1}. ${pop.name} - ${pop.series} #${pop.number || 'N/A'}`);
@@ -233,8 +233,8 @@ serve(async (req) => {
       const stickerInfo = detectStickerType(item.name, item.exclusive);
       
       return {
-        name: item.name.trim(),
-        series: item.series || 'Unknown Series',
+        name: item.name?.trim() || 'Unknown',
+        series: item.series?.trim() || 'Unknown Series',
         number: item.number?.toString() || null,
         description: null,
         image_url: item.image || null,
@@ -286,9 +286,13 @@ serve(async (req) => {
     let errorCount = 0;
     const batchSize = 100;
 
-    // Import in batches
+    // Import in batches with progress logging
     for (let i = 0; i < newRecords.length; i += batchSize) {
       const batch = newRecords.slice(i, i + batchSize);
+      const batchNumber = Math.floor(i / batchSize) + 1;
+      const totalBatches = Math.ceil(newRecords.length / batchSize);
+      
+      console.log(`🚀 Processing batch ${batchNumber}/${totalBatches} (${batch.length} records)`);
       
       try {
         const { error } = await supabase
@@ -296,20 +300,22 @@ serve(async (req) => {
           .insert(batch);
 
         if (error) {
-          console.error(`❌ Batch error:`, error);
+          console.error(`❌ Batch ${batchNumber} error:`, error);
           errorCount += batch.length;
         } else {
           importedCount += batch.length;
-          console.log(`✅ Imported batch ${Math.floor(i / batchSize) + 1}, total: ${importedCount}`);
+          console.log(`✅ Batch ${batchNumber}/${totalBatches} completed, total imported: ${importedCount}`);
         }
       } catch (batchError) {
-        console.error(`❌ Batch ${Math.floor(i / batchSize) + 1} failed:`, batchError);
+        console.error(`❌ Batch ${batchNumber} failed:`, batchError);
         errorCount += batch.length;
       }
     }
 
     // Create scraping jobs for newly imported records
     if (importedCount > 0) {
+      console.log(`🎯 Creating scraping jobs for ${importedCount} newly imported records...`);
+      
       const { data: newlyInsertedPops } = await supabase
         .from('funko_pops')
         .select('id')
@@ -336,7 +342,7 @@ serve(async (req) => {
           await supabase.from('scraping_jobs').insert(jobBatch);
         }
 
-        console.log(`🎯 Created ${scrapingJobs.length} scraping jobs`);
+        console.log(`🎯 Created ${scrapingJobs.length} scraping jobs for price tracking`);
       }
     }
 
@@ -349,13 +355,15 @@ serve(async (req) => {
       duplicatesSkipped: transformedData.length - newRecords.length,
       message: usedSampleData 
         ? `Successfully imported ${importedCount} new Funko Pops using expanded sample data (external source unavailable)`
-        : `Successfully imported ${importedCount} new Funko Pops from ${successfulUrl}`,
+        : `🎉 BIG IMPORT SUCCESS! Imported ${importedCount} new Funko Pops from ${successfulUrl}`,
       dataSource: successfulUrl,
       usedSampleData,
       debugInfo: {
         existingDatabaseSize: allExistingPops?.length || 0,
         attempedUrls: possibleUrls.length,
-        dataFormat: rawData.length > 0 ? Object.keys(rawData[0]) : []
+        dataFormat: rawData.length > 0 ? Object.keys(rawData[0]) : [],
+        workingUrl: successfulUrl,
+        batchesProcessed: Math.ceil(newRecords.length / batchSize)
       }
     };
 
