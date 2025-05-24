@@ -20,7 +20,10 @@ const CollectionAnalytics = ({ userCollection, funkoPops }: CollectionAnalyticsP
     return sum + (typeof price === 'number' ? price : 0);
   }, 0);
   
-  const roi = totalInvested > 0 ? ((totalValue - totalInvested) / totalInvested) * 100 : 0;
+  // Ensure both values are numbers before arithmetic operations
+  const numericTotalValue = typeof totalValue === 'number' ? totalValue : 0;
+  const numericTotalInvested = typeof totalInvested === 'number' ? totalInvested : 0;
+  const roi = numericTotalInvested > 0 ? ((numericTotalValue - numericTotalInvested) / numericTotalInvested) * 100 : 0;
   
   const seriesDistribution = userCollection.reduce((acc, item) => {
     const series = item.funko_pops?.series || 'Unknown';
@@ -37,22 +40,24 @@ const CollectionAnalytics = ({ userCollection, funkoPops }: CollectionAnalyticsP
 
   // Mock value over time data
   const valueOverTime = [
-    { month: 'Jan', value: totalValue * 0.7 },
-    { month: 'Feb', value: totalValue * 0.8 },
-    { month: 'Mar', value: totalValue * 0.85 },
-    { month: 'Apr', value: totalValue * 0.9 },
-    { month: 'May', value: totalValue * 0.95 },
-    { month: 'Jun', value: totalValue },
+    { month: 'Jan', value: numericTotalValue * 0.7 },
+    { month: 'Feb', value: numericTotalValue * 0.8 },
+    { month: 'Mar', value: numericTotalValue * 0.85 },
+    { month: 'Apr', value: numericTotalValue * 0.9 },
+    { month: 'May', value: numericTotalValue * 0.95 },
+    { month: 'Jun', value: numericTotalValue },
   ];
 
   const rareItems = userCollection.filter(item => 
     item.funko_pops?.is_chase || item.funko_pops?.is_exclusive
   ).length;
 
-  const averageValue = userCollection.length > 0 ? totalValue / userCollection.length : 0;
+  const averageValue = userCollection.length > 0 ? numericTotalValue / userCollection.length : 0;
 
-  const topSeriesName = Object.keys(seriesDistribution)[0] || 'N/A';
-  const topSeriesCount = Object.values(seriesDistribution)[0] || 0;
+  // Fix type safety for series distribution
+  const seriesEntries = Object.entries(seriesDistribution);
+  const topSeriesName = seriesEntries.length > 0 ? seriesEntries[0][0] : 'N/A';
+  const topSeriesCount = seriesEntries.length > 0 ? seriesEntries[0][1] : 0;
 
   return (
     <div className="space-y-6">
@@ -65,7 +70,7 @@ const CollectionAnalytics = ({ userCollection, funkoPops }: CollectionAnalyticsP
             <div className="flex items-center justify-between">
               <div>
                 <p className="text-gray-400 text-sm">Total Value</p>
-                <p className="text-2xl font-bold text-white">${totalValue.toFixed(2)}</p>
+                <p className="text-2xl font-bold text-white">${numericTotalValue.toFixed(2)}</p>
               </div>
               <DollarSign className="w-8 h-8 text-orange-500" />
             </div>
