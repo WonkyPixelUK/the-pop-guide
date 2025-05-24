@@ -41,7 +41,9 @@ export type Database = {
       }
       funko_pops: {
         Row: {
+          average_price_30d: number | null
           created_at: string
+          data_sources: string[] | null
           description: string | null
           estimated_value: number | null
           exclusive_to: string | null
@@ -50,15 +52,19 @@ export type Database = {
           is_chase: boolean | null
           is_exclusive: boolean | null
           is_vaulted: boolean | null
+          last_price_update: string | null
           name: string
           number: string | null
+          price_trend: string | null
           release_date: string | null
           series: string
           updated_at: string
           variant: string | null
         }
         Insert: {
+          average_price_30d?: number | null
           created_at?: string
+          data_sources?: string[] | null
           description?: string | null
           estimated_value?: number | null
           exclusive_to?: string | null
@@ -67,15 +73,19 @@ export type Database = {
           is_chase?: boolean | null
           is_exclusive?: boolean | null
           is_vaulted?: boolean | null
+          last_price_update?: string | null
           name: string
           number?: string | null
+          price_trend?: string | null
           release_date?: string | null
           series: string
           updated_at?: string
           variant?: string | null
         }
         Update: {
+          average_price_30d?: number | null
           created_at?: string
+          data_sources?: string[] | null
           description?: string | null
           estimated_value?: number | null
           exclusive_to?: string | null
@@ -84,8 +94,10 @@ export type Database = {
           is_chase?: boolean | null
           is_exclusive?: boolean | null
           is_vaulted?: boolean | null
+          last_price_update?: string | null
           name?: string
           number?: string | null
+          price_trend?: string | null
           release_date?: string | null
           series?: string
           updated_at?: string
@@ -125,6 +137,47 @@ export type Database = {
             columns: ["list_id"]
             isOneToOne: false
             referencedRelation: "custom_lists"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      price_history: {
+        Row: {
+          condition: string | null
+          created_at: string
+          date_scraped: string
+          funko_pop_id: string
+          id: string
+          listing_url: string | null
+          price: number
+          source: string
+        }
+        Insert: {
+          condition?: string | null
+          created_at?: string
+          date_scraped?: string
+          funko_pop_id: string
+          id?: string
+          listing_url?: string | null
+          price: number
+          source: string
+        }
+        Update: {
+          condition?: string | null
+          created_at?: string
+          date_scraped?: string
+          funko_pop_id?: string
+          id?: string
+          listing_url?: string | null
+          price?: number
+          source?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "price_history_funko_pop_id_fkey"
+            columns: ["funko_pop_id"]
+            isOneToOne: false
+            referencedRelation: "funko_pops"
             referencedColumns: ["id"]
           },
         ]
@@ -270,6 +323,53 @@ export type Database = {
         }
         Relationships: []
       }
+      scraping_jobs: {
+        Row: {
+          created_at: string
+          error_message: string | null
+          funko_pop_id: string
+          id: string
+          last_scraped: string | null
+          next_scrape_due: string | null
+          retry_count: number | null
+          source: string
+          status: string
+          updated_at: string
+        }
+        Insert: {
+          created_at?: string
+          error_message?: string | null
+          funko_pop_id: string
+          id?: string
+          last_scraped?: string | null
+          next_scrape_due?: string | null
+          retry_count?: number | null
+          source: string
+          status?: string
+          updated_at?: string
+        }
+        Update: {
+          created_at?: string
+          error_message?: string | null
+          funko_pop_id?: string
+          id?: string
+          last_scraped?: string | null
+          next_scrape_due?: string | null
+          retry_count?: number | null
+          source?: string
+          status?: string
+          updated_at?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "scraping_jobs_funko_pop_id_fkey"
+            columns: ["funko_pop_id"]
+            isOneToOne: false
+            referencedRelation: "funko_pops"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       user_collections: {
         Row: {
           condition: string | null
@@ -354,7 +454,14 @@ export type Database = {
       [_ in never]: never
     }
     Functions: {
-      [_ in never]: never
+      calculate_average_price: {
+        Args: { pop_id: string; days_back?: number }
+        Returns: number
+      }
+      update_funko_pricing: {
+        Args: { pop_id: string }
+        Returns: undefined
+      }
     }
     Enums: {
       [_ in never]: never

@@ -1,4 +1,3 @@
-
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import { supabase } from '@/integrations/supabase/client';
 import { Tables } from '@/integrations/supabase/types';
@@ -18,6 +17,38 @@ export const useFunkoPops = () => {
       if (error) throw error;
       return data;
     },
+  });
+};
+
+export const useFunkoPopWithPricing = (funkoPopId: string) => {
+  return useQuery({
+    queryKey: ['funko-pop-pricing', funkoPopId],
+    queryFn: async () => {
+      // Get the Funko Pop with latest pricing data
+      const { data: funkoData, error: funkoError } = await supabase
+        .from('funko_pops')
+        .select('*')
+        .eq('id', funkoPopId)
+        .single();
+      
+      if (funkoError) throw funkoError;
+      
+      // Get recent price history
+      const { data: recentPrices, error: priceError } = await supabase
+        .from('price_history')
+        .select('*')
+        .eq('funko_pop_id', funkoPopId)
+        .gte('date_scraped', new Date(Date.now() - 30 * 24 * 60 * 60 * 1000).toISOString())
+        .order('date_scraped', { ascending: false });
+      
+      if (priceError) throw priceError;
+      
+      return {
+        ...funkoData,
+        recentPrices: recentPrices || []
+      };
+    },
+    enabled: !!funkoPopId,
   });
 };
 
