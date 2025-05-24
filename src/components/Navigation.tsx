@@ -1,94 +1,102 @@
 
 import { Link, useLocation } from 'react-router-dom';
 import { Button } from '@/components/ui/button';
-import { 
-  NavigationMenu,
-  NavigationMenuContent,
-  NavigationMenuItem,
-  NavigationMenuLink,
-  NavigationMenuList,
-  NavigationMenuTrigger,
-} from '@/components/ui/navigation-menu';
-import { cn } from '@/lib/utils';
+import { Activity, LogIn, LogOut, Plus } from 'lucide-react';
+import { useAuth } from '@/hooks/useAuth';
+import { useToast } from '@/hooks/use-toast';
+import { useState } from 'react';
+import AuthDialog from '@/components/AuthDialog';
 
 const Navigation = () => {
   const location = useLocation();
+  const { user, loading: authLoading, signOut } = useAuth();
+  const { toast } = useToast();
+  const [isAuthDialogOpen, setIsAuthDialogOpen] = useState(false);
 
-  const isActive = (path: string) => location.pathname === path;
+  const handleSignOut = async () => {
+    const { error } = await signOut();
+    if (error) {
+      toast({
+        title: "Error",
+        description: "Failed to sign out",
+        variant: "destructive",
+      });
+    } else {
+      toast({
+        title: "Success",
+        description: "Signed out successfully",
+      });
+    }
+  };
+
+  if (authLoading) {
+    return (
+      <header className="bg-gray-900/50 backdrop-blur-sm border-b border-gray-700">
+        <div className="container mx-auto px-4 py-4">
+          <div className="text-white">Loading...</div>
+        </div>
+      </header>
+    );
+  }
 
   return (
-    <header className="sticky top-0 z-50 w-full border-b bg-background/95 backdrop-blur supports-[backdrop-filter]:bg-background/60">
-      <div className="container flex h-14 items-center">
-        <div className="mr-4 flex">
-          <Link to="/" className="mr-6 flex items-center space-x-2">
-            <span className="hidden font-bold sm:inline-block">
-              Funko Collection
-            </span>
-          </Link>
-          <NavigationMenu>
-            <NavigationMenuList>
-              <NavigationMenuItem>
-                <Link to="/dashboard">
-                  <NavigationMenuLink 
-                    className={cn(
-                      "group inline-flex h-10 w-max items-center justify-center rounded-md bg-background px-4 py-2 text-sm font-medium transition-colors hover:bg-accent hover:text-accent-foreground focus:bg-accent focus:text-accent-foreground focus:outline-none disabled:pointer-events-none disabled:opacity-50",
-                      isActive('/dashboard') && "bg-accent text-accent-foreground"
-                    )}
+    <>
+      <header className="bg-gray-900/50 backdrop-blur-sm border-b border-gray-700">
+        <div className="container mx-auto px-4 py-4">
+          <div className="flex items-center justify-between">
+            <div className="flex items-center space-x-3">
+              <Link to="/" className="text-2xl font-bold">
+                <span className="text-orange-500">Pop</span>
+                <span className="text-white">Guide</span>
+              </Link>
+            </div>
+            <nav className="hidden md:flex items-center space-x-6">
+              <Link to="/dashboard" className="text-gray-300 hover:text-orange-500 transition-colors">
+                Dashboard
+              </Link>
+              <Link to="/features" className="text-gray-300 hover:text-orange-500 transition-colors">
+                Features
+              </Link>
+              <Link to="/scraping-status" className="text-gray-300 hover:text-orange-500 transition-colors flex items-center gap-1">
+                <Activity className="w-4 h-4" />
+                Scraping Status
+              </Link>
+              <Link to="/pricing" className="text-gray-300 hover:text-orange-500 transition-colors">
+                Pricing
+              </Link>
+            </nav>
+            <div className="flex items-center space-x-2">
+              {user ? (
+                <>
+                  <span className="text-white mr-2">Welcome, {user.user_metadata?.full_name || user.email}</span>
+                  <Button 
+                    onClick={handleSignOut}
+                    variant="outline"
+                    className="border-gray-600 text-white hover:bg-gray-700"
                   >
-                    Dashboard
-                  </NavigationMenuLink>
-                </Link>
-              </NavigationMenuItem>
-              <NavigationMenuItem>
-                <Link to="/features">
-                  <NavigationMenuLink 
-                    className={cn(
-                      "group inline-flex h-10 w-max items-center justify-center rounded-md bg-background px-4 py-2 text-sm font-medium transition-colors hover:bg-accent hover:text-accent-foreground focus:bg-accent focus:text-accent-foreground focus:outline-none disabled:pointer-events-none disabled:opacity-50",
-                      isActive('/features') && "bg-accent text-accent-foreground"
-                    )}
-                  >
-                    Features
-                  </NavigationMenuLink>
-                </Link>
-              </NavigationMenuItem>
-              <NavigationMenuItem>
-                <Link to="/scraping-status">
-                  <NavigationMenuLink 
-                    className={cn(
-                      "group inline-flex h-10 w-max items-center justify-center rounded-md bg-background px-4 py-2 text-sm font-medium transition-colors hover:bg-accent hover:text-accent-foreground focus:bg-accent focus:text-accent-foreground focus:outline-none disabled:pointer-events-none disabled:opacity-50",
-                      isActive('/scraping-status') && "bg-accent text-accent-foreground"
-                    )}
-                  >
-                    Scraping Status
-                  </NavigationMenuLink>
-                </Link>
-              </NavigationMenuItem>
-              <NavigationMenuItem>
-                <Link to="/pricing">
-                  <NavigationMenuLink 
-                    className={cn(
-                      "group inline-flex h-10 w-max items-center justify-center rounded-md bg-background px-4 py-2 text-sm font-medium transition-colors hover:bg-accent hover:text-accent-foreground focus:bg-accent focus:text-accent-foreground focus:outline-none disabled:pointer-events-none disabled:opacity-50",
-                      isActive('/pricing') && "bg-accent text-accent-foreground"
-                    )}
-                  >
-                    Pricing
-                  </NavigationMenuLink>
-                </Link>
-              </NavigationMenuItem>
-            </NavigationMenuList>
-          </NavigationMenu>
-        </div>
-        <div className="flex flex-1 items-center justify-between space-x-2 md:justify-end">
-          <div className="w-full flex-1 md:w-auto md:flex-none">
+                    <LogOut className="w-4 h-4 mr-2" />
+                    Sign Out
+                  </Button>
+                </>
+              ) : (
+                <Button 
+                  onClick={() => setIsAuthDialogOpen(true)}
+                  className="bg-orange-500 hover:bg-orange-600 text-white"
+                >
+                  <LogIn className="w-4 h-4 mr-2" />
+                  Sign In
+                </Button>
+              )}
+            </div>
           </div>
-          <nav className="flex items-center space-x-2">
-            <Link to="/auth">
-              <Button variant="ghost">Sign In</Button>
-            </Link>
-          </nav>
         </div>
-      </div>
-    </header>
+      </header>
+      
+      <AuthDialog 
+        open={isAuthDialogOpen} 
+        onOpenChange={setIsAuthDialogOpen} 
+      />
+    </>
   );
 };
 

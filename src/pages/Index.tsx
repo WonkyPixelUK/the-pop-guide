@@ -3,12 +3,11 @@ import { useState } from "react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Card, CardContent } from "@/components/ui/card";
-import { Search, Plus, BarChart3, Users, Zap, LogIn, LogOut, Activity } from "lucide-react";
-import { Link } from "react-router-dom";
+import { Search, Plus, BarChart3, Users, Zap, LogOut } from "lucide-react";
 import CollectionGrid from "@/components/CollectionGrid";
 import EnhancedAddItemDialog from "@/components/EnhancedAddItemDialog";
 import ItemDetailsDialog from "@/components/ItemDetailsDialog";
-import AuthDialog from "@/components/AuthDialog";
+import Navigation from "@/components/Navigation";
 import { useAuth } from "@/hooks/useAuth";
 import { useFunkoPops, useUserCollection } from "@/hooks/useFunkoPops";
 import { useToast } from "@/hooks/use-toast";
@@ -17,28 +16,10 @@ const Index = () => {
   const [searchQuery, setSearchQuery] = useState("");
   const [isAddDialogOpen, setIsAddDialogOpen] = useState(false);
   const [selectedItem, setSelectedItem] = useState(null);
-  const [isAuthDialogOpen, setIsAuthDialogOpen] = useState(false);
   
-  const { user, loading: authLoading, signOut } = useAuth();
+  const { user, loading: authLoading } = useAuth();
   const { data: funkoPops = [], isLoading: funkoLoading } = useFunkoPops();
   const { data: userCollection = [], isLoading: collectionLoading } = useUserCollection(user?.id);
-  const { toast } = useToast();
-
-  const handleSignOut = async () => {
-    const { error } = await signOut();
-    if (error) {
-      toast({
-        title: "Error",
-        description: "Failed to sign out",
-        variant: "destructive",
-      });
-    } else {
-      toast({
-        title: "Success",
-        description: "Signed out successfully",
-      });
-    }
-  };
 
   // Transform data to match the existing component interface
   const transformedItems = funkoPops.map(pop => {
@@ -76,64 +57,7 @@ const Index = () => {
 
   return (
     <div className="min-h-screen bg-gradient-to-br from-gray-900 via-gray-800 to-black">
-      {/* Header */}
-      <header className="bg-gray-900/50 backdrop-blur-sm border-b border-gray-700">
-        <div className="container mx-auto px-4 py-4">
-          <div className="flex items-center justify-between">
-            <div className="flex items-center space-x-3">
-              <div className="text-2xl font-bold">
-                <span className="text-orange-500">Pop</span>
-                <span className="text-white">Guide</span>
-              </div>
-            </div>
-            <nav className="hidden md:flex items-center space-x-6">
-              <Link to="/dashboard" className="text-gray-300 hover:text-orange-500 transition-colors">
-                Dashboard
-              </Link>
-              <Link to="/features" className="text-gray-300 hover:text-orange-500 transition-colors">
-                Features
-              </Link>
-              <Link to="/scraping-status" className="text-gray-300 hover:text-orange-500 transition-colors flex items-center gap-1">
-                <Activity className="w-4 h-4" />
-                Scraping Status
-              </Link>
-              <Link to="/pricing" className="text-gray-300 hover:text-orange-500 transition-colors">
-                Pricing
-              </Link>
-            </nav>
-            <div className="flex items-center space-x-2">
-              {user ? (
-                <>
-                  <span className="text-white mr-2">Welcome, {user.user_metadata?.full_name || user.email}</span>
-                  <Button 
-                    onClick={() => setIsAddDialogOpen(true)}
-                    className="bg-orange-500 hover:bg-orange-600 text-white"
-                  >
-                    <Plus className="w-4 h-4 mr-2" />
-                    Add Item
-                  </Button>
-                  <Button 
-                    onClick={handleSignOut}
-                    variant="outline"
-                    className="border-gray-600 text-white hover:bg-gray-700"
-                  >
-                    <LogOut className="w-4 h-4 mr-2" />
-                    Sign Out
-                  </Button>
-                </>
-              ) : (
-                <Button 
-                  onClick={() => setIsAuthDialogOpen(true)}
-                  className="bg-orange-500 hover:bg-orange-600 text-white"
-                >
-                  <LogIn className="w-4 h-4 mr-2" />
-                  Sign In
-                </Button>
-              )}
-            </div>
-          </div>
-        </div>
-      </header>
+      <Navigation />
 
       {/* Hero Section */}
       <section className="py-12 px-4">
@@ -169,6 +93,16 @@ const Index = () => {
               </CardContent>
             </Card>
           </div>
+
+          {user && (
+            <Button 
+              onClick={() => setIsAddDialogOpen(true)}
+              className="bg-orange-500 hover:bg-orange-600 text-white"
+            >
+              <Plus className="w-4 h-4 mr-2" />
+              Add Item
+            </Button>
+          )}
         </div>
       </section>
 
@@ -195,12 +129,6 @@ const Index = () => {
           {!user && (
             <div className="text-center py-8 bg-gray-800/30 rounded-lg mb-8">
               <p className="text-gray-300 mb-4">Sign in to start tracking your personal collection with advanced features!</p>
-              <Button 
-                onClick={() => setIsAuthDialogOpen(true)}
-                className="bg-orange-500 hover:bg-orange-600 text-white"
-              >
-                Get Started
-              </Button>
             </div>
           )}
 
@@ -214,11 +142,6 @@ const Index = () => {
       </section>
 
       {/* Dialogs */}
-      <AuthDialog 
-        open={isAuthDialogOpen} 
-        onOpenChange={setIsAuthDialogOpen} 
-      />
-      
       <EnhancedAddItemDialog 
         open={isAddDialogOpen} 
         onOpenChange={setIsAddDialogOpen} 
