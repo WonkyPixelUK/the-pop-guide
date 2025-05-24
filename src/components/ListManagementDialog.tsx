@@ -7,7 +7,7 @@ import { Textarea } from "@/components/ui/textarea";
 import { Switch } from "@/components/ui/switch";
 import { Badge } from "@/components/ui/badge";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
-import { Trash2, Search, Plus, Share2, Copy } from "lucide-react";
+import { Trash2, Search, Plus, Share2, Copy, Heart, Repeat } from "lucide-react";
 import { useCustomLists } from "@/hooks/useCustomLists";
 import { useFunkoPops } from "@/hooks/useFunkoPops";
 import { useToast } from "@/hooks/use-toast";
@@ -28,7 +28,7 @@ const ListManagementDialog = ({ listId, open, onOpenChange }: ListManagementDial
   const [slugError, setSlugError] = useState("");
 
   const { toast } = useToast();
-  const { lists, updateList, addItemToList, removeItemFromList } = useCustomLists();
+  const { lists, updateList, addItemToList, removeItemFromList, updateListItem } = useCustomLists();
   const { data: allFunkoPops = [] } = useFunkoPops();
 
   const currentList = lists.find(list => list.id === listId);
@@ -176,24 +176,48 @@ const ListManagementDialog = ({ listId, open, onOpenChange }: ListManagementDial
                         />
                       )}
                       <div>
-                        <p className="font-medium">{item.funko_pops?.name}</p>
+                        <p className="font-medium flex items-center gap-2">
+                          {item.funko_pops?.name}
+                          {item.is_wishlist && (
+                            <Badge className="bg-pink-600/20 text-pink-400 ml-1"><Heart className="w-3 h-3 inline mr-1" />Wishlist</Badge>
+                          )}
+                          {item.is_trade && (
+                            <Badge className="bg-blue-600/20 text-blue-400 ml-1"><Repeat className="w-3 h-3 inline mr-1" />Trade</Badge>
+                          )}
+                        </p>
                         <p className="text-sm text-gray-400">{item.funko_pops?.series}</p>
                         {item.funko_pops?.estimated_value && (
                           <Badge variant="secondary">${item.funko_pops.estimated_value}</Badge>
                         )}
                       </div>
                     </div>
-                    <Button
-                      variant="ghost"
-                      size="sm"
-                      onClick={() => removeItemFromList.mutateAsync({
-                        listId: currentList.id,
-                        funkoPopId: item.funko_pops?.id || ''
-                      })}
-                      className="text-red-400 hover:text-red-300"
-                    >
-                      <Trash2 className="w-4 h-4" />
-                    </Button>
+                    <div className="flex items-center gap-3">
+                      <div className="flex flex-col items-center gap-1">
+                        <span className="text-xs text-gray-400">Wishlist</span>
+                        <Switch
+                          checked={!!item.is_wishlist}
+                          onCheckedChange={checked => updateListItem.mutate({ itemId: item.id, updates: { is_wishlist: checked } })}
+                        />
+                      </div>
+                      <div className="flex flex-col items-center gap-1">
+                        <span className="text-xs text-gray-400">Trade</span>
+                        <Switch
+                          checked={!!item.is_trade}
+                          onCheckedChange={checked => updateListItem.mutate({ itemId: item.id, updates: { is_trade: checked } })}
+                        />
+                      </div>
+                      <Button
+                        variant="ghost"
+                        size="sm"
+                        onClick={() => removeItemFromList.mutateAsync({
+                          listId: currentList.id,
+                          funkoPopId: item.funko_pops?.id || ''
+                        })}
+                        className="text-red-400 hover:text-red-300"
+                      >
+                        <Trash2 className="w-4 h-4" />
+                      </Button>
+                    </div>
                   </div>
                 ))}
               </div>
