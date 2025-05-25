@@ -9,6 +9,11 @@ import { useFunkoPops, useUserCollection, useAddToCollection } from '@/hooks/use
 import { Loader2, Check } from 'lucide-react';
 import { headerButton } from '@/components/ui/button';
 
+const getInitialTheme = () => {
+  if (typeof window === 'undefined') return 'system';
+  return localStorage.getItem('theme') || 'system';
+};
+
 const Navigation = () => {
   const location = useLocation();
   const { user, loading: authLoading, signOut } = useAuth();
@@ -67,11 +72,6 @@ const Navigation = () => {
     await addToCollection.mutateAsync({ funkoPopId: pop.id, userId: user.id });
     setAddedId(pop.id);
     setTimeout(() => setAddedId(null), 1200);
-  };
-
-  const getInitialTheme = () => {
-    if (typeof window === 'undefined') return 'system';
-    return localStorage.getItem('theme') || 'system';
   };
 
   if (authLoading) {
