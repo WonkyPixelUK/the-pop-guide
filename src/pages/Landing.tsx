@@ -5,6 +5,7 @@ import { Link } from "react-router-dom";
 import SEO from '@/components/SEO';
 import { useState } from 'react';
 import { useFunkoPops } from '@/hooks/useFunkoPops';
+import ItemDetailsDialog from '@/components/ItemDetailsDialog';
 
 const Landing = () => {
   const [email, setEmail] = useState('');
@@ -12,6 +13,7 @@ const Landing = () => {
   const { data: funkoPops = [] } = useFunkoPops();
   const [filter, setFilter] = useState('All');
   const categories = Array.from(new Set(funkoPops.map(pop => pop.series))).filter(Boolean);
+  const [selectedPop, setSelectedPop] = useState(null);
 
   const handleSignup = (e) => {
     e.preventDefault();
@@ -163,11 +165,16 @@ const Landing = () => {
                 .sort((a, b) => new Date(b.created_at) - new Date(a.created_at))
                 .slice(0, 12)
                 .map(pop => (
-                  <div key={pop.id} className="bg-gray-800/70 border border-gray-700 rounded-lg p-3 flex flex-col items-center hover:shadow-lg transition">
+                  <button
+                    key={pop.id}
+                    className="bg-gray-800/70 border border-gray-700 rounded-lg p-3 flex flex-col items-center hover:shadow-lg transition focus:outline-none focus:ring-2 focus:ring-orange-500"
+                    onClick={() => setSelectedPop(pop)}
+                    aria-label={`View details for ${pop.name}`}
+                  >
                     <img src={pop.image_url} alt={pop.name} className="w-20 h-20 object-contain mb-2 rounded" />
                     <div className="font-semibold text-white text-center text-sm mb-1">{pop.name}</div>
                     <div className="text-xs text-gray-400">{pop.series}</div>
-                  </div>
+                  </button>
                 ))}
             </div>
           </div>
@@ -351,6 +358,14 @@ const Landing = () => {
             </div>
           </div>
         </footer>
+
+        {selectedPop && (
+          <ItemDetailsDialog
+            item={selectedPop}
+            open={!!selectedPop}
+            onOpenChange={() => setSelectedPop(null)}
+          />
+        )}
       </div>
     </>
   );
