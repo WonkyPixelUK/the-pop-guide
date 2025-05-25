@@ -18,7 +18,7 @@ import BrowseLists from "./pages/BrowseLists";
 import NotFound from "./pages/NotFound";
 import Help from "./pages/Help";
 import { HelmetProvider } from 'react-helmet-async';
-import { SpeedInsights } from '@vercel/speed-insights/next';
+import { SpeedInsights } from '@vercel/speed-insights/react';
 
 const queryClient = new QueryClient();
 
