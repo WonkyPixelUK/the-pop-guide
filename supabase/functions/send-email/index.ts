@@ -1,5 +1,3 @@
-
-
 import { serve } from "https://deno.land/std@0.190.0/http/server.ts";
 import { Resend } from "npm:resend@2.0.0";
 
@@ -11,7 +9,7 @@ const corsHeaders = {
 };
 
 interface EmailRequest {
-  type: 'welcome' | 'contact' | 'reset' | 'milestone' | 'confirmation';
+  type: 'welcome' | 'contact' | 'reset' | 'milestone' | 'confirmation' | 'pro_welcome' | 'invoice_reminder' | 'payment_receipt';
   to: string;
   data: any;
 }
@@ -182,6 +180,86 @@ const handler = async (req: Request): Promise<Response> => {
                 <div style="margin: 30px 0;">
                   <a href="${baseUrl}/dashboard" style="background: #f97316; color: white; padding: 15px 30px; text-decoration: none; border-radius: 8px; display: inline-block; font-weight: bold;">View Your Collection</a>
                 </div>
+              </div>
+            </div>
+          `,
+        };
+        break;
+
+      case 'pro_welcome':
+        emailOptions = {
+          from: "PopGuide <hello@popguide.com>",
+          to: [to],
+          subject: "Welcome to PopGuide Pro! 🎉",
+          html: `
+            <div style="font-family: Arial, sans-serif; max-width: 600px; margin: 0 auto;">
+              <div style="background: linear-gradient(135deg, #1f2937, #111827); padding: 40px; text-align: center;">
+                <img src="https://Maintainhq-pull-zone.b-cdn.net/02_the_pop_guide/pop-guide-logo-trans-white.svg" alt="PopGuide" style="height: 100px; margin-bottom: 20px;">
+                <h1 style="color: #e46c1b; font-size: 32px; margin: 0;">Welcome to Pro!</h1>
+                <p style="color: #d1d5db; font-size: 18px; margin: 10px 0 0 0;">You've unlocked all features.</p>
+              </div>
+              <div style="padding: 40px; background: #ffffff;">
+                <h2 style="color: #1f2937; margin-bottom: 20px;">Hi ${data.fullName || 'Collector'},</h2>
+                <p style="color: #374151; line-height: 1.6; margin-bottom: 20px;">
+                  Thank you for upgrading to <strong>PopGuide Pro</strong>! You now have unlimited access, advanced analytics, and priority support.
+                </p>
+                <div style="text-align: center; margin: 30px 0;">
+                  <a href="${baseUrl}/dashboard" style="background: #e46c1b; color: white; padding: 15px 30px; text-decoration: none; border-radius: 8px; display: inline-block; font-weight: bold;">Go to Dashboard</a>
+                </div>
+                <p style="color: #6b7280; font-size: 14px; text-align: center;">
+                  Need help? <a href="${baseUrl}/support" style="color: #e46c1b;">Contact us</a> anytime.
+                </p>
+              </div>
+            </div>
+          `,
+        };
+        break;
+
+      case 'invoice_reminder':
+        emailOptions = {
+          from: "PopGuide <hello@popguide.com>",
+          to: [to],
+          subject: "Your PopGuide Pro renewal is coming up",
+          html: `
+            <div style="font-family: Arial, sans-serif; max-width: 600px; margin: 0 auto;">
+              <div style="background: linear-gradient(135deg, #1f2937, #111827); padding: 40px; text-align: center;">
+                <img src="https://Maintainhq-pull-zone.b-cdn.net/02_the_pop_guide/pop-guide-logo-trans-white.svg" alt="PopGuide" style="height: 80px; margin-bottom: 20px;">
+                <h1 style="color: #e46c1b; font-size: 28px; margin: 0;">Renewal Reminder</h1>
+              </div>
+              <div style="padding: 40px; background: #ffffff;">
+                <h2 style="color: #1f2937; margin-bottom: 20px;">Hi ${data.fullName || 'Collector'},</h2>
+                <p style="color: #374151; line-height: 1.6; margin-bottom: 20px;">
+                  This is a reminder that your <strong>PopGuide Pro</strong> subscription will renew on <strong>${data.renewalDate}</strong> for <strong>${data.amount}</strong>.
+                </p>
+                <p style="color: #374151;">No action is needed if you wish to continue. To manage your subscription, <a href="${baseUrl}/profile" style="color: #e46c1b;">visit your account</a>.</p>
+                <p style="color: #6b7280; font-size: 14px; text-align: center; margin-top: 30px;">If you have any questions, reply to this email.</p>
+              </div>
+            </div>
+          `,
+        };
+        break;
+
+      case 'payment_receipt':
+        emailOptions = {
+          from: "PopGuide <hello@popguide.com>",
+          to: [to],
+          subject: "Your PopGuide Pro payment receipt",
+          html: `
+            <div style="font-family: Arial, sans-serif; max-width: 600px; margin: 0 auto;">
+              <div style="background: linear-gradient(135deg, #1f2937, #111827); padding: 40px; text-align: center;">
+                <img src="https://Maintainhq-pull-zone.b-cdn.net/02_the_pop_guide/pop-guide-logo-trans-white.svg" alt="PopGuide" style="height: 80px; margin-bottom: 20px;">
+                <h1 style="color: #e46c1b; font-size: 28px; margin: 0;">Payment Receipt</h1>
+              </div>
+              <div style="padding: 40px; background: #ffffff;">
+                <h2 style="color: #1f2937; margin-bottom: 20px;">Hi ${data.fullName || 'Collector'},</h2>
+                <p style="color: #374151; line-height: 1.6; margin-bottom: 20px;">
+                  Thank you for your payment of <strong>${data.amount}</strong> for your <strong>PopGuide Pro</strong> subscription.
+                </p>
+                <div style="background: #f3f4f6; padding: 20px; border-radius: 8px; margin: 20px 0;">
+                  <p style="margin: 0; color: #6b7280; font-size: 14px;"><strong>Invoice #:</strong> ${data.invoiceNumber}</p>
+                  <p style="margin: 0; color: #6b7280; font-size: 14px;"><strong>Date:</strong> ${data.date}</p>
+                </div>
+                <p style="color: #374151;">If you have any questions, reply to this email or <a href="${baseUrl}/support" style="color: #e46c1b;">contact support</a>.</p>
               </div>
             </div>
           `,
