@@ -17,34 +17,37 @@ import PublicListView from "./pages/PublicListView";
 import BrowseLists from "./pages/BrowseLists";
 import NotFound from "./pages/NotFound";
 import Help from "./pages/Help";
+import { HelmetProvider } from 'react-helmet-async';
 
 const queryClient = new QueryClient();
 
 const App = () => (
   <QueryClientProvider client={queryClient}>
-    <TooltipProvider>
-      <Toaster />
-      <Sonner />
-      <BrowserRouter>
-        <Routes>
-          <Route path="/" element={<Landing />} />
-          <Route path="/auth" element={<Auth />} />
-          <Route path="/dashboard" element={<Dashboard />} />
-          <Route path="/features" element={<Features />} />
-          <Route path="/pricing" element={<Pricing />} />
-          <Route path="/about" element={<About />} />
-          <Route path="/contact" element={<Contact />} />
-          <Route path="/profile/:username" element={<Profile />} />
-          <Route path="/profile-settings" element={<ProfileSettings />} />
-          <Route path="/scraping-status" element={<ScrapingStatus />} />
-          <Route path="/lists/:listId" element={<PublicListView />} />
-          <Route path="/browse-lists" element={<BrowseLists />} />
-          <Route path="/help" element={<Help />} />
-          {/* ADD ALL CUSTOM ROUTES ABOVE THE CATCH-ALL "*" ROUTE */}
-          <Route path="*" element={<NotFound />} />
-        </Routes>
-      </BrowserRouter>
-    </TooltipProvider>
+    <HelmetProvider>
+      <TooltipProvider>
+        <Toaster />
+        <Sonner />
+        <BrowserRouter>
+          <Routes>
+            <Route path="/" element={<Landing />} />
+            <Route path="/auth" element={<Auth />} />
+            <Route path="/dashboard" element={<Dashboard />} />
+            <Route path="/features" element={<Features />} />
+            <Route path="/pricing" element={<Pricing />} />
+            <Route path="/about" element={<About />} />
+            <Route path="/contact" element={<Contact />} />
+            <Route path="/profile/:username" element={<Profile />} />
+            <Route path="/profile-settings" element={<ProfileSettings />} />
+            <Route path="/scraping-status" element={<ScrapingStatus />} />
+            <Route path="/lists/:listId" element={<PublicListView />} />
+            <Route path="/browse-lists" element={<BrowseLists />} />
+            <Route path="/help" element={<Help />} />
+            {/* ADD ALL CUSTOM ROUTES ABOVE THE CATCH-ALL "*" ROUTE */}
+            <Route path="*" element={<NotFound />} />
+          </Routes>
+        </BrowserRouter>
+      </TooltipProvider>
+    </HelmetProvider>
   </QueryClientProvider>
 );
 
