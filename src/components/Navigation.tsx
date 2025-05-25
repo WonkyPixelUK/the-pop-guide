@@ -4,7 +4,6 @@ import { Activity, LogIn, LogOut, Plus, Search, Menu, Home, List, DollarSign, St
 import { useAuth } from '@/hooks/useAuth';
 import { useToast } from '@/hooks/use-toast';
 import { useState } from 'react';
-import AuthDialog from '@/components/AuthDialog';
 import { CommandDialog, CommandInput, CommandList, CommandItem, CommandEmpty } from '@/components/ui/command';
 import { useFunkoPops, useUserCollection, useAddToCollection } from '@/hooks/useFunkoPops';
 import { Loader2, Check } from 'lucide-react';
@@ -14,7 +13,6 @@ const Navigation = () => {
   const location = useLocation();
   const { user, loading: authLoading, signOut } = useAuth();
   const { toast } = useToast();
-  const [isAuthDialogOpen, setIsAuthDialogOpen] = useState(false);
   const [isSearchOpen, setIsSearchOpen] = useState(false);
   const [searchValue, setSearchValue] = useState("");
   const { data: funkoPops = [], isLoading: funkoLoading } = useFunkoPops();
@@ -116,21 +114,14 @@ const Navigation = () => {
                 </>
               ) : (
                 <>
-                  <Button 
-                    onClick={() => setIsAuthDialogOpen(true)}
-                    className={headerButton}
-                  >
+                  <Link to="/auth" className={headerButton}>
                     <LogIn className="w-4 h-4 mr-2" />
                     Sign In
-                  </Button>
-                  <Button
-                    variant="outline"
-                    className={headerButton}
-                    onClick={() => { setIsAuthDialogOpen(true); setTimeout(() => { const evt = new CustomEvent('open-signup'); window.dispatchEvent(evt); }, 50); }}
-                  >
+                  </Link>
+                  <Link to="/auth" className={headerButton}>
                     <LogIn className="w-4 h-4 mr-2" />
                     Create an Account
-                  </Button>
+                  </Link>
                 </>
               )}
             </div>
@@ -138,10 +129,6 @@ const Navigation = () => {
         </div>
       </header>
       
-      <AuthDialog 
-        open={isAuthDialogOpen} 
-        onOpenChange={setIsAuthDialogOpen} 
-      />
       <CommandDialog open={isSearchOpen} onOpenChange={setIsSearchOpen}>
         <CommandInput
           placeholder="Search the entire database..."
@@ -156,7 +143,7 @@ const Navigation = () => {
           ) : !user ? (
             <div className="flex flex-col items-center py-8 text-gray-400">
               <p className="mb-2">Sign in to add items to your collection.</p>
-              <Button onClick={() => setIsAuthDialogOpen(true)} className="bg-orange-500 hover:bg-orange-600 text-white">Sign In</Button>
+              <Link to="/auth" className="bg-orange-500 hover:bg-orange-600 text-white">Sign In</Link>
             </div>
           ) : filteredResults.length === 0 && searchValue.length > 1 ? (
             <CommandEmpty>No results found.</CommandEmpty>
