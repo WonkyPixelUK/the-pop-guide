@@ -4,8 +4,14 @@ import { Check, Star } from "lucide-react";
 import { Link } from "react-router-dom";
 import Navigation from "@/components/Navigation";
 import { Accordion, AccordionItem, AccordionTrigger, AccordionContent } from '@/components/ui/accordion';
+import { useAuth } from '@/hooks/useAuth';
+import { useToast } from '@/hooks/use-toast';
+import { useState } from 'react';
 
 const Pricing = () => {
+  const { user, loading: authLoading } = useAuth();
+  const { toast } = useToast();
+  const [loading, setLoading] = useState(false);
   const plans = [
     {
       name: "Free",
@@ -40,6 +46,31 @@ const Pricing = () => {
       popular: true
     }
   ];
+
+  const handleProCheckout = async () => {
+    if (!user) {
+      window.location.href = '/auth';
+      return;
+    }
+    setLoading(true);
+    try {
+      const res = await fetch('/functions/v1/stripe-checkout', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ user_id: user.id, email: user.email }),
+      });
+      const data = await res.json();
+      if (data.url) {
+        window.location.href = data.url;
+      } else {
+        toast({ title: 'Error', description: data.error || 'Could not start checkout', variant: 'destructive' });
+      }
+    } catch (e) {
+      toast({ title: 'Error', description: e.message, variant: 'destructive' });
+    } finally {
+      setLoading(false);
+    }
+  };
 
   return (
     <div className="min-h-screen bg-gradient-to-br from-gray-900 via-gray-800 to-black">
@@ -90,16 +121,21 @@ const Pricing = () => {
                     ))}
                   </ul>
                   
-                  <Link to="/auth">
-                    <Button 
-                      className={`w-full ${plan.popular 
-                        ? 'bg-orange-500 hover:bg-orange-600 text-white' 
-                        : 'bg-gray-700 hover:bg-gray-600 text-white'
-                      }`}
+                  {plan.popular ? (
+                    <Button
+                      className="w-full bg-[#e46c1b] hover:bg-orange-600 text-white rounded-lg text-lg font-semibold py-3 transition-colors"
+                      onClick={handleProCheckout}
+                      disabled={loading}
                     >
-                      {plan.cta}
+                      {loading ? 'Redirecting...' : plan.cta}
                     </Button>
-                  </Link>
+                  ) : (
+                    <Link to="/auth">
+                      <Button className="w-full bg-gray-700 hover:bg-gray-600 text-white rounded-lg text-lg font-semibold py-3 transition-colors">
+                        {plan.cta}
+                      </Button>
+                    </Link>
+                  )}
                 </CardContent>
               </Card>
             ))}
