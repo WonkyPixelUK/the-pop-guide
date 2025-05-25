@@ -6,6 +6,8 @@ import SEO from '@/components/SEO';
 import { useState } from 'react';
 import { useFunkoPops } from '@/hooks/useFunkoPops';
 import ItemDetailsDialog from '@/components/ItemDetailsDialog';
+import Navigation from '@/components/Navigation';
+import { Dialog, DialogContent } from '@/components/ui/dialog';
 
 const Landing = () => {
   const [email, setEmail] = useState('');
@@ -14,6 +16,7 @@ const Landing = () => {
   const [filter, setFilter] = useState('All');
   const categories = Array.from(new Set(funkoPops.map(pop => pop.series))).filter(Boolean);
   const [selectedPop, setSelectedPop] = useState(null);
+  const [demoOpen, setDemoOpen] = useState(false);
 
   const handleSignup = (e) => {
     e.preventDefault();
@@ -25,47 +28,8 @@ const Landing = () => {
     <>
       <SEO />
       <div className="min-h-screen bg-gradient-to-br from-gray-900 via-gray-800 to-black text-white">
-        {/* Header */}
-        <header className="bg-gray-900/50 backdrop-blur-sm border-b border-gray-700">
-          <div className="container mx-auto px-4 py-4">
-            <div className="flex items-center justify-between">
-              <div className="flex items-center space-x-3">
-                <img 
-                  src="https://Maintainhq-pull-zone.b-cdn.net/02_the_pop_guide/pop-guide-logo-trans-white.svg" 
-                  alt="PopGuide Logo" 
-                  className="h-24 w-auto"
-                />
-              </div>
-              <nav className="hidden md:flex items-center space-x-6">
-                <Link to="/features" className="text-gray-300 hover:text-orange-500 transition-colors">
-                  Features
-                </Link>
-                <Link to="/pricing" className="text-gray-300 hover:text-orange-500 transition-colors">
-                  Pricing
-                </Link>
-                <Link to="/about" className="text-gray-300 hover:text-orange-500 transition-colors">
-                  About
-                </Link>
-                <Link to="/contact" className="text-gray-300 hover:text-orange-500 transition-colors">
-                  Contact
-                </Link>
-              </nav>
-              <div className="flex items-center space-x-4">
-                <Link to="/auth">
-                  <Button variant="outline" className="border-gray-600 text-blue-900 hover:bg-gray-700 hover:text-white">
-                    Sign In
-                  </Button>
-                </Link>
-                <Link to="/auth">
-                  <Button className="bg-orange-500 hover:bg-orange-600 text-white">
-                    Get Started
-                  </Button>
-                </Link>
-              </div>
-            </div>
-          </div>
-        </header>
-
+        {/* Use shared Navigation component */}
+        <Navigation />
         {/* Hero Section */}
         <section className="py-20 px-4">
           <div className="container mx-auto text-center">
@@ -82,12 +46,28 @@ const Landing = () => {
                   Start Your Collection Journey
                 </Button>
               </Link>
-              <Button size="lg" variant="outline" className="border-gray-600 text-blue-900 hover:bg-gray-700 hover:text-white px-8 py-3">
+              <Button size="lg" variant="outline" className="border-gray-600 text-blue-900 hover:bg-gray-700 hover:text-white px-8 py-3" onClick={() => setDemoOpen(true)}>
                 Watch Demo
               </Button>
             </div>
           </div>
         </section>
+        {/* Demo Modal */}
+        <Dialog open={demoOpen} onOpenChange={setDemoOpen}>
+          <DialogContent className="max-w-2xl w-full bg-gray-900 border border-gray-700">
+            <div className="aspect-w-16 aspect-h-9 w-full">
+              <iframe
+                width="100%"
+                height="400"
+                src="https://www.youtube.com/embed/dQw4w9WgXcQ"
+                title="Pop Guide Demo"
+                frameBorder="0"
+                allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
+                allowFullScreen
+              ></iframe>
+            </div>
+          </DialogContent>
+        </Dialog>
 
         {/* Quick Signup & Pricing Summary */}
         <section className="py-8 px-4 bg-gray-900/60 border-b border-gray-800">

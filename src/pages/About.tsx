@@ -3,6 +3,7 @@ import { Card, CardContent } from "@/components/ui/card";
 import { Users, Target, Heart, Award } from "lucide-react";
 import { Link } from "react-router-dom";
 import SEO from '@/components/SEO';
+import Navigation from '@/components/Navigation';
 
 const About = () => {
   const team = [
@@ -53,32 +54,7 @@ const About = () => {
     <>
       <SEO title="About | The Pop Guide" description="Learn more about The Pop Guide and our mission for UK Funko collectors." />
       <div className="min-h-screen bg-gradient-to-br from-gray-900 via-gray-800 to-black">
-        {/* Header */}
-        <header className="bg-gray-900/50 backdrop-blur-sm border-b border-gray-700">
-          <div className="container mx-auto px-4 py-4">
-            <div className="flex items-center justify-between">
-              <Link to="/" className="flex items-center space-x-3">
-                <div className="text-2xl font-bold">
-                  <span className="text-orange-500">Pop</span>
-                  <span className="text-white">Guide</span>
-                </div>
-              </Link>
-              <div className="flex items-center space-x-4">
-                <Link to="/auth">
-                  <Button variant="outline" className="border-gray-600 text-white hover:bg-gray-700 hover:text-white">
-                    Sign In
-                  </Button>
-                </Link>
-                <Link to="/auth">
-                  <Button className="bg-orange-500 hover:bg-orange-600 text-white">
-                    Get Started
-                  </Button>
-                </Link>
-              </div>
-            </div>
-          </div>
-        </header>
-
+        <Navigation />
         {/* Hero Section */}
         <section className="py-20 px-4">
           <div className="container mx-auto text-center">

@@ -1,11 +1,13 @@
 import React from 'react';
 import SEO from '@/components/SEO';
+import Navigation from '@/components/Navigation';
 
 const Help = () => {
   return (
     <>
       <SEO title="Maintenance & Archive | The Pop Guide" description="Maintenance and archive information for The Pop Guide." />
       <div className="min-h-screen bg-gradient-to-br from-gray-900 via-gray-800 to-black py-12 px-4">
+        <Navigation />
         <div className="container mx-auto max-w-3xl">
           <h1 className="text-4xl font-bold text-white mb-4">Maintenance & Archive</h1>
           <p className="text-lg text-gray-300 mb-8">
