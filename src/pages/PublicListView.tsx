@@ -1,4 +1,3 @@
-
 import { useParams } from "react-router-dom";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
@@ -59,6 +58,10 @@ const PublicListView = () => {
   return (
     <div className="min-h-screen bg-gradient-to-br from-gray-900 via-gray-800 to-black text-white">
       <div className="container mx-auto px-4 py-8">
+        {/* Logo Header */}
+        <div className="text-center mb-6">
+          <img src="https://Maintainhq-pull-zone.b-cdn.net/02_the_pop_guide/pop-guide-logo-trans-white.svg" alt="PopGuide Logo" className="h-16 mx-auto mb-4" />
+        </div>
         {/* Header */}
         <div className="flex items-center justify-between mb-6">
           <Link to="/browse-lists">
@@ -70,7 +73,7 @@ const PublicListView = () => {
           <Button
             variant="outline"
             onClick={handleShare}
-            className="border-gray-600 text-white hover:bg-gray-800"
+            className="border-gray-600 text-white hover:bg-gray-800 hover:text-[#232837] focus:text-[#232837] active:text-[#232837]"
           >
             <Share2 className="w-4 h-4 mr-2" />
             Share List

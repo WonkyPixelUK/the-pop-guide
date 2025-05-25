@@ -262,7 +262,29 @@ const Dashboard = () => {
                   </div>
                 </div>
                 <CollectionGrid 
-                  items={transformedItems.filter(item => item.owned)} 
+                  items={userCollection
+                    .filter(item => {
+                      // Search filter
+                      const q = searchQuery.toLowerCase();
+                      return (
+                        item.funko_pops?.name?.toLowerCase().includes(q) ||
+                        item.funko_pops?.series?.toLowerCase().includes(q) ||
+                        item.funko_pops?.number?.toLowerCase().includes(q)
+                      );
+                    })
+                    .map(item => ({
+                      id: item.funko_pops?.id,
+                      name: item.funko_pops?.name,
+                      series: item.funko_pops?.series,
+                      number: item.funko_pops?.number || "",
+                      image: item.funko_pops?.image_url || "/lovable-uploads/b7333c96-5576-426d-af76-6a6a97e8a1ea.png",
+                      value: item.funko_pops?.estimated_value || 0,
+                      rarity: item.funko_pops?.is_chase ? "Chase" : item.funko_pops?.is_exclusive ? "Exclusive" : "Common",
+                      owned: true,
+                      condition: item.condition,
+                      purchase_price: item.purchase_price,
+                    }))
+                  }
                   onItemClick={setSelectedItem}
                   searchQuery={searchQuery}
                   showWishlistOnly={false}

@@ -8,6 +8,7 @@ import { CommandDialog, CommandInput, CommandList, CommandItem, CommandEmpty } f
 import { useFunkoPops, useUserCollection, useAddToCollection } from '@/hooks/useFunkoPops';
 import { Loader2, Check } from 'lucide-react';
 import { headerButton } from '@/components/ui/button';
+import { Menu as DropdownMenu, MenuItem } from '@headlessui/react';
 
 const getInitialTheme = () => {
   if (typeof window === 'undefined') return 'system';
@@ -99,11 +100,32 @@ const Navigation = () => {
           <div className="flex items-center gap-2">
           {user ? (
             <>
-              <span className="text-gray-900 mr-2 text-xs">Welcome, {user.user_metadata?.full_name || user.email}</span>
+              <DropdownMenu as="div" className="relative inline-block text-left">
+                <DropdownMenu.Button className="text-gray-900 mr-2 text-xs font-semibold hover:underline focus:outline-none">
+                  {user.user_metadata?.full_name || user.email}
+                </DropdownMenu.Button>
+                <DropdownMenu.Items className="absolute right-0 mt-2 w-40 origin-top-right bg-white border border-gray-200 rounded-md shadow-lg focus:outline-none z-50">
+                  <MenuItem>
+                    {({ active }) => (
+                      <Link to="/profile-settings" className={`block px-4 py-2 text-sm ${active ? 'bg-orange-50 text-[#e46c1b]' : 'text-gray-900'}`}>Profile</Link>
+                    )}
+                  </MenuItem>
+                  <MenuItem>
+                    {({ active }) => (
+                      <button
+                        onClick={handleSignOut}
+                        className={`block w-full text-left px-4 py-2 text-sm ${active ? 'bg-orange-50 text-[#e46c1b]' : 'text-gray-900'}`}
+                      >
+                        Logout
+                      </button>
+                    )}
+                  </MenuItem>
+                </DropdownMenu.Items>
+              </DropdownMenu>
               <Button 
                 onClick={handleSignOut}
                 variant="outline"
-                className="border border-[#e46c1b] text-[#e46c1b] bg-transparent hover:bg-orange-50 rounded-md px-3 py-1 font-medium text-xs min-w-0 shadow-none"
+                className="border border-[#e46c1b] text-[#e46c1b] bg-transparent hover:bg-orange-50 rounded-md px-3 py-1 font-medium text-xs min-w-0 shadow-none hidden md:inline-block"
               >
                 Sign Out
               </Button>
@@ -138,6 +160,9 @@ const Navigation = () => {
             <a href="https://statuslist.app/status/z8kbza" className="text-white hover:text-orange-500 font-medium text-base transition-colors" target="_blank" rel="noopener noreferrer">Service Status</a>
             <Link to="/pricing" className="text-white hover:text-orange-500 font-medium text-base transition-colors">Pricing</Link>
             <a href="https://support.popguide.co.uk" className="text-white hover:text-orange-500 font-medium text-base transition-colors" target="_blank" rel="noopener noreferrer">Support</a>
+            {user && (
+              <Link to="/dashboard" className="text-white hover:text-orange-500 font-medium text-base transition-colors">Dashboard</Link>
+            )}
           </nav>
         </div>
       </header>

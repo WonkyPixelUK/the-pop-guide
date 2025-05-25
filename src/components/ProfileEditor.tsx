@@ -7,7 +7,7 @@ import { Textarea } from '@/components/ui/textarea';
 import { Switch } from '@/components/ui/switch';
 import { usePublicProfile } from '@/hooks/usePublicProfile';
 import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
-import { User, Music, MessageCircle, Twitter, Instagram, Video, ShoppingBag, Gamepad2 } from 'lucide-react';
+import { User, Music, MessageCircle, Twitter, Instagram, Video, ShoppingBag, Gamepad2, Copy as CopyIcon } from 'lucide-react';
 import { useCustomLists } from '@/hooks/useCustomLists';
 import { supabase } from '@/integrations/supabase/client';
 import { useToast } from '@/hooks/use-toast';
@@ -124,7 +124,11 @@ const ProfileEditor = () => {
         // Use linkIdentity if available (Supabase v2+)
         const { data, error } = await supabase.auth.linkIdentity({ provider });
         if (error) {
-          toast({ title: `Failed to connect ${provider}`, description: error.message, variant: 'destructive' });
+          if (error.message && error.message.toLowerCase().includes('manual linked disabled')) {
+            toast({ title: `Manual identity linking is not enabled`, description: 'Enable it in your Supabase Auth settings.', variant: 'destructive' });
+          } else {
+            toast({ title: `Failed to connect ${provider}`, description: error.message, variant: 'destructive' });
+          }
         } else {
           toast({ title: `${provider.charAt(0).toUpperCase() + provider.slice(1)} connected!`, variant: 'success' });
         }
@@ -198,8 +202,19 @@ const ProfileEditor = () => {
                 <span className="text-red-500 text-xs">{usernameError}</span>
               )}
               {formData.username && (
-                <p className="text-sm text-gray-400 mt-1">
+                <p className="text-sm text-gray-400 mt-1 flex items-center gap-2">
                   Your profile will be at: /profile/{formData.username}
+                  <button
+                    type="button"
+                    aria-label="Copy profile URL"
+                    className="ml-1 p-1 rounded hover:bg-gray-700"
+                    onClick={() => {
+                      navigator.clipboard.writeText(`${window.location.origin}/profile/${formData.username}`);
+                      toast({ title: 'Copied!', description: 'Profile URL copied to clipboard', variant: 'success' });
+                    }}
+                  >
+                    <CopyIcon className="w-4 h-4 text-gray-400 hover:text-orange-500" />
+                  </button>
                 </p>
               )}
             </div>
