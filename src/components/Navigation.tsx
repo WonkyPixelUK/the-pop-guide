@@ -114,13 +114,23 @@ const Navigation = () => {
                   </Button>
                 </>
               ) : (
-                <Button 
-                  onClick={() => setIsAuthDialogOpen(true)}
-                  className="bg-orange-500 hover:bg-orange-600 text-white"
-                >
-                  <LogIn className="w-4 h-4 mr-2" />
-                  Sign In
-                </Button>
+                <>
+                  <Button 
+                    onClick={() => setIsAuthDialogOpen(true)}
+                    className="bg-orange-500 hover:bg-orange-600 text-white"
+                  >
+                    <LogIn className="w-4 h-4 mr-2" />
+                    Sign In
+                  </Button>
+                  <Button
+                    variant="outline"
+                    className="border-gray-600 text-white hover:bg-gray-700"
+                    onClick={() => { setIsAuthDialogOpen(true); setTimeout(() => { const evt = new CustomEvent('open-signup'); window.dispatchEvent(evt); }, 50); }}
+                  >
+                    <LogIn className="w-4 h-4 mr-2" />
+                    Create an Account
+                  </Button>
+                </>
               )}
             </div>
           </div>
