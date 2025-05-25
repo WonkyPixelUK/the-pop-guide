@@ -3,8 +3,22 @@ import { Card, CardContent } from "@/components/ui/card";
 import { BarChart3, Users, Zap, Star, Shield, TrendingUp, Smartphone, Globe, Monitor } from "lucide-react";
 import { Link } from "react-router-dom";
 import SEO from '@/components/SEO';
+import { useState } from 'react';
+import { useFunkoPops } from '@/hooks/useFunkoPops';
 
 const Landing = () => {
+  const [email, setEmail] = useState('');
+  const [signupSuccess, setSignupSuccess] = useState(false);
+  const { data: funkoPops = [] } = useFunkoPops();
+  const [filter, setFilter] = useState('All');
+  const categories = Array.from(new Set(funkoPops.map(pop => pop.series))).filter(Boolean);
+
+  const handleSignup = (e) => {
+    e.preventDefault();
+    // TODO: Implement signup logic (e.g., Supabase, API call)
+    setSignupSuccess(true);
+  };
+
   return (
     <>
       <SEO />
@@ -69,6 +83,73 @@ const Landing = () => {
               <Button size="lg" variant="outline" className="border-gray-600 text-blue-900 hover:bg-gray-700 hover:text-white px-8 py-3">
                 Watch Demo
               </Button>
+            </div>
+          </div>
+        </section>
+
+        {/* Quick Signup & Pricing Summary */}
+        <section className="py-8 px-4 bg-gray-900/60 border-b border-gray-800">
+          <div className="container mx-auto flex flex-col md:flex-row items-center justify-between gap-8">
+            <form onSubmit={handleSignup} className="flex flex-col md:flex-row items-center gap-4 w-full md:w-auto">
+              <input
+                type="email"
+                required
+                placeholder="Enter your email to get started"
+                value={email}
+                onChange={e => setEmail(e.target.value)}
+                className="px-4 py-3 rounded bg-gray-800 border border-gray-700 text-white placeholder-gray-400 w-full md:w-72"
+              />
+              <button type="submit" className="bg-orange-500 hover:bg-orange-600 text-white px-6 py-3 rounded font-semibold">
+                Get Started Free
+              </button>
+            </form>
+            <div className="text-left md:text-right w-full md:w-auto">
+              <div className="font-bold text-lg mb-1">Pricing</div>
+              <div className="text-gray-300 mb-1">Free: Up to 50 items</div>
+              <div className="text-gray-300 mb-1">Pro: $3.99/mo, 3-day trial</div>
+              <ul className="text-gray-400 text-sm list-disc pl-5">
+                <li>Unlimited items (Pro)</li>
+                <li>Advanced analytics</li>
+                <li>Export & API access</li>
+              </ul>
+            </div>
+          </div>
+          {signupSuccess && (
+            <div className="text-green-400 text-center mt-4">Signup successful! Check your email to continue.</div>
+          )}
+        </section>
+
+        {/* New Additions Section */}
+        <section className="py-12 px-4 bg-gray-900/30 border-b border-gray-800">
+          <div className="container mx-auto">
+            <div className="flex flex-col md:flex-row md:items-center md:justify-between mb-6 gap-4">
+              <h2 className="text-3xl font-bold text-white">New Additions</h2>
+              <div className="flex items-center gap-2">
+                <span className="text-gray-400">Filter:</span>
+                <select
+                  value={filter}
+                  onChange={e => setFilter(e.target.value)}
+                  className="bg-gray-800 border border-gray-700 text-white rounded px-3 py-2"
+                >
+                  <option value="All">All</option>
+                  {categories.map(cat => (
+                    <option key={cat} value={cat}>{cat}</option>
+                  ))}
+                </select>
+              </div>
+            </div>
+            <div className="grid grid-cols-2 md:grid-cols-4 lg:grid-cols-6 gap-6">
+              {funkoPops
+                .filter(pop => filter === 'All' || pop.series === filter)
+                .sort((a, b) => new Date(b.created_at) - new Date(a.created_at))
+                .slice(0, 12)
+                .map(pop => (
+                  <div key={pop.id} className="bg-gray-800/70 border border-gray-700 rounded-lg p-3 flex flex-col items-center hover:shadow-lg transition">
+                    <img src={pop.image_url} alt={pop.name} className="w-20 h-20 object-contain mb-2 rounded" />
+                    <div className="font-semibold text-white text-center text-sm mb-1">{pop.name}</div>
+                    <div className="text-xs text-gray-400">{pop.series}</div>
+                  </div>
+                ))}
             </div>
           </div>
         </section>
@@ -243,7 +324,6 @@ const Landing = () => {
                 <ul className="space-y-2 text-gray-400">
                   <li><Link to="/about" className="hover:text-orange-500 transition-colors">About</Link></li>
                   <li><a href="#" className="hover:text-orange-500 transition-colors">Blog</a></li>
-                  <li><a href="#" className="hover:text-orange-500 transition-colors">Privacy</a></li>
                 </ul>
               </div>
             </div>
