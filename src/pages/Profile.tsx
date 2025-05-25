@@ -18,18 +18,36 @@ import { useAuth } from '@/hooks/useAuth';
 
 const Profile = () => {
   const { username } = useParams<{ username: string }>();
-  const { profile, loading } = usePublicProfileByUsername(username || '');
-  const { data: funkoPops = [] } = useFunkoPops();
-  const { data: userCollection = [] } = useUserCollection(profile?.user_id);
+  const { profile, loading: profileLoading } = usePublicProfileByUsername(username || '');
+  const { data: funkoPops = [], isLoading: funkoLoading, error: funkoError } = useFunkoPops();
+  const { data: userCollection = [], isLoading: collectionLoading, error: collectionError } = useUserCollection(profile?.user_id);
   const { activities, loading: activitiesLoading } = useProfileActivities(profile?.user_id);
   const [selectedItem, setSelectedItem] = useState(null);
   const { publicLists } = useCustomLists();
   const { user } = useAuth();
 
-  if (loading) {
+  if (profileLoading || funkoLoading || collectionLoading) {
     return (
       <div className="min-h-screen bg-gradient-to-br from-gray-900 via-gray-800 to-black flex items-center justify-center">
         <div className="text-white text-xl">Loading profile...</div>
+      </div>
+    );
+  }
+
+  if (funkoError || collectionError) {
+    console.error('Error loading data:', funkoError || collectionError);
+    return (
+      <div className="min-h-screen bg-gradient-to-br from-gray-900 via-gray-800 to-black flex items-center justify-center">
+        <div className="text-center">
+          <h1 className="text-2xl font-bold text-white mb-4">Error Loading Profile</h1>
+          <p className="text-gray-400 mb-6">There was a problem loading this profile. Please try again later.</p>
+          <Link to="/">
+            <Button className="bg-orange-500 hover:bg-orange-600 text-white">
+              <ArrowLeft className="w-4 h-4 mr-2" />
+              Back to Home
+            </Button>
+          </Link>
+        </div>
       </div>
     );
   }
