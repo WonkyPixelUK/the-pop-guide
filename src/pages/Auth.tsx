@@ -72,6 +72,44 @@ const Auth = () => {
           BETA: This app is still in development. You may encounter bugs.
         </div>
       </div>
+      <div className="flex-1 flex items-center justify-center w-full">
+        <div className="w-full max-w-md">
+          {/* Header */}
+          <div className="text-center mb-8">
+            <Link to="/" className="inline-block">
+              <img 
+                src="https://Maintainhq-pull-zone.b-cdn.net/02_the_pop_guide/pop-guide-logo-trans-white.svg" 
+                alt="PopGuide Logo" 
+                className="h-28 w-auto mx-auto"
+              />
+            </Link>
+            <p className="text-gray-400 mt-2">
+              {isSignUp ? 'Create your account to start collecting' : 'Welcome back to your collection'}
+            </p>
+          </div>
+
+          <Card className="bg-gray-800/50 border-gray-700">
+            <CardHeader>
+              <CardTitle className="text-white text-center">
+                {isSignUp ? 'Create Account' : 'Sign In'}
+              </CardTitle>
+            </CardHeader>
+            <CardContent>
+              <form onSubmit={handleSubmit} className="space-y-4">
+                {isSignUp && (
+                  <div>
+                    <Label htmlFor="fullName" className="text-gray-300">Full Name</Label>
+                    <Input
+                      id="fullName"
+                      type="text"
+                      value={fullName}
+                      onChange={(e) => setFullName(e.target.value)}
+                      className="bg-gray-700 border-gray-600 text-white"
+                      required
+                    />
+                  </div>
+                )}
+                <div>
       <div className="w-full max-w-md">
         {/* Header */}
         <div className="text-center mb-8">

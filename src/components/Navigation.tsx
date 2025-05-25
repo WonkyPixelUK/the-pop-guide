@@ -79,7 +79,7 @@ const Navigation = () => {
                 <img
                   src="https://Maintainhq-pull-zone.b-cdn.net/02_the_pop_guide/pop-guide-logo-trans-white.svg"
                   alt="PopGuide Logo"
-                  className="h-14 w-auto"
+                  className="h-20 w-auto"
                 />
               </Link>
             </div>
@@ -94,11 +94,11 @@ const Navigation = () => {
               </button>
             </div>
             <nav className={`$${mobileMenuOpen ? 'block' : 'hidden'} md:flex items-center space-x-6 w-full md:w-auto mt-4 md:mt-0 bg-gray-900 md:bg-transparent p-4 md:p-0 rounded-lg md:rounded-none z-50 absolute md:static left-0 top-16 md:top-auto`}>
-              <Link to="/dashboard" className="block md:inline text-gray-300 hover:text-orange-500 transition-colors flex items-center gap-2 mb-2 md:mb-0"><Home className="w-4 h-4" />Dashboard</Link>
-              <Link to="/features" className="block md:inline text-gray-300 hover:text-orange-500 transition-colors flex items-center gap-2 mb-2 md:mb-0"><Star className="w-4 h-4" />Features</Link>
-              <Link to="/scraping-status" className="block md:inline text-gray-300 hover:text-orange-500 transition-colors flex items-center gap-2 mb-2 md:mb-0"><Activity className="w-4 h-4" />Scraping Status</Link>
-              <a href="https://statuslist.app/status/z8kbza" className="block md:inline text-gray-300 hover:text-orange-500 transition-colors flex items-center gap-2 mb-2 md:mb-0" target="_blank" rel="noopener noreferrer"><Server className="w-4 h-4" />Service Status</a>
-              <Link to="/pricing" className="block md:inline text-gray-300 hover:text-orange-500 transition-colors flex items-center gap-2"> <DollarSign className="w-4 h-4" />Pricing</Link>
+              <Link to="/dashboard" className="block md:inline text-gray-300 hover:text-orange-500 transition-colors flex items-center gap-2 mb-2 md:mb-0"><Home className="w-4 h-4 text-orange-500" />Dashboard</Link>
+              <Link to="/features" className="block md:inline text-gray-300 hover:text-orange-500 transition-colors flex items-center gap-2 mb-2 md:mb-0"><Star className="w-4 h-4 text-orange-500" />Features</Link>
+              <Link to="/scraping-status" className="block md:inline text-gray-300 hover:text-orange-500 transition-colors flex items-center gap-2 mb-2 md:mb-0"><Activity className="w-4 h-4 text-orange-500" />Scraping Status</Link>
+              <a href="https://statuslist.app/status/z8kbza" className="block md:inline text-gray-300 hover:text-orange-500 transition-colors flex items-center gap-2 mb-2 md:mb-0" target="_blank" rel="noopener noreferrer"><Server className="w-4 h-4 text-orange-500" />Service Status</a>
+              <Link to="/pricing" className="block md:inline text-gray-300 hover:text-orange-500 transition-colors flex items-center gap-2"> <DollarSign className="w-4 h-4 text-orange-500" />Pricing</Link>
             </nav>
             <div className="flex items-center space-x-2 mt-4 md:mt-0">
               {user ? (
