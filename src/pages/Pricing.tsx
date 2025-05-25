@@ -38,23 +38,6 @@ const Pricing = () => {
       ],
       cta: "Start 3-Day Pro Trial",
       popular: true
-    },
-    {
-      name: "Enterprise",
-      price: "Custom",
-      period: "contact us",
-      description: "For stores and large collections",
-      features: [
-        "Everything in Pro",
-        "Multi-user accounts",
-        "Custom integrations",
-        "Dedicated support",
-        "Custom reporting",
-        "White-label options",
-        "SLA guarantee"
-      ],
-      cta: "Contact Sales",
-      popular: false
     }
   ];
 
