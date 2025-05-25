@@ -1,4 +1,5 @@
-
+// @ts-ignore: Deno types for local dev
+// deno-lint-ignore-file no-explicit-any
 import { serve } from "https://deno.land/std@0.168.0/http/server.ts"
 import { createClient } from 'https://esm.sh/@supabase/supabase-js@2'
 
@@ -52,9 +53,17 @@ function detectStickerCondition(content: string, title: string) {
   return 'mint' // Default assumption for stickered items
 }
 
+type PriceObj = {
+  price: number
+  condition: string
+  sticker_type: string | null
+  sticker_condition: string | null
+  has_sticker: boolean
+}
+
 // Enhanced price extraction with sticker context
-function extractEbayPrices(content: string, searchQuery: string, funkoPopData: any) {
-  const prices = []
+function extractEbayPrices(content: string, searchQuery: string, funkoPopData: any): PriceObj[] {
+  const prices: PriceObj[] = []
   
   try {
     // Look for price patterns in the content
@@ -64,7 +73,7 @@ function extractEbayPrices(content: string, searchQuery: string, funkoPopData: a
       /Price:\s*\$?[\d,]+\.?\d*/g
     ]
     
-    let foundPrices = []
+    let foundPrices: string[] = []
     for (const pattern of pricePatterns) {
       const matches = content.match(pattern)
       if (matches) {
@@ -130,7 +139,7 @@ serve(async (req) => {
       baseQuery // Also search for common version
     ]
     
-    let allPrices = []
+    let allPrices: PriceObj[] = []
     const firecrawlApiKey = Deno.env.get('FIRECRAWL_API_KEY')
     
     if (firecrawlApiKey) {
