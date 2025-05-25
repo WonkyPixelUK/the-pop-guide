@@ -23,6 +23,7 @@ import { Analytics } from '@vercel/analytics/react';
 import Ios from "./pages/Ios";
 import Android from "./pages/Android";
 import Api from "./pages/Api";
+import SearchPage from "./pages/Search";
 
 const queryClient = new QueryClient();
 
@@ -52,6 +53,7 @@ const App = () => (
             <Route path="/ios" element={<Ios />} />
             <Route path="/android" element={<Android />} />
             <Route path="/api" element={<Api />} />
+            <Route path="/search" element={<SearchPage />} />
             {/* ADD ALL CUSTOM ROUTES ABOVE THE CATCH-ALL "*" ROUTE */}
             <Route path="*" element={<NotFound />} />
           </Routes>
