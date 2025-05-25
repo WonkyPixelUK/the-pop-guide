@@ -19,12 +19,14 @@ import NotFound from "./pages/NotFound";
 import Help from "./pages/Help";
 import { HelmetProvider } from 'react-helmet-async';
 import { SpeedInsights } from '@vercel/speed-insights/react';
+import { Analytics } from '@vercel/analytics/react';
 
 const queryClient = new QueryClient();
 
 const App = () => (
   <QueryClientProvider client={queryClient}>
     <HelmetProvider>
+      <Analytics />
       <SpeedInsights />
       <TooltipProvider>
         <Toaster />
