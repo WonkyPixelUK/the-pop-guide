@@ -8,6 +8,7 @@ import AuthDialog from '@/components/AuthDialog';
 import { CommandDialog, CommandInput, CommandList, CommandItem, CommandEmpty } from '@/components/ui/command';
 import { useFunkoPops, useUserCollection, useAddToCollection } from '@/hooks/useFunkoPops';
 import { Loader2, Check } from 'lucide-react';
+import { headerButton } from '@/components/ui/button';
 
 const Navigation = () => {
   const location = useLocation();
@@ -117,14 +118,14 @@ const Navigation = () => {
                 <>
                   <Button 
                     onClick={() => setIsAuthDialogOpen(true)}
-                    className="bg-orange-500 hover:bg-orange-600 text-white"
+                    className={headerButton}
                   >
                     <LogIn className="w-4 h-4 mr-2" />
                     Sign In
                   </Button>
                   <Button
                     variant="outline"
-                    className="border-gray-600 text-white hover:bg-gray-700"
+                    className={headerButton}
                     onClick={() => { setIsAuthDialogOpen(true); setTimeout(() => { const evt = new CustomEvent('open-signup'); window.dispatchEvent(evt); }, 50); }}
                   >
                     <LogIn className="w-4 h-4 mr-2" />

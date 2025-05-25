@@ -54,3 +54,9 @@ const Button = React.forwardRef<HTMLButtonElement, ButtonProps>(
 Button.displayName = "Button"
 
 export { Button, buttonVariants }
+
+export const headerButton = cn(
+  'bg-white text-[#101828] hover:bg-gray-100 border border-gray-300',
+  'font-semibold rounded-lg transition-colors',
+  'focus:outline-none focus:ring-2 focus:ring-orange-500',
+);
