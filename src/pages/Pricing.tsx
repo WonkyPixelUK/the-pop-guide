@@ -1,9 +1,9 @@
-
 import { Button } from "@/components/ui/button";
 import { Card, CardContent } from "@/components/ui/card";
 import { Check, Star } from "lucide-react";
 import { Link } from "react-router-dom";
 import Navigation from "@/components/Navigation";
+import { Accordion, AccordionItem, AccordionTrigger, AccordionContent } from '@/components/ui/accordion';
 
 const Pricing = () => {
   const plans = [
@@ -24,7 +24,7 @@ const Pricing = () => {
     },
     {
       name: "Pro",
-      price: "$9.99",
+      price: "$3.99",
       period: "per month",
       description: "For serious collectors",
       features: [
@@ -36,7 +36,7 @@ const Pricing = () => {
         "Export capabilities",
         "API access"
       ],
-      cta: "Start Pro Trial",
+      cta: "Start 3-Day Pro Trial",
       popular: true
     },
     {
@@ -77,7 +77,7 @@ const Pricing = () => {
       {/* Pricing Cards */}
       <section className="py-16 px-4">
         <div className="container mx-auto">
-          <div className="grid grid-cols-1 md:grid-cols-3 gap-8 max-w-6xl mx-auto">
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-8 max-w-4xl mx-auto mb-16">
             {plans.map((plan, index) => (
               <Card key={index} className={`bg-gray-800/50 border-gray-700 relative ${plan.popular ? 'ring-2 ring-orange-500' : ''}`}>
                 {plan.popular && (
@@ -130,23 +130,39 @@ const Pricing = () => {
           <h2 className="text-4xl font-bold text-white text-center mb-12">
             Frequently Asked Questions
           </h2>
-          <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
-            <div>
-              <h3 className="text-lg font-semibold text-white mb-2">Can I change plans anytime?</h3>
-              <p className="text-gray-400">Yes, you can upgrade or downgrade your plan at any time. Changes take effect immediately.</p>
-            </div>
-            <div>
-              <h3 className="text-lg font-semibold text-white mb-2">Is there a free trial?</h3>
-              <p className="text-gray-400">The Free plan is available forever. Pro plan includes a 14-day free trial.</p>
-            </div>
-            <div>
-              <h3 className="text-lg font-semibold text-white mb-2">What payment methods do you accept?</h3>
-              <p className="text-gray-400">We accept all major credit cards, PayPal, and bank transfers for Enterprise plans.</p>
-            </div>
-            <div>
-              <h3 className="text-lg font-semibold text-white mb-2">Can I export my data?</h3>
-              <p className="text-gray-400">Yes, you can export your collection data in multiple formats including CSV and JSON.</p>
-            </div>
+          <div className="max-w-2xl mx-auto">
+            <Accordion type="single" collapsible>
+              <AccordionItem value="faq1">
+                <AccordionTrigger>What happens after my 3-day Pro trial?</AccordionTrigger>
+                <AccordionContent>
+                  You'll be automatically billed $3.99/month unless you cancel before the trial ends. You can cancel anytime in your account settings.
+                </AccordionContent>
+              </AccordionItem>
+              <AccordionItem value="faq2">
+                <AccordionTrigger>Can I switch between Free and Pro?</AccordionTrigger>
+                <AccordionContent>
+                  Yes! You can upgrade or downgrade your plan at any time. Your data and collection will always be safe.
+                </AccordionContent>
+              </AccordionItem>
+              <AccordionItem value="faq3">
+                <AccordionTrigger>What payment methods do you accept?</AccordionTrigger>
+                <AccordionContent>
+                  We accept all major credit/debit cards. For Enterprise or special billing, contact us.
+                </AccordionContent>
+              </AccordionItem>
+              <AccordionItem value="faq4">
+                <AccordionTrigger>Is there a limit on the number of items in Pro?</AccordionTrigger>
+                <AccordionContent>
+                  No, Pro users can add unlimited items to their collection.
+                </AccordionContent>
+              </AccordionItem>
+              <AccordionItem value="faq5">
+                <AccordionTrigger>How do I cancel my subscription?</AccordionTrigger>
+                <AccordionContent>
+                  You can cancel anytime from your account settings. Your Pro features will remain active until the end of your billing period.
+                </AccordionContent>
+              </AccordionItem>
+            </Accordion>
           </div>
         </div>
       </section>
