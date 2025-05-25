@@ -14,6 +14,7 @@ import PremiumBadge from '@/components/PremiumBadge';
 import { useState } from 'react';
 import { useCustomLists } from '@/hooks/useCustomLists';
 import Navigation from '@/components/Navigation';
+import { useAuth } from '@/hooks/useAuth';
 
 const Profile = () => {
   const { username } = useParams<{ username: string }>();
@@ -23,6 +24,7 @@ const Profile = () => {
   const { activities, loading: activitiesLoading } = useProfileActivities(profile?.user_id);
   const [selectedItem, setSelectedItem] = useState(null);
   const { publicLists } = useCustomLists();
+  const { user } = useAuth();
 
   if (loading) {
     return (
@@ -166,8 +168,9 @@ const Profile = () => {
                 </Avatar>
                 <div className="flex-1">
                   <div className="flex items-center gap-3 mb-2">
-                    <CardTitle className="text-white text-2xl">
+                    <CardTitle className="text-white text-2xl flex items-center gap-2">
                       {profile.display_name || profile.username}
+                      <span className="bg-blue-900/80 text-blue-200 text-xs font-semibold px-2 py-0.5 rounded ml-2">Public Profile</span>
                     </CardTitle>
                     <PremiumBadge isPremium={profile.is_premium || false} />
                   </div>
@@ -194,6 +197,17 @@ const Profile = () => {
                     </div>
                   </div>
                 </div>
+                {/* If logged-in user is viewing their own profile, show dashboard/edit buttons */}
+                {user && user.id === profile.user_id && (
+                  <div className="flex flex-col gap-2 ml-auto">
+                    <Link to="/dashboard">
+                      <Button className="bg-orange-500 hover:bg-orange-600 text-white w-full">Go to Dashboard</Button>
+                    </Link>
+                    <Link to="/profile-settings">
+                      <Button variant="outline" className="border-gray-600 text-white w-full">Edit Profile</Button>
+                    </Link>
+                  </div>
+                )}
               </div>
             </CardHeader>
             
