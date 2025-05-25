@@ -20,6 +20,9 @@ import Help from "./pages/Help";
 import { HelmetProvider } from 'react-helmet-async';
 import { SpeedInsights } from '@vercel/speed-insights/react';
 import { Analytics } from '@vercel/analytics/react';
+import Ios from "./pages/Ios";
+import Android from "./pages/Android";
+import Api from "./pages/Api";
 
 const queryClient = new QueryClient();
 
@@ -46,6 +49,9 @@ const App = () => (
             <Route path="/lists/:listId" element={<PublicListView />} />
             <Route path="/browse-lists" element={<BrowseLists />} />
             <Route path="/help" element={<Help />} />
+            <Route path="/ios" element={<Ios />} />
+            <Route path="/android" element={<Android />} />
+            <Route path="/api" element={<Api />} />
             {/* ADD ALL CUSTOM ROUTES ABOVE THE CATCH-ALL "*" ROUTE */}
             <Route path="*" element={<NotFound />} />
           </Routes>

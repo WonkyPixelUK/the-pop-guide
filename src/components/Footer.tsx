@@ -19,7 +19,7 @@ const Footer = () => (
           <ul className="space-y-2 text-gray-400">
             <li><Link to="/features" className="hover:text-orange-500 transition-colors">Features</Link></li>
             <li><Link to="/pricing" className="hover:text-orange-500 transition-colors">Pricing</Link></li>
-            <li><a href="#" className="hover:text-orange-500 transition-colors">API</a></li>
+            <li><Link to="/api" className="hover:text-orange-500 transition-colors">API</Link></li>
           </ul>
         </div>
         <div>
@@ -27,7 +27,7 @@ const Footer = () => (
           <ul className="space-y-2 text-gray-400">
             <li><Link to="/help" className="hover:text-orange-500 transition-colors">Help Center</Link></li>
             <li><Link to="/contact" className="hover:text-orange-500 transition-colors">Contact Us</Link></li>
-            <li><a href="#" className="hover:text-orange-500 transition-colors">Community</a></li>
+            <li><Link to="/community" className="hover:text-orange-500 transition-colors">Community (coming soon)</Link></li>
           </ul>
         </div>
         <div>
@@ -36,6 +36,7 @@ const Footer = () => (
             <li><Link to="/about" className="hover:text-orange-500 transition-colors">About</Link></li>
             <li><Link to="/privacy" className="hover:text-orange-500 transition-colors">Privacy</Link></li>
             <li><Link to="/terms" className="hover:text-orange-500 transition-colors">Terms</Link></li>
+            <li><Link to="/blog" className="hover:text-orange-500 transition-colors">Blog</Link></li>
           </ul>
         </div>
       </div>

@@ -190,23 +190,26 @@ const Landing = () => {
                 <CardContent className="p-8 text-center">
                   <Smartphone className="w-12 h-12 text-orange-500 mx-auto mb-4" />
                   <h3 className="text-xl font-bold text-white mb-3">iOS / iPad</h3>
-                  <p className="text-gray-400 mb-4">Progressive Web App</p>
-                  <div className="text-sm text-gray-300 space-y-1">
-                    <div>iPhone • iPad</div>
-                    <div>Native-like experience</div>
-                    <div>Offline capability</div>
+                  <p className="text-gray-400 mb-4">Install as a Progressive Web App (PWA) for a native-like experience.</p>
+                  <a href="/ios" className="inline-block bg-orange-500 hover:bg-orange-600 text-white px-6 py-2 rounded font-semibold mb-2">iOS / iPad App Info</a>
+                  <div className="text-xs text-gray-300 mt-2">
+                    <strong>Install Instructions:</strong><br />
+                    1. Open popguide.co.uk in Safari<br />
+                    2. Tap the Share icon<br />
+                    3. Tap "Add to Home Screen"
                   </div>
                 </CardContent>
               </Card>
               <Card className="bg-gray-800/50 border-gray-700">
                 <CardContent className="p-8 text-center">
-                  <Globe className="w-12 h-12 text-orange-500 mx-auto mb-4" />
+                  <Smartphone className="w-12 h-12 text-orange-500 mx-auto mb-4" />
                   <h3 className="text-xl font-bold text-white mb-3">Android</h3>
-                  <p className="text-gray-400 mb-4">Progressive Web App</p>
-                  <div className="text-sm text-gray-300 space-y-1">
-                    <div>All Android devices</div>
-                    <div>Install from browser</div>
-                    <div>Push notifications</div>
+                  <p className="text-gray-400 mb-4">Install as a PWA or download from the Play Store (coming soon).</p>
+                  <a href="/android" className="inline-block bg-orange-500 hover:bg-orange-600 text-white px-6 py-2 rounded font-semibold mb-2">Android App Info</a>
+                  <div className="text-xs text-gray-300 mt-2">
+                    <strong>Install Instructions:</strong><br />
+                    1. Open popguide.co.uk in Chrome<br />
+                    2. Tap the menu (⋮) and select "Install App"
                   </div>
                 </CardContent>
               </Card>

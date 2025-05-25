@@ -65,7 +65,13 @@ const Auth = () => {
   };
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-gray-900 via-gray-800 to-black flex items-center justify-center p-4">
+    <div className="min-h-screen bg-gradient-to-br from-gray-900 via-gray-800 to-black flex flex-col relative">
+      {/* BETA Corner Label */}
+      <div className="absolute top-6 right-6 z-50">
+        <div className="bg-orange-500 text-white px-4 py-2 rounded-full shadow-lg font-bold text-xs uppercase tracking-wider animate-pulse">
+          BETA: This app is still in development. You may encounter bugs.
+        </div>
+      </div>
       <div className="w-full max-w-md">
         {/* Header */}
         <div className="text-center mb-8">

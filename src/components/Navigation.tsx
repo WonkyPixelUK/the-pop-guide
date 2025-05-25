@@ -1,6 +1,6 @@
 import { Link, useLocation } from 'react-router-dom';
 import { Button } from '@/components/ui/button';
-import { Activity, LogIn, LogOut, Plus, Search, Menu } from 'lucide-react';
+import { Activity, LogIn, LogOut, Plus, Search, Menu, Home, List, DollarSign, Star, Server } from 'lucide-react';
 import { useAuth } from '@/hooks/useAuth';
 import { useToast } from '@/hooks/use-toast';
 import { useState } from 'react';
@@ -79,17 +79,9 @@ const Navigation = () => {
                 <img
                   src="https://Maintainhq-pull-zone.b-cdn.net/02_the_pop_guide/pop-guide-logo-trans-white.svg"
                   alt="PopGuide Logo"
-                  className="h-10 w-auto"
+                  className="h-14 w-auto"
                 />
               </Link>
-              <button
-                className="ml-2 p-2 rounded hover:bg-gray-800 focus:outline-none focus:ring-2 focus:ring-orange-500"
-                aria-label="Search"
-                onClick={() => setIsSearchOpen(true)}
-                type="button"
-              >
-                <Search className="w-5 h-5 text-gray-300" />
-              </button>
             </div>
             <div className="md:hidden flex items-center">
               <button
@@ -101,12 +93,12 @@ const Navigation = () => {
                 <Menu className="w-6 h-6 text-gray-300" />
               </button>
             </div>
-            <nav className={`$${mobileMenuOpen ? 'block' : 'hidden'} md:flex items-center space-x-6 w-full md:w-auto mt-4 md:mt-0 bg-gray-900 md:bg-transparent p-4 md:p-0 rounded-lg md:rounded-none z-50 absolute md:static left-0 top-16 md:top-auto`}> 
-              <Link to="/dashboard" className="block md:inline text-gray-300 hover:text-orange-500 transition-colors mb-2 md:mb-0">Dashboard</Link>
-              <Link to="/features" className="block md:inline text-gray-300 hover:text-orange-500 transition-colors mb-2 md:mb-0">Features</Link>
-              <Link to="/scraping-status" className="block md:inline text-gray-300 hover:text-orange-500 transition-colors flex items-center gap-1 mb-2 md:mb-0"><Activity className="w-4 h-4" />Scraping Status</Link>
-              <a href="https://statuslist.app/status/z8kbza" className="block md:inline text-gray-300 hover:text-orange-500 transition-colors mb-2 md:mb-0" target="_blank" rel="noopener noreferrer">Service Status</a>
-              <Link to="/pricing" className="block md:inline text-gray-300 hover:text-orange-500 transition-colors">Pricing</Link>
+            <nav className={`$${mobileMenuOpen ? 'block' : 'hidden'} md:flex items-center space-x-6 w-full md:w-auto mt-4 md:mt-0 bg-gray-900 md:bg-transparent p-4 md:p-0 rounded-lg md:rounded-none z-50 absolute md:static left-0 top-16 md:top-auto`}>
+              <Link to="/dashboard" className="block md:inline text-gray-300 hover:text-orange-500 transition-colors flex items-center gap-2 mb-2 md:mb-0"><Home className="w-4 h-4" />Dashboard</Link>
+              <Link to="/features" className="block md:inline text-gray-300 hover:text-orange-500 transition-colors flex items-center gap-2 mb-2 md:mb-0"><Star className="w-4 h-4" />Features</Link>
+              <Link to="/scraping-status" className="block md:inline text-gray-300 hover:text-orange-500 transition-colors flex items-center gap-2 mb-2 md:mb-0"><Activity className="w-4 h-4" />Scraping Status</Link>
+              <a href="https://statuslist.app/status/z8kbza" className="block md:inline text-gray-300 hover:text-orange-500 transition-colors flex items-center gap-2 mb-2 md:mb-0" target="_blank" rel="noopener noreferrer"><Server className="w-4 h-4" />Service Status</a>
+              <Link to="/pricing" className="block md:inline text-gray-300 hover:text-orange-500 transition-colors flex items-center gap-2"> <DollarSign className="w-4 h-4" />Pricing</Link>
             </nav>
             <div className="flex items-center space-x-2 mt-4 md:mt-0">
               {user ? (
