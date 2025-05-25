@@ -91,9 +91,9 @@ const Navigation = () => {
         <div className="max-w-screen-xl mx-auto flex justify-between items-center px-4 py-0.5" style={{ minHeight: '28px' }}>
           {/* Theme Toggle Left */}
           <div className="flex items-center gap-1">
-            <button aria-label="System" className={`p-1 rounded-full ${theme==='system' ? 'bg-gray-200' : ''}`} onClick={() => setTheme('system')}><Monitor className="w-4 h-4" /></button>
-            <button aria-label="Light" className={`p-1 rounded-full ${theme==='light' ? 'bg-gray-200' : ''}`} onClick={() => setTheme('light')}><Sun className="w-4 h-4" /></button>
-            <button aria-label="Dark" className={`p-1 rounded-full ${theme==='dark' ? 'bg-gray-200' : ''}`} onClick={() => setTheme('dark')}><Moon className="w-4 h-4" /></button>
+            <button aria-label="System" className={`p-1 rounded-full ${theme==='system' ? 'bg-gray-200' : ''}`} onClick={() => setTheme('system')}><Monitor className="w-4 h-4 text-[#232837]" /></button>
+            <button aria-label="Light" className={`p-1 rounded-full ${theme==='light' ? 'bg-gray-200' : ''}`} onClick={() => setTheme('light')}><Sun className="w-4 h-4 text-[#232837]" /></button>
+            <button aria-label="Dark" className={`p-1 rounded-full ${theme==='dark' ? 'bg-gray-200' : ''}`} onClick={() => setTheme('dark')}><Moon className="w-4 h-4 text-[#232837]" /></button>
           </div>
           {/* Action Buttons Right */}
           <div className="flex items-center gap-2">
@@ -129,7 +129,7 @@ const Navigation = () => {
               <img
                 src="https://Maintainhq-pull-zone.b-cdn.net/02_the_pop_guide/pop-guide-logo-trans-white.svg"
                 alt="PopGuide Logo"
-                className="h-12 w-auto"
+                className="h-20 w-auto"
               />
             </Link>
           </div>
