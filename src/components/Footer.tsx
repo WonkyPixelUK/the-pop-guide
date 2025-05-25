@@ -28,11 +28,6 @@ const Footer = () => {
           <div className="flex items-center gap-3">
             <span className="h-3 w-3 rounded-full bg-blue-600 dark:bg-blue-400 inline-block"></span>
             <span className="text-blue-600 dark:text-blue-400 font-medium">All systems normal</span>
-            <div className="ml-4 flex items-center bg-white dark:bg-gray-800 border border-gray-200 dark:border-gray-700 rounded-full px-2 py-1 gap-1">
-              <button aria-label="System" className={`p-1 rounded-full ${theme==='system' ? 'bg-gray-200 dark:bg-gray-700' : ''}`} onClick={() => setTheme('system')}><Monitor className="w-4 h-4" /></button>
-              <button aria-label="Light" className={`p-1 rounded-full ${theme==='light' ? 'bg-gray-200 dark:bg-gray-700' : ''}`} onClick={() => setTheme('light')}><Sun className="w-4 h-4" /></button>
-              <button aria-label="Dark" className={`p-1 rounded-full ${theme==='dark' ? 'bg-gray-200 dark:bg-gray-700' : ''}`} onClick={() => setTheme('dark')}><Moon className="w-4 h-4" /></button>
-            </div>
           </div>
         </div>
         <div className="grid grid-cols-1 md:grid-cols-4 gap-8">

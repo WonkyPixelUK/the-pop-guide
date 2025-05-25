@@ -1,9 +1,9 @@
 import { Link, useLocation } from 'react-router-dom';
 import { Button } from '@/components/ui/button';
-import { Activity, LogIn, LogOut, Plus, Search, Menu, Home, List, DollarSign, Star, Server } from 'lucide-react';
+import { Activity, LogIn, LogOut, Plus, Search, Menu, Home, List, DollarSign, Star, Server, Sun, Moon, Monitor } from 'lucide-react';
 import { useAuth } from '@/hooks/useAuth';
 import { useToast } from '@/hooks/use-toast';
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { CommandDialog, CommandInput, CommandList, CommandItem, CommandEmpty } from '@/components/ui/command';
 import { useFunkoPops, useUserCollection, useAddToCollection } from '@/hooks/useFunkoPops';
 import { Loader2, Check } from 'lucide-react';
@@ -20,6 +20,17 @@ const Navigation = () => {
   const addToCollection = useAddToCollection();
   const [addedId, setAddedId] = useState<string | null>(null);
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
+  const [theme, setTheme] = useState(getInitialTheme());
+
+  useEffect(() => {
+    if (theme === 'system') {
+      document.documentElement.classList.remove('light', 'dark');
+    } else {
+      document.documentElement.classList.remove('light', 'dark');
+      document.documentElement.classList.add(theme);
+    }
+    localStorage.setItem('theme', theme);
+  }, [theme]);
 
   const handleSignOut = async () => {
     const { error } = await signOut();
@@ -58,6 +69,11 @@ const Navigation = () => {
     setTimeout(() => setAddedId(null), 1200);
   };
 
+  const getInitialTheme = () => {
+    if (typeof window === 'undefined') return 'system';
+    return localStorage.getItem('theme') || 'system';
+  };
+
   if (authLoading) {
     return (
       <header className="bg-gray-900/50 backdrop-blur-sm border-b border-gray-700">
@@ -71,61 +87,55 @@ const Navigation = () => {
   return (
     <>
       {/* Sticky Top Bar for Action Buttons */}
-      <div className="sticky top-0 z-50 w-full bg-white dark:bg-gray-900 border-b border-gray-200 dark:border-gray-800 flex justify-end px-4 py-2 gap-2">
+      <div className="sticky top-0 z-50 w-full bg-[#FFF6ED] border-b border-orange-200 flex justify-between items-center px-6 py-2" style={{ minHeight: '48px' }}>
+        {/* Theme Toggle Left */}
+        <div className="flex items-center gap-1">
+          <button aria-label="System" className={`p-1 rounded-full ${theme==='system' ? 'bg-gray-200' : ''}`} onClick={() => setTheme('system')}><Monitor className="w-4 h-4" /></button>
+          <button aria-label="Light" className={`p-1 rounded-full ${theme==='light' ? 'bg-gray-200' : ''}`} onClick={() => setTheme('light')}><Sun className="w-4 h-4" /></button>
+          <button aria-label="Dark" className={`p-1 rounded-full ${theme==='dark' ? 'bg-gray-200' : ''}`} onClick={() => setTheme('dark')}><Moon className="w-4 h-4" /></button>
+        </div>
+        {/* Action Buttons Right */}
+        <div className="flex items-center">
         {user ? (
           <>
-            <span className="text-gray-900 dark:text-white mr-2">Welcome, {user.user_metadata?.full_name || user.email}</span>
+            <span className="text-gray-900 mr-4">Welcome, {user.user_metadata?.full_name || user.email}</span>
             <Button 
               onClick={handleSignOut}
               variant="outline"
-              className="border-gray-600 text-white hover:bg-gray-700"
+              className="rounded-full border-orange-500 text-orange-500 bg-white hover:bg-orange-50 px-6 py-2 font-semibold text-base shadow-none"
             >
-              <LogOut className="w-4 h-4 mr-2" />
               Sign Out
             </Button>
           </>
         ) : (
           <>
-            <Link to="/auth" className={headerButton}>
-              <LogIn className="w-4 h-4 mr-2" />
-              Sign In
-            </Link>
-            <Link to="/auth" className={headerButton}>
-              <LogIn className="w-4 h-4 mr-2" />
+            <Link to="/auth" className="rounded-full bg-orange-500 hover:bg-orange-600 text-white px-6 py-2 font-semibold text-base shadow-none mr-2 transition-colors" style={{ minWidth: 140, textAlign: 'center' }}>
               Create an Account
+            </Link>
+            <Link to="/auth" className="rounded-full border border-orange-500 text-orange-500 bg-white hover:bg-orange-50 px-6 py-2 font-semibold text-base shadow-none transition-colors" style={{ minWidth: 110, textAlign: 'center' }}>
+              Sign In
             </Link>
           </>
         )}
+        </div>
       </div>
       {/* Sticky Main Navigation Bar */}
-      <header className="sticky top-[48px] z-40 bg-gray-900/50 backdrop-blur-sm border-b border-gray-700">
-        <div className="container mx-auto px-4 py-4">
-          <div className="flex items-center justify-between flex-wrap">
-            <div className="flex items-center space-x-3 flex-shrink-0">
-              <Link to="/">
-                <img
-                  src="https://Maintainhq-pull-zone.b-cdn.net/02_the_pop_guide/pop-guide-logo-trans-white.svg"
-                  alt="PopGuide Logo"
-                  className="h-20 w-auto"
-                />
-              </Link>
-            </div>
-            <div className="md:hidden flex items-center">
-              <button
-                className="p-2 rounded hover:bg-gray-800 focus:outline-none focus:ring-2 focus:ring-orange-500"
-                aria-label="Menu"
-                onClick={() => setMobileMenuOpen(!mobileMenuOpen)}
-                type="button"
-              >
-                <Menu className="w-6 h-6 text-gray-300" />
-              </button>
-            </div>
-            <nav className={`$${mobileMenuOpen ? 'block' : 'hidden'} md:flex items-center space-x-6 w-full md:w-auto mt-4 md:mt-0 bg-gray-900 md:bg-transparent p-4 md:p-0 rounded-lg md:rounded-none z-50 absolute md:static left-0 top-16 md:top-auto`}>
-              <Link to="/features" className="block md:inline text-gray-300 hover:text-orange-500 transition-colors flex items-center gap-2 mb-2 md:mb-0"><Star className="w-4 h-4 text-orange-500 align-middle" />Features</Link>
-              <a href="https://statuslist.app/status/z8kbza" className="block md:inline text-gray-300 hover:text-orange-500 transition-colors flex items-center gap-2 mb-2 md:mb-0" target="_blank" rel="noopener noreferrer"><Server className="w-4 h-4 text-orange-500 align-middle" />Service Status</a>
-              <Link to="/pricing" className="block md:inline text-gray-300 hover:text-orange-500 transition-colors flex items-center gap-2"> <DollarSign className="w-4 h-4 text-orange-500 align-middle" />Pricing</Link>
-            </nav>
+      <header className="sticky top-[48px] z-40 bg-[#232837] border-b border-gray-800">
+        <div className="container mx-auto px-4 py-4 flex items-center justify-between">
+          <div className="flex items-center space-x-3 flex-shrink-0">
+            <Link to="/">
+              <img
+                src="https://Maintainhq-pull-zone.b-cdn.net/02_the_pop_guide/pop-guide-logo-trans-white.svg"
+                alt="PopGuide Logo"
+                className="h-16 w-auto"
+              />
+            </Link>
           </div>
+          <nav className="flex items-center space-x-10">
+            <Link to="/features" className="text-white hover:text-orange-500 font-medium text-base transition-colors">Features</Link>
+            <a href="https://statuslist.app/status/z8kbza" className="text-white hover:text-orange-500 font-medium text-base transition-colors" target="_blank" rel="noopener noreferrer">Service Status</a>
+            <Link to="/pricing" className="text-white hover:text-orange-500 font-medium text-base transition-colors">Pricing</Link>
+          </nav>
         </div>
       </header>
       
