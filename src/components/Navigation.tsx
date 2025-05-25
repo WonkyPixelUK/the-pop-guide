@@ -127,7 +127,7 @@ const Navigation = () => {
               <img
                 src="https://Maintainhq-pull-zone.b-cdn.net/02_the_pop_guide/pop-guide-logo-trans-white.svg"
                 alt="PopGuide Logo"
-                className="h-8 w-auto"
+                className="h-12 w-auto"
               />
             </Link>
           </div>
