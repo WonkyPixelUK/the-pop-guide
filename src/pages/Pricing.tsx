@@ -114,7 +114,7 @@ const Pricing = () => {
             Frequently Asked Questions
           </h2>
           <div className="max-w-2xl mx-auto">
-            <Accordion type="single" collapsible>
+            <Accordion type="single" collapsible className="faq-accordion">
               <AccordionItem value="faq1">
                 <AccordionTrigger>What happens after my 3-day Pro trial?</AccordionTrigger>
                 <AccordionContent>

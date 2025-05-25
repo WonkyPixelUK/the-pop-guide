@@ -1,0 +1,28 @@
+.faq-accordion .AccordionItem {
+  background: #23272f;
+  border-radius: 0.5rem;
+  margin-bottom: 1.25rem;
+  box-shadow: 0 2px 8px 0 rgba(0,0,0,0.08);
+  border: 1px solid #2d323c;
+}
+.faq-accordion .AccordionTrigger {
+  font-weight: 600;
+  font-size: 1.1rem;
+  color: #fff;
+  padding: 1.25rem 1.5rem;
+  cursor: pointer;
+  background: none;
+  border: none;
+  outline: none;
+  transition: color 0.2s;
+}
+.faq-accordion .AccordionTrigger:hover,
+.faq-accordion .AccordionTrigger:focus {
+  color: #ff8800;
+}
+.faq-accordion .AccordionContent {
+  color: #b3b8c5;
+  padding: 0 1.5rem 1.25rem 1.5rem;
+  font-size: 1rem;
+  background: none;
+} 
