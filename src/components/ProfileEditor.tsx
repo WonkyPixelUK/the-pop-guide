@@ -137,7 +137,7 @@ const ProfileEditor = () => {
         const { data, error } = await supabase.auth.signInWithOAuth({
           provider,
           options: {
-            redirectTo: `${window.location.origin}/profile-settings`,
+            redirectTo: `${window.location.origin}${window.location.pathname}`,
           },
         });
         if (error) {

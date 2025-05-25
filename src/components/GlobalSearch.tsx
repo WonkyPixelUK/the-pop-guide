@@ -4,6 +4,7 @@ import { useFunkoPops, useUserCollection, useAddToCollection } from '@/hooks/use
 import { useAuth } from '@/hooks/useAuth';
 import { Button } from '@/components/ui/button';
 import { Loader2, Plus, Check } from 'lucide-react';
+import { useNavigate } from 'react-router-dom';
 
 // Helper to normalize strings for search (case-insensitive, ignore punctuation)
 function normalize(str: string) {
@@ -15,6 +16,7 @@ const GlobalSearch = () => {
   const { data: funkoPops = [], isLoading: funkoLoading } = useFunkoPops();
   const { data: userCollection = [] } = useUserCollection(user?.id);
   const addToCollection = useAddToCollection();
+  const navigate = useNavigate();
   const [isSearchOpen, setIsSearchOpen] = useState(false);
   const [searchValue, setSearchValue] = useState("");
   const [addedId, setAddedId] = useState<string | null>(null);
@@ -45,68 +47,26 @@ const GlobalSearch = () => {
     setTimeout(() => setAddedId(null), 1200);
   };
 
+  const handleSearch = (e: React.FormEvent) => {
+    e.preventDefault();
+    if (searchValue.trim().length > 0) {
+      navigate(`/search?q=${encodeURIComponent(searchValue.trim())}`);
+    }
+  };
+
   return (
-    <>
-      <Button
-        variant="outline"
-        className="border-gray-600 text-white hover:bg-gray-700"
-        onClick={() => setIsSearchOpen(true)}
-      >
-        <Plus className="w-4 h-4 mr-2" />
-        Search Collection
+    <form onSubmit={handleSearch} className="flex items-center gap-2">
+      <input
+        type="text"
+        placeholder="Search the database..."
+        value={searchValue}
+        onChange={e => setSearchValue(e.target.value)}
+        className="bg-gray-800 border border-gray-600 text-white rounded-md px-3 py-2 focus:outline-none focus:ring-2 focus:ring-orange-500"
+      />
+      <Button type="submit" className="bg-orange-500 hover:bg-orange-600 text-white px-4 py-2 rounded-md font-semibold">
+        Search
       </Button>
-      <CommandDialog open={isSearchOpen} onOpenChange={setIsSearchOpen}>
-        <CommandInput
-          placeholder="Search your collection..."
-          value={searchValue}
-          onValueChange={setSearchValue}
-        />
-        <CommandList>
-          {funkoLoading ? (
-            <div className="flex items-center justify-center py-8 text-gray-400">
-              <Loader2 className="animate-spin mr-2" /> Loading collection...
-            </div>
-          ) : !user ? (
-            <div className="flex flex-col items-center py-8 text-gray-400">
-              <p className="mb-2">Sign in to search your collection.</p>
-            </div>
-          ) : filteredResults.length === 0 && searchValue.length > 1 ? (
-            <CommandEmpty>No results found.</CommandEmpty>
-          ) : (
-            filteredResults.slice(0, 20).map((pop) => (
-              <CommandItem key={pop.id} className="flex items-center gap-3 py-2">
-                <img
-                  src={pop.image_url || '/lovable-uploads/b7333c96-5576-426d-af76-6a6a97e8a1ea.png'}
-                  alt={pop.name}
-                  className="w-10 h-10 object-cover rounded"
-                />
-                <div className="flex-1 min-w-0">
-                  <div className="font-medium truncate text-white">{pop.name}</div>
-                  <div className="text-xs text-gray-400 truncate">{pop.series} #{pop.number}</div>
-                </div>
-                {isOwned(pop.id) ? (
-                  <span className="text-green-500 text-xs font-semibold ml-2">Owned</span>
-                ) : addedId === pop.id ? (
-                  <span className="flex items-center text-green-500 text-xs font-semibold ml-2"><Check className="w-4 h-4 mr-1" />Added!</span>
-                ) : (
-                  <Button
-                    size="sm"
-                    className="bg-orange-500 hover:bg-orange-600 text-white ml-2"
-                    disabled={addToCollection.isPending}
-                    onClick={(e) => {
-                      e.stopPropagation();
-                      handleQuickAdd(pop);
-                    }}
-                  >
-                    <Plus className="w-4 h-4 mr-1" /> Add
-                  </Button>
-                )}
-              </CommandItem>
-            ))
-          )}
-        </CommandList>
-      </CommandDialog>
-    </>
+    </form>
   );
 };
 

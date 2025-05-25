@@ -13,6 +13,7 @@ import GamingDashboard from '@/components/GamingDashboard';
 import PremiumBadge from '@/components/PremiumBadge';
 import { useState } from 'react';
 import { useCustomLists } from '@/hooks/useCustomLists';
+import Navigation from '@/components/Navigation';
 
 const Profile = () => {
   const { username } = useParams<{ username: string }>();
@@ -148,25 +149,7 @@ const Profile = () => {
 
   return (
     <div className="min-h-screen bg-gradient-to-br from-gray-900 via-gray-800 to-black">
-      {/* Header */}
-      <header className="bg-gray-900/50 backdrop-blur-sm border-b border-gray-700">
-        <div className="container mx-auto px-4 py-4">
-          <div className="flex items-center justify-between">
-            <Link to="/" className="flex items-center space-x-3">
-              <div className="text-2xl font-bold">
-                <span className="text-orange-500">Pop</span>
-                <span className="text-white">Guide</span>
-              </div>
-            </Link>
-            <Link to="/">
-              <Button variant="outline" className="border-gray-600 text-white hover:bg-gray-700">
-                <ArrowLeft className="w-4 h-4 mr-2" />
-                Back to Home
-              </Button>
-            </Link>
-          </div>
-        </div>
-      </header>
+      <Navigation />
 
       {/* Profile Section */}
       <section className="py-8 px-4">
@@ -348,26 +331,17 @@ const Profile = () => {
           )}
 
           {/* Collection Section */}
-          <div className="mb-8">
-            <h2 className="text-3xl font-bold text-white mb-6">
-              {profile.display_name || profile.username}'s Collection
-            </h2>
-            
-            {transformedItems.length > 0 ? (
-              <CollectionGrid 
-                items={transformedItems} 
-                onItemClick={setSelectedItem}
-                searchQuery=""
-                showWishlistOnly={false}
-              />
+          <section className="mb-12">
+            <h2 className="text-2xl font-bold text-white mb-4">{profile.display_name || profile.username}'s Collection</h2>
+            {transformedItems.length === 0 ? (
+              <div className="bg-gray-800/60 border border-gray-700 rounded-lg p-8 text-center text-gray-400 text-lg">
+                No items in collection yet.<br />
+                <span className="text-orange-500 font-semibold">Want to see something here? Ask {profile.display_name || profile.username} to make their collection public or add items!</span>
+              </div>
             ) : (
-              <Card className="bg-gray-800/50 border-gray-700">
-                <CardContent className="py-12 text-center">
-                  <p className="text-gray-400 text-lg">No items in collection yet</p>
-                </CardContent>
-              </Card>
+              <CollectionGrid items={transformedItems} onItemClick={setSelectedItem} />
             )}
-          </div>
+          </section>
         </div>
       </section>
     </div>
