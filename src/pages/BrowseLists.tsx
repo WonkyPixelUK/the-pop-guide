@@ -1,4 +1,3 @@
-
 import { useState } from "react";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
@@ -40,6 +39,7 @@ const BrowseLists = () => {
       <div className="container mx-auto px-4 py-8">
         {/* Header */}
         <div className="text-center mb-8">
+          <img src="https://Maintainhq-pull-zone.b-cdn.net/02_the_pop_guide/pop-guide-logo-trans-white.svg" alt="PopGuide Logo" className="h-16 mx-auto mb-4" />
           <h1 className="text-4xl font-bold mb-4">Browse Public Lists</h1>
           <p className="text-xl text-gray-400 mb-6">
             Discover amazing Funko Pop collections shared by the community
@@ -93,7 +93,7 @@ const BrowseLists = () => {
                 {searchTerm ? "No lists match your search." : "No public lists available yet."}
               </p>
               <Link to="/dashboard">
-                <Button className="bg-orange-500 hover:bg-orange-600">
+                <Button className="bg-white text-[#232837] hover:bg-gray-100 font-semibold shadow-none">
                   Create the First List
                 </Button>
               </Link>
