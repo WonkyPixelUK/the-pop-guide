@@ -10,6 +10,7 @@ import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
 import { User, Music, MessageCircle, Twitter, Instagram, Video, ShoppingBag, Gamepad2 } from 'lucide-react';
 import { useCustomLists } from '@/hooks/useCustomLists';
 import { supabase } from '@/integrations/supabase/client';
+import { useToast } from '@/hooks/use-toast';
 
 const ProfileEditor = () => {
   const { profile, loading, createProfile, updateProfile } = usePublicProfile();
@@ -34,6 +35,7 @@ const ProfileEditor = () => {
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [usernameError, setUsernameError] = useState("");
   const [selectedListIds, setSelectedListIds] = useState<string[]>(profile?.profile_list_ids || []);
+  const { toast } = useToast();
 
   useEffect(() => {
     if (profile) {
@@ -117,16 +119,32 @@ const ProfileEditor = () => {
   };
 
   const handleConnectProvider = async (provider: 'spotify' | 'discord') => {
-    const { data, error } = await supabase.auth.signInWithOAuth({
-      provider,
-      options: {
-        redirectTo: `${window.location.origin}/profile-settings`,
-      },
-    });
-    if (error) {
-      alert(`Failed to connect ${provider}: ${error.message}`);
+    try {
+      if (supabase.auth.linkIdentity) {
+        // Use linkIdentity if available (Supabase v2+)
+        const { data, error } = await supabase.auth.linkIdentity({ provider });
+        if (error) {
+          toast({ title: `Failed to connect ${provider}`, description: error.message, variant: 'destructive' });
+        } else {
+          toast({ title: `${provider.charAt(0).toUpperCase() + provider.slice(1)} connected!`, variant: 'success' });
+        }
+      } else {
+        // Fallback: signInWithOAuth (will sign in as new user, not link)
+        const { data, error } = await supabase.auth.signInWithOAuth({
+          provider,
+          options: {
+            redirectTo: `${window.location.origin}/profile-settings`,
+          },
+        });
+        if (error) {
+          toast({ title: `Failed to connect ${provider}`, description: error.message, variant: 'destructive' });
+        } else {
+          toast({ title: `${provider.charAt(0).toUpperCase() + provider.slice(1)} connected!`, variant: 'success' });
+        }
+      }
+    } catch (e: any) {
+      toast({ title: `Failed to connect ${provider}`, description: e.message, variant: 'destructive' });
     }
-    // On success, Supabase will redirect and session will update
   };
 
   if (loading) {
