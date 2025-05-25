@@ -103,15 +103,34 @@ const Landing = () => {
                 Get Started Free
               </button>
             </form>
-            <div className="text-left md:text-right w-full md:w-auto">
-              <div className="font-bold text-lg mb-1">Pricing</div>
-              <div className="text-gray-300 mb-1">Free: Up to 50 items</div>
-              <div className="text-gray-300 mb-1">Pro: $3.99/mo, 3-day trial</div>
-              <ul className="text-gray-400 text-sm list-disc pl-5">
-                <li>Unlimited items (Pro)</li>
-                <li>Advanced analytics</li>
-                <li>Export & API access</li>
-              </ul>
+            <div className="w-full md:w-auto flex justify-center md:justify-end">
+              <div className="bg-gray-800/80 rounded-xl shadow-lg px-8 py-6 flex flex-col md:flex-row items-center gap-8 max-w-2xl w-full">
+                <div className="flex-1 text-center md:text-left">
+                  <div className="text-2xl font-extrabold text-white mb-2">Pricing</div>
+                  <div className="flex flex-col md:flex-row gap-4 items-center md:items-start">
+                    <div className="bg-gray-900/80 rounded-lg px-5 py-4 flex-1">
+                      <div className="text-lg font-bold text-white mb-1">Free</div>
+                      <div className="text-orange-400 font-bold text-xl mb-1">$0</div>
+                      <div className="text-gray-300 mb-2">Up to 50 items</div>
+                      <ul className="text-gray-400 text-sm space-y-1">
+                        <li>✔ Basic collection tracking</li>
+                        <li>✔ Community access</li>
+                        <li>✔ Mobile app access</li>
+                      </ul>
+                    </div>
+                    <div className="bg-orange-500/90 rounded-lg px-5 py-4 flex-1 shadow-md">
+                      <div className="text-lg font-bold text-white mb-1">Pro</div>
+                      <div className="text-white font-bold text-xl mb-1">$3.99 <span className="text-sm font-normal">/mo</span></div>
+                      <div className="text-white mb-2">3-day free trial</div>
+                      <ul className="text-white text-sm space-y-1">
+                        <li>✔ Unlimited items</li>
+                        <li>✔ Advanced analytics</li>
+                        <li>✔ Export & API access</li>
+                      </ul>
+                    </div>
+                  </div>
+                </div>
+              </div>
             </div>
           </div>
           {signupSuccess && (
