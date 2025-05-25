@@ -1,6 +1,6 @@
 import { Button } from "@/components/ui/button";
 import { Card, CardContent } from "@/components/ui/card";
-import { BarChart3, Users, Zap, Star, Shield, TrendingUp, Smartphone, Globe, Monitor } from "lucide-react";
+import { BarChart3, Users, Zap, Star, Shield, TrendingUp, Smartphone, Globe, Monitor, Check } from "lucide-react";
 import { Link } from "react-router-dom";
 import SEO from '@/components/SEO';
 import { useState } from 'react';
@@ -107,29 +107,33 @@ const Landing = () => {
             </form>
             <div className="w-full md:w-auto flex justify-center md:justify-end">
               <div className="bg-gray-800/80 rounded-xl shadow-lg px-8 py-6 flex flex-col md:flex-row items-center gap-8 max-w-2xl w-full">
-                <div className="flex-1 text-center md:text-left">
-                  <div className="text-2xl font-extrabold text-white mb-2">Pricing</div>
-                  <div className="flex flex-col md:flex-row gap-4 items-center md:items-start">
-                    <div className="bg-gray-900/80 rounded-lg px-5 py-4 flex-1">
+                <div className="text-2xl font-extrabold text-white mb-4 w-full text-center">Pricing</div>
+                <div className="flex flex-col md:flex-row gap-4 w-full">
+                  {/* Free Card */}
+                  <div className="flex-1 bg-gray-900/80 rounded-lg px-6 py-6 flex flex-col items-start justify-between min-w-[220px] min-h-[260px]">
+                    <div>
                       <div className="text-lg font-bold text-white mb-1">Free</div>
                       <div className="text-orange-400 font-bold text-xl mb-1">$0</div>
                       <div className="text-gray-300 mb-2">Up to 50 items</div>
-                      <ul className="text-gray-400 text-sm space-y-1">
-                        <li>✔ Basic collection tracking</li>
-                        <li>✔ Community access</li>
-                        <li>✔ Mobile app access</li>
-                      </ul>
                     </div>
-                    <div className="bg-orange-500/90 rounded-lg px-5 py-4 flex-1 shadow-md">
+                    <ul className="text-gray-200 text-sm space-y-2 mt-2 w-full">
+                      <li className="flex items-center gap-2"><Check className="w-4 h-4 text-green-400" /> Basic collection tracking</li>
+                      <li className="flex items-center gap-2"><Check className="w-4 h-4 text-green-400" /> Community access</li>
+                      <li className="flex items-center gap-2"><Check className="w-4 h-4 text-green-400" /> Mobile app access</li>
+                    </ul>
+                  </div>
+                  {/* Pro Card */}
+                  <div className="flex-1 bg-orange-500/90 rounded-lg px-6 py-6 flex flex-col items-start justify-between min-w-[220px] min-h-[260px] shadow-md">
+                    <div>
                       <div className="text-lg font-bold text-white mb-1">Pro</div>
                       <div className="text-white font-bold text-xl mb-1">$3.99 <span className="text-sm font-normal">/mo</span></div>
                       <div className="text-white mb-2">3-day free trial</div>
-                      <ul className="text-white text-sm space-y-1">
-                        <li>✔ Unlimited items</li>
-                        <li>✔ Advanced analytics</li>
-                        <li>✔ Export & API access</li>
-                      </ul>
                     </div>
+                    <ul className="text-white text-sm space-y-2 mt-2 w-full">
+                      <li className="flex items-center gap-2"><Check className="w-4 h-4 text-white" /> Unlimited items</li>
+                      <li className="flex items-center gap-2"><Check className="w-4 h-4 text-white" /> Advanced analytics</li>
+                      <li className="flex items-center gap-2"><Check className="w-4 h-4 text-white" /> Export & API access</li>
+                    </ul>
                   </div>
                 </div>
               </div>
