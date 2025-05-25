@@ -110,92 +110,54 @@ const Auth = () => {
                   </div>
                 )}
                 <div>
-      <div className="w-full max-w-md">
-        {/* Header */}
-        <div className="text-center mb-8">
-          <Link to="/" className="inline-block">
-            <img 
-              src="https://Maintainhq-pull-zone.b-cdn.net/02_the_pop_guide/pop-guide-logo-trans-white.svg" 
-              alt="PopGuide Logo" 
-              className="h-28 w-auto mx-auto"
-            />
-          </Link>
-          <p className="text-gray-400 mt-2">
-            {isSignUp ? 'Create your account to start collecting' : 'Welcome back to your collection'}
-          </p>
-        </div>
-
-        <Card className="bg-gray-800/50 border-gray-700">
-          <CardHeader>
-            <CardTitle className="text-white text-center">
-              {isSignUp ? 'Create Account' : 'Sign In'}
-            </CardTitle>
-          </CardHeader>
-          <CardContent>
-            <form onSubmit={handleSubmit} className="space-y-4">
-              {isSignUp && (
-                <div>
-                  <Label htmlFor="fullName" className="text-gray-300">Full Name</Label>
+                  <Label htmlFor="email" className="text-gray-300">Email</Label>
                   <Input
-                    id="fullName"
-                    type="text"
-                    value={fullName}
-                    onChange={(e) => setFullName(e.target.value)}
+                    id="email"
+                    type="email"
+                    value={email}
+                    onChange={(e) => setEmail(e.target.value)}
                     className="bg-gray-700 border-gray-600 text-white"
                     required
                   />
                 </div>
-              )}
-              <div>
-                <Label htmlFor="email" className="text-gray-300">Email</Label>
-                <Input
-                  id="email"
-                  type="email"
-                  value={email}
-                  onChange={(e) => setEmail(e.target.value)}
-                  className="bg-gray-700 border-gray-600 text-white"
-                  required
-                />
+                <div>
+                  <Label htmlFor="password" className="text-gray-300">Password</Label>
+                  <Input
+                    id="password"
+                    type="password"
+                    value={password}
+                    onChange={(e) => setPassword(e.target.value)}
+                    className="bg-gray-700 border-gray-600 text-white"
+                    required
+                    minLength={6}
+                  />
+                </div>
+                <Button 
+                  type="submit" 
+                  className="w-full bg-orange-500 hover:bg-orange-600 text-white" 
+                  disabled={loading}
+                >
+                  {loading ? 'Loading...' : (isSignUp ? 'Create Account' : 'Sign In')}
+                </Button>
+              </form>
+              <div className="mt-6 text-center">
+                <Button
+                  type="button"
+                  variant="ghost"
+                  className="text-gray-400 hover:text-white"
+                  onClick={() => setIsSignUp(!isSignUp)}
+                >
+                  {isSignUp ? 'Already have an account? Sign in' : "Don't have an account? Sign up"}
+                </Button>
               </div>
-              <div>
-                <Label htmlFor="password" className="text-gray-300">Password</Label>
-                <Input
-                  id="password"
-                  type="password"
-                  value={password}
-                  onChange={(e) => setPassword(e.target.value)}
-                  className="bg-gray-700 border-gray-600 text-white"
-                  required
-                  minLength={6}
-                />
+              <div className="mt-6 text-center">
+                <Link to="/" className="text-sm text-gray-400 hover:text-orange-500">
+                  ← Back to homepage
+                </Link>
               </div>
-              <Button 
-                type="submit" 
-                className="w-full bg-orange-500 hover:bg-orange-600 text-white" 
-                disabled={loading}
-              >
-                {loading ? 'Loading...' : (isSignUp ? 'Create Account' : 'Sign In')}
-              </Button>
-            </form>
-            
-            <div className="mt-6 text-center">
-              <Button
-                type="button"
-                variant="ghost"
-                className="text-gray-400 hover:text-white"
-                onClick={() => setIsSignUp(!isSignUp)}
-              >
-                {isSignUp ? 'Already have an account? Sign in' : "Don't have an account? Sign up"}
-              </Button>
-            </div>
-            
-            <div className="mt-6 text-center">
-              <Link to="/" className="text-sm text-gray-400 hover:text-orange-500">
-                ← Back to homepage
-              </Link>
-            </div>
-          </CardContent>
-        </Card>
+            </CardContent>
+          </Card>
+        </div>
       </div>
     </div>
   );
