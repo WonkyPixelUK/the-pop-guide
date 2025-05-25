@@ -95,24 +95,24 @@ const Navigation = () => {
           <button aria-label="Dark" className={`p-1 rounded-full ${theme==='dark' ? 'bg-gray-200' : ''}`} onClick={() => setTheme('dark')}><Moon className="w-4 h-4" /></button>
         </div>
         {/* Action Buttons Right */}
-        <div className="flex items-center">
+        <div className="flex items-center gap-2">
         {user ? (
           <>
             <span className="text-gray-900 mr-4">Welcome, {user.user_metadata?.full_name || user.email}</span>
             <Button 
               onClick={handleSignOut}
               variant="outline"
-              className="rounded-full border-orange-500 text-orange-500 bg-white hover:bg-orange-50 px-6 py-2 font-semibold text-base shadow-none"
+              className="rounded-full border-orange-500 text-orange-500 bg-white hover:bg-orange-50 px-5 py-1.5 font-semibold text-base shadow-none"
             >
               Sign Out
             </Button>
           </>
         ) : (
           <>
-            <Link to="/auth" className="rounded-full bg-orange-500 hover:bg-orange-600 text-white px-6 py-2 font-semibold text-base shadow-none mr-2 transition-colors" style={{ minWidth: 140, textAlign: 'center' }}>
-              Create an Account
+            <Link to="/auth" className="rounded-full bg-orange-500 hover:bg-orange-600 text-white px-5 py-1.5 font-semibold text-base shadow-none transition-colors mr-2" style={{ minWidth: 120, textAlign: 'center' }}>
+              Get started
             </Link>
-            <Link to="/auth" className="rounded-full border border-orange-500 text-orange-500 bg-white hover:bg-orange-50 px-6 py-2 font-semibold text-base shadow-none transition-colors" style={{ minWidth: 110, textAlign: 'center' }}>
+            <Link to="/auth" className="rounded-full border border-orange-500 text-orange-500 bg-white hover:bg-orange-50 px-5 py-1.5 font-semibold text-base shadow-none transition-colors" style={{ minWidth: 100, textAlign: 'center' }}>
               Sign In
             </Link>
           </>
