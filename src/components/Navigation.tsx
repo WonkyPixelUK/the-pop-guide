@@ -1,6 +1,6 @@
 import { Link, useLocation } from 'react-router-dom';
 import { Button } from '@/components/ui/button';
-import { Activity, LogIn, LogOut, Plus, Search } from 'lucide-react';
+import { Activity, LogIn, LogOut, Plus, Search, Menu } from 'lucide-react';
 import { useAuth } from '@/hooks/useAuth';
 import { useToast } from '@/hooks/use-toast';
 import { useState } from 'react';
@@ -20,6 +20,7 @@ const Navigation = () => {
   const { data: userCollection = [] } = useUserCollection(user?.id);
   const addToCollection = useAddToCollection();
   const [addedId, setAddedId] = useState<string | null>(null);
+  const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
 
   const handleSignOut = async () => {
     const { error } = await signOut();
@@ -72,8 +73,8 @@ const Navigation = () => {
     <>
       <header className="bg-gray-900/50 backdrop-blur-sm border-b border-gray-700">
         <div className="container mx-auto px-4 py-4">
-          <div className="flex items-center justify-between">
-            <div className="flex items-center space-x-3">
+          <div className="flex items-center justify-between flex-wrap">
+            <div className="flex items-center space-x-3 flex-shrink-0">
               <Link to="/">
                 <img
                   src="https://Maintainhq-pull-zone.b-cdn.net/02_the_pop_guide/pop-guide-logo-trans-white.svg"
@@ -90,30 +91,24 @@ const Navigation = () => {
                 <Search className="w-5 h-5 text-gray-300" />
               </button>
             </div>
-            <nav className="hidden md:flex items-center space-x-6">
-              <Link to="/dashboard" className="text-gray-300 hover:text-orange-500 transition-colors">
-                Dashboard
-              </Link>
-              <Link to="/features" className="text-gray-300 hover:text-orange-500 transition-colors">
-                Features
-              </Link>
-              <Link to="/scraping-status" className="text-gray-300 hover:text-orange-500 transition-colors flex items-center gap-1">
-                <Activity className="w-4 h-4" />
-                Scraping Status
-              </Link>
-              <a
-                href="https://statuslist.app/status/z8kbza"
-                className="text-gray-300 hover:text-orange-500 transition-colors"
-                target="_blank"
-                rel="noopener noreferrer"
+            <div className="md:hidden flex items-center">
+              <button
+                className="p-2 rounded hover:bg-gray-800 focus:outline-none focus:ring-2 focus:ring-orange-500"
+                aria-label="Menu"
+                onClick={() => setMobileMenuOpen(!mobileMenuOpen)}
+                type="button"
               >
-                Service Status
-              </a>
-              <Link to="/pricing" className="text-gray-300 hover:text-orange-500 transition-colors">
-                Pricing
-              </Link>
+                <Menu className="w-6 h-6 text-gray-300" />
+              </button>
+            </div>
+            <nav className={`$${mobileMenuOpen ? 'block' : 'hidden'} md:flex items-center space-x-6 w-full md:w-auto mt-4 md:mt-0 bg-gray-900 md:bg-transparent p-4 md:p-0 rounded-lg md:rounded-none z-50 absolute md:static left-0 top-16 md:top-auto`}> 
+              <Link to="/dashboard" className="block md:inline text-gray-300 hover:text-orange-500 transition-colors mb-2 md:mb-0">Dashboard</Link>
+              <Link to="/features" className="block md:inline text-gray-300 hover:text-orange-500 transition-colors mb-2 md:mb-0">Features</Link>
+              <Link to="/scraping-status" className="block md:inline text-gray-300 hover:text-orange-500 transition-colors flex items-center gap-1 mb-2 md:mb-0"><Activity className="w-4 h-4" />Scraping Status</Link>
+              <a href="https://statuslist.app/status/z8kbza" className="block md:inline text-gray-300 hover:text-orange-500 transition-colors mb-2 md:mb-0" target="_blank" rel="noopener noreferrer">Service Status</a>
+              <Link to="/pricing" className="block md:inline text-gray-300 hover:text-orange-500 transition-colors">Pricing</Link>
             </nav>
-            <div className="flex items-center space-x-2">
+            <div className="flex items-center space-x-2 mt-4 md:mt-0">
               {user ? (
                 <>
                   <span className="text-white mr-2">Welcome, {user.user_metadata?.full_name || user.email}</span>

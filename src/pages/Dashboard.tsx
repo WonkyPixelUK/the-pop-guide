@@ -16,7 +16,7 @@ import { useWishlist } from "@/hooks/useWishlist";
 import { useToast } from "@/hooks/use-toast";
 import { useNavigate, Link } from "react-router-dom";
 import GlobalSearch from '@/components/GlobalSearch';
-import ScraperStatusWidget from '@/components/ScraperStatusWidget';
+import Footer from '@/components/Footer';
 
 const Dashboard = () => {
   const [searchQuery, setSearchQuery] = useState("");
@@ -109,7 +109,6 @@ const Dashboard = () => {
                 className="h-10 w-auto"
               />
               <GlobalSearch />
-              <ScraperStatusWidget />
             </div>
             <div className="flex items-center space-x-2">
               <span className="text-white mr-2">Welcome, {user.user_metadata?.full_name || user.email}</span>
@@ -369,6 +368,8 @@ const Dashboard = () => {
           onOpenChange={() => setSelectedItem(null)}
         />
       )}
+
+      <Footer />
     </div>
   );
 };

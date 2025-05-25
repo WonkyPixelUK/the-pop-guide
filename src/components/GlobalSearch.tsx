@@ -19,16 +19,20 @@ const GlobalSearch = () => {
   const [searchValue, setSearchValue] = useState("");
   const [addedId, setAddedId] = useState<string | null>(null);
 
+  // Only show items in the user's collection
   const normalizedSearch = normalize(searchValue);
   const filteredResults =
     normalizedSearch.length > 1
-      ? funkoPops.filter((pop) => {
-          return (
-            normalize(pop.name).includes(normalizedSearch) ||
-            (pop.series && normalize(pop.series).includes(normalizedSearch)) ||
-            (pop.number && normalize(pop.number).includes(normalizedSearch))
-          );
-        })
+      ? userCollection
+          .map(item => item.funko_pops)
+          .filter(Boolean)
+          .filter((pop) => {
+            return (
+              normalize(pop.name).includes(normalizedSearch) ||
+              (pop.series && normalize(pop.series).includes(normalizedSearch)) ||
+              (pop.number && normalize(pop.number).includes(normalizedSearch))
+            );
+          })
       : [];
 
   const isOwned = (id: string) =>
@@ -44,28 +48,27 @@ const GlobalSearch = () => {
   return (
     <>
       <Button
-        variant="ghost"
-        className="p-2 rounded hover:bg-gray-800 focus:outline-none focus:ring-2 focus:ring-orange-500"
-        aria-label="Search"
+        variant="outline"
+        className="border-gray-600 text-white hover:bg-gray-700"
         onClick={() => setIsSearchOpen(true)}
-        type="button"
       >
-        <svg className="w-5 h-5 text-gray-300" fill="none" stroke="currentColor" strokeWidth="2" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" d="M21 21l-4.35-4.35m0 0A7.5 7.5 0 104.5 4.5a7.5 7.5 0 0012.15 12.15z" /></svg>
+        <Plus className="w-4 h-4 mr-2" />
+        Search Collection
       </Button>
       <CommandDialog open={isSearchOpen} onOpenChange={setIsSearchOpen}>
         <CommandInput
-          placeholder="Search the entire database..."
+          placeholder="Search your collection..."
           value={searchValue}
           onValueChange={setSearchValue}
         />
         <CommandList>
           {funkoLoading ? (
             <div className="flex items-center justify-center py-8 text-gray-400">
-              <Loader2 className="animate-spin mr-2" /> Loading database...
+              <Loader2 className="animate-spin mr-2" /> Loading collection...
             </div>
           ) : !user ? (
             <div className="flex flex-col items-center py-8 text-gray-400">
-              <p className="mb-2">Sign in to add items to your collection.</p>
+              <p className="mb-2">Sign in to search your collection.</p>
             </div>
           ) : filteredResults.length === 0 && searchValue.length > 1 ? (
             <CommandEmpty>No results found.</CommandEmpty>
