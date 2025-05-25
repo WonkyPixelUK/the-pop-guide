@@ -87,41 +87,43 @@ const Navigation = () => {
   return (
     <>
       {/* Sticky Top Bar for Action Buttons */}
-      <div className="sticky top-0 z-50 w-full bg-[#FFF6ED] border-b border-orange-200 flex justify-between items-center px-4 py-0.5" style={{ minHeight: '28px' }}>
-        {/* Theme Toggle Left */}
-        <div className="flex items-center gap-1">
-          <button aria-label="System" className={`p-1 rounded-full ${theme==='system' ? 'bg-gray-200' : ''}`} onClick={() => setTheme('system')}><Monitor className="w-4 h-4" /></button>
-          <button aria-label="Light" className={`p-1 rounded-full ${theme==='light' ? 'bg-gray-200' : ''}`} onClick={() => setTheme('light')}><Sun className="w-4 h-4" /></button>
-          <button aria-label="Dark" className={`p-1 rounded-full ${theme==='dark' ? 'bg-gray-200' : ''}`} onClick={() => setTheme('dark')}><Moon className="w-4 h-4" /></button>
-        </div>
-        {/* Action Buttons Right */}
-        <div className="flex items-center gap-1">
-        {user ? (
-          <>
-            <span className="text-gray-900 mr-2 text-xs">Welcome, {user.user_metadata?.full_name || user.email}</span>
-            <Button 
-              onClick={handleSignOut}
-              variant="outline"
-              className="rounded-full border-[#e46c1b] text-[#e46c1b] bg-white hover:bg-orange-50 px-3 py-1 font-semibold text-xs shadow-none min-w-0"
-            >
-              Sign Out
-            </Button>
-          </>
-        ) : (
-          <>
-            <Link to="/auth" className="rounded-full bg-[#e46c1b] hover:bg-orange-600 text-white px-3 py-1 font-semibold text-xs shadow-none transition-colors min-w-0" style={{ textAlign: 'center', border: 'none' }}>
-              Get started
-            </Link>
-            <Link to="/auth" className="rounded-full border border-[#e46c1b] text-[#e46c1b] bg-white hover:bg-orange-50 px-3 py-1 font-semibold text-xs shadow-none transition-colors min-w-0" style={{ textAlign: 'center' }}>
-              Sign In
-            </Link>
-          </>
-        )}
+      <div className="sticky top-0 z-50 w-full bg-[#FFF6ED] border-b border-orange-200">
+        <div className="max-w-screen-xl mx-auto flex justify-between items-center px-4 py-0.5" style={{ minHeight: '28px' }}>
+          {/* Theme Toggle Left */}
+          <div className="flex items-center gap-1">
+            <button aria-label="System" className={`p-1 rounded-full ${theme==='system' ? 'bg-gray-200' : ''}`} onClick={() => setTheme('system')}><Monitor className="w-4 h-4" /></button>
+            <button aria-label="Light" className={`p-1 rounded-full ${theme==='light' ? 'bg-gray-200' : ''}`} onClick={() => setTheme('light')}><Sun className="w-4 h-4" /></button>
+            <button aria-label="Dark" className={`p-1 rounded-full ${theme==='dark' ? 'bg-gray-200' : ''}`} onClick={() => setTheme('dark')}><Moon className="w-4 h-4" /></button>
+          </div>
+          {/* Action Buttons Right */}
+          <div className="flex items-center gap-2">
+          {user ? (
+            <>
+              <span className="text-gray-900 mr-2 text-xs">Welcome, {user.user_metadata?.full_name || user.email}</span>
+              <Button 
+                onClick={handleSignOut}
+                variant="outline"
+                className="border border-[#e46c1b] text-[#e46c1b] bg-transparent hover:bg-orange-50 rounded-md px-3 py-1 font-medium text-xs min-w-0 shadow-none"
+              >
+                Sign Out
+              </Button>
+            </>
+          ) : (
+            <>
+              <Link to="/auth" className="border border-[#e46c1b] text-[#e46c1b] bg-transparent hover:bg-orange-50 rounded-md px-3 py-1 font-medium text-xs min-w-0 transition-colors" style={{ textAlign: 'center', border: '1px solid #e46c1b' }}>
+                Get started
+              </Link>
+              <Link to="/auth" className="border border-[#e46c1b] text-[#e46c1b] bg-transparent hover:bg-orange-50 rounded-md px-3 py-1 font-medium text-xs min-w-0 transition-colors" style={{ textAlign: 'center', border: '1px solid #e46c1b' }}>
+                Sign In
+              </Link>
+            </>
+          )}
+          </div>
         </div>
       </div>
       {/* Sticky Main Navigation Bar */}
       <header className="sticky top-[28px] z-40 bg-[#232837] border-b border-gray-800">
-        <div className="container mx-auto px-4 py-2 flex items-center justify-between">
+        <div className="max-w-screen-xl mx-auto px-4 py-2 flex items-center justify-between">
           <div className="flex items-center space-x-3 flex-shrink-0">
             <Link to="/">
               <img
