@@ -1,9 +1,12 @@
 import * as React from "react"
 
-import type {
-  ToastActionElement,
-  ToastProps,
-} from "@/components/ui/toast"
+// Move type definitions here to break circular dependency
+// These are copied from src/components/ui/toast.tsx
+
+type ToastProps = React.ComponentPropsWithoutRef<any> // fallback for type safety, can be improved
+// If you want to be more precise, you can copy the Toast definition here, but this is enough to break the cycle
+
+type ToastActionElement = React.ReactElement<any>
 
 const TOAST_LIMIT = 1
 const TOAST_REMOVE_DELAY = 1000000
@@ -89,9 +92,6 @@ export const reducer = (state: State, action: Action): State => {
 
     case "DISMISS_TOAST": {
       const { toastId } = action
-
-      // ! Side effects ! - This could be extracted into a dismissToast() action,
-      // but I'll keep it here for simplicity
       if (toastId) {
         addToRemoveQueue(toastId)
       } else {
@@ -99,7 +99,6 @@ export const reducer = (state: State, action: Action): State => {
           addToRemoveQueue(toast.id)
         })
       }
-
       return {
         ...state,
         toasts: state.toasts.map((t) =>
