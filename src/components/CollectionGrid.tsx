@@ -1,4 +1,3 @@
-
 import { Card, CardContent } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
@@ -36,8 +35,10 @@ const CollectionGrid = ({ items, onItemClick, searchQuery, showWishlistOnly = fa
   const manualScraping = useManualScraping();
 
   const filteredItems = items.filter(item => {
-    const matchesSearch = item.name.toLowerCase().includes(searchQuery.toLowerCase()) ||
-      item.series.toLowerCase().includes(searchQuery.toLowerCase());
+    const name = typeof item.name === 'string' ? item.name : '';
+    const series = typeof item.series === 'string' ? item.series : '';
+    const matchesSearch = name.toLowerCase().includes(searchQuery.toLowerCase()) ||
+      series.toLowerCase().includes(searchQuery.toLowerCase());
     
     if (showWishlistOnly) {
       return matchesSearch && !item.owned;
