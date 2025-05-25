@@ -1,6 +1,7 @@
 import { Link } from 'react-router-dom';
 import SEO from '@/components/SEO';
 import Navigation from '@/components/Navigation';
+import Footer from '@/components/Footer';
 
 const NotFound = () => (
   <>
@@ -25,6 +26,7 @@ const NotFound = () => (
           </button>
         </Link>
       </div>
+      <Footer />
     </div>
   </>
 );

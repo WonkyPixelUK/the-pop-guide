@@ -1,48 +1,49 @@
-import { useFunkoPops } from '@/hooks/useFunkoPops';
-import { useScrapingJobs } from '@/hooks/usePriceScraping';
-import { RefreshCw, CheckCircle, Clock, Zap } from 'lucide-react';
-import { useMemo } from 'react';
+import { Link } from 'react-router-dom';
 
-const Footer = () => {
-  const { data: funkoPops = [] } = useFunkoPops();
-  const { data: jobs = [], isLoading } = useScrapingJobs();
-
-  // Scraper status logic (same as ScraperStatusWidget)
-  const lastRun = useMemo(() => {
-    const completed = jobs.filter(j => j.status === 'completed' && j.last_scraped);
-    if (!completed.length) return null;
-    return completed.sort((a, b) => new Date(b.last_scraped).getTime() - new Date(a.last_scraped).getTime())[0].last_scraped;
-  }, [jobs]);
-  const nextRun = useMemo(() => {
-    const pending = jobs.filter(j => j.status === 'pending' && j.next_scrape_due);
-    if (!pending.length) return null;
-    return pending.sort((a, b) => new Date(a.next_scrape_due).getTime() - new Date(b.next_scrape_due).getTime())[0].next_scrape_due;
-  }, [jobs]);
-  const now = Date.now();
-  const last24h = jobs.filter(j => j.status === 'completed' && j.last_scraped && (now - new Date(j.last_scraped).getTime() < 24*60*60*1000));
-  const newFromEbay = last24h.filter(j => j.source === 'ebay').length;
-  const comingSoonFunko = jobs.filter(j => j.status === 'pending' && j.source === 'funko_store').length;
-  const pricesUpdated = last24h.length;
-
-  return (
-    <footer className="bg-gray-900 border-t border-gray-700 py-6 px-4 mt-12">
-      <div className="container mx-auto flex flex-col md:flex-row items-center justify-between text-xs text-gray-400">
-        <div className="flex items-center gap-3 mb-2 md:mb-0">
-          <RefreshCw className="w-4 h-4 text-orange-400" />
-          <span>Scraper:</span>
-          <CheckCircle className="w-3 h-3 text-green-400" />
-          <span>Last: {lastRun ? new Date(lastRun).toLocaleString() : 'N/A'}</span>
-          <Clock className="w-3 h-3 text-blue-400" />
-          <span>Next: {nextRun ? new Date(nextRun).toLocaleString() : 'N/A'}</span>
-          <Zap className="w-3 h-3 text-orange-400" />
-          <span>+{newFromEbay} new eBay | {comingSoonFunko} Funko soon | {pricesUpdated} prices updated</span>
+const Footer = () => (
+  <footer className="bg-gray-900 border-t border-gray-700 py-12 px-4 mt-12">
+    <div className="container mx-auto">
+      <div className="grid grid-cols-1 md:grid-cols-4 gap-8">
+        <div>
+          <img 
+            src="https://Maintainhq-pull-zone.b-cdn.net/02_the_pop_guide/pop-guide-logo-trans-white.svg" 
+            alt="PopGuide Logo" 
+            className="h-16 w-auto mb-4"
+          />
+          <p className="text-gray-400">
+            The ultimate platform for Funko Pop collectors to track, value, and showcase their collections.
+          </p>
         </div>
         <div>
-          <span className="font-semibold text-white">{funkoPops.length}</span> Pops in database
+          <h4 className="text-white font-semibold mb-4">Product</h4>
+          <ul className="space-y-2 text-gray-400">
+            <li><Link to="/features" className="hover:text-orange-500 transition-colors">Features</Link></li>
+            <li><Link to="/pricing" className="hover:text-orange-500 transition-colors">Pricing</Link></li>
+            <li><a href="#" className="hover:text-orange-500 transition-colors">API</a></li>
+          </ul>
+        </div>
+        <div>
+          <h4 className="text-white font-semibold mb-4">Support</h4>
+          <ul className="space-y-2 text-gray-400">
+            <li><Link to="/help" className="hover:text-orange-500 transition-colors">Help Center</Link></li>
+            <li><Link to="/contact" className="hover:text-orange-500 transition-colors">Contact Us</Link></li>
+            <li><a href="#" className="hover:text-orange-500 transition-colors">Community</a></li>
+          </ul>
+        </div>
+        <div>
+          <h4 className="text-white font-semibold mb-4">Company</h4>
+          <ul className="space-y-2 text-gray-400">
+            <li><Link to="/about" className="hover:text-orange-500 transition-colors">About</Link></li>
+            <li><Link to="/privacy" className="hover:text-orange-500 transition-colors">Privacy</Link></li>
+            <li><Link to="/terms" className="hover:text-orange-500 transition-colors">Terms</Link></li>
+          </ul>
         </div>
       </div>
-    </footer>
-  );
-};
+      <div className="border-t border-gray-700 mt-8 pt-8 text-center text-gray-400">
+        <p>&copy; 2024 PopGuide. All rights reserved.</p>
+      </div>
+    </div>
+  </footer>
+);
 
 export default Footer; 

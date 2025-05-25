@@ -1,6 +1,7 @@
 import React from 'react';
 import SEO from '@/components/SEO';
 import Navigation from '@/components/Navigation';
+import Footer from '@/components/Footer';
 
 const Help = () => {
   return (
@@ -30,6 +31,7 @@ const Help = () => {
             </div>
           </section>
         </div>
+        <Footer />
       </div>
     </>
   );
