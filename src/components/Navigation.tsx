@@ -70,7 +70,35 @@ const Navigation = () => {
 
   return (
     <>
-      <header className="bg-gray-900/50 backdrop-blur-sm border-b border-gray-700">
+      {/* Sticky Top Bar for Action Buttons */}
+      <div className="sticky top-0 z-50 w-full bg-white dark:bg-gray-900 border-b border-gray-200 dark:border-gray-800 flex justify-end px-4 py-2 gap-2">
+        {user ? (
+          <>
+            <span className="text-gray-900 dark:text-white mr-2">Welcome, {user.user_metadata?.full_name || user.email}</span>
+            <Button 
+              onClick={handleSignOut}
+              variant="outline"
+              className="border-gray-600 text-white hover:bg-gray-700"
+            >
+              <LogOut className="w-4 h-4 mr-2" />
+              Sign Out
+            </Button>
+          </>
+        ) : (
+          <>
+            <Link to="/auth" className={headerButton}>
+              <LogIn className="w-4 h-4 mr-2" />
+              Sign In
+            </Link>
+            <Link to="/auth" className={headerButton}>
+              <LogIn className="w-4 h-4 mr-2" />
+              Create an Account
+            </Link>
+          </>
+        )}
+      </div>
+      {/* Sticky Main Navigation Bar */}
+      <header className="sticky top-[48px] z-40 bg-gray-900/50 backdrop-blur-sm border-b border-gray-700">
         <div className="container mx-auto px-4 py-4">
           <div className="flex items-center justify-between flex-wrap">
             <div className="flex items-center space-x-3 flex-shrink-0">
@@ -93,38 +121,10 @@ const Navigation = () => {
               </button>
             </div>
             <nav className={`$${mobileMenuOpen ? 'block' : 'hidden'} md:flex items-center space-x-6 w-full md:w-auto mt-4 md:mt-0 bg-gray-900 md:bg-transparent p-4 md:p-0 rounded-lg md:rounded-none z-50 absolute md:static left-0 top-16 md:top-auto`}>
-              <Link to="/dashboard" className="block md:inline text-gray-300 hover:text-orange-500 transition-colors flex items-center gap-2 mb-2 md:mb-0"><Home className="w-4 h-4 text-orange-500" />Dashboard</Link>
-              <Link to="/features" className="block md:inline text-gray-300 hover:text-orange-500 transition-colors flex items-center gap-2 mb-2 md:mb-0"><Star className="w-4 h-4 text-orange-500" />Features</Link>
-              <Link to="/scraping-status" className="block md:inline text-gray-300 hover:text-orange-500 transition-colors flex items-center gap-2 mb-2 md:mb-0"><Activity className="w-4 h-4 text-orange-500" />Scraping Status</Link>
-              <a href="https://statuslist.app/status/z8kbza" className="block md:inline text-gray-300 hover:text-orange-500 transition-colors flex items-center gap-2 mb-2 md:mb-0" target="_blank" rel="noopener noreferrer"><Server className="w-4 h-4 text-orange-500" />Service Status</a>
-              <Link to="/pricing" className="block md:inline text-gray-300 hover:text-orange-500 transition-colors flex items-center gap-2"> <DollarSign className="w-4 h-4 text-orange-500" />Pricing</Link>
+              <Link to="/features" className="block md:inline text-gray-300 hover:text-orange-500 transition-colors flex items-center gap-2 mb-2 md:mb-0"><Star className="w-4 h-4 text-orange-500 align-middle" />Features</Link>
+              <a href="https://statuslist.app/status/z8kbza" className="block md:inline text-gray-300 hover:text-orange-500 transition-colors flex items-center gap-2 mb-2 md:mb-0" target="_blank" rel="noopener noreferrer"><Server className="w-4 h-4 text-orange-500 align-middle" />Service Status</a>
+              <Link to="/pricing" className="block md:inline text-gray-300 hover:text-orange-500 transition-colors flex items-center gap-2"> <DollarSign className="w-4 h-4 text-orange-500 align-middle" />Pricing</Link>
             </nav>
-            <div className="flex items-center space-x-2 mt-4 md:mt-0">
-              {user ? (
-                <>
-                  <span className="text-white mr-2">Welcome, {user.user_metadata?.full_name || user.email}</span>
-                  <Button 
-                    onClick={handleSignOut}
-                    variant="outline"
-                    className="border-gray-600 text-white hover:bg-gray-700"
-                  >
-                    <LogOut className="w-4 h-4 mr-2" />
-                    Sign Out
-                  </Button>
-                </>
-              ) : (
-                <>
-                  <Link to="/auth" className={headerButton}>
-                    <LogIn className="w-4 h-4 mr-2" />
-                    Sign In
-                  </Link>
-                  <Link to="/auth" className={headerButton}>
-                    <LogIn className="w-4 h-4 mr-2" />
-                    Create an Account
-                  </Link>
-                </>
-              )}
-            </div>
           </div>
         </div>
       </header>

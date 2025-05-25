@@ -9,7 +9,7 @@ const Terms = () => (
       <Navigation />
       <div className="flex-1 container mx-auto py-16 px-4">
         <h1 className="text-4xl font-bold text-white mb-6">Terms of Service</h1>
-        <p className="text-gray-300 mb-8">(Terms of service content goes here...)</p>
+        <p className="text-gray-300 mb-8">These are placeholder terms of service. By using PopGuide, you agree to our terms. Full terms coming soon.</p>
       </div>
       <Footer />
     </div>

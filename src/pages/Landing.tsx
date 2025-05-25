@@ -186,17 +186,13 @@ const Landing = () => {
                   </div>
                 </CardContent>
               </Card>
-              <Card className="bg-gray-800/50 border-gray-700">
-                <CardContent className="p-8 text-center">
+              <Card className="bg-gray-800/50 border-gray-700 text-center">
+                <CardContent className="p-8">
                   <Smartphone className="w-12 h-12 text-orange-500 mx-auto mb-4" />
-                  <h3 className="text-xl font-bold text-white mb-3">iOS / iPad</h3>
-                  <p className="text-gray-400 mb-4">Install as a Progressive Web App (PWA) for a native-like experience.</p>
-                  <a href="/ios" className="inline-block bg-orange-500 hover:bg-orange-600 text-white px-6 py-2 rounded font-semibold mb-2">iOS / iPad App Info</a>
+                  <h3 className="text-xl font-bold text-white mb-3">Native iOS / iPad App</h3>
+                  <p className="text-gray-400 mb-4">A true native iOS/iPad app is coming soon. Stay tuned!</p>
                   <div className="text-xs text-gray-300 mt-2">
-                    <strong>Install Instructions:</strong><br />
-                    1. Open popguide.co.uk in Safari<br />
-                    2. Tap the Share icon<br />
-                    3. Tap "Add to Home Screen"
+                    <strong>Coming Soon</strong>
                   </div>
                 </CardContent>
               </Card>

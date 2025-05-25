@@ -9,7 +9,7 @@ const Privacy = () => (
       <Navigation />
       <div className="flex-1 container mx-auto py-16 px-4">
         <h1 className="text-4xl font-bold text-white mb-6">Privacy Policy</h1>
-        <p className="text-gray-300 mb-8">(Privacy policy content goes here...)</p>
+        <p className="text-gray-300 mb-8">We respect your privacy. This is a placeholder privacy policy. Your data is secure and never sold to third parties. Full policy coming soon.</p>
       </div>
       <Footer />
     </div>
