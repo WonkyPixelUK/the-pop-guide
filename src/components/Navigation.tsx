@@ -135,6 +135,7 @@ const Navigation = () => {
             <Link to="/features" className="text-white hover:text-orange-500 font-medium text-base transition-colors">Features</Link>
             <a href="https://statuslist.app/status/z8kbza" className="text-white hover:text-orange-500 font-medium text-base transition-colors" target="_blank" rel="noopener noreferrer">Service Status</a>
             <Link to="/pricing" className="text-white hover:text-orange-500 font-medium text-base transition-colors">Pricing</Link>
+            <a href="https://popguide.co.uk/support" className="text-white hover:text-orange-500 font-medium text-base transition-colors" target="_blank" rel="noopener noreferrer">Support</a>
           </nav>
         </div>
       </header>
