@@ -41,33 +41,11 @@ export const useCustomLists = () => {
           list_items (
             id,
             funko_pops (*)
-          ),
-          profiles!custom_lists_user_id_fkey (
-            full_name,
-            username
           )
         `)
         .eq('is_public', true)
         .order('created_at', { ascending: false });
-      
-      if (error) {
-        console.log('Error fetching public lists:', error);
-        // Fallback query without profiles join if the foreign key doesn't exist
-        const { data: fallbackData, error: fallbackError } = await supabase
-          .from('custom_lists')
-          .select(`
-            *,
-            list_items (
-              id,
-              funko_pops (*)
-            )
-          `)
-          .eq('is_public', true)
-          .order('created_at', { ascending: false });
-        
-        if (fallbackError) throw fallbackError;
-        return fallbackData;
-      }
+      if (error) throw error;
       return data;
     },
   });
