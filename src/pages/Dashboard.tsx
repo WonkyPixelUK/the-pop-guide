@@ -20,6 +20,7 @@ import Footer from '@/components/Footer';
 import SEO from '@/components/SEO';
 import MobileBottomNav from '@/components/MobileBottomNav';
 import Navigation from '@/components/Navigation';
+import FriendsList from "@/components/FriendsList";
 
 const Dashboard = () => {
   const [searchQuery, setSearchQuery] = useState("");
@@ -106,20 +107,20 @@ const Dashboard = () => {
         {/* Header */}
         <header className="bg-gray-900/50 backdrop-blur-sm border-b border-gray-700">
           <div className="container mx-auto px-4 py-4">
-            <div className="flex items-center justify-between">
-              <div className="flex items-center space-x-3">
+            <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
+              <div className="flex flex-col sm:flex-row sm:items-center gap-3">
                 <img
                   src="https://Maintainhq-pull-zone.b-cdn.net/02_the_pop_guide/pop-guide-logo-trans-white.svg"
                   alt="PopGuide Logo"
-                  className="h-10 w-auto"
+                  className="h-10 w-auto mx-auto sm:mx-0"
                 />
                 <GlobalSearch />
               </div>
-              <div className="flex items-center space-x-2">
-                <span className="text-white mr-2">Welcome, {user.user_metadata?.full_name || user.email}</span>
+              <div className="flex flex-col sm:flex-row sm:items-center gap-2">
+                <span className="text-white text-center sm:text-left">Welcome, {user.user_metadata?.full_name || user.email}</span>
                 <Button 
                   onClick={() => setIsAddDialogOpen(true)}
-                  className="bg-orange-500 hover:bg-orange-600 text-white"
+                  className="bg-orange-500 hover:bg-orange-600 text-white w-full sm:w-auto"
                 >
                   <Plus className="w-4 h-4 mr-2" />
                   Add Item
@@ -127,7 +128,7 @@ const Dashboard = () => {
                 <Link to="/profile-settings">
                   <Button 
                     variant="outline"
-                    className="border-gray-600 text-blue-900 hover:bg-gray-700 hover:text-white dark:text-gray-200"
+                    className="border-gray-600 text-blue-900 hover:bg-gray-700 hover:text-white dark:text-gray-200 w-full sm:w-auto"
                   >
                     <Settings className="w-4 h-4 mr-2" />
                     Profile
@@ -136,7 +137,7 @@ const Dashboard = () => {
                 <Button 
                   onClick={handleSignOut}
                   variant="outline"
-                  className="border-gray-600 text-blue-900 hover:bg-gray-700 hover:text-white dark:text-gray-200"
+                  className="border-gray-600 text-blue-900 hover:bg-gray-700 hover:text-white dark:text-gray-200 w-full sm:w-auto"
                 >
                   <LogOut className="w-4 h-4 mr-2" />
                   Sign Out
@@ -147,9 +148,9 @@ const Dashboard = () => {
         </header>
 
         {/* Stats Section */}
-        <section className="py-8 px-4">
+        <section className="py-8 px-2 sm:px-4">
           <div className="container mx-auto">
-            <div className="grid grid-cols-1 md:grid-cols-4 gap-6 max-w-6xl mx-auto mb-8">
+            <div className="grid grid-cols-1 xs:grid-cols-2 md:grid-cols-4 gap-4 sm:gap-6 max-w-6xl mx-auto mb-8">
               <Card className="bg-gray-800/50 border-gray-700 cursor-pointer hover:bg-gray-800/70 transition-colors" onClick={() => handleStatClick("analytics")}> 
                 <CardContent className="p-6 text-center">
                   <BarChart3 className="w-8 h-8 text-orange-500 mx-auto mb-3" />
@@ -183,29 +184,34 @@ const Dashboard = () => {
         </section>
 
         {/* Main Content */}
-        <section className="py-8 px-4">
+        <section className="py-8 px-2 sm:px-4">
           <div className="container mx-auto">
             <Tabs value={activeSection} onValueChange={setActiveSection} className="w-full">
-              <TabsList className="grid w-full grid-cols-6 bg-gray-800 mb-8">
-                <TabsTrigger value="recently-added" className="data-[state=active]:bg-orange-500">
-                  <Zap className="w-4 h-4 mr-2" /> Recently Added
-                </TabsTrigger>
-                <TabsTrigger value="items-owned" className="data-[state=active]:bg-orange-500">
-                  <Zap className="w-4 h-4 mr-2" /> Items Owned
-                </TabsTrigger>
-                <TabsTrigger value="series-owned" className="data-[state=active]:bg-orange-500">
-                  <Users className="w-4 h-4 mr-2" /> Series Owned
-                </TabsTrigger>
-                <TabsTrigger value="wishlist" className="data-[state=active]:bg-orange-500">
-                  <Heart className="w-4 h-4 mr-2" /> Wishlist
-                </TabsTrigger>
-                <TabsTrigger value="lists" className="data-[state=active]:bg-orange-500">
-                  <List className="w-4 h-4 mr-2" /> Custom Lists
-                </TabsTrigger>
-                <TabsTrigger value="analytics" className="data-[state=active]:bg-orange-500">
-                  <TrendingUp className="w-4 h-4 mr-2" /> Analytics
-                </TabsTrigger>
-              </TabsList>
+              <div className="overflow-x-auto scrollbar-hide mb-8">
+                <TabsList className="flex w-max min-w-full bg-gray-800 flex-nowrap">
+                  <TabsTrigger value="recently-added" className="data-[state=active]:bg-orange-500">
+                    <Zap className="w-4 h-4 mr-2" /> Recently Added
+                  </TabsTrigger>
+                  <TabsTrigger value="items-owned" className="data-[state=active]:bg-orange-500">
+                    <Zap className="w-4 h-4 mr-2" /> Items Owned
+                  </TabsTrigger>
+                  <TabsTrigger value="series-owned" className="data-[state=active]:bg-orange-500">
+                    <Users className="w-4 h-4 mr-2" /> Series Owned
+                  </TabsTrigger>
+                  <TabsTrigger value="wishlist" className="data-[state=active]:bg-orange-500">
+                    <Heart className="w-4 h-4 mr-2" /> Wishlist
+                  </TabsTrigger>
+                  <TabsTrigger value="lists" className="data-[state=active]:bg-orange-500">
+                    <List className="w-4 h-4 mr-2" /> Custom Lists
+                  </TabsTrigger>
+                  <TabsTrigger value="friends" className="data-[state=active]:bg-orange-500">
+                    <Users className="w-4 h-4 mr-2" /> Friends
+                  </TabsTrigger>
+                  <TabsTrigger value="analytics" className="data-[state=active]:bg-orange-500">
+                    <TrendingUp className="w-4 h-4 mr-2" /> Analytics
+                  </TabsTrigger>
+                </TabsList>
+              </div>
 
               {/* Collection Tab */}
               <TabsContent value="recently-added" className="space-y-6">
@@ -309,7 +315,7 @@ const Dashboard = () => {
                     </div>
                   </div>
                 </div>
-                <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+                <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4 sm:gap-6">
                   {Array.from(new Set(userCollection.map(item => item.funko_pops?.series)))
                     .filter(series => series && series.toLowerCase().includes(searchQuery.toLowerCase()))
                     .map(series => {
@@ -372,6 +378,11 @@ const Dashboard = () => {
               {/* Lists Tab */}
               <TabsContent value="lists">
                 <CustomListsManager />
+              </TabsContent>
+
+              {/* Friends Tab */}
+              <TabsContent value="friends">
+                <FriendsList />
               </TabsContent>
 
               {/* Analytics Tab */}
