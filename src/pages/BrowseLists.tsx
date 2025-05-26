@@ -6,6 +6,8 @@ import { Button } from "@/components/ui/button";
 import { Search, Eye, Calendar, User, TrendingUp } from "lucide-react";
 import { useCustomLists } from "@/hooks/useCustomLists";
 import { Link } from "react-router-dom";
+import MobileBottomNav from '@/components/MobileBottomNav';
+import Navigation from '@/components/Navigation';
 
 const BrowseLists = () => {
   const [searchTerm, setSearchTerm] = useState("");
@@ -157,6 +159,8 @@ const BrowseLists = () => {
           </div>
         )}
       </div>
+      <MobileBottomNav />
+      <Navigation className="hidden md:block" />
     </div>
   );
 };

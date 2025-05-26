@@ -18,6 +18,8 @@ import { useNavigate, Link } from "react-router-dom";
 import GlobalSearch from '@/components/GlobalSearch';
 import Footer from '@/components/Footer';
 import SEO from '@/components/SEO';
+import MobileBottomNav from '@/components/MobileBottomNav';
+import Navigation from '@/components/Navigation';
 
 const Dashboard = () => {
   const [searchQuery, setSearchQuery] = useState("");
@@ -396,6 +398,7 @@ const Dashboard = () => {
 
         <Footer />
       </div>
+      <MobileBottomNav />
     </>
   );
 };

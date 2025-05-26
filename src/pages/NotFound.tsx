@@ -2,12 +2,13 @@ import { Link } from 'react-router-dom';
 import SEO from '@/components/SEO';
 import Navigation from '@/components/Navigation';
 import Footer from '@/components/Footer';
+import MobileBottomNav from '@/components/MobileBottomNav';
 
 const NotFound = () => (
   <>
     <SEO title="404 Not Found | The Pop Guide" description="Page not found." />
     <div className="min-h-screen bg-gradient-to-br from-gray-900 via-gray-800 to-black flex flex-col">
-      <Navigation />
+      <Navigation className="hidden md:block" />
       <div className="flex-1 flex flex-col items-center justify-center text-center px-4">
         <img
           src="https://Maintainhq-pull-zone.b-cdn.net/02_the_pop_guide/pop-guide-logo-trans-white.svg"
@@ -28,6 +29,7 @@ const NotFound = () => (
       </div>
       <Footer />
     </div>
+    <MobileBottomNav />
   </>
 );
 

@@ -7,6 +7,7 @@ import { Accordion, AccordionItem, AccordionTrigger, AccordionContent } from '@/
 import { useAuth } from '@/hooks/useAuth';
 import { useToast } from '@/hooks/use-toast';
 import { useState } from 'react';
+import MobileBottomNav from '@/components/MobileBottomNav';
 
 const Pricing = () => {
   const { user, loading: authLoading } = useAuth();
@@ -74,7 +75,7 @@ const Pricing = () => {
 
   return (
     <div className="min-h-screen bg-gradient-to-br from-gray-900 via-gray-800 to-black">
-      <Navigation />
+      <Navigation className="hidden md:block" />
 
       {/* Hero Section */}
       <section className="py-20 px-4">
@@ -229,6 +230,7 @@ const Pricing = () => {
           </div>
         </div>
       </footer>
+      <MobileBottomNav />
     </div>
   );
 };

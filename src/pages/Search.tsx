@@ -5,6 +5,7 @@ import { useFunkoPops, useUserCollection, useAddToCollection } from '@/hooks/use
 import Navigation from '@/components/Navigation';
 import { Button } from '@/components/ui/button';
 import { Plus, Heart, List as ListIcon, Check } from 'lucide-react';
+import MobileBottomNav from '@/components/MobileBottomNav';
 
 function useQuery() {
   return new URLSearchParams(useLocation().search);
@@ -39,7 +40,7 @@ const SearchPage = () => {
 
   return (
     <div className="min-h-screen bg-gradient-to-br from-gray-900 via-gray-800 to-black">
-      <Navigation />
+      <Navigation className="hidden md:block" />
       <div className="container mx-auto px-4 py-12">
         <h1 className="text-3xl font-bold text-white mb-8">Search Results for "{query}"</h1>
         {isLoading ? (
@@ -78,6 +79,7 @@ const SearchPage = () => {
           </div>
         )}
       </div>
+      <MobileBottomNav />
     </div>
   );
 };

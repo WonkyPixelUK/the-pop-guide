@@ -15,6 +15,7 @@ import { useState } from 'react';
 import { useCustomLists } from '@/hooks/useCustomLists';
 import Navigation from '@/components/Navigation';
 import { useAuth } from '@/hooks/useAuth';
+import MobileBottomNav from '@/components/MobileBottomNav';
 
 const Profile = () => {
   const { username } = useParams<{ username: string }>();
@@ -169,7 +170,7 @@ const Profile = () => {
 
   return (
     <div className="min-h-screen bg-gradient-to-br from-gray-900 via-gray-800 to-black">
-      <Navigation />
+      <Navigation className="hidden md:block" />
 
       {/* Profile Section */}
       <section className="py-8 px-4">
@@ -377,6 +378,7 @@ const Profile = () => {
         </div>
       </section>
     </div>
+    <MobileBottomNav />
   );
 };
 

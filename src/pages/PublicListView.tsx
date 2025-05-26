@@ -6,6 +6,8 @@ import { Share2, ArrowLeft, Eye, Calendar } from "lucide-react";
 import { useListById } from "@/hooks/useCustomLists";
 import { useToast } from "@/hooks/use-toast";
 import { Link } from "react-router-dom";
+import MobileBottomNav from '@/components/MobileBottomNav';
+import Navigation from '@/components/Navigation';
 
 const PublicListView = () => {
   const { listId } = useParams<{ listId: string }>();
@@ -189,6 +191,7 @@ const PublicListView = () => {
           )}
         </div>
       </div>
+      <MobileBottomNav />
     </div>
   );
 };
