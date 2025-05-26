@@ -35,6 +35,7 @@ const CollectionGrid = ({ items, onItemClick, searchQuery, showWishlistOnly = fa
   const manualScraping = useManualScraping();
 
   const filteredItems = items.filter(item => {
+    if (!item || typeof item !== 'object') return false;
     const name = typeof item.name === 'string' ? item.name : '';
     const series = typeof item.series === 'string' ? item.series : '';
     const matchesSearch = name.toLowerCase().includes(searchQuery.toLowerCase()) ||
