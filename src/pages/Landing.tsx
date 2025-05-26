@@ -8,6 +8,7 @@ import { useFunkoPops } from '@/hooks/useFunkoPops';
 import ItemDetailsDialog from '@/components/ItemDetailsDialog';
 import Navigation from '@/components/Navigation';
 import { Dialog, DialogContent } from '@/components/ui/dialog';
+import MobileBottomNav from '@/components/MobileBottomNav';
 
 const Landing = () => {
   const [email, setEmail] = useState('');
@@ -29,7 +30,7 @@ const Landing = () => {
       <SEO />
       <div className="min-h-screen bg-gradient-to-br from-gray-900 via-gray-800 to-black text-white">
         {/* Use shared Navigation component */}
-        <Navigation />
+        <Navigation className="hidden md:block" />
         {/* Hero Section */}
         <section className="py-20 px-4">
           <div className="container mx-auto text-center">
@@ -350,6 +351,7 @@ const Landing = () => {
           />
         )}
       </div>
+      <MobileBottomNav />
     </>
   );
 };
