@@ -6,7 +6,9 @@ import { Label } from '@/components/ui/label';
 import { useAuth } from '@/hooks/useAuth';
 import { useWelcomeEmail } from '@/hooks/useWelcomeEmail';
 import { useToast } from '@/hooks/use-toast';
-import { useNavigate, Link } from 'react-router-dom';
+import { useNavigate, Link, useLocation } from 'react-router-dom';
+
+const SUPABASE_FUNCTION_URL = "https://pafgjwmgueerxdxtneyg.functions.supabase.co/stripe-checkout-open";
 
 const Auth = () => {
   const [isSignUp, setIsSignUp] = useState(false);
@@ -17,9 +19,24 @@ const Auth = () => {
   const { user, signUp, signIn } = useAuth();
   const { toast } = useToast();
   const navigate = useNavigate();
+  const location = useLocation();
+  const [confirmed, setConfirmed] = useState(false);
+  const [plan, setPlan] = useState<'pro' | 'free' | null>(null);
 
   // Initialize welcome email hook
   useWelcomeEmail();
+
+  // Detect plan from query string
+  useEffect(() => {
+    const params = new URLSearchParams(location.search);
+    const planParam = params.get('plan');
+    if (planParam === 'pro' || planParam === 'free') {
+      setPlan(planParam);
+      setIsSignUp(true);
+    } else {
+      setPlan(null);
+    }
+  }, [location.search]);
 
   // Redirect if already authenticated
   useEffect(() => {
@@ -28,41 +45,77 @@ const Auth = () => {
     }
   }, [user, navigate]);
 
+  // Detect email confirmation in URL
+  useEffect(() => {
+    const params = new URLSearchParams(location.search);
+    const type = params.get('type');
+    if (type === 'signup' || type === 'email_confirm' || params.get('confirmation_token')) {
+      setConfirmed(true);
+    }
+  }, [location.search]);
+
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     setLoading(true);
 
     try {
-      let result;
       if (isSignUp) {
-        result = await signUp(email, password, fullName);
+        if (plan === 'pro') {
+          // Pro: trigger Stripe checkout, do not create user yet
+          const res = await fetch(SUPABASE_FUNCTION_URL, {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ email }),
+          });
+          const data = await res.json();
+          if (data.url) {
+            window.location.href = data.url;
+            return;
+          } else {
+            toast({ title: 'Error', description: data.error || 'Could not start checkout', variant: 'destructive' });
+          }
+        } else {
+          // Free: create user immediately
+          const result = await signUp(email, password, fullName);
+          if (result.error) {
+            toast({ title: 'Error', description: result.error.message, variant: 'destructive' });
+          } else {
+            toast({ title: 'Success', description: 'Check your email to confirm your account.' });
+          }
+        }
       } else {
-        result = await signIn(email, password);
-      }
-
-      if (result.error) {
-        toast({
-          title: "Error",
-          description: result.error.message,
-          variant: "destructive",
-        });
-      } else {
-        toast({
-          title: "Success",
-          description: isSignUp ? "Account created! Please check your email." : "Welcome back!",
-        });
-        // Navigation will happen automatically via useEffect when user state updates
+        // Sign in as normal
+        const result = await signIn(email, password);
+        if (result.error) {
+          toast({ title: 'Error', description: result.error.message, variant: 'destructive' });
+        } else {
+          toast({ title: 'Success', description: 'Welcome back!' });
+        }
       }
     } catch (error) {
-      toast({
-        title: "Error",
-        description: "Something went wrong. Please try again.",
-        variant: "destructive",
-      });
+      toast({ title: 'Error', description: 'Something went wrong. Please try again.', variant: 'destructive' });
     } finally {
       setLoading(false);
     }
   };
+
+  if (confirmed) {
+    return (
+      <div className="min-h-screen flex flex-col items-center justify-center bg-gradient-to-br from-gray-900 via-gray-800 to-black">
+        <Card className="bg-gray-800/60 border border-gray-700 p-8 max-w-md w-full text-center">
+          <CardHeader>
+            <CardTitle className="text-2xl text-orange-500 mb-2">Your account is now verified!</CardTitle>
+          </CardHeader>
+          <CardContent>
+            <p className="text-white mb-6">Proceed to login and happy collecting!</p>
+            <Link to="/auth">
+              <Button className="bg-orange-500 hover:bg-orange-600 text-white w-full">Proceed to Login</Button>
+            </Link>
+          </CardContent>
+        </Card>
+      </div>
+    );
+  }
 
   return (
     <div className="min-h-screen bg-gradient-to-br from-gray-900 via-gray-800 to-black flex flex-col relative">
@@ -84,7 +137,7 @@ const Auth = () => {
               />
             </Link>
             <p className="text-gray-400 mt-2">
-              {isSignUp ? 'Create your account to start collecting' : 'Welcome back to your collection'}
+              {isSignUp ? (plan === 'pro' ? 'Sign up for PopGuide Pro (payment required)' : 'Create your free account to start collecting') : 'Welcome back to your collection'}
             </p>
           </div>
 
@@ -132,6 +185,9 @@ const Auth = () => {
                     minLength={6}
                   />
                 </div>
+                {isSignUp && plan === 'pro' && (
+                  <div className="text-orange-400 text-sm text-center mb-2">You must pay for Pro before your account is created. You'll be redirected to Stripe checkout.</div>
+                )}
                 <Button 
                   type="submit" 
                   className="w-full bg-orange-500 hover:bg-orange-600 text-white" 

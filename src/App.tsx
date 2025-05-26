@@ -24,6 +24,11 @@ import Ios from "./pages/Ios";
 import Android from "./pages/Android";
 import Api from "./pages/Api";
 import SearchPage from "./pages/Search";
+import Directory from "./pages/Directory";
+import DirectoryAll from "./pages/DirectoryAll";
+import RecentlyAdded from "./pages/RecentlyAdded";
+import RetailerProfile from "./pages/retailers/[slug]";
+import GetStarted from "./pages/get-started";
 
 const queryClient = new QueryClient();
 
@@ -54,6 +59,11 @@ const App = () => (
             <Route path="/android" element={<Android />} />
             <Route path="/api" element={<Api />} />
             <Route path="/search" element={<SearchPage />} />
+            <Route path="/directory" element={<Directory />} />
+            <Route path="/directory-all" element={<DirectoryAll />} />
+            <Route path="/recently-added" element={<RecentlyAdded />} />
+            <Route path="/retailers/:slug" element={<RetailerProfile />} />
+            <Route path="/get-started" element={<GetStarted />} />
             {/* ADD ALL CUSTOM ROUTES ABOVE THE CATCH-ALL "*" ROUTE */}
             <Route path="*" element={<NotFound />} />
           </Routes>

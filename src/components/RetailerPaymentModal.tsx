@@ -19,14 +19,16 @@ const RetailerPaymentModal = ({ open, onOpenChange }: RetailerPaymentModalProps)
   const slug = window.location.pathname.split("/").pop() || "";
   const { data: retailer } = useRetailer(slug);
 
+  const SUPABASE_FUNCTION_URL = "https://pafgjwmgueerxdxtneyg.functions.supabase.co/stripe-checkout-open";
+
   const handleCheckout = async () => {
     if (!user || !retailer) return;
     setLoading(true);
     try {
-      const res = await fetch('/functions/v1/stripe-checkout', {
+      const res = await fetch(SUPABASE_FUNCTION_URL, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ user_id: user.id, email: user.email, retailer_id: retailer.id, plan: selectedPlan }),
+        body: JSON.stringify({ email: user.email }),
       });
       const data = await res.json();
       if (data.url) {

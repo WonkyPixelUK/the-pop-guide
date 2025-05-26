@@ -9,6 +9,8 @@ import { useToast } from '@/hooks/use-toast';
 import { useState } from 'react';
 import MobileBottomNav from '@/components/MobileBottomNav';
 
+const SUPABASE_FUNCTION_URL = "https://pafgjwmgueerxdxtneyg.functions.supabase.co/stripe-checkout-open";
+
 const Pricing = () => {
   const { user, loading: authLoading } = useAuth();
   const { toast } = useToast();
@@ -55,10 +57,10 @@ const Pricing = () => {
     }
     setLoading(true);
     try {
-      const res = await fetch('/functions/v1/stripe-checkout', {
+      const res = await fetch(SUPABASE_FUNCTION_URL, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ user_id: user.id, email: user.email }),
+        body: JSON.stringify({ email: user.email }),
       });
       const data = await res.json();
       if (data.url) {
@@ -123,15 +125,16 @@ const Pricing = () => {
                   </ul>
                   
                   {plan.popular ? (
-                    <Button
-                      className="w-full bg-[#e46c1b] hover:bg-orange-600 text-white rounded-lg text-lg font-semibold py-3 transition-colors"
-                      onClick={handleProCheckout}
-                      disabled={loading}
-                    >
-                      {loading ? 'Redirecting...' : plan.cta}
-                    </Button>
+                    <Link to="/auth?plan=pro">
+                      <Button
+                        className="w-full bg-[#e46c1b] hover:bg-orange-600 text-white rounded-lg text-lg font-semibold py-3 transition-colors"
+                        disabled={loading}
+                      >
+                        {loading ? 'Redirecting...' : plan.cta}
+                      </Button>
+                    </Link>
                   ) : (
-                    <Link to="/auth">
+                    <Link to="/auth?plan=free">
                       <Button className="w-full bg-gray-700 hover:bg-gray-600 text-white rounded-lg text-lg font-semibold py-3 transition-colors">
                         {plan.cta}
                       </Button>

@@ -5,6 +5,9 @@ import { Button } from '@/components/ui/button';
 import { ArrowLeft } from 'lucide-react';
 import ProfileEditor from '@/components/ProfileEditor';
 import { supabase } from '@/integrations/supabase/client';
+import Navigation from '@/components/Navigation';
+
+const SUPABASE_FUNCTION_URL = "https://pafgjwmgueerxdxtneyg.functions.supabase.co/stripe-checkout-open";
 
 const ProfileSettings = () => {
   const { user, loading: authLoading } = useAuth();
@@ -49,26 +52,7 @@ const ProfileSettings = () => {
 
   return (
     <div className="min-h-screen bg-gradient-to-br from-gray-900 via-gray-800 to-black">
-      {/* Header */}
-      <header className="bg-gray-900/50 backdrop-blur-sm border-b border-gray-700">
-        <div className="container mx-auto px-4 py-4">
-          <div className="flex items-center justify-between">
-            <Link to="/dashboard" className="flex items-center space-x-3">
-              <div className="text-2xl font-bold">
-                <span className="text-orange-500">Pop</span>
-                <span className="text-white">Guide</span>
-              </div>
-            </Link>
-            <Link to="/dashboard">
-              <Button variant="outline" className="border-gray-600 text-white hover:bg-gray-700">
-                <ArrowLeft className="w-4 h-4 mr-2" />
-                Back to Dashboard
-              </Button>
-            </Link>
-          </div>
-        </div>
-      </header>
-
+      <Navigation />
       {/* Subscription Status Section */}
       <section className="py-6 px-4">
         <div className="container mx-auto max-w-xl">
@@ -78,12 +62,12 @@ const ProfileSettings = () => {
               <span className={`px-3 py-1 rounded-full text-xs font-bold ${subStatus === 'active' ? 'bg-[#e46c1b] text-white' : 'bg-gray-700 text-gray-300'}`}>{subStatus === 'active' ? 'Pro' : 'Free'}</span>
               <span className="text-gray-400 text-sm">{subStatus === 'active' ? 'You are a Pro member.' : 'You are on the Free plan.'}</span>
             </div>
-            {customerId && (
-              <Button
-                className="bg-[#e46c1b] hover:bg-orange-600 text-white rounded-lg w-full max-w-xs font-semibold py-2 transition-colors"
-                onClick={async () => {
-                  setPortalLoading(true);
-                  try {
+            <Button
+              className="bg-[#e46c1b] hover:bg-orange-600 text-white rounded-lg w-full max-w-xs font-semibold py-2 transition-colors"
+              onClick={async () => {
+                setPortalLoading(true);
+                try {
+                  if (customerId) {
                     const res = await fetch('/functions/v1/stripe-portal', {
                       method: 'POST',
                       headers: { 'Content-Type': 'application/json' },
@@ -93,19 +77,31 @@ const ProfileSettings = () => {
                     if (data.url) {
                       window.location.href = data.url;
                     }
-                  } finally {
-                    setPortalLoading(false);
+                  } else {
+                    // No customerId: trigger upgrade/subscribe flow
+                    const res = await fetch(SUPABASE_FUNCTION_URL, {
+                      method: 'POST',
+                      headers: { 'Content-Type': 'application/json' },
+                      body: JSON.stringify({ email: user.email }),
+                    });
+                    const data = await res.json();
+                    if (data.url) {
+                      window.location.href = data.url;
+                    } else {
+                      alert('Unable to start subscription. Please try again.');
+                    }
                   }
-                }}
-                disabled={portalLoading}
-              >
-                {portalLoading ? 'Loading...' : 'Manage Subscription'}
-              </Button>
-            )}
+                } finally {
+                  setPortalLoading(false);
+                }
+              }}
+              disabled={portalLoading}
+            >
+              {portalLoading ? 'Loading...' : (customerId ? 'Manage Subscription' : 'Upgrade to Pro')}
+            </Button>
           </div>
         </div>
       </section>
-
       {/* Profile Editor Section */}
       <section className="py-8 px-4">
         <div className="container mx-auto">
@@ -115,7 +111,6 @@ const ProfileSettings = () => {
               Create and customize your public profile to share your collection and connect with other collectors.
             </p>
           </div>
-          
           <ProfileEditor />
         </div>
       </section>

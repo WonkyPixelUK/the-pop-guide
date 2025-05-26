@@ -9,6 +9,74 @@ export type Json =
 export type Database = {
   public: {
     Tables: {
+      achievements: {
+        Row: {
+          created_at: string
+          data: Json | null
+          id: string
+          type: string
+          user_id: string
+        }
+        Insert: {
+          created_at?: string
+          data?: Json | null
+          id?: string
+          type: string
+          user_id: string
+        }
+        Update: {
+          created_at?: string
+          data?: Json | null
+          id?: string
+          type?: string
+          user_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "achievements_user_id_fkey"
+            columns: ["user_id"]
+            isOneToOne: false
+            referencedRelation: "profiles"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      blocks: {
+        Row: {
+          blocked_id: string
+          created_at: string
+          id: string
+          user_id: string
+        }
+        Insert: {
+          blocked_id: string
+          created_at?: string
+          id?: string
+          user_id: string
+        }
+        Update: {
+          blocked_id?: string
+          created_at?: string
+          id?: string
+          user_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "blocks_blocked_id_fkey"
+            columns: ["blocked_id"]
+            isOneToOne: false
+            referencedRelation: "profiles"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "blocks_user_id_fkey"
+            columns: ["user_id"]
+            isOneToOne: false
+            referencedRelation: "profiles"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       custom_lists: {
         Row: {
           created_at: string
@@ -16,6 +84,7 @@ export type Database = {
           id: string
           is_public: boolean | null
           name: string
+          slug: string | null
           updated_at: string
           user_id: string
         }
@@ -25,6 +94,7 @@ export type Database = {
           id?: string
           is_public?: boolean | null
           name: string
+          slug?: string | null
           updated_at?: string
           user_id: string
         }
@@ -34,10 +104,148 @@ export type Database = {
           id?: string
           is_public?: boolean | null
           name?: string
+          slug?: string | null
           updated_at?: string
           user_id?: string
         }
         Relationships: []
+      }
+      friend_group_members: {
+        Row: {
+          friend_id: string
+          group_id: string
+          id: string
+        }
+        Insert: {
+          friend_id: string
+          group_id: string
+          id?: string
+        }
+        Update: {
+          friend_id?: string
+          group_id?: string
+          id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "friend_group_members_friend_id_fkey"
+            columns: ["friend_id"]
+            isOneToOne: false
+            referencedRelation: "profiles"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "friend_group_members_group_id_fkey"
+            columns: ["group_id"]
+            isOneToOne: false
+            referencedRelation: "friend_groups"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      friend_groups: {
+        Row: {
+          created_at: string
+          id: string
+          name: string
+          user_id: string
+        }
+        Insert: {
+          created_at?: string
+          id?: string
+          name: string
+          user_id: string
+        }
+        Update: {
+          created_at?: string
+          id?: string
+          name?: string
+          user_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "friend_groups_user_id_fkey"
+            columns: ["user_id"]
+            isOneToOne: false
+            referencedRelation: "profiles"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      friend_requests: {
+        Row: {
+          created_at: string
+          id: string
+          receiver_id: string
+          sender_id: string
+          status: string
+        }
+        Insert: {
+          created_at?: string
+          id?: string
+          receiver_id: string
+          sender_id: string
+          status: string
+        }
+        Update: {
+          created_at?: string
+          id?: string
+          receiver_id?: string
+          sender_id?: string
+          status?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "friend_requests_receiver_id_fkey"
+            columns: ["receiver_id"]
+            isOneToOne: false
+            referencedRelation: "profiles"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "friend_requests_sender_id_fkey"
+            columns: ["sender_id"]
+            isOneToOne: false
+            referencedRelation: "profiles"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      friends: {
+        Row: {
+          created_at: string
+          friend_id: string
+          id: string
+          user_id: string
+        }
+        Insert: {
+          created_at?: string
+          friend_id: string
+          id?: string
+          user_id: string
+        }
+        Update: {
+          created_at?: string
+          friend_id?: string
+          id?: string
+          user_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "friends_friend_id_fkey"
+            columns: ["friend_id"]
+            isOneToOne: false
+            referencedRelation: "profiles"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "friends_user_id_fkey"
+            columns: ["user_id"]
+            isOneToOne: false
+            referencedRelation: "profiles"
+            referencedColumns: ["id"]
+          },
+        ]
       }
       funko_pops: {
         Row: {
@@ -46,6 +254,7 @@ export type Database = {
           created_at: string
           data_sources: string[] | null
           description: string | null
+          ean: string | null
           estimated_value: number | null
           exclusive_to: string | null
           id: string
@@ -58,6 +267,7 @@ export type Database = {
           name: string
           number: string | null
           price_trend: string | null
+          rarity: string | null
           release_date: string | null
           series: string
           sticker_condition: string | null
@@ -72,6 +282,7 @@ export type Database = {
           created_at?: string
           data_sources?: string[] | null
           description?: string | null
+          ean?: string | null
           estimated_value?: number | null
           exclusive_to?: string | null
           id?: string
@@ -84,6 +295,7 @@ export type Database = {
           name: string
           number?: string | null
           price_trend?: string | null
+          rarity?: string | null
           release_date?: string | null
           series: string
           sticker_condition?: string | null
@@ -98,6 +310,7 @@ export type Database = {
           created_at?: string
           data_sources?: string[] | null
           description?: string | null
+          ean?: string | null
           estimated_value?: number | null
           exclusive_to?: string | null
           id?: string
@@ -110,6 +323,7 @@ export type Database = {
           name?: string
           number?: string | null
           price_trend?: string | null
+          rarity?: string | null
           release_date?: string | null
           series?: string
           sticker_condition?: string | null
@@ -464,6 +678,98 @@ export type Database = {
           },
         ]
       }
+      retailer_products: {
+        Row: {
+          id: string;
+          retailer_id: string;
+          funko_pop_id: string;
+          name: string;
+          price: number;
+          image_url: string | null;
+          is_deal: boolean | null;
+          is_incoming: boolean | null;
+          created_at: string;
+        }
+        Insert: {
+          id?: string;
+          retailer_id: string;
+          funko_pop_id: string;
+          name: string;
+          price: number;
+          image_url?: string | null;
+          is_deal?: boolean | null;
+          is_incoming?: boolean | null;
+          created_at?: string;
+        }
+        Update: {
+          id?: string;
+          retailer_id?: string;
+          funko_pop_id?: string;
+          name?: string;
+          price?: number;
+          image_url?: string | null;
+          is_deal?: boolean | null;
+          is_incoming?: boolean | null;
+          created_at?: string;
+        }
+        Relationships: [
+          {
+            foreignKeyName: "retailer_products_retailer_id_fkey",
+            columns: ["retailer_id"],
+            isOneToOne: false,
+            referencedRelation: "retailers",
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "retailer_products_funko_pop_id_fkey",
+            columns: ["funko_pop_id"],
+            isOneToOne: false,
+            referencedRelation: "funko_pops",
+            referencedColumns: ["id"]
+          }
+        ]
+      },
+      retailer_analytics: {
+        Row: {
+          id: string;
+          retailer_id: string;
+          clicks: number;
+          last_click: string | null;
+          impressions: number;
+          views: number;
+          followers: number;
+          created_at: string;
+        }
+        Insert: {
+          id?: string;
+          retailer_id: string;
+          clicks?: number;
+          last_click?: string | null;
+          impressions?: number;
+          views?: number;
+          followers?: number;
+          created_at?: string;
+        }
+        Update: {
+          id?: string;
+          retailer_id?: string;
+          clicks?: number;
+          last_click?: string | null;
+          impressions?: number;
+          views?: number;
+          followers?: number;
+          created_at?: string;
+        }
+        Relationships: [
+          {
+            foreignKeyName: "retailer_analytics_retailer_id_fkey",
+            columns: ["retailer_id"],
+            isOneToOne: false,
+            referencedRelation: "retailers",
+            referencedColumns: ["id"]
+          }
+        ]
+      },
     }
     Views: {
       [_ in never]: never

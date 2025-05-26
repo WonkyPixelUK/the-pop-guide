@@ -152,7 +152,7 @@ const About = () => {
             <h2 className="text-3xl font-bold text-white mb-6">Join Our Journey</h2>
             <p className="text-xl text-gray-300 mb-8">Help us build the future of collection management</p>
             <div className="flex flex-col sm:flex-row gap-4 justify-center">
-              <Link to="/auth">
+              <Link to="/get-started">
                 <Button size="lg" className="bg-orange-500 hover:bg-orange-600 text-white px-8 py-3">
                   Start Your Collection
                 </Button>

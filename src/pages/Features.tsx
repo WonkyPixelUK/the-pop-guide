@@ -141,7 +141,7 @@ const Features = () => {
           <div className="container mx-auto text-center">
             <h2 className="text-3xl font-bold text-white mb-6">Ready to Start?</h2>
             <p className="text-xl text-gray-300 mb-8">Join thousands of collectors already using PopGuide</p>
-            <Link to="/auth">
+            <Link to="/get-started">
               <Button size="lg" className="bg-orange-500 hover:bg-orange-600 text-white px-8 py-3">
                 Start Your Collection Journey
               </Button>

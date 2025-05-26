@@ -2,19 +2,41 @@ import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/components/u
 import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
 import { Label } from "@/components/ui/label";
-import { useState } from "react";
+import { useState, useEffect } from "react";
 
 interface RetailerShowModalProps {
   open: boolean;
   onOpenChange: (open: boolean) => void;
   initialData?: any;
+  onSubmit?: (values: any) => void;
+  loading?: boolean;
 }
 
-const RetailerShowModal = ({ open, onOpenChange, initialData }: RetailerShowModalProps) => {
+const RetailerShowModal = ({ open, onOpenChange, initialData, onSubmit, loading }: RetailerShowModalProps) => {
   const [title, setTitle] = useState(initialData?.title || "");
+  const [showTime, setShowTime] = useState(initialData?.show_time ? initialData.show_time.slice(0, 16) : "");
   const [showUrl, setShowUrl] = useState(initialData?.show_url || "");
-  const [showTime, setShowTime] = useState(initialData?.show_time || "");
   const [description, setDescription] = useState(initialData?.description || "");
+
+  // Reset form when initialData changes
+  useEffect(() => {
+    setTitle(initialData?.title || "");
+    setShowTime(initialData?.show_time ? initialData.show_time.slice(0, 16) : "");
+    setShowUrl(initialData?.show_url || "");
+    setDescription(initialData?.description || "");
+  }, [initialData, open]);
+
+  const handleSubmit = (e: React.FormEvent) => {
+    e.preventDefault();
+    if (onSubmit) {
+      onSubmit({
+        title,
+        show_time: showTime,
+        show_url: showUrl,
+        description,
+      });
+    }
+  };
 
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>
@@ -22,7 +44,7 @@ const RetailerShowModal = ({ open, onOpenChange, initialData }: RetailerShowModa
         <DialogHeader>
           <DialogTitle className="text-2xl font-bold">{initialData ? "Edit Show" : "Add Show"}</DialogTitle>
         </DialogHeader>
-        <div className="space-y-4">
+        <form onSubmit={handleSubmit} className="space-y-4">
           <div>
             <Label htmlFor="showTitle">Show Title</Label>
             <Input
@@ -31,16 +53,8 @@ const RetailerShowModal = ({ open, onOpenChange, initialData }: RetailerShowModa
               onChange={e => setTitle(e.target.value)}
               className="bg-gray-800 border-gray-700"
               placeholder="e.g. Whatnot Live: DC Drops"
-            />
-          </div>
-          <div>
-            <Label htmlFor="showUrl">Show URL</Label>
-            <Input
-              id="showUrl"
-              value={showUrl}
-              onChange={e => setShowUrl(e.target.value)}
-              className="bg-gray-800 border-gray-700"
-              placeholder="e.g. https://whatnot.com/show/123"
+              required
+              disabled={loading}
             />
           </div>
           <div>
@@ -51,6 +65,20 @@ const RetailerShowModal = ({ open, onOpenChange, initialData }: RetailerShowModa
               value={showTime}
               onChange={e => setShowTime(e.target.value)}
               className="bg-gray-800 border-gray-700"
+              required
+              disabled={loading}
+            />
+          </div>
+          <div>
+            <Label htmlFor="showUrl">Show URL</Label>
+            <Input
+              id="showUrl"
+              value={showUrl}
+              onChange={e => setShowUrl(e.target.value)}
+              className="bg-gray-800 border-gray-700"
+              placeholder="e.g. https://whatnot.com/show/123"
+              required
+              disabled={loading}
             />
           </div>
           <div>
@@ -61,10 +89,13 @@ const RetailerShowModal = ({ open, onOpenChange, initialData }: RetailerShowModa
               onChange={e => setDescription(e.target.value)}
               className="bg-gray-800 border-gray-700"
               placeholder="e.g. Special DC Comics drop and giveaways!"
+              disabled={loading}
             />
           </div>
-          <Button className="w-full bg-orange-500 hover:bg-orange-600">{initialData ? "Save Changes" : "Add Show"}</Button>
-        </div>
+          <Button type="submit" className="w-full bg-orange-500 hover:bg-orange-600" disabled={loading}>
+            {loading ? 'Saving...' : (initialData ? 'Update Show' : 'Add Show')}
+          </Button>
+        </form>
       </DialogContent>
     </Dialog>
   );

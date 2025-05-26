@@ -11,10 +11,12 @@ import { User, Music, MessageCircle, Twitter, Instagram, Video, ShoppingBag, Gam
 import { useCustomLists } from '@/hooks/useCustomLists';
 import { supabase } from '@/integrations/supabase/client';
 import { useToast } from '@/hooks/use-toast';
+import { useAuth } from '@/hooks/useAuth';
 
 const ProfileEditor = () => {
   const { profile, loading, createProfile, updateProfile } = usePublicProfile();
   const { lists } = useCustomLists();
+  const { user } = useAuth();
   const [formData, setFormData] = useState({
     username: '',
     display_name: '',
@@ -36,6 +38,7 @@ const ProfileEditor = () => {
   const [usernameError, setUsernameError] = useState("");
   const [selectedListIds, setSelectedListIds] = useState<string[]>(profile?.profile_list_ids || []);
   const { toast } = useToast();
+  const [uploading, setUploading] = useState(false);
 
   useEffect(() => {
     if (profile) {
@@ -151,6 +154,29 @@ const ProfileEditor = () => {
     }
   };
 
+  const handleAvatarUpload = async (e: React.ChangeEvent<HTMLInputElement>) => {
+    if (!user) return;
+    const file = e.target.files?.[0];
+    if (!file) return;
+    setUploading(true);
+    const fileExt = file.name.split('.').pop();
+    const filePath = `user-profiles/${user.id}.${fileExt}`;
+    const { error: uploadError } = await supabase.storage.from('user-profiles').upload(filePath, file, { upsert: true });
+    if (uploadError) {
+      toast({ title: 'Upload failed', description: uploadError.message, variant: 'destructive' });
+      setUploading(false);
+      return;
+    }
+    const { data: urlData } = supabase.storage.from('user-profiles').getPublicUrl(filePath);
+    if (urlData?.publicUrl) {
+      setFormData(prev => ({ ...prev, avatar_url: urlData.publicUrl }));
+      // Optionally auto-save profile with new avatar_url
+      await updateProfile({ ...formData, avatar_url: urlData.publicUrl });
+      toast({ title: 'Profile picture updated!', variant: 'success' });
+    }
+    setUploading(false);
+  };
+
   if (loading) {
     return <div className="text-white">Loading profile...</div>;
   }
@@ -185,6 +211,16 @@ const ProfileEditor = () => {
                   placeholder="https://example.com/avatar.jpg"
                   className="bg-gray-700 border-gray-600 text-white"
                 />
+                <div className="mt-2">
+                  <input
+                    type="file"
+                    accept="image/*"
+                    id="avatar_upload"
+                    onChange={handleAvatarUpload}
+                    disabled={uploading}
+                  />
+                  {uploading && <span className="text-xs text-gray-400 ml-2">Uploading...</span>}
+                </div>
               </div>
             </div>
 

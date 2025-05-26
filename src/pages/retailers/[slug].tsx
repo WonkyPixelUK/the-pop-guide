@@ -10,6 +10,7 @@ import { useRetailerProducts } from '@/hooks/useRetailerProducts';
 import { useRetailerShows } from '@/hooks/useRetailerShows';
 import { useRetailerReviews } from '@/hooks/useRetailerReviews';
 import { useRetailerAnalytics } from '@/hooks/useRetailerAnalytics';
+import type { Tables } from '@/integrations/supabase/types';
 
 const RetailerProfile = () => {
   const { slug } = useParams<{ slug: string }>();
@@ -19,10 +20,13 @@ const RetailerProfile = () => {
   const { data: reviews = [], isLoading: loadingReviews } = useRetailerReviews(retailer?.id || "");
   const { data: analytics, isLoading: loadingAnalytics } = useRetailerAnalytics(retailer?.id || "");
 
+  // Type guard for retailer
+  const isRetailer = (r: any): r is Tables<'retailers'>['Row'] => !!r && typeof r === 'object' && 'name' in r && 'logo_url' in r;
+
   if (isLoading) {
     return <div className="min-h-screen flex items-center justify-center bg-gradient-to-br from-gray-900 via-gray-800 to-black text-white">Loading retailer...</div>;
   }
-  if (error || !retailer) {
+  if (error || !isRetailer(retailer)) {
     return <div className="min-h-screen flex items-center justify-center bg-gradient-to-br from-gray-900 via-gray-800 to-black text-red-500">Retailer not found.</div>;
   }
 
@@ -46,6 +50,11 @@ const RetailerProfile = () => {
                     <CheckCircle className="w-3 h-3" /> Official
                   </Badge>
                 )}
+                {retailer.is_featured && (
+                  <Badge className="bg-yellow-500/90 text-yellow-900 text-xs font-semibold px-2 py-0.5 ml-2 flex items-center gap-1">
+                    <Star className="w-3 h-3" /> Featured
+                  </Badge>
+                )}
               </CardTitle>
               <div className="flex flex-wrap gap-1 mt-1">
                 {(retailer.tags || []).map((tag: string) => (
@@ -61,7 +70,7 @@ const RetailerProfile = () => {
                   rel="noopener noreferrer"
                   className="text-orange-400 hover:underline flex items-center gap-1 mt-2"
                 >
-                  <Globe className="w-4 h-4" /> Website
+                  <Globe className="w-4 h-4" /> {retailer.website.replace(/^https?:\/\//, "")}
                 </a>
               )}
               <Button className="w-full bg-orange-500 hover:bg-orange-600 mt-4">Follow Retailer</Button>

@@ -42,7 +42,7 @@ const Landing = () => {
               comprehensive management tools, and a community of passionate collectors.
             </p>
             <div className="flex flex-col sm:flex-row gap-4 justify-center">
-              <Link to="/auth">
+              <Link to="/get-started">
                 <Button size="lg" className="bg-orange-500 hover:bg-orange-600 text-white px-8 py-3">
                   Start Your Collection Journey
                 </Button>
@@ -288,7 +288,7 @@ const Landing = () => {
                 <div className="text-center">
                   <h3 className="text-2xl font-bold text-white mb-4">Ready to Start?</h3>
                   <p className="text-gray-400 mb-6">Join thousands of collectors who trust PopGuide with their collections.</p>
-                  <Link to="/auth">
+                  <Link to="/get-started">
                     <Button className="bg-orange-500 hover:bg-orange-600 text-white w-full">
                       Create Free Account
                     </Button>

@@ -132,7 +132,7 @@ const Navigation = () => {
             </>
           ) : (
             <>
-              <Link to="/auth" className="border border-[#e46c1b] text-[#e46c1b] bg-transparent hover:bg-orange-50 rounded-md px-3 py-1 font-medium text-xs min-w-0 transition-colors" style={{ textAlign: 'center', border: '1px solid #e46c1b' }}>
+              <Link to="/get-started" className="border border-[#e46c1b] text-[#e46c1b] bg-transparent hover:bg-orange-50 rounded-md px-3 py-1 font-medium text-xs min-w-0 transition-colors" style={{ textAlign: 'center', border: '1px solid #e46c1b' }}>
                 Get started
               </Link>
               <Link to="/auth" className="border border-[#e46c1b] text-[#e46c1b] bg-transparent hover:bg-orange-50 rounded-md px-3 py-1 font-medium text-xs min-w-0 transition-colors" style={{ textAlign: 'center', border: '1px solid #e46c1b' }}>
@@ -156,6 +156,9 @@ const Navigation = () => {
             </Link>
           </div>
           <nav className="flex items-center space-x-10">
+            <Link to="/recently-added" className="text-white hover:text-orange-500 font-medium text-base transition-colors">Recently Added</Link>
+            <Link to="/directory" className="text-white hover:text-orange-500 font-medium text-base transition-colors">Directory</Link>
+            <Link to="/retailer-signup" className="text-white hover:text-orange-500 font-medium text-base transition-colors">Become a Retailer</Link>
             <Link to="/features" className="text-white hover:text-orange-500 font-medium text-base transition-colors">Features</Link>
             <a href="https://statuslist.app/status/z8kbza" className="text-white hover:text-orange-500 font-medium text-base transition-colors" target="_blank" rel="noopener noreferrer">Service Status</a>
             <Link to="/pricing" className="text-white hover:text-orange-500 font-medium text-base transition-colors">Pricing</Link>

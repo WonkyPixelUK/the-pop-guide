@@ -10,6 +10,7 @@ import { useAuth } from "@/hooks/useAuth";
 import { useAddToCollection, useFunkoPops, useUserCollection } from "@/hooks/useFunkoPops";
 import { useWishlist } from "@/hooks/useWishlist";
 import { useToast } from "@/hooks/use-toast";
+import { supabase } from "@/integrations/supabase/client";
 
 interface EnhancedAddItemDialogProps {
   open: boolean;
@@ -26,6 +27,17 @@ const EnhancedAddItemDialog = ({ open, onOpenChange }: EnhancedAddItemDialogProp
   const { addToWishlist, wishlist } = useWishlist();
   const { data: funkoPops = [] } = useFunkoPops();
   const { data: userCollection = [] } = useUserCollection(user?.id);
+
+  // Manual entry state
+  const [manualName, setManualName] = useState("");
+  const [manualSeries, setManualSeries] = useState("");
+  const [manualNumber, setManualNumber] = useState("");
+  const [manualRarity, setManualRarity] = useState("");
+  const [manualCondition, setManualCondition] = useState("mint");
+  const [manualPrice, setManualPrice] = useState("");
+  const [manualEan, setManualEan] = useState("");
+  const [manualLoading, setManualLoading] = useState(false);
+  const [manualError, setManualError] = useState("");
 
   // Helper to normalize strings for search (case-insensitive, ignore punctuation)
   function normalize(str: string) {
@@ -84,6 +96,47 @@ const EnhancedAddItemDialog = ({ open, onOpenChange }: EnhancedAddItemDialogProp
       });
     } catch (error) {
       console.error('Error adding to wishlist:', error);
+    }
+  };
+
+  const handleManualAdd = async () => {
+    setManualError("");
+    if (!user) {
+      setManualError("Sign in required");
+      return;
+    }
+    if (!manualName || !manualSeries) {
+      setManualError("Name and Series are required");
+      return;
+    }
+    setManualLoading(true);
+    try {
+      // Insert new Pop
+      const { data: pop, error } = await supabase
+        .from('funko_pops')
+        .insert({
+          name: manualName,
+          series: manualSeries,
+          number: manualNumber,
+          ean: manualEan || null,
+          rarity: manualRarity || null,
+        })
+        .select()
+        .single();
+      if (error || !pop) throw error || new Error('Insert failed');
+      // Add to collection
+      await addToCollection.mutateAsync({
+        funkoPopId: pop.id,
+        userId: user.id,
+        condition: manualCondition,
+        purchasePrice: manualPrice ? parseFloat(manualPrice) : undefined,
+      });
+      setManualName(""); setManualSeries(""); setManualNumber(""); setManualRarity(""); setManualCondition("mint"); setManualPrice(""); setManualEan("");
+      onOpenChange(false);
+    } catch (err: any) {
+      setManualError(err.message || 'Failed to add Pop');
+    } finally {
+      setManualLoading(false);
     }
   };
 
@@ -228,31 +281,23 @@ const EnhancedAddItemDialog = ({ open, onOpenChange }: EnhancedAddItemDialogProp
             <div className="grid grid-cols-2 gap-4">
               <div className="space-y-2">
                 <Label htmlFor="manualName">Name</Label>
-                <Input
-                  id="manualName"
-                  placeholder="e.g., Spider-Man"
-                  className="bg-gray-800 border-gray-700"
-                />
+                <Input id="manualName" value={manualName} onChange={e => setManualName(e.target.value)} placeholder="e.g., Spider-Man" className="bg-gray-800 border-gray-700" />
               </div>
               <div className="space-y-2">
                 <Label htmlFor="manualSeries">Series</Label>
-                <Input
-                  id="manualSeries"
-                  placeholder="e.g., Marvel"
-                  className="bg-gray-800 border-gray-700"
-                />
+                <Input id="manualSeries" value={manualSeries} onChange={e => setManualSeries(e.target.value)} placeholder="e.g., Marvel" className="bg-gray-800 border-gray-700" />
               </div>
               <div className="space-y-2">
                 <Label htmlFor="manualNumber">Item Number</Label>
-                <Input
-                  id="manualNumber"
-                  placeholder="e.g., 593"
-                  className="bg-gray-800 border-gray-700"
-                />
+                <Input id="manualNumber" value={manualNumber} onChange={e => setManualNumber(e.target.value)} placeholder="e.g., 593" className="bg-gray-800 border-gray-700" />
+              </div>
+              <div className="space-y-2">
+                <Label htmlFor="manualEan">EAN (Optional)</Label>
+                <Input id="manualEan" value={manualEan} onChange={e => setManualEan(e.target.value)} placeholder="e.g., 889698123456" className="bg-gray-800 border-gray-700" />
               </div>
               <div className="space-y-2">
                 <Label htmlFor="manualRarity">Rarity</Label>
-                <Select>
+                <Select value={manualRarity} onValueChange={setManualRarity}>
                   <SelectTrigger className="bg-gray-800 border-gray-700">
                     <SelectValue placeholder="Select rarity" />
                   </SelectTrigger>
@@ -266,7 +311,7 @@ const EnhancedAddItemDialog = ({ open, onOpenChange }: EnhancedAddItemDialogProp
               </div>
               <div className="space-y-2">
                 <Label htmlFor="manualCondition">Condition</Label>
-                <Select>
+                <Select value={manualCondition} onValueChange={setManualCondition}>
                   <SelectTrigger className="bg-gray-800 border-gray-700">
                     <SelectValue placeholder="Select condition" />
                   </SelectTrigger>
@@ -281,19 +326,13 @@ const EnhancedAddItemDialog = ({ open, onOpenChange }: EnhancedAddItemDialogProp
               </div>
               <div className="space-y-2">
                 <Label htmlFor="manualPrice">Purchase Price</Label>
-                <Input
-                  id="manualPrice"
-                  type="number"
-                  step="0.01"
-                  placeholder="0.00"
-                  className="bg-gray-800 border-gray-700"
-                />
+                <Input id="manualPrice" type="number" step="0.01" value={manualPrice} onChange={e => setManualPrice(e.target.value)} placeholder="0.00" className="bg-gray-800 border-gray-700" />
               </div>
             </div>
-
+            {manualError && <div className="text-red-500 text-sm mt-2">{manualError}</div>}
             <div className="pt-4">
-              <Button className="w-full bg-orange-500 hover:bg-orange-600">
-                Add to Collection
+              <Button className="w-full bg-orange-500 hover:bg-orange-600" onClick={handleManualAdd} disabled={manualLoading}>
+                {manualLoading ? 'Adding...' : 'Add to Collection'}
               </Button>
             </div>
           </TabsContent>
