@@ -13,11 +13,16 @@ const BrowseLists = () => {
   const [searchTerm, setSearchTerm] = useState("");
   const { publicLists, isLoadingPublicLists } = useCustomLists();
 
-  const filteredLists = publicLists.filter(list =>
-    list.name.toLowerCase().includes(searchTerm.toLowerCase()) ||
-    (list.description && list.description.toLowerCase().includes(searchTerm.toLowerCase())) ||
-    ((list as any).profiles?.full_name && (list as any).profiles.full_name.toLowerCase().includes(searchTerm.toLowerCase()))
-  );
+  const filteredLists = publicLists.filter(list => {
+    const name = typeof list.name === 'string' ? list.name : '';
+    const description = typeof list.description === 'string' ? list.description : '';
+    const fullName = (list as any).profiles && typeof (list as any).profiles.full_name === 'string' ? (list as any).profiles.full_name : '';
+    return (
+      name.toLowerCase().includes(searchTerm.toLowerCase()) ||
+      description.toLowerCase().includes(searchTerm.toLowerCase()) ||
+      fullName.toLowerCase().includes(searchTerm.toLowerCase())
+    );
+  });
 
   const calculateListValue = (list: any) => {
     if (!list.list_items) return 0;
