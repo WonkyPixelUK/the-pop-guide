@@ -372,7 +372,7 @@ const Profile = () => {
                   <span className="text-orange-500 font-semibold">Want to see something here? Ask {profile.display_name || profile.username} to make their collection public or add items!</span>
                 </div>
               ) : (
-                <CollectionGrid items={transformedItems} onItemClick={setSelectedItem} />
+                <CollectionGrid items={transformedItems} onItemClick={setSelectedItem} searchQuery="" />
               )}
             </section>
           </div>
