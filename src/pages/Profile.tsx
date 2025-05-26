@@ -77,8 +77,8 @@ const Profile = () => {
     
     return {
       id: pop.id,
-      name: pop.name,
-      series: pop.series,
+      name: typeof pop.name === 'string' ? pop.name : '',
+      series: typeof pop.series === 'string' ? pop.series : '',
       number: pop.number || "",
       image: pop.image_url || "/lovable-uploads/b7333c96-5576-426d-af76-6a6a97e8a1ea.png",
       value: pop.estimated_value || 0,
