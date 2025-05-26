@@ -8,7 +8,7 @@ import { useWelcomeEmail } from '@/hooks/useWelcomeEmail';
 import { useToast } from '@/hooks/use-toast';
 import { useNavigate, Link, useLocation } from 'react-router-dom';
 
-const SUPABASE_FUNCTION_URL = "https://pafgjwmgueerxdxtneyg.functions.supabase.co/stripe-checkout-open";
+const SUPABASE_FUNCTION_URL = "https://pafgjwmgueerxdxtneyg.functions.supabase.co/stripe-checkout-public";
 
 const Auth = () => {
   const [isSignUp, setIsSignUp] = useState(false);

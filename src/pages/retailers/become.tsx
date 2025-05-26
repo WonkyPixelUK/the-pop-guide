@@ -6,7 +6,7 @@ import MobileBottomNav from '@/components/MobileBottomNav';
 import { useState } from 'react';
 
 const PRODUCT_ID = 'prod_SNsIp44U71FGP5';
-const SUPABASE_FUNCTION_URL = "https://pafgjwmgueerxdxtneyg.functions.supabase.co/stripe-checkout-open";
+const SUPABASE_FUNCTION_URL = "https://pafgjwmgueerxdxtneyg.functions.supabase.co/stripe-checkout-public";
 
 const BecomeRetailer = () => {
   const { user, loading: authLoading } = useAuth();

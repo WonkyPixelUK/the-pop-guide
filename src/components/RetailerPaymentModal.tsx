@@ -19,7 +19,7 @@ const RetailerPaymentModal = ({ open, onOpenChange }: RetailerPaymentModalProps)
   const slug = window.location.pathname.split("/").pop() || "";
   const { data: retailer } = useRetailer(slug);
 
-  const SUPABASE_FUNCTION_URL = "https://pafgjwmgueerxdxtneyg.functions.supabase.co/stripe-checkout-open";
+  const SUPABASE_FUNCTION_URL = "https://pafgjwmgueerxdxtneyg.functions.supabase.co/stripe-checkout-public";
 
   const handleCheckout = async () => {
     if (!user || !retailer) return;

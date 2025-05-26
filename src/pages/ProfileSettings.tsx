@@ -7,7 +7,7 @@ import ProfileEditor from '@/components/ProfileEditor';
 import { supabase } from '@/integrations/supabase/client';
 import Navigation from '@/components/Navigation';
 
-const SUPABASE_FUNCTION_URL = "https://pafgjwmgueerxdxtneyg.functions.supabase.co/stripe-checkout-open";
+const SUPABASE_FUNCTION_URL = "https://pafgjwmgueerxdxtneyg.functions.supabase.co/stripe-checkout-public";
 
 const ProfileSettings = () => {
   const { user, loading: authLoading } = useAuth();

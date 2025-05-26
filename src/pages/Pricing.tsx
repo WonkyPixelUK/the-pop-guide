@@ -9,7 +9,7 @@ import { useToast } from '@/hooks/use-toast';
 import { useState } from 'react';
 import MobileBottomNav from '@/components/MobileBottomNav';
 
-const SUPABASE_FUNCTION_URL = "https://pafgjwmgueerxdxtneyg.functions.supabase.co/stripe-checkout-open";
+const SUPABASE_FUNCTION_URL = "https://pafgjwmgueerxdxtneyg.functions.supabase.co/stripe-checkout-public";
 
 const Pricing = () => {
   const { user, loading: authLoading } = useAuth();
