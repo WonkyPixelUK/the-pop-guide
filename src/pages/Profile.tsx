@@ -171,7 +171,7 @@ const Profile = () => {
   return (
     <>
       <div className="min-h-screen bg-gradient-to-br from-gray-900 via-gray-800 to-black">
-        <Navigation className="hidden md:block" />
+        <Navigation />
         {/* Profile Section */}
         <section className="py-8 px-4">
           <div className="container mx-auto max-w-6xl">
@@ -223,7 +223,7 @@ const Profile = () => {
                         <Button className="bg-orange-500 hover:bg-orange-600 text-white w-full">Go to Dashboard</Button>
                       </Link>
                       <Link to="/profile-settings">
-                        <Button variant="outline" className="border-gray-600 text-white w-full">Edit Profile</Button>
+                        <Button className="bg-blue-900 hover:bg-blue-800 text-white w-full">Edit Profile</Button>
                       </Link>
                     </div>
                   )}
