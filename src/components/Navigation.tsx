@@ -155,7 +155,7 @@ const Navigation = () => {
               />
             </Link>
           </div>
-          <nav className="flex items-center space-x-10">
+          <nav className="flex items-center space-x-10 hidden md:flex">
             <Link to="/recently-added" className="text-white hover:text-orange-500 font-normal text-base transition-colors">Recently Added</Link>
             <Link to="/features" className="text-white hover:text-orange-500 font-normal text-base transition-colors">Features</Link>
             <Link to="/pricing" className="text-white hover:text-orange-500 font-normal text-base transition-colors">Pricing</Link>
