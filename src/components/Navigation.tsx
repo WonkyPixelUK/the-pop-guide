@@ -156,13 +156,13 @@ const Navigation = () => {
             </Link>
           </div>
           <nav className="flex items-center space-x-10">
-            <Link to="/recently-added" className="text-white hover:text-orange-500 font-normal text-lg transition-colors">Recently Added</Link>
-            <Link to="/features" className="text-white hover:text-orange-500 font-normal text-lg transition-colors">Features</Link>
-            <Link to="/pricing" className="text-white hover:text-orange-500 font-normal text-lg transition-colors">Pricing</Link>
-            <Link to="/browse-lists" className="text-white hover:text-orange-500 font-normal text-lg transition-colors">Lists</Link>
-            <Link to="/about" className="text-white hover:text-orange-500 font-normal text-lg transition-colors">About</Link>
+            <Link to="/recently-added" className="text-white hover:text-orange-500 font-normal text-base transition-colors">Recently Added</Link>
+            <Link to="/features" className="text-white hover:text-orange-500 font-normal text-base transition-colors">Features</Link>
+            <Link to="/pricing" className="text-white hover:text-orange-500 font-normal text-base transition-colors">Pricing</Link>
+            <Link to="/browse-lists" className="text-white hover:text-orange-500 font-normal text-base transition-colors">Lists</Link>
+            <Link to="/about" className="text-white hover:text-orange-500 font-normal text-base transition-colors">About</Link>
             <DropdownMenu as="div" className="relative inline-block text-left">
-              <DropdownMenu.Button className="flex items-center text-white hover:text-orange-500 font-normal text-lg transition-colors">
+              <DropdownMenu.Button className="flex items-center text-white hover:text-orange-500 font-normal text-base transition-colors">
                 Support <ChevronDown className="ml-1 w-5 h-5" />
               </DropdownMenu.Button>
               <DropdownMenu.Items className="origin-top-right absolute right-0 mt-2 w-56 rounded-md shadow-lg bg-gray-800 ring-1 ring-black ring-opacity-5 focus:outline-none z-50">
@@ -181,7 +181,7 @@ const Navigation = () => {
               </DropdownMenu.Items>
             </DropdownMenu>
             <DropdownMenu as="div" className="relative inline-block text-left">
-              <DropdownMenu.Button className="flex items-center text-white hover:text-orange-500 font-normal text-lg transition-colors">
+              <DropdownMenu.Button className="flex items-center text-white hover:text-orange-500 font-normal text-base transition-colors">
                 Directory <ChevronDown className="ml-1 w-5 h-5" />
               </DropdownMenu.Button>
               <DropdownMenu.Items className="origin-top-right absolute right-0 mt-2 w-56 rounded-md shadow-lg bg-gray-800 ring-1 ring-black ring-opacity-5 focus:outline-none z-50">
@@ -193,7 +193,7 @@ const Navigation = () => {
                 </DropdownMenu.Item>
               </DropdownMenu.Items>
             </DropdownMenu>
-            {user && <Link to="/dashboard" className="text-white hover:text-orange-500 font-normal text-lg transition-colors">Dashboard</Link>}
+            {user && <Link to="/dashboard" className="text-white hover:text-orange-500 font-normal text-base transition-colors">Dashboard</Link>}
             <a href="https://facebook.com/the-pop-guide" target="_blank" rel="noopener noreferrer" className="ml-4 text-white hover:text-orange-500 transition-colors"><Facebook className="w-5 h-5" /></a>
             <a href="https://discord.gg/J8WkTpKc" target="_blank" rel="noopener noreferrer" className="ml-2 text-white hover:text-orange-500 transition-colors" aria-label="Discord">
               <svg viewBox="0 0 24 24" fill="currentColor" className="w-5 h-5" xmlns="http://www.w3.org/2000/svg">
