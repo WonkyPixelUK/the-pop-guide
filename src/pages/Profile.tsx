@@ -1,4 +1,4 @@
-import { useParams, Link } from 'react-router-dom';
+import { useParams, Link, useLocation, useNavigate } from 'react-router-dom';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
@@ -11,11 +11,13 @@ import CollectionInsights from '@/components/CollectionInsights';
 import ActivityFeed from '@/components/ActivityFeed';
 import GamingDashboard from '@/components/GamingDashboard';
 import PremiumBadge from '@/components/PremiumBadge';
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { useCustomLists } from '@/hooks/useCustomLists';
 import Navigation from '@/components/Navigation';
 import { useAuth } from '@/hooks/useAuth';
 import MobileBottomNav from '@/components/MobileBottomNav';
+
+const SEND_EMAIL_ENDPOINT = "https://pafgjwmgueerxdxtneyg.functions.supabase.co/send-email";
 
 const Profile = () => {
   const { username } = useParams<{ username: string }>();
@@ -26,6 +28,25 @@ const Profile = () => {
   const [selectedItem, setSelectedItem] = useState(null);
   const { publicLists } = useCustomLists();
   const { user } = useAuth();
+  const location = useLocation();
+  const navigate = useNavigate();
+  const params = new URLSearchParams(location.search);
+  const checkoutSuccess = params.get('checkout') === 'success';
+
+  useEffect(() => {
+    if (checkoutSuccess && user) {
+      // Send thank you/confirmation email after successful subscription
+      fetch(SEND_EMAIL_ENDPOINT, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ type: 'pro_welcome', to: user.email, data: { fullName: user.full_name } })
+      });
+      const timeout = setTimeout(() => {
+        navigate('/dashboard');
+      }, 5000);
+      return () => clearTimeout(timeout);
+    }
+  }, [checkoutSuccess, navigate, user]);
 
   if (profileLoading || funkoLoading || collectionLoading) {
     return (
@@ -172,6 +193,16 @@ const Profile = () => {
     <>
       <div className="min-h-screen bg-gradient-to-br from-gray-900 via-gray-800 to-black">
         <Navigation />
+        {checkoutSuccess && (
+          <div className="bg-green-700/90 border border-green-500 rounded-lg px-6 py-4 text-center shadow-lg max-w-xl mx-auto mt-8 mb-6">
+            <div className="text-white text-2xl font-bold mb-2">Payment Successful!</div>
+            <div className="text-green-200 mb-2">Your Pro membership is now active. Welcome to the full PopGuide experience!</div>
+            <div className="text-gray-200 mb-4">You'll be redirected to your dashboard in a few seconds.</div>
+            <Button className="bg-orange-500 hover:bg-orange-600 text-white" onClick={() => navigate('/dashboard')}>
+              Go to Dashboard Now
+            </Button>
+          </div>
+        )}
         {/* Profile Section */}
         <section className="py-8 px-4">
           <div className="container mx-auto max-w-6xl">

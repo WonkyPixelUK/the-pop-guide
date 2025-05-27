@@ -11,6 +11,7 @@ import { supabase } from "@/integrations/supabase/client";
 import Navigation from '@/components/Navigation';
 import SEO from '@/components/SEO';
 import Footer from '@/components/Footer';
+import { Accordion, AccordionItem, AccordionTrigger, AccordionContent } from "@/components/ui/accordion";
 
 const Contact = () => {
   const [formData, setFormData] = useState({
@@ -73,18 +74,6 @@ const Contact = () => {
       title: "Live Chat",
       description: "Chat with our support team",
       contact: "Available 9 AM - 6 PM EST"
-    },
-    {
-      icon: Phone,
-      title: "Call Us",
-      description: "Speak with our team",
-      contact: "+1 (555) 123-4567"
-    },
-    {
-      icon: MapPin,
-      title: "Visit Us",
-      description: "Our headquarters",
-      contact: "San Francisco, CA"
     }
   ];
 
@@ -192,25 +181,53 @@ const Contact = () => {
         <section className="py-16 px-4 bg-gray-900/30">
           <div className="container mx-auto max-w-4xl">
             <h2 className="text-4xl font-bold text-white text-center mb-12">
-              Common Questions
+              Frequently Asked Questions
             </h2>
-            <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
-              <div>
-                <h3 className="text-lg font-semibold text-white mb-2">How do I add items to my collection?</h3>
-                <p className="text-gray-400">Simply click the "Add Item" button in your dashboard and search for your Funko Pop or add custom items.</p>
-              </div>
-              <div>
-                <h3 className="text-lg font-semibold text-white mb-2">How often are prices updated?</h3>
-                <p className="text-gray-400">Our pricing data is updated daily from multiple market sources to ensure accuracy.</p>
-              </div>
-              <div>
-                <h3 className="text-lg font-semibold text-white mb-2">Can I import my existing collection?</h3>
-                <p className="text-gray-400">Yes! We support CSV imports and can help migrate from other collection apps.</p>
-              </div>
-              <div>
-                <h3 className="text-lg font-semibold text-white mb-2">Is my data secure?</h3>
-                <p className="text-gray-400">Absolutely. We use enterprise-grade encryption and never share your personal collection data.</p>
-              </div>
+            <div className="max-w-2xl mx-auto">
+              <Accordion type="single" collapsible className="faq-accordion">
+                <AccordionItem value="faq1">
+                  <AccordionTrigger>How does the 3-day trial work?</AccordionTrigger>
+                  <AccordionContent>
+                    You get full access to all Pro features for 3 days. Cancel anytime before the trial ends to avoid being charged.
+                  </AccordionContent>
+                </AccordionItem>
+                <AccordionItem value="faq2">
+                  <AccordionTrigger>What payment methods do you accept?</AccordionTrigger>
+                  <AccordionContent>
+                    We accept all major credit/debit cards. For special billing, contact support.
+                  </AccordionContent>
+                </AccordionItem>
+                <AccordionItem value="faq3">
+                  <AccordionTrigger>Is my data secure?</AccordionTrigger>
+                  <AccordionContent>
+                    Yes. We use enterprise-grade encryption and never share your collection data.
+                  </AccordionContent>
+                </AccordionItem>
+                <AccordionItem value="faq4">
+                  <AccordionTrigger>Can I export my collection?</AccordionTrigger>
+                  <AccordionContent>
+                    Yes, you can export your collection to CSV or access it via our API.
+                  </AccordionContent>
+                </AccordionItem>
+                <AccordionItem value="faq5">
+                  <AccordionTrigger>Is there a mobile app?</AccordionTrigger>
+                  <AccordionContent>
+                    Yes! PopGuide works on web, iOS, Android, and as a PWA. Native apps are coming soon.
+                  </AccordionContent>
+                </AccordionItem>
+                <AccordionItem value="faq6">
+                  <AccordionTrigger>How do I get support?</AccordionTrigger>
+                  <AccordionContent>
+                    Use the contact form above or our live chat. We respond within 24 hours.
+                  </AccordionContent>
+                </AccordionItem>
+                <AccordionItem value="faq7">
+                  <AccordionTrigger>How do I become a retailer?</AccordionTrigger>
+                  <AccordionContent>
+                    Go to the "Become a Retailer" page, sign up, and follow the checkout process. Retailer status is granted after payment and approval.
+                  </AccordionContent>
+                </AccordionItem>
+              </Accordion>
             </div>
           </div>
         </section>

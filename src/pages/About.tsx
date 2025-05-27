@@ -127,25 +127,6 @@ const About = () => {
           </div>
         </section>
 
-        {/* Team Section */}
-        <section className="py-16 px-4">
-          <div className="container mx-auto">
-            <h2 className="text-4xl font-bold text-white text-center mb-12">Meet the Team</h2>
-            <div className="grid grid-cols-1 md:grid-cols-3 gap-8 max-w-5xl mx-auto">
-              {team.map((member, index) => (
-                <Card key={index} className="bg-gray-800/50 border-gray-700">
-                  <CardContent className="p-8 text-center">
-                    <div className="w-24 h-24 bg-gray-700 rounded-full mx-auto mb-4"></div>
-                    <h3 className="text-xl font-bold text-white mb-1">{member.name}</h3>
-                    <p className="text-orange-500 font-medium mb-3">{member.role}</p>
-                    <p className="text-gray-400">{member.bio}</p>
-                  </CardContent>
-                </Card>
-              ))}
-            </div>
-          </div>
-        </section>
-
         {/* CTA Section */}
         <section className="py-16 px-4">
           <div className="container mx-auto text-center">
@@ -162,6 +143,19 @@ const About = () => {
                   Get In Touch
                 </Button>
               </Link>
+            </div>
+          </div>
+        </section>
+
+        {/* Buy Me a Coffee Block */}
+        <section className="py-12 px-4">
+          <div className="container mx-auto max-w-2xl">
+            <div className="bg-yellow-100 border border-yellow-400 rounded-lg px-6 py-6 text-center shadow-lg mt-12 mb-8">
+              <div className="text-yellow-700 font-bold text-lg mb-2">Support PopGuide</div>
+              <div className="text-gray-800 mb-4">Your donation helps keep the lights on, supports admin and dev costs, and funds ongoing feature development.</div>
+              <a href="https://www.buymeacoffee.com/thepopguide" target="_blank" rel="noopener noreferrer">
+                <img src="https://img.buymeacoffee.com/button-api/?text=Buy me a coffee&emoji=&slug=thepopguide&button_colour=FFDD00&font_colour=000000&font_family=Bree&outline_colour=000000&coffee_colour=ffffff" alt="Buy Me a Coffee" className="mx-auto" />
+              </a>
             </div>
           </div>
         </section>

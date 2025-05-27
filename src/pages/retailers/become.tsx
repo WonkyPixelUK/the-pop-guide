@@ -4,6 +4,7 @@ import { Button } from '@/components/ui/button';
 import Navigation from '@/components/Navigation';
 import MobileBottomNav from '@/components/MobileBottomNav';
 import { useState } from 'react';
+import { supabase } from '@/lib/supabase';
 
 const PRODUCT_ID = 'prod_SNsIp44U71FGP5';
 const SUPABASE_FUNCTION_URL = "https://pafgjwmgueerxdxtneyg.functions.supabase.co/stripe-checkout-public";
@@ -22,20 +23,23 @@ const BecomeRetailer = () => {
     setError(null);
     try {
       const headers: Record<string, string> = { 'Content-Type': 'application/json' };
-      if (user && user.access_token) {
-        headers['Authorization'] = `Bearer ${user.access_token}`;
+      // Always get the JWT from the session
+      const { data } = await supabase.auth.getSession();
+      const accessToken = data.session?.access_token;
+      if (accessToken) {
+        headers['Authorization'] = `Bearer ${accessToken}`;
       }
       const res = await fetch(SUPABASE_FUNCTION_URL, {
         method: 'POST',
         headers,
         body: JSON.stringify({ email: user.email }),
       });
-      const data = await res.json();
-      if (data.url) {
+      const dataRes = await res.json();
+      if (dataRes.url) {
         setSuccess(true);
-        window.location.href = data.url;
+        window.location.href = dataRes.url;
       } else {
-        setError(data.error || 'Could not start checkout');
+        setError(dataRes.error || 'Could not start checkout');
       }
     } catch (e: any) {
       setError(e.message);
@@ -84,6 +88,12 @@ const BecomeRetailer = () => {
     );
   }
 
+  if (error) {
+    return (
+      <div className="min-h-screen flex items-center justify-center bg-gradient-to-br from-gray-900 via-gray-800 to-black text-red-500">Error: {error.message}</div>
+    );
+  }
+
   return (
     <div className="min-h-screen bg-gradient-to-br from-gray-900 via-gray-800 to-black text-white flex flex-col">
       <Navigation />
@@ -99,7 +109,6 @@ const BecomeRetailer = () => {
             <li>Unlimited product listings</li>
             <li>Whatnot show promotion</li>
           </ul>
-          {error && <div className="text-red-500 mb-4 text-center">{error}</div>}
           <Button className="w-full bg-orange-500 hover:bg-orange-600" onClick={handleCheckout} disabled={loading}>
             {loading ? 'Redirecting...' : 'Proceed to Payment ($25/year)'}
           </Button>

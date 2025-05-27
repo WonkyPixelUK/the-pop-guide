@@ -9,6 +9,7 @@ import { useToast } from '@/hooks/use-toast';
 import { useNavigate, Link, useLocation } from 'react-router-dom';
 
 const SUPABASE_FUNCTION_URL = "https://pafgjwmgueerxdxtneyg.functions.supabase.co/stripe-checkout-public";
+const SEND_EMAIL_ENDPOINT = "https://pafgjwmgueerxdxtneyg.functions.supabase.co/send-email";
 
 const Auth = () => {
   const [isSignUp, setIsSignUp] = useState(false);
@@ -76,6 +77,12 @@ const Auth = () => {
           setLoading(false);
           return;
         }
+        // Send welcome email
+        fetch(SEND_EMAIL_ENDPOINT, {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ type: 'welcome', to: email, data: { fullName: fullName } })
+        });
         // No email confirmation required, go straight to login/checkout
         navigate('/auth?checkout=1&email=' + encodeURIComponent(email));
       } else {

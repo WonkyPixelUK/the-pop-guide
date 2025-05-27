@@ -1,6 +1,6 @@
 import { Button } from "@/components/ui/button";
 import { Card, CardContent } from "@/components/ui/card";
-import { BarChart3, Users, Zap, Star, Shield, TrendingUp, Camera, Search, Bell, Smartphone } from "lucide-react";
+import { BarChart3, Users, Zap, Star, Shield, TrendingUp, Camera, Search, Bell, Smartphone, List, Monitor } from "lucide-react";
 import { Link } from "react-router-dom";
 import Navigation from '@/components/Navigation';
 import SEO from '@/components/SEO';
@@ -67,24 +67,84 @@ const Features = () => {
         {/* Features Grid */}
         <section className="py-16 px-4">
           <div className="container mx-auto">
-            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
-              {features.map((feature, index) => (
-                <Card key={index} className="bg-gray-800/50 border-gray-700 hover:bg-gray-800/70 transition-colors">
-                  <CardContent className="p-8">
-                    <feature.icon className="w-12 h-12 text-orange-500 mb-4" />
-                    <h3 className="text-xl font-bold text-white mb-3">{feature.title}</h3>
-                    <p className="text-gray-400 mb-4">{feature.description}</p>
-                    <ul className="space-y-2">
-                      {feature.benefits.map((benefit, i) => (
-                        <li key={i} className="text-sm text-gray-300 flex items-center">
-                          <Star className="w-4 h-4 text-orange-500 mr-2" />
-                          {benefit}
-                        </li>
-                      ))}
-                    </ul>
-                  </CardContent>
-                </Card>
-              ))}
+            <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
+              <Card className="bg-gray-800/50 border-gray-700">
+                <CardContent className="p-8 text-center">
+                  <BarChart3 className="w-12 h-12 text-orange-500 mx-auto mb-4" />
+                  <h3 className="text-xl font-bold text-white mb-3">Real-Time Valuations</h3>
+                  <p className="text-gray-400">Track your collection's worth with up-to-date market pricing and value trends. Get instant notifications when your items appreciate in value.</p>
+                </CardContent>
+              </Card>
+              <Card className="bg-gray-800/50 border-gray-700">
+                <CardContent className="p-8 text-center">
+                  <Zap className="w-12 h-12 text-orange-500 mx-auto mb-4" />
+                  <h3 className="text-xl font-bold text-white mb-3">Smart Organization</h3>
+                  <p className="text-gray-400">Organize by series, rarity, value, or create custom lists. Bulk operations, advanced filters, and AI-powered suggestions.</p>
+                </CardContent>
+              </Card>
+              <Card className="bg-gray-800/50 border-gray-700">
+                <CardContent className="p-8 text-center">
+                  <Users className="w-12 h-12 text-orange-500 mx-auto mb-4" />
+                  <h3 className="text-xl font-bold text-white mb-3">Community Driven</h3>
+                  <p className="text-gray-400">Connect with other collectors, share your finds, discover rare gems, and join a vibrant community. Trading, reviews, and more.</p>
+                </CardContent>
+              </Card>
+              <Card className="bg-gray-800/50 border-gray-700">
+                <CardContent className="p-8 text-center">
+                  <Star className="w-12 h-12 text-orange-500 mx-auto mb-4" />
+                  <h3 className="text-xl font-bold text-white mb-3">HD Images & Visuals</h3>
+                  <p className="text-gray-400">High-quality images, custom uploads, 360° view support, and condition tracking for every item.</p>
+                </CardContent>
+              </Card>
+              <Card className="bg-gray-800/50 border-gray-700">
+                <CardContent className="p-8 text-center">
+                  <List className="w-12 h-12 text-orange-500 mx-auto mb-4" />
+                  <h3 className="text-xl font-bold text-white mb-3">Custom Lists</h3>
+                  <p className="text-gray-400">Create, manage, and share custom lists. Wishlist, trade list, and more.</p>
+                </CardContent>
+              </Card>
+              <Card className="bg-gray-800/50 border-gray-700">
+                <CardContent className="p-8 text-center">
+                  <Search className="w-12 h-12 text-orange-500 mx-auto mb-4" />
+                  <h3 className="text-xl font-bold text-white mb-3">Advanced Search</h3>
+                  <p className="text-gray-400">Powerful search and filtering across the entire database. Find exactly what you need, fast.</p>
+                </CardContent>
+              </Card>
+              <Card className="bg-gray-800/50 border-gray-700">
+                <CardContent className="p-8 text-center">
+                  <Bell className="w-12 h-12 text-orange-500 mx-auto mb-4" />
+                  <h3 className="text-xl font-bold text-white mb-3">Price Alerts</h3>
+                  <p className="text-gray-400">Get notified when prices change or when items on your wishlist drop in value.</p>
+                </CardContent>
+              </Card>
+              <Card className="bg-gray-800/50 border-gray-700">
+                <CardContent className="p-8 text-center">
+                  <TrendingUp className="w-12 h-12 text-orange-500 mx-auto mb-4" />
+                  <h3 className="text-xl font-bold text-white mb-3">Market Analytics</h3>
+                  <p className="text-gray-400">Detailed analytics on market trends, price history, and investment potential.</p>
+                </CardContent>
+              </Card>
+              <Card className="bg-gray-800/50 border-gray-700">
+                <CardContent className="p-8 text-center">
+                  <Monitor className="w-12 h-12 text-orange-500 mx-auto mb-4" />
+                  <h3 className="text-xl font-bold text-white mb-3">Export & API Access</h3>
+                  <p className="text-gray-400">Export your collection, access data via API, and integrate with other tools.</p>
+                </CardContent>
+              </Card>
+              <Card className="bg-gray-800/50 border-gray-700">
+                <CardContent className="p-8 text-center">
+                  <Smartphone className="w-12 h-12 text-orange-500 mx-auto mb-4" />
+                  <h3 className="text-xl font-bold text-white mb-3">Mobile & Cross-Platform</h3>
+                  <p className="text-gray-400">Access your collection anywhere: web, iOS, Android, and PWA support.</p>
+                </CardContent>
+              </Card>
+              <Card className="bg-gray-800/50 border-gray-700">
+                <CardContent className="p-8 text-center">
+                  <Shield className="w-12 h-12 text-orange-500 mx-auto mb-4" />
+                  <h3 className="text-xl font-bold text-white mb-3">Privacy & Security</h3>
+                  <p className="text-gray-400">Your data is encrypted and secure. Only you can access your collection.</p>
+                </CardContent>
+              </Card>
             </div>
           </div>
         </section>

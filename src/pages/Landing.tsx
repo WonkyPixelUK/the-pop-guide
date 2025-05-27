@@ -9,6 +9,7 @@ import ItemDetailsDialog from '@/components/ItemDetailsDialog';
 import Navigation from '@/components/Navigation';
 import { Dialog, DialogContent } from '@/components/ui/dialog';
 import MobileBottomNav from '@/components/MobileBottomNav';
+import Footer from '@/components/Footer';
 
 const Landing = () => {
   const [email, setEmail] = useState('');
@@ -47,9 +48,6 @@ const Landing = () => {
                   Start Your Collection Journey
                 </Button>
               </Link>
-              <Button size="lg" variant="outline" className="border-gray-600 text-blue-900 hover:bg-gray-700 hover:text-white px-8 py-3" onClick={() => setDemoOpen(true)}>
-                Watch Demo
-              </Button>
             </div>
           </div>
         </section>
@@ -72,7 +70,7 @@ const Landing = () => {
 
         {/* Quick Signup & Pricing Summary */}
         <section className="py-8 px-4 bg-gray-900/60 border-b border-gray-800">
-          <div className="container mx-auto flex flex-col md:flex-row items-center justify-between gap-8">
+          <div className="container mx-auto flex flex-col md:flex-row items-center justify-center gap-8">
             <form onSubmit={handleSignup} className="flex flex-col md:flex-row items-center gap-4 w-full md:w-auto">
               <input
                 type="email"
@@ -87,16 +85,14 @@ const Landing = () => {
               </button>
             </form>
             {/* Only show Pro plan */}
-            <div className="flex-1 bg-orange-500/90 rounded-lg px-6 py-6 flex flex-col items-start justify-between min-w-[220px] min-h-[260px] shadow-md">
-              <div>
-                <div className="text-lg font-bold text-white mb-1">Pro</div>
-                <div className="text-white font-bold text-xl mb-1">$3.99 <span className="text-sm font-normal">/mo</span></div>
-                <div className="text-white mb-2">3-day free trial</div>
-              </div>
-              <ul className="text-white text-sm space-y-2 mt-2 w-full">
-                <li className="flex items-center gap-2"><Check className="w-4 h-4 text-white" /> Unlimited items</li>
-                <li className="flex items-center gap-2"><Check className="w-4 h-4 text-white" /> Advanced analytics</li>
-                <li className="flex items-center gap-2"><Check className="w-4 h-4 text-white" /> Export & API access</li>
+            <div className="flex-1 max-w-md bg-gray-900/90 border border-orange-500 rounded-lg px-8 py-10 flex flex-col justify-center items-start shadow-lg min-w-[220px] min-h-[260px]">
+              <div className="text-orange-500 font-bold text-lg mb-1">Pro</div>
+              <div className="text-white text-3xl font-bold mb-1">$3.99 <span className="text-base font-normal text-gray-400">/mo</span></div>
+              <div className="text-white mb-4">3-day free trial</div>
+              <ul className="text-gray-400 text-sm mb-0 list-disc list-inside text-left">
+                <li>Unlimited items</li>
+                <li>Advanced analytics</li>
+                <li>Export & API access</li>
               </ul>
             </div>
           </div>
@@ -280,48 +276,7 @@ const Landing = () => {
         </section>
 
         {/* Footer */}
-        <footer className="bg-gray-900 border-t border-gray-700 py-12 px-4">
-          <div className="container mx-auto">
-            <div className="grid grid-cols-1 md:grid-cols-4 gap-8">
-              <div>
-                <img 
-                  src="https://Maintainhq-pull-zone.b-cdn.net/02_the_pop_guide/pop-guide-logo-trans-white.svg" 
-                  alt="PopGuide Logo" 
-                  className="h-16 w-auto mb-4"
-                />
-                <p className="text-gray-400">
-                  The ultimate platform for Funko Pop collectors to track, value, and showcase their collections.
-                </p>
-              </div>
-              <div>
-                <h4 className="text-white font-semibold mb-4">Product</h4>
-                <ul className="space-y-2 text-gray-400">
-                  <li><Link to="/features" className="hover:text-orange-500 transition-colors">Features</Link></li>
-                  <li><Link to="/pricing" className="hover:text-orange-500 transition-colors">Pricing</Link></li>
-                  <li><a href="#" className="hover:text-orange-500 transition-colors">API</a></li>
-                </ul>
-              </div>
-              <div>
-                <h4 className="text-white font-semibold mb-4">Support</h4>
-                <ul className="space-y-2 text-gray-400">
-                  <li><a href="#" className="hover:text-orange-500 transition-colors">Help Center</a></li>
-                  <li><Link to="/contact" className="hover:text-orange-500 transition-colors">Contact Us</Link></li>
-                  <li><a href="#" className="hover:text-orange-500 transition-colors">Community</a></li>
-                </ul>
-              </div>
-              <div>
-                <h4 className="text-white font-semibold mb-4">Company</h4>
-                <ul className="space-y-2 text-gray-400">
-                  <li><Link to="/about" className="hover:text-orange-500 transition-colors">About</Link></li>
-                  <li><a href="#" className="hover:text-orange-500 transition-colors">Blog</a></li>
-                </ul>
-              </div>
-            </div>
-            <div className="border-t border-gray-700 mt-8 pt-8 text-center text-gray-400">
-              <p>&copy; 2024 PopGuide. All rights reserved.</p>
-            </div>
-          </div>
-        </footer>
+        <Footer />
 
         {selectedPop && (
           <ItemDetailsDialog

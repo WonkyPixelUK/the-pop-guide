@@ -8,6 +8,7 @@ import { useAuth } from '@/hooks/useAuth';
 import { useToast } from '@/hooks/use-toast';
 import { useState } from 'react';
 import MobileBottomNav from '@/components/MobileBottomNav';
+import Footer from '@/components/Footer';
 
 const SUPABASE_FUNCTION_URL = "https://pafgjwmgueerxdxtneyg.functions.supabase.co/stripe-checkout-public";
 
@@ -31,7 +32,25 @@ const Pricing = () => {
         "API access"
       ],
       cta: "Start 3-Day Pro Trial",
-      popular: true
+      popular: true,
+      link: "/auth?plan=pro"
+    },
+    {
+      name: "Retailer",
+      price: "$25",
+      period: "per year",
+      description: "For shops and sellers",
+      features: [
+        "Directory listing",
+        "Retailer badge",
+        "Analytics dashboard",
+        "Deal alerts",
+        "Unlimited product listings",
+        "Whatnot show promotion"
+      ],
+      cta: "Become a Retailer",
+      popular: false,
+      link: "/retailers/become"
     }
   ];
 
@@ -83,28 +102,23 @@ const Pricing = () => {
       {/* Pricing Cards */}
       <section className="py-16 px-4">
         <div className="container mx-auto">
-          <div className="grid grid-cols-1 md:grid-cols-1 gap-8 max-w-2xl mx-auto mb-16">
-            {plans.map((plan, index) => (
-              <Card key={index} className={`bg-gray-800/50 border-gray-700 relative ring-2 ring-orange-500`}>
-                <CardContent className="p-8 flex flex-col items-center">
-                  <div className="text-2xl font-bold text-white mb-2">{plan.name}</div>
-                  <div className="text-white font-bold text-3xl mb-1">{plan.price} <span className="text-lg font-normal">/mo</span></div>
-                  <div className="text-white mb-4">3-day free trial</div>
-                  <ul className="text-white text-base space-y-2 mb-6 w-full">
-                    {plan.features.map((feature, i) => (
-                      <li key={i} className="flex items-center gap-2"><Check className="w-5 h-5 text-white" /> {feature}</li>
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-8 max-w-3xl mx-auto mb-16">
+            {plans.map((plan) => (
+              <div key={plan.name} className="bg-gray-900/90 border border-orange-500 rounded-lg px-8 py-10 text-center shadow-lg flex flex-col justify-between">
+                <div>
+                  <div className="text-orange-500 font-bold text-lg mb-1">{plan.name}</div>
+                  <div className="text-white text-3xl font-bold mb-1">{plan.price} <span className="text-base font-normal text-gray-400">{plan.period}</span></div>
+                  <div className="text-gray-300 mb-4">{plan.description}</div>
+                  <ul className="text-gray-400 text-sm mb-6 list-disc list-inside text-left mx-auto max-w-xs">
+                    {plan.features.map((feature) => (
+                      <li key={feature}>{feature}</li>
                     ))}
                   </ul>
-                  <Link to="/auth">
-                    <Button
-                      className="w-full bg-[#e46c1b] hover:bg-orange-600 text-white rounded-lg text-lg font-semibold py-3 transition-colors"
-                      disabled={loading}
-                    >
-                      {loading ? 'Redirecting...' : plan.cta}
-                    </Button>
-                  </Link>
-                </CardContent>
-              </Card>
+                </div>
+                <a href={plan.link}>
+                  <Button className="w-full bg-orange-500 hover:bg-orange-600 text-white text-lg mt-4">{plan.cta}</Button>
+                </a>
+              </div>
             ))}
           </div>
         </div>
@@ -153,49 +167,7 @@ const Pricing = () => {
         </div>
       </section>
 
-      {/* Footer */}
-      <footer className="bg-gray-900 border-t border-gray-700 py-12 px-4">
-        <div className="container mx-auto">
-          <div className="grid grid-cols-1 md:grid-cols-4 gap-8">
-            <div>
-              <div className="text-2xl font-bold mb-4">
-                <span className="text-orange-500">Pop</span>
-                <span className="text-white">Guide</span>
-              </div>
-              <p className="text-gray-400">
-                The ultimate platform for Funko Pop collectors.
-              </p>
-            </div>
-            <div>
-              <h4 className="text-white font-semibold mb-4">Product</h4>
-              <ul className="space-y-2 text-gray-400">
-                <li><Link to="/features" className="hover:text-orange-500">Features</Link></li>
-                <li><Link to="/pricing" className="hover:text-orange-500">Pricing</Link></li>
-                <li><Link to="/api" className="hover:text-orange-500">API</Link></li>
-              </ul>
-            </div>
-            <div>
-              <h4 className="text-white font-semibold mb-4">Support</h4>
-              <ul className="space-y-2 text-gray-400">
-                <li><Link to="/help" className="hover:text-orange-500">Help Center</Link></li>
-                <li><Link to="/contact" className="hover:text-orange-500">Contact Us</Link></li>
-                <li><Link to="/blog" className="hover:text-orange-500">Blog</Link></li>
-              </ul>
-            </div>
-            <div>
-              <h4 className="text-white font-semibold mb-4">Company</h4>
-              <ul className="space-y-2 text-gray-400">
-                <li><Link to="/about" className="hover:text-orange-500">About</Link></li>
-                <li><Link to="/privacy" className="hover:text-orange-500">Privacy</Link></li>
-                <li><Link to="/terms" className="hover:text-orange-500">Terms</Link></li>
-              </ul>
-            </div>
-          </div>
-          <div className="border-t border-gray-700 mt-8 pt-8 text-center text-gray-400">
-            <p>&copy; 2024 PopGuide. All rights reserved.</p>
-          </div>
-        </div>
-      </footer>
+      <Footer />
       <MobileBottomNav />
     </div>
   );

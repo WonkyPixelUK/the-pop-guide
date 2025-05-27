@@ -23,13 +23,6 @@ const Footer = () => {
   return (
     <footer className="bg-gray-900 border-t border-gray-700 py-12 px-4 mt-12">
       <div className="container mx-auto">
-        {/* System Status Row */}
-        <div className="flex flex-col items-center mb-8">
-          <div className="flex items-center gap-3">
-            <span className="h-3 w-3 rounded-full bg-blue-600 dark:bg-blue-400 inline-block"></span>
-            <span className="text-blue-600 dark:text-blue-400 font-medium">All systems normal</span>
-          </div>
-        </div>
         <div className="grid grid-cols-1 md:grid-cols-4 gap-8">
           <div>
             <img 
@@ -72,6 +65,12 @@ const Footer = () => {
           <div className="mt-4 flex justify-center">
             <img src="https://api.checklyhq.com/v1/badges/checks/e94c9b1a-d3da-4b89-b8d8-2606014dad8d?style=for-the-badge&theme=light" alt="Uptime monitored by Checkly" />
           </div>
+        </div>
+        <div className="flex flex-col items-center gap-2 mt-6">
+          <span className="text-xs text-gray-400">Support PopGuide:</span>
+          <a href="https://www.buymeacoffee.com/thepopguide" target="_blank" rel="noopener noreferrer">
+            <img src="https://img.buymeacoffee.com/button-api/?text=Buy me a coffee&emoji=&slug=thepopguide&button_colour=FFDD00&font_colour=000000&font_family=Bree&outline_colour=000000&coffee_colour=ffffff" alt="Buy Me a Coffee" className="h-8" />
+          </a>
         </div>
       </div>
     </footer>

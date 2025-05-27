@@ -7,65 +7,57 @@ const SUPABASE_FUNCTION_URL = "https://pafgjwmgueerxdxtneyg.functions.supabase.c
 
 const Paywall = () => {
   const { user } = useAuth();
-  const [subStatus, setSubStatus] = useState<string | null>(null);
-  const [customerId, setCustomerId] = useState<string | null>(null);
   const [loading, setLoading] = useState(false);
+  const [show, setShow] = useState(false);
 
   useEffect(() => {
-    if (user) {
-      supabase
-        .from('users')
-        .select('subscription_status, stripe_customer_id')
-        .eq('id', user.id)
-        .single()
-        .then(({ data }) => {
-          setSubStatus(data?.subscription_status || 'free');
-          setCustomerId(data?.stripe_customer_id || null);
-        });
-    }
-  }, [user]);
+    // Show the paywall with a swoosh effect after mount
+    setTimeout(() => setShow(true), 100);
+  }, []);
 
   const handleUpgrade = async () => {
     setLoading(true);
     try {
       const headers: Record<string, string> = { 'Content-Type': 'application/json' };
-      console.log('user', user);
       const { data } = await supabase.auth.getSession();
       const accessToken = data.session?.access_token;
-      console.log('access_token', accessToken);
       if (accessToken) {
         headers['Authorization'] = `Bearer ${accessToken}`;
       }
-      console.log('headers', headers);
       const res = await fetch(SUPABASE_FUNCTION_URL, {
         method: 'POST',
         headers,
         body: JSON.stringify({ email: user.email }),
       });
       const dataRes = await res.json();
-      console.log('stripe checkout response', dataRes);
       if (dataRes.url) {
         window.location.href = dataRes.url;
       } else {
         alert(dataRes.error || 'Could not start checkout');
       }
+    } catch (e) {
+      alert('Could not start checkout');
     } finally {
       setLoading(false);
     }
   };
 
-  if (!user) return null;
-  if (subStatus === 'active') return null;
-
+  // Swoosh panel overlay
   return (
-    <div className="min-h-[60vh] flex flex-col items-center justify-center text-center bg-gradient-to-br from-gray-900 via-gray-800 to-black rounded-lg p-8 border border-gray-700">
-      <h2 className="text-3xl font-bold text-orange-500 mb-4">Upgrade to Pro</h2>
-      <p className="text-gray-300 mb-6 max-w-md">
-        Unlock unlimited items, advanced analytics, price history tracking, and more. Start your 3-day free trial and take your collection to the next level!
-      </p>
-      <Button className="bg-orange-500 hover:bg-orange-600 text-white text-lg px-8 py-3" onClick={handleUpgrade} disabled={loading}>
-        {loading ? 'Redirecting...' : 'Upgrade to Pro'}
-      </Button>
+    <div
+      className={`fixed inset-0 z-50 flex items-center justify-end bg-black/40 transition-opacity duration-300 ${show ? 'opacity-100' : 'opacity-0 pointer-events-none'}`}
+      style={{ backdropFilter: 'blur(2px)' }}
+    >
+      <div
+        className={`w-full max-w-md bg-gray-900 border-l-4 border-orange-500 shadow-2xl h-full flex flex-col justify-center px-8 py-12 transition-transform duration-500 ${show ? 'translate-x-0' : 'translate-x-full'}`}
+      >
+        <div className="mb-6 text-orange-500 font-bold text-lg">Pro Membership Required</div>
+        <div className="text-white text-2xl font-bold mb-2">Add your card details now to start your 3-day trial</div>
+        <div className="text-gray-300 mb-4">Unlock unlimited items, analytics, price history, and more. Cancel anytime during your trial and you won't be charged.</div>
+        <Button className="bg-orange-500 hover:bg-orange-600 text-white text-lg mt-4" onClick={handleUpgrade} disabled={loading}>
+          {loading ? 'Redirecting…' : 'Start 3-Day Trial'}
+        </Button>
+      </div>
     </div>
   );
 };

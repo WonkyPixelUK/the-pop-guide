@@ -157,12 +157,44 @@ const Navigation = () => {
           </div>
           <nav className="flex items-center space-x-10">
             <Link to="/recently-added" className="text-white hover:text-orange-500 font-medium text-base transition-colors">Recently Added</Link>
-            <Link to="/directory" className="text-white hover:text-orange-500 font-medium text-base transition-colors">Directory</Link>
-            <Link to="/retailer-signup" className="text-white hover:text-orange-500 font-medium text-base transition-colors">Become a Retailer</Link>
+            <DropdownMenu as="div" className="relative inline-block text-left">
+              <DropdownMenu.Button className="text-white hover:text-orange-500 font-medium text-base transition-colors focus:outline-none flex items-center gap-1">
+                Directory
+                <svg className="w-4 h-4 ml-1" fill="none" stroke="currentColor" strokeWidth="2" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" d="M19 9l-7 7-7-7" /></svg>
+              </DropdownMenu.Button>
+              <DropdownMenu.Items className="absolute left-0 mt-2 min-w-[160px] origin-top-left bg-white border border-gray-200 rounded-md shadow-lg focus:outline-none z-50">
+                <MenuItem>
+                  {({ active }) => (
+                    <Link to="/directory" className={`block px-4 py-2 text-sm ${active ? 'bg-orange-50 text-[#e46c1b]' : 'text-gray-900'}`}>Directory</Link>
+                  )}
+                </MenuItem>
+                <MenuItem>
+                  {({ active }) => (
+                    <Link to="/retailers/become" className={`block px-4 py-2 text-sm ${active ? 'bg-orange-50 text-[#e46c1b]' : 'text-gray-900'}`}>Become a Retailer</Link>
+                  )}
+                </MenuItem>
+              </DropdownMenu.Items>
+            </DropdownMenu>
             <Link to="/features" className="text-white hover:text-orange-500 font-medium text-base transition-colors">Features</Link>
-            <a href="https://statuslist.app/status/z8kbza" className="text-white hover:text-orange-500 font-medium text-base transition-colors" target="_blank" rel="noopener noreferrer">Service Status</a>
+            <DropdownMenu as="div" className="relative inline-block text-left">
+              <DropdownMenu.Button className="text-white hover:text-orange-500 font-medium text-base transition-colors focus:outline-none flex items-center gap-1">
+                Support
+                <svg className="w-4 h-4 ml-1" fill="none" stroke="currentColor" strokeWidth="2" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" d="M19 9l-7 7-7-7" /></svg>
+              </DropdownMenu.Button>
+              <DropdownMenu.Items className="absolute left-0 mt-2 min-w-[160px] origin-top-left bg-white border border-gray-200 rounded-md shadow-lg focus:outline-none z-50">
+                <MenuItem>
+                  {({ active }) => (
+                    <a href="https://support.popguide.co.uk" target="_blank" rel="noopener noreferrer" className={`block px-4 py-2 text-sm ${active ? 'bg-orange-50 text-[#e46c1b]' : 'text-gray-900'}`}>Support</a>
+                  )}
+                </MenuItem>
+                <MenuItem>
+                  {({ active }) => (
+                    <a href="https://statuslist.app/status/z8kbza" target="_blank" rel="noopener noreferrer" className={`block px-4 py-2 text-sm ${active ? 'bg-orange-50 text-[#e46c1b]' : 'text-gray-900'}`}>Service Status</a>
+                  )}
+                </MenuItem>
+              </DropdownMenu.Items>
+            </DropdownMenu>
             <Link to="/pricing" className="text-white hover:text-orange-500 font-medium text-base transition-colors">Pricing</Link>
-            <a href="https://support.popguide.co.uk" className="text-white hover:text-orange-500 font-medium text-base transition-colors" target="_blank" rel="noopener noreferrer">Support</a>
             {user && (
               <Link to="/dashboard" className="text-white hover:text-orange-500 font-medium text-base transition-colors">Dashboard</Link>
             )}
