@@ -99,31 +99,28 @@ const Pricing = () => {
         </div>
       </section>
 
-      {/* New Pricing Signup Section */}
-      <section className="py-12 px-4">
-        <div className="container mx-auto flex flex-col items-center max-w-md">
-          <h2 className="text-3xl font-bold text-white mb-8 text-center">Start your free trial</h2>
-          <div className="w-full bg-gray-900/90 border border-orange-500 rounded-lg px-8 py-10 text-center shadow-lg flex flex-col justify-between mb-6">
-            <div>
-              <div className="text-orange-500 font-bold text-lg mb-1">Pro</div>
-              <div className="text-white text-3xl font-bold mb-1">$3.99 <span className="text-base font-normal text-gray-400">/mo</span></div>
-              <div className="text-gray-300 mb-4">3-day free trial</div>
-              <ul className="text-gray-400 text-sm mb-6 list-disc list-inside text-left mx-auto max-w-xs">
-                <li>Unlimited items</li>
-                <li>Advanced analytics</li>
-                <li>Export & API access</li>
-              </ul>
-            </div>
+      {/* Pricing Cards */}
+      <section className="py-16 px-4">
+        <div className="container mx-auto">
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-8 max-w-3xl mx-auto mb-16">
+            {plans.map((plan) => (
+              <div key={plan.name} className="bg-gray-900/90 border border-orange-500 rounded-lg px-8 py-10 text-center shadow-lg flex flex-col justify-between">
+                <div>
+                  <div className="text-orange-500 font-bold text-lg mb-1">{plan.name}</div>
+                  <div className="text-white text-3xl font-bold mb-1">{plan.price} <span className="text-base font-normal text-gray-400">{plan.period}</span></div>
+                  <div className="text-gray-300 mb-4">{plan.description}</div>
+                  <ul className="text-gray-400 text-sm mb-6 list-disc list-inside text-left mx-auto max-w-xs">
+                    {plan.features.map((feature) => (
+                      <li key={feature}>{feature}</li>
+                    ))}
+                  </ul>
+                </div>
+                <a href={plan.link}>
+                  <Button className="w-full bg-orange-500 hover:bg-orange-600 text-white text-lg mt-4">{plan.cta}</Button>
+                </a>
+              </div>
+            ))}
           </div>
-          <form className="w-full flex flex-col gap-4 items-center">
-            <input
-              type="email"
-              placeholder="Enter your email to get started"
-              className="w-full px-4 py-3 rounded bg-gray-800 border border-gray-700 text-white focus:outline-none focus:border-orange-500"
-              required
-            />
-            <Button className="w-full bg-orange-500 hover:bg-orange-600 text-white text-lg">Get Started (3-day free trial)</Button>
-          </form>
         </div>
       </section>
 
