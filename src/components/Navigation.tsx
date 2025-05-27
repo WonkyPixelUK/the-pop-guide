@@ -1,6 +1,6 @@
 import { Link, useLocation } from 'react-router-dom';
 import { Button } from '@/components/ui/button';
-import { Activity, LogIn, LogOut, Plus, Search, Menu, Home, List, DollarSign, Star, Server, Sun, Moon, Monitor, ChevronDown } from 'lucide-react';
+import { Activity, LogIn, LogOut, Plus, Search, Menu, Home, List, DollarSign, Star, Server, Sun, Moon, Monitor, ChevronDown, Facebook, Discord } from 'lucide-react';
 import { useAuth } from '@/hooks/useAuth';
 import { useToast } from '@/hooks/use-toast';
 import { useState, useEffect } from 'react';
@@ -194,6 +194,8 @@ const Navigation = () => {
               </DropdownMenu.Items>
             </DropdownMenu>
             {user && <Link to="/dashboard" className="text-white hover:text-orange-500 font-normal text-lg transition-colors">Dashboard</Link>}
+            <a href="https://facebook.com/the-pop-guide" target="_blank" rel="noopener noreferrer" className="ml-4 text-white hover:text-orange-500 transition-colors"><Facebook className="w-5 h-5" /></a>
+            <a href="https://discord.gg/J8WkTpKc" target="_blank" rel="noopener noreferrer" className="ml-2 text-white hover:text-orange-500 transition-colors"><Discord className="w-5 h-5" /></a>
           </nav>
         </div>
       </header>

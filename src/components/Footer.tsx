@@ -1,6 +1,6 @@
 import { useState, useEffect } from 'react';
 import { Link } from 'react-router-dom';
-import { Sun, Moon, Monitor } from 'lucide-react';
+import { Sun, Moon, Monitor, Facebook, Discord } from 'lucide-react';
 
 const getInitialTheme = () => {
   if (typeof window === 'undefined') return 'system';
@@ -79,6 +79,10 @@ const Footer = () => {
           <Link to="/legal" className="hover:text-orange-500">Terms</Link>
           <span>|</span>
           <Link to="/cookie-policy" className="hover:text-orange-500">Cookie Policy</Link>
+        </div>
+        <div className="flex justify-center gap-6 mt-6">
+          <a href="https://facebook.com/the-pop-guide" target="_blank" rel="noopener noreferrer" className="text-gray-400 hover:text-orange-500 transition-colors"><Facebook className="w-5 h-5" /></a>
+          <a href="https://discord.gg/J8WkTpKc" target="_blank" rel="noopener noreferrer" className="text-gray-400 hover:text-orange-500 transition-colors"><Discord className="w-5 h-5" /></a>
         </div>
       </div>
     </footer>
