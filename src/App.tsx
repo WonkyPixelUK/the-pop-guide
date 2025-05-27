@@ -29,6 +29,10 @@ import DirectoryAll from "./pages/DirectoryAll";
 import RecentlyAdded from "./pages/RecentlyAdded";
 import RetailerProfile from "./pages/retailers/[slug]";
 import GetStarted from "./pages/get-started";
+import SystemStatus from './pages/SystemStatus';
+import HowItWorks from './pages/HowItWorks';
+import Faq from './pages/Faq';
+import LogTicket from './pages/LogTicket';
 
 const queryClient = new QueryClient();
 
@@ -64,6 +68,13 @@ const App = () => (
             <Route path="/recently-added" element={<RecentlyAdded />} />
             <Route path="/retailers/:slug" element={<RetailerProfile />} />
             <Route path="/get-started" element={<GetStarted />} />
+            <Route path="/howitworks" element={<HowItWorks />} />
+            <Route path="/faq" element={<Faq />} />
+            <Route path="/log-ticket" element={<LogTicket />} />
+            <Route path="/privacy" element={<NotFound />} />
+            <Route path="/legal" element={<NotFound />} />
+            <Route path="/cookie-policy" element={<NotFound />} />
+            <Route path="/system-status" element={<SystemStatus />} />
             {/* ADD ALL CUSTOM ROUTES ABOVE THE CATCH-ALL "*" ROUTE */}
             <Route path="*" element={<NotFound />} />
           </Routes>

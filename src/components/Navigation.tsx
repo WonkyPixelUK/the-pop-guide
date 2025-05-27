@@ -1,6 +1,6 @@
 import { Link, useLocation } from 'react-router-dom';
 import { Button } from '@/components/ui/button';
-import { Activity, LogIn, LogOut, Plus, Search, Menu, Home, List, DollarSign, Star, Server, Sun, Moon, Monitor } from 'lucide-react';
+import { Activity, LogIn, LogOut, Plus, Search, Menu, Home, List, DollarSign, Star, Server, Sun, Moon, Monitor, ChevronDown } from 'lucide-react';
 import { useAuth } from '@/hooks/useAuth';
 import { useToast } from '@/hooks/use-toast';
 import { useState, useEffect } from 'react';
@@ -156,53 +156,44 @@ const Navigation = () => {
             </Link>
           </div>
           <nav className="flex items-center space-x-10">
-            <Link to="/recently-added" className="text-white hover:text-orange-500 font-medium text-base transition-colors">Recently Added</Link>
-            <Link to="/features" className="text-white hover:text-orange-500 font-medium text-base transition-colors">Features</Link>
-            <Link to="/pricing" className="text-white hover:text-orange-500 font-medium text-base transition-colors">Pricing</Link>
+            <Link to="/recently-added" className="text-white hover:text-orange-500 font-normal text-lg transition-colors">Recently Added</Link>
+            <Link to="/features" className="text-white hover:text-orange-500 font-normal text-lg transition-colors">Features</Link>
+            <Link to="/pricing" className="text-white hover:text-orange-500 font-normal text-lg transition-colors">Pricing</Link>
+            <Link to="/browse-lists" className="text-white hover:text-orange-500 font-normal text-lg transition-colors">Lists</Link>
+            <Link to="/about" className="text-white hover:text-orange-500 font-normal text-lg transition-colors">About</Link>
             <DropdownMenu as="div" className="relative inline-block text-left">
-              <DropdownMenu.Button className="text-white hover:text-orange-500 font-medium text-base transition-colors focus:outline-none flex items-center gap-1">
-                Support
-                <svg className="w-4 h-4 ml-1" fill="none" stroke="currentColor" strokeWidth="2" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" d="M19 9l-7 7-7-7" /></svg>
+              <DropdownMenu.Button className="flex items-center text-white hover:text-orange-500 font-normal text-lg transition-colors">
+                Support <ChevronDown className="ml-1 w-5 h-5" />
               </DropdownMenu.Button>
-              <DropdownMenu.Items className="absolute left-0 mt-2 min-w-[160px] origin-top-left bg-white border border-gray-200 rounded-md shadow-lg focus:outline-none z-50">
-                <MenuItem>
-                  {({ active }) => (
-                    <a href="https://support.popguide.co.uk" target="_blank" rel="noopener noreferrer" className={`block px-4 py-2 text-sm ${active ? 'bg-orange-50 text-[#e46c1b]' : 'text-gray-900'}`}>Support</a>
-                  )}
-                </MenuItem>
-                <MenuItem>
-                  {({ active }) => (
-                    <a href="https://statuslist.app/status/z8kbza" target="_blank" rel="noopener noreferrer" className={`block px-4 py-2 text-sm ${active ? 'bg-orange-50 text-[#e46c1b]' : 'text-gray-900'}`}>Service Status</a>
-                  )}
-                </MenuItem>
-                <MenuItem>
-                  {({ active }) => (
-                    <Link to="/support/log-ticket" className={`block px-4 py-2 text-sm ${active ? 'bg-orange-50 text-[#e46c1b]' : 'text-gray-900'}`}>Log Support Ticket</Link>
-                  )}
-                </MenuItem>
+              <DropdownMenu.Items className="origin-top-right absolute right-0 mt-2 w-56 rounded-md shadow-lg bg-gray-800 ring-1 ring-black ring-opacity-5 focus:outline-none z-50">
+                <DropdownMenu.Item>
+                  <Link to="/system-status" className="block px-4 py-2 text-sm text-white hover:bg-gray-700">Service Status</Link>
+                </DropdownMenu.Item>
+                <DropdownMenu.Item>
+                  <Link to="/faq" className="block px-4 py-2 text-sm text-white hover:bg-gray-700">FAQ</Link>
+                </DropdownMenu.Item>
+                <DropdownMenu.Item>
+                  <Link to="/log-ticket" className="block px-4 py-2 text-sm text-white hover:bg-gray-700">Log a ticket</Link>
+                </DropdownMenu.Item>
+                <DropdownMenu.Item>
+                  <Link to="/howitworks" className="block px-4 py-2 text-sm text-white hover:bg-gray-700">How it works</Link>
+                </DropdownMenu.Item>
               </DropdownMenu.Items>
             </DropdownMenu>
             <DropdownMenu as="div" className="relative inline-block text-left">
-              <DropdownMenu.Button className="text-white hover:text-orange-500 font-medium text-base transition-colors focus:outline-none flex items-center gap-1">
-                About Us
-                <svg className="w-4 h-4 ml-1" fill="none" stroke="currentColor" strokeWidth="2" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" d="M19 9l-7 7-7-7" /></svg>
+              <DropdownMenu.Button className="flex items-center text-white hover:text-orange-500 font-normal text-lg transition-colors">
+                Directory <ChevronDown className="ml-1 w-5 h-5" />
               </DropdownMenu.Button>
-              <DropdownMenu.Items className="absolute left-0 mt-2 min-w-[160px] origin-top-left bg-white border border-gray-200 rounded-md shadow-lg focus:outline-none z-50">
-                <MenuItem>
-                  {({ active }) => (
-                    <Link to="/about" className={`block px-4 py-2 text-sm ${active ? 'bg-orange-50 text-[#e46c1b]' : 'text-gray-900'}`}>About Us</Link>
-                  )}
-                </MenuItem>
-                <MenuItem>
-                  {({ active }) => (
-                    <Link to="/howitworks" className={`block px-4 py-2 text-sm ${active ? 'bg-orange-50 text-[#e46c1b]' : 'text-gray-900'}`}>How It Works</Link>
-                  )}
-                </MenuItem>
+              <DropdownMenu.Items className="origin-top-right absolute right-0 mt-2 w-56 rounded-md shadow-lg bg-gray-800 ring-1 ring-black ring-opacity-5 focus:outline-none z-50">
+                <DropdownMenu.Item>
+                  <Link to="/directory" className="block px-4 py-2 text-sm text-white hover:bg-gray-700">Browse Directory</Link>
+                </DropdownMenu.Item>
+                <DropdownMenu.Item>
+                  <Link to="/retailers/become" className="block px-4 py-2 text-sm text-white hover:bg-gray-700">Add your business</Link>
+                </DropdownMenu.Item>
               </DropdownMenu.Items>
             </DropdownMenu>
-            {user && (
-              <Link to="/dashboard" className="text-white hover:text-orange-500 font-medium text-base transition-colors">Dashboard</Link>
-            )}
+            {user && <Link to="/dashboard" className="text-white hover:text-orange-500 font-normal text-lg transition-colors">Dashboard</Link>}
           </nav>
         </div>
       </header>

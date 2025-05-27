@@ -21,7 +21,7 @@ const Footer = () => {
   }, [theme]);
 
   return (
-    <footer className="bg-gray-900 border-t border-gray-700 py-12 px-4 mt-12">
+    <footer className="bg-gray-900 border-t border-gray-700 py-12 px-4">
       <div className="container mx-auto">
         <div className="grid grid-cols-1 md:grid-cols-4 gap-8">
           <div>
@@ -55,7 +55,8 @@ const Footer = () => {
             <ul className="space-y-2 text-gray-400">
               <li><Link to="/about" className="hover:text-orange-500 transition-colors">About</Link></li>
               <li><Link to="/privacy" className="hover:text-orange-500 transition-colors">Privacy</Link></li>
-              <li><Link to="/terms" className="hover:text-orange-500 transition-colors">Terms</Link></li>
+              <li><Link to="/legal" className="hover:text-orange-500 transition-colors">Legal</Link></li>
+              <li><Link to="/cookie-policy" className="hover:text-orange-500 transition-colors">Cookie Policy</Link></li>
               <li><Link to="/blog" className="hover:text-orange-500 transition-colors">Blog</Link></li>
             </ul>
           </div>
@@ -71,6 +72,13 @@ const Footer = () => {
           <a href="https://www.buymeacoffee.com/thepopguide" target="_blank" rel="noopener noreferrer">
             <img src="https://img.buymeacoffee.com/button-api/?text=Buy me a coffee&emoji=&slug=thepopguide&button_colour=FFDD00&font_colour=000000&font_family=Bree&outline_colour=000000&coffee_colour=ffffff" alt="Buy Me a Coffee" className="h-8" />
           </a>
+        </div>
+        <div className="flex flex-wrap justify-center gap-4 mt-4 text-sm text-gray-400">
+          <Link to="/privacy" className="hover:text-orange-500">Privacy</Link>
+          <span>|</span>
+          <Link to="/legal" className="hover:text-orange-500">Terms</Link>
+          <span>|</span>
+          <Link to="/cookie-policy" className="hover:text-orange-500">Cookie Policy</Link>
         </div>
       </div>
     </footer>
