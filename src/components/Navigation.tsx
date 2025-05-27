@@ -144,7 +144,7 @@ const Navigation = () => {
         </div>
       </div>
       {/* Sticky Main Navigation Bar */}
-      <header className="sticky top-[28px] z-40 bg-[#232837] border-b border-gray-800" style={{ boxShadow: '0 2px 12px 0 rgba(35,40,55,0.18)' }}>
+      <header className="sticky top-[28px] z-40 bg-[#232837] border-b border-gray-800 hidden md:block" style={{ boxShadow: '0 2px 12px 0 rgba(35,40,55,0.18)' }}>
         <div className="max-w-screen-xl mx-auto px-4 py-2 flex items-center justify-between">
           <div className="flex items-center space-x-3 flex-shrink-0">
             <Link to="/">
