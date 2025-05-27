@@ -1,0 +1,26 @@
+[
+  {
+    "popNumber": "01",
+    "series": "Star Wars",
+    "title": "Darth Vader",
+    "image": "https://example.com/darth-vader.jpg",
+    "description": "The iconic Sith Lord from Star Wars.",
+    "price": "19.99"
+  },
+  {
+    "popNumber": "02",
+    "series": "Marvel",
+    "title": "Spider-Man",
+    "image": "https://example.com/spider-man.jpg",
+    "description": "The friendly neighborhood Spider-Man.",
+    "price": "14.99"
+  },
+  {
+    "popNumber": "03",
+    "series": "Disney",
+    "title": "Mickey Mouse",
+    "image": "https://example.com/mickey-mouse.jpg",
+    "description": "The classic Disney character.",
+    "price": "12.50"
+  }
+] 
