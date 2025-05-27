@@ -4,7 +4,7 @@
 
 const fs = require('fs');
 const path = require('path');
-const { supabase } = require('../src/integrations/supabase/client.cjs.js');
+const { supabase } = require('../src/integrations/supabase/client.cjs');
 
 async function importFunkoPops(jsonPath) {
   const data = JSON.parse(fs.readFileSync(jsonPath, 'utf8'));
