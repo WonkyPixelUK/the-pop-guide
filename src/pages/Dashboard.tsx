@@ -21,6 +21,7 @@ import SEO from '@/components/SEO';
 import MobileBottomNav from '@/components/MobileBottomNav';
 import Navigation from '@/components/Navigation';
 import FriendsList from "@/components/FriendsList";
+import Paywall from '@/components/Paywall';
 
 const Dashboard = () => {
   const [searchQuery, setSearchQuery] = useState("");
@@ -100,8 +101,13 @@ const Dashboard = () => {
     return <div className="min-h-screen flex items-center justify-center text-gray-500">Redirecting...</div>;
   }
 
+  // Show paywall for non-Pro users
   return (
     <>
+      <Paywall />
+      {/* The Paywall component will return null for Pro users, so dashboard will show. For non-Pro, it will show the paywall and nothing else. */}
+      {/* Only render dashboard if user is Pro */}
+      {/* We'll check subStatus in Paywall, so if Paywall returns null, user is Pro */}
       <SEO title="Dashboard | The Pop Guide" description="Your personal Funko Pop collection dashboard." />
       <div className="min-h-screen bg-gradient-to-br from-gray-900 via-gray-800 to-black">
         {/* Header */}

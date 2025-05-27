@@ -3,13 +3,16 @@ import { Link } from 'react-router-dom';
 
 const GetStarted = () => (
   <div className="min-h-screen flex flex-col items-center justify-center bg-gradient-to-br from-gray-900 via-gray-800 to-black text-white">
-    <h1 className="text-3xl font-bold mb-8">Choose your plan to get started</h1>
+    <h1 className="text-3xl font-bold mb-8">Get started with your 3-day free trial</h1>
+    <div className="bg-gray-900/90 border border-orange-500 rounded-lg px-6 py-4 text-center shadow-lg mb-8">
+      <div className="text-orange-500 font-bold text-lg mb-1">Pro Membership</div>
+      <div className="text-white text-xl font-bold mb-1">$3.99/mo</div>
+      <div className="text-gray-300 mb-1">3-day free trial. Cancel anytime.</div>
+      <div className="text-gray-400 text-sm">Unlock unlimited items, analytics, and more.</div>
+    </div>
     <div className="flex flex-col gap-4 w-full max-w-xs">
-      <Link to="/auth?plan=free">
-        <Button className="w-full bg-gray-700 hover:bg-gray-600 text-white">Continue with Free</Button>
-      </Link>
-      <Link to="/auth?plan=pro">
-        <Button className="w-full bg-orange-500 hover:bg-orange-600 text-white">Upgrade to Pro</Button>
+      <Link to="/auth">
+        <Button className="w-full bg-orange-500 hover:bg-orange-600 text-white">Start Now</Button>
       </Link>
     </div>
   </div>

@@ -54,35 +54,30 @@ const Auth = () => {
     }
   }, [location.search]);
 
+  useEffect(() => {
+    const params = new URLSearchParams(location.search);
+    const planParam = params.get('plan');
+    // If coming from get started or direct, default to sign up
+    if (planParam === 'pro' || planParam === 'free' || location.pathname === '/auth' && !params.get('signin')) {
+      setIsSignUp(true);
+    }
+  }, [location.search, location.pathname]);
+
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     setLoading(true);
 
     try {
       if (isSignUp) {
-        if (plan === 'pro') {
-          // Pro: trigger Stripe checkout, do not create user yet
-          const res = await fetch(SUPABASE_FUNCTION_URL, {
-            method: 'POST',
-            headers: { 'Content-Type': 'application/json' },
-            body: JSON.stringify({ email }),
-          });
-          const data = await res.json();
-          if (data.url) {
-            window.location.href = data.url;
-            return;
-          } else {
-            toast({ title: 'Error', description: data.error || 'Could not start checkout', variant: 'destructive' });
-          }
-        } else {
-          // Free: create user immediately
-          const result = await signUp(email, password, fullName);
-          if (result.error) {
-            toast({ title: 'Error', description: result.error.message, variant: 'destructive' });
-          } else {
-            toast({ title: 'Success', description: 'Check your email to confirm your account.' });
-          }
+        // Always create the user first
+        const result = await signUp(email, password, fullName);
+        if (result.error) {
+          toast({ title: 'Error', description: result.error.message, variant: 'destructive' });
+          setLoading(false);
+          return;
         }
+        // No email confirmation required, go straight to login/checkout
+        navigate('/auth?checkout=1&email=' + encodeURIComponent(email));
       } else {
         // Sign in as normal
         const result = await signIn(email, password);
@@ -90,6 +85,32 @@ const Auth = () => {
           toast({ title: 'Error', description: result.error.message, variant: 'destructive' });
         } else {
           toast({ title: 'Success', description: 'Welcome back!' });
+          // After login, if ?checkout=1 in URL, trigger Stripe checkout
+          const params = new URLSearchParams(location.search);
+          if (params.get('checkout') === '1') {
+            // Send JWT to Edge Function
+            const headers: Record<string, string> = { 'Content-Type': 'application/json' };
+            if (result.data?.session?.access_token) {
+              headers['Authorization'] = `Bearer ${result.data.session.access_token}`;
+            } else if (user && user.access_token) {
+              headers['Authorization'] = `Bearer ${user.access_token}`;
+            }
+            fetch(SUPABASE_FUNCTION_URL, {
+              method: 'POST',
+              headers,
+              body: JSON.stringify({ email }),
+            })
+              .then(res => res.json())
+              .then(data => {
+                if (data.url) {
+                  window.location.href = data.url;
+                } else {
+                  toast({ title: 'Error', description: data.error || 'Could not start checkout', variant: 'destructive' });
+                }
+              });
+          } else {
+            navigate('/dashboard');
+          }
         }
       }
     } catch (error) {
@@ -100,21 +121,7 @@ const Auth = () => {
   };
 
   if (confirmed) {
-    return (
-      <div className="min-h-screen flex flex-col items-center justify-center bg-gradient-to-br from-gray-900 via-gray-800 to-black">
-        <Card className="bg-gray-800/60 border border-gray-700 p-8 max-w-md w-full text-center">
-          <CardHeader>
-            <CardTitle className="text-2xl text-orange-500 mb-2">Your account is now verified!</CardTitle>
-          </CardHeader>
-          <CardContent>
-            <p className="text-white mb-6">Proceed to login and happy collecting!</p>
-            <Link to="/auth">
-              <Button className="bg-orange-500 hover:bg-orange-600 text-white w-full">Proceed to Login</Button>
-            </Link>
-          </CardContent>
-        </Card>
-      </div>
-    );
+    return null;
   }
 
   return (
@@ -136,8 +143,17 @@ const Auth = () => {
                 className="h-28 w-auto mx-auto"
               />
             </Link>
+            {/* Info block for price and trial */}
+            {isSignUp && (
+              <div className="bg-gray-900/90 border border-orange-500 rounded-lg px-6 py-4 text-center shadow-lg mt-6 mb-4">
+                <div className="text-orange-500 font-bold text-lg mb-1">Pro Membership</div>
+                <div className="text-white text-xl font-bold mb-1">$3.99/mo</div>
+                <div className="text-gray-300 mb-1">3-day free trial. Cancel anytime.</div>
+                <div className="text-gray-400 text-sm">Unlock unlimited items, analytics, and more.</div>
+              </div>
+            )}
             <p className="text-gray-400 mt-2">
-              {isSignUp ? (plan === 'pro' ? 'Sign up for PopGuide Pro (payment required)' : 'Create your free account to start collecting') : 'Welcome back to your collection'}
+              {isSignUp ? 'Create your account to start collecting' : 'Welcome back to your collection'}
             </p>
           </div>
 

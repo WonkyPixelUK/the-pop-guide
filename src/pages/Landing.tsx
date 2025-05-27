@@ -83,41 +83,21 @@ const Landing = () => {
                 className="px-4 py-3 rounded bg-gray-800 border border-gray-700 text-white placeholder-gray-400 w-full md:w-72"
               />
               <button type="submit" className="bg-orange-500 hover:bg-orange-600 text-white px-6 py-3 rounded font-semibold">
-                Get Started Free
+                Get Started (3-day free trial)
               </button>
             </form>
-            <div className="w-full md:w-auto flex justify-center md:justify-end">
-              <div className="bg-gray-800/80 rounded-xl shadow-lg px-8 py-6 flex flex-col md:flex-row items-center gap-8 max-w-2xl w-full">
-                <div className="text-2xl font-extrabold text-white mb-4 w-full text-center">Pricing</div>
-                <div className="flex flex-col md:flex-row gap-4 w-full">
-                  {/* Free Card */}
-                  <div className="flex-1 bg-gray-900/80 rounded-lg px-6 py-6 flex flex-col items-start justify-between min-w-[220px] min-h-[260px]">
-                    <div>
-                      <div className="text-lg font-bold text-white mb-1">Free</div>
-                      <div className="text-orange-400 font-bold text-xl mb-1">$0</div>
-                      <div className="text-gray-300 mb-2">Up to 50 items</div>
-                    </div>
-                    <ul className="text-gray-200 text-sm space-y-2 mt-2 w-full">
-                      <li className="flex items-center gap-2"><Check className="w-4 h-4 text-green-400" /> Basic collection tracking</li>
-                      <li className="flex items-center gap-2"><Check className="w-4 h-4 text-green-400" /> Community access</li>
-                      <li className="flex items-center gap-2"><Check className="w-4 h-4 text-green-400" /> Mobile app access</li>
-                    </ul>
-                  </div>
-                  {/* Pro Card */}
-                  <div className="flex-1 bg-orange-500/90 rounded-lg px-6 py-6 flex flex-col items-start justify-between min-w-[220px] min-h-[260px] shadow-md">
-                    <div>
-                      <div className="text-lg font-bold text-white mb-1">Pro</div>
-                      <div className="text-white font-bold text-xl mb-1">$3.99 <span className="text-sm font-normal">/mo</span></div>
-                      <div className="text-white mb-2">3-day free trial</div>
-                    </div>
-                    <ul className="text-white text-sm space-y-2 mt-2 w-full">
-                      <li className="flex items-center gap-2"><Check className="w-4 h-4 text-white" /> Unlimited items</li>
-                      <li className="flex items-center gap-2"><Check className="w-4 h-4 text-white" /> Advanced analytics</li>
-                      <li className="flex items-center gap-2"><Check className="w-4 h-4 text-white" /> Export & API access</li>
-                    </ul>
-                  </div>
-                </div>
+            {/* Only show Pro plan */}
+            <div className="flex-1 bg-orange-500/90 rounded-lg px-6 py-6 flex flex-col items-start justify-between min-w-[220px] min-h-[260px] shadow-md">
+              <div>
+                <div className="text-lg font-bold text-white mb-1">Pro</div>
+                <div className="text-white font-bold text-xl mb-1">$3.99 <span className="text-sm font-normal">/mo</span></div>
+                <div className="text-white mb-2">3-day free trial</div>
               </div>
+              <ul className="text-white text-sm space-y-2 mt-2 w-full">
+                <li className="flex items-center gap-2"><Check className="w-4 h-4 text-white" /> Unlimited items</li>
+                <li className="flex items-center gap-2"><Check className="w-4 h-4 text-white" /> Advanced analytics</li>
+                <li className="flex items-center gap-2"><Check className="w-4 h-4 text-white" /> Export & API access</li>
+              </ul>
             </div>
           </div>
           {signupSuccess && (

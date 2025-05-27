@@ -21,9 +21,13 @@ const BecomeRetailer = () => {
     setLoading(true);
     setError(null);
     try {
+      const headers: Record<string, string> = { 'Content-Type': 'application/json' };
+      if (user && user.access_token) {
+        headers['Authorization'] = `Bearer ${user.access_token}`;
+      }
       const res = await fetch(SUPABASE_FUNCTION_URL, {
         method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
+        headers,
         body: JSON.stringify({ email: user.email }),
       });
       const data = await res.json();

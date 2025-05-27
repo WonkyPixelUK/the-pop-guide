@@ -17,21 +17,6 @@ const Pricing = () => {
   const [loading, setLoading] = useState(false);
   const plans = [
     {
-      name: "Free",
-      price: "$0",
-      period: "forever",
-      description: "Perfect for starting your collection",
-      features: [
-        "Up to 50 items",
-        "Basic collection tracking",
-        "Community access",
-        "Mobile app access",
-        "Email support"
-      ],
-      cta: "Get Started Free",
-      popular: false
-    },
-    {
       name: "Pro",
       price: "$3.99",
       period: "per month",
@@ -57,9 +42,13 @@ const Pricing = () => {
     }
     setLoading(true);
     try {
+      const headers: Record<string, string> = { 'Content-Type': 'application/json' };
+      if (user && user.access_token) {
+        headers['Authorization'] = `Bearer ${user.access_token}`;
+      }
       const res = await fetch(SUPABASE_FUNCTION_URL, {
         method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
+        headers,
         body: JSON.stringify({ email: user.email }),
       });
       const data = await res.json();
@@ -94,52 +83,26 @@ const Pricing = () => {
       {/* Pricing Cards */}
       <section className="py-16 px-4">
         <div className="container mx-auto">
-          <div className="grid grid-cols-1 md:grid-cols-2 gap-8 max-w-4xl mx-auto mb-16">
+          <div className="grid grid-cols-1 md:grid-cols-1 gap-8 max-w-2xl mx-auto mb-16">
             {plans.map((plan, index) => (
-              <Card key={index} className={`bg-gray-800/50 border-gray-700 relative ${plan.popular ? 'ring-2 ring-orange-500' : ''}`}>
-                {plan.popular && (
-                  <div className="absolute -top-4 left-1/2 transform -translate-x-1/2">
-                    <div className="bg-orange-500 text-white px-4 py-2 rounded-full text-sm font-medium flex items-center">
-                      <Star className="w-4 h-4 mr-1" />
-                      Most Popular
-                    </div>
-                  </div>
-                )}
-                <CardContent className="p-8">
-                  <div className="text-center mb-8">
-                    <h3 className="text-2xl font-bold text-white mb-2">{plan.name}</h3>
-                    <div className="mb-4">
-                      <span className="text-4xl font-bold text-white">{plan.price}</span>
-                      <span className="text-gray-400 ml-2">/ {plan.period}</span>
-                    </div>
-                    <p className="text-gray-400">{plan.description}</p>
-                  </div>
-                  
-                  <ul className="space-y-4 mb-8">
+              <Card key={index} className={`bg-gray-800/50 border-gray-700 relative ring-2 ring-orange-500`}>
+                <CardContent className="p-8 flex flex-col items-center">
+                  <div className="text-2xl font-bold text-white mb-2">{plan.name}</div>
+                  <div className="text-white font-bold text-3xl mb-1">{plan.price} <span className="text-lg font-normal">/mo</span></div>
+                  <div className="text-white mb-4">3-day free trial</div>
+                  <ul className="text-white text-base space-y-2 mb-6 w-full">
                     {plan.features.map((feature, i) => (
-                      <li key={i} className="flex items-center text-gray-300">
-                        <Check className="w-5 h-5 text-orange-500 mr-3" />
-                        {feature}
-                      </li>
+                      <li key={i} className="flex items-center gap-2"><Check className="w-5 h-5 text-white" /> {feature}</li>
                     ))}
                   </ul>
-                  
-                  {plan.popular ? (
-                    <Link to="/auth?plan=pro">
-                      <Button
-                        className="w-full bg-[#e46c1b] hover:bg-orange-600 text-white rounded-lg text-lg font-semibold py-3 transition-colors"
-                        disabled={loading}
-                      >
-                        {loading ? 'Redirecting...' : plan.cta}
-                      </Button>
-                    </Link>
-                  ) : (
-                    <Link to="/auth?plan=free">
-                      <Button className="w-full bg-gray-700 hover:bg-gray-600 text-white rounded-lg text-lg font-semibold py-3 transition-colors">
-                        {plan.cta}
-                      </Button>
-                    </Link>
-                  )}
+                  <Link to="/auth">
+                    <Button
+                      className="w-full bg-[#e46c1b] hover:bg-orange-600 text-white rounded-lg text-lg font-semibold py-3 transition-colors"
+                      disabled={loading}
+                    >
+                      {loading ? 'Redirecting...' : plan.cta}
+                    </Button>
+                  </Link>
                 </CardContent>
               </Card>
             ))}

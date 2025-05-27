@@ -30,7 +30,7 @@ serve(async (req: Request) => {
         "Content-Type": "application/x-www-form-urlencoded",
       },
       body: new URLSearchParams({
-        payment_method_types: "card",
+        "payment_method_types[0]": "card",
         mode: "subscription",
         customer_email: email,
         "line_items[0][price]": STRIPE_PRICE_ID,
