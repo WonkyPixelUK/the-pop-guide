@@ -159,7 +159,12 @@ const Navigation = () => {
             <Link to="/directory-all" className="text-white hover:text-orange-500 font-normal text-base transition-colors">Browse Database</Link>
             <Link to="/features" className="text-white hover:text-orange-500 font-normal text-base transition-colors">Features</Link>
             <Link to="/pricing" className="text-white hover:text-orange-500 font-normal text-base transition-colors">Pricing</Link>
-            <Link to="/browse-lists" className="text-white hover:text-orange-500 font-normal text-base transition-colors">Lists</Link>
+            <Link
+              to="/browse-lists"
+              className={`font-normal text-base transition-colors ${location.pathname === '/browse-lists' ? 'text-[#e46c1b]' : 'text-white hover:text-white'}`}
+            >
+              Lists
+            </Link>
             <Link to="/members" className="text-white hover:text-orange-500 font-normal text-base transition-colors">Members</Link>
             <DropdownMenu as="div" className="relative inline-block text-left">
               <DropdownMenu.Button className="flex items-center text-white hover:text-orange-500 font-normal text-base transition-colors">
