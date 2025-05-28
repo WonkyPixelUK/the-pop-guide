@@ -105,6 +105,13 @@ const Features = () => {
               </Card>
               <Card className="bg-gray-800/50 border-gray-700">
                 <CardContent className="p-8 text-center">
+                  <List className="w-12 h-12 text-orange-500 mx-auto mb-4" />
+                  <h3 className="text-xl font-bold text-white mb-3">List Transfer</h3>
+                  <p className="text-gray-400">Easily transfer ownership of any list to another user. Request, approve, and track transfers with in-app and email notifications.</p>
+                </CardContent>
+              </Card>
+              <Card className="bg-gray-800/50 border-gray-700">
+                <CardContent className="p-8 text-center">
                   <Search className="w-12 h-12 text-orange-500 mx-auto mb-4" />
                   <h3 className="text-xl font-bold text-white mb-3">Advanced Search</h3>
                   <p className="text-gray-400">Powerful search and filtering across the entire database. Find exactly what you need, fast.</p>

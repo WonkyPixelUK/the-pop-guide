@@ -12,10 +12,11 @@ import { useCustomLists } from '@/hooks/useCustomLists';
 import { supabase } from '@/integrations/supabase/client';
 import { useToast } from '@/hooks/use-toast';
 import { useAuth } from '@/hooks/useAuth';
+import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger } from '@/components/ui/dialog';
 
-const ProfileEditor = () => {
+function ProfileEditor({ section }: { section?: string }) {
   const { profile, loading, createProfile, updateProfile } = usePublicProfile();
-  const { lists } = useCustomLists();
+  const { lists, createList } = useCustomLists();
   const { user } = useAuth();
   const [formData, setFormData] = useState({
     username: '',
@@ -191,310 +192,336 @@ const ProfileEditor = () => {
       </CardHeader>
       <CardContent>
         <form onSubmit={handleSubmit} className="space-y-6">
-          {/* Basic Information */}
-          <div className="space-y-4">
-            <h3 className="text-lg font-semibold text-white">Basic Information</h3>
-            
-            <div className="flex items-center gap-4">
-              <Avatar className="w-16 h-16">
-                <AvatarImage src={formData.avatar_url} />
-                <AvatarFallback className="bg-orange-500 text-white">
-                  {formData.display_name ? formData.display_name[0].toUpperCase() : 'U'}
-                </AvatarFallback>
-              </Avatar>
-              <div className="flex-1">
-                <Label htmlFor="avatar_url" className="text-gray-300">Avatar URL</Label>
+          {/* Profile fields only */}
+          {(!section || section === 'profile') && (
+            <div className="space-y-4">
+              <h3 className="text-lg font-semibold text-white">Basic Information</h3>
+              
+              <div className="flex items-center gap-4">
+                <Avatar className="w-16 h-16">
+                  <AvatarImage src={formData.avatar_url} />
+                  <AvatarFallback className="bg-orange-500 text-white">
+                    {formData.display_name ? formData.display_name[0].toUpperCase() : 'U'}
+                  </AvatarFallback>
+                </Avatar>
+                <div className="flex-1">
+                  <Label htmlFor="avatar_url" className="text-gray-300">Avatar URL</Label>
+                  <Input
+                    id="avatar_url"
+                    value={formData.avatar_url}
+                    onChange={(e) => handleInputChange('avatar_url', e.target.value)}
+                    placeholder="https://example.com/avatar.jpg"
+                    className="bg-gray-700 border-gray-600 text-white"
+                  />
+                  <div className="mt-2">
+                    <input
+                      type="file"
+                      accept="image/*"
+                      id="avatar_upload"
+                      onChange={handleAvatarUpload}
+                      disabled={uploading}
+                    />
+                    {uploading && <span className="text-xs text-gray-400 ml-2">Uploading...</span>}
+                  </div>
+                </div>
+              </div>
+
+              <div>
+                <Label htmlFor="username" className="text-gray-300">Username (for profile URL)</Label>
                 <Input
-                  id="avatar_url"
-                  value={formData.avatar_url}
-                  onChange={(e) => handleInputChange('avatar_url', e.target.value)}
-                  placeholder="https://example.com/avatar.jpg"
+                  id="username"
+                  value={formData.username}
+                  onChange={(e) => handleInputChange('username', e.target.value)}
+                  onBlur={() => formData.username && checkUsernameAvailability(formData.username)}
+                  placeholder="mycoolpopguide"
                   className="bg-gray-700 border-gray-600 text-white"
                 />
-                <div className="mt-2">
-                  <input
-                    type="file"
-                    accept="image/*"
-                    id="avatar_upload"
-                    onChange={handleAvatarUpload}
-                    disabled={uploading}
+                {usernameError && (
+                  <span className="text-red-500 text-xs">{usernameError}</span>
+                )}
+                {formData.username && (
+                  <p className="text-sm text-gray-400 mt-1 flex items-center gap-2">
+                    Your profile will be at: /profile/{formData.username}
+                    <button
+                      type="button"
+                      aria-label="Copy profile URL"
+                      className="ml-1 p-1 rounded hover:bg-gray-700"
+                      onClick={() => {
+                        navigator.clipboard.writeText(`${window.location.origin}/profile/${formData.username}`);
+                        toast({ title: 'Copied!', description: 'Profile URL copied to clipboard', variant: 'success' });
+                      }}
+                    >
+                      <CopyIcon className="w-4 h-4 text-gray-400 hover:text-orange-500" />
+                    </button>
+                  </p>
+                )}
+              </div>
+
+              <div>
+                <Label htmlFor="display_name" className="text-gray-300">Display Name</Label>
+                <Input
+                  id="display_name"
+                  value={formData.display_name}
+                  onChange={(e) => handleInputChange('display_name', e.target.value)}
+                  placeholder="Your display name"
+                  className="bg-gray-700 border-gray-600 text-white"
+                />
+              </div>
+
+              <div>
+                <Label htmlFor="bio" className="text-gray-300">Bio</Label>
+                <Textarea
+                  id="bio"
+                  value={formData.bio}
+                  onChange={(e) => handleInputChange('bio', e.target.value)}
+                  placeholder="Tell others about your Funko Pop collecting journey..."
+                  className="bg-gray-700 border-gray-600 text-white"
+                  rows={3}
+                />
+              </div>
+
+              <div className="flex items-center space-x-2">
+                <Switch
+                  id="is_public"
+                  checked={formData.is_public}
+                  onCheckedChange={(checked) => handleInputChange('is_public', checked)}
+                />
+                <Label htmlFor="is_public" className="text-gray-300">
+                  Make profile public
+                </Label>
+              </div>
+            </div>
+          )}
+          {/* Social Integrations only */}
+          {section === 'social' && (
+            <div className="space-y-4">
+              <h3 className="text-lg font-semibold text-white">Social Integrations</h3>
+              
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                <div>
+                  <Label htmlFor="spotify_username" className="text-gray-300 flex items-center gap-2">
+                    <Music className="w-4 h-4 text-green-500" />
+                    Spotify
+                    {formData.spotify_username ? (
+                      <span className="ml-2 text-xs text-green-400">Connected as {formData.spotify_username}</span>
+                    ) : (
+                      <Button
+                        type="button"
+                        size="sm"
+                        className="ml-2 bg-green-600 hover:bg-green-700 text-white"
+                        onClick={() => handleConnectProvider('spotify')}
+                      >
+                        Connect
+                      </Button>
+                    )}
+                  </Label>
+                  <Input
+                    id="spotify_username"
+                    value={formData.spotify_username}
+                    onChange={(e) => handleInputChange('spotify_username', e.target.value)}
+                    placeholder="spotify_username"
+                    className="bg-gray-700 border-gray-600 text-white"
+                    disabled={!!formData.spotify_username}
                   />
-                  {uploading && <span className="text-xs text-gray-400 ml-2">Uploading...</span>}
+                </div>
+
+                <div>
+                  <Label htmlFor="discord_username" className="text-gray-300 flex items-center gap-2">
+                    <MessageCircle className="w-4 h-4 text-indigo-500" />
+                    Discord
+                    {formData.discord_username ? (
+                      <span className="ml-2 text-xs text-indigo-400">Connected as {formData.discord_username}</span>
+                    ) : (
+                      <Button
+                        type="button"
+                        size="sm"
+                        className="ml-2 bg-indigo-600 hover:bg-indigo-700 text-white"
+                        onClick={() => handleConnectProvider('discord')}
+                      >
+                        Connect
+                      </Button>
+                    )}
+                  </Label>
+                  <Input
+                    id="discord_username"
+                    value={formData.discord_username}
+                    onChange={(e) => handleInputChange('discord_username', e.target.value)}
+                    placeholder="discord#1234"
+                    className="bg-gray-700 border-gray-600 text-white"
+                    disabled={!!formData.discord_username}
+                  />
+                </div>
+
+                <div>
+                  <Label htmlFor="twitter_handle" className="text-gray-300 flex items-center gap-2">
+                    <Twitter className="w-4 h-4 text-blue-400" />
+                    Twitter Handle
+                  </Label>
+                  <Input
+                    id="twitter_handle"
+                    value={formData.twitter_handle}
+                    onChange={(e) => handleInputChange('twitter_handle', e.target.value)}
+                    placeholder="@twitter_handle"
+                    className="bg-gray-700 border-gray-600 text-white"
+                  />
+                </div>
+
+                <div>
+                  <Label htmlFor="instagram_handle" className="text-gray-300 flex items-center gap-2">
+                    <Instagram className="w-4 h-4 text-pink-500" />
+                    Instagram Handle
+                  </Label>
+                  <Input
+                    id="instagram_handle"
+                    value={formData.instagram_handle}
+                    onChange={(e) => handleInputChange('instagram_handle', e.target.value)}
+                    placeholder="@instagram_handle"
+                    className="bg-gray-700 border-gray-600 text-white"
+                  />
+                </div>
+
+                <div>
+                  <Label htmlFor="tiktok_handle" className="text-gray-300 flex items-center gap-2">
+                    <Video className="w-4 h-4 text-red-500" />
+                    TikTok Handle
+                  </Label>
+                  <Input
+                    id="tiktok_handle"
+                    value={formData.tiktok_handle}
+                    onChange={(e) => handleInputChange('tiktok_handle', e.target.value)}
+                    placeholder="@tiktok_handle"
+                    className="bg-gray-700 border-gray-600 text-white"
+                  />
+                </div>
+
+                <div>
+                  <Label htmlFor="ebay_store_url" className="text-gray-300 flex items-center gap-2">
+                    <ShoppingBag className="w-4 h-4 text-yellow-500" />
+                    eBay Store URL
+                  </Label>
+                  <Input
+                    id="ebay_store_url"
+                    value={formData.ebay_store_url}
+                    onChange={(e) => handleInputChange('ebay_store_url', e.target.value)}
+                    placeholder="https://ebay.com/str/yourstore"
+                    className="bg-gray-700 border-gray-600 text-white"
+                  />
                 </div>
               </div>
             </div>
-
-            <div>
-              <Label htmlFor="username" className="text-gray-300">Username (for profile URL)</Label>
-              <Input
-                id="username"
-                value={formData.username}
-                onChange={(e) => handleInputChange('username', e.target.value)}
-                onBlur={() => formData.username && checkUsernameAvailability(formData.username)}
-                placeholder="mycoolpopguide"
-                className="bg-gray-700 border-gray-600 text-white"
-              />
-              {usernameError && (
-                <span className="text-red-500 text-xs">{usernameError}</span>
-              )}
-              {formData.username && (
-                <p className="text-sm text-gray-400 mt-1 flex items-center gap-2">
-                  Your profile will be at: /profile/{formData.username}
-                  <button
-                    type="button"
-                    aria-label="Copy profile URL"
-                    className="ml-1 p-1 rounded hover:bg-gray-700"
-                    onClick={() => {
-                      navigator.clipboard.writeText(`${window.location.origin}/profile/${formData.username}`);
-                      toast({ title: 'Copied!', description: 'Profile URL copied to clipboard', variant: 'success' });
-                    }}
-                  >
-                    <CopyIcon className="w-4 h-4 text-gray-400 hover:text-orange-500" />
-                  </button>
-                </p>
-              )}
-            </div>
-
-            <div>
-              <Label htmlFor="display_name" className="text-gray-300">Display Name</Label>
-              <Input
-                id="display_name"
-                value={formData.display_name}
-                onChange={(e) => handleInputChange('display_name', e.target.value)}
-                placeholder="Your display name"
-                className="bg-gray-700 border-gray-600 text-white"
-              />
-            </div>
-
-            <div>
-              <Label htmlFor="bio" className="text-gray-300">Bio</Label>
-              <Textarea
-                id="bio"
-                value={formData.bio}
-                onChange={(e) => handleInputChange('bio', e.target.value)}
-                placeholder="Tell others about your Funko Pop collecting journey..."
-                className="bg-gray-700 border-gray-600 text-white"
-                rows={3}
-              />
-            </div>
-
-            <div className="flex items-center space-x-2">
-              <Switch
-                id="is_public"
-                checked={formData.is_public}
-                onCheckedChange={(checked) => handleInputChange('is_public', checked)}
-              />
-              <Label htmlFor="is_public" className="text-gray-300">
-                Make profile public
-              </Label>
-            </div>
-          </div>
-
-          {/* Social Integrations */}
-          <div className="space-y-4">
-            <h3 className="text-lg font-semibold text-white">Social Integrations</h3>
-            
-            <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-              <div>
-                <Label htmlFor="spotify_username" className="text-gray-300 flex items-center gap-2">
-                  <Music className="w-4 h-4 text-green-500" />
-                  Spotify
-                  {formData.spotify_username ? (
-                    <span className="ml-2 text-xs text-green-400">Connected as {formData.spotify_username}</span>
-                  ) : (
-                    <Button
-                      type="button"
-                      size="sm"
-                      className="ml-2 bg-green-600 hover:bg-green-700 text-white"
-                      onClick={() => handleConnectProvider('spotify')}
-                    >
-                      Connect
-                    </Button>
-                  )}
-                </Label>
-                <Input
-                  id="spotify_username"
-                  value={formData.spotify_username}
-                  onChange={(e) => handleInputChange('spotify_username', e.target.value)}
-                  placeholder="spotify_username"
-                  className="bg-gray-700 border-gray-600 text-white"
-                  disabled={!!formData.spotify_username}
-                />
-              </div>
-
-              <div>
-                <Label htmlFor="discord_username" className="text-gray-300 flex items-center gap-2">
-                  <MessageCircle className="w-4 h-4 text-indigo-500" />
-                  Discord
-                  {formData.discord_username ? (
-                    <span className="ml-2 text-xs text-indigo-400">Connected as {formData.discord_username}</span>
-                  ) : (
-                    <Button
-                      type="button"
-                      size="sm"
-                      className="ml-2 bg-indigo-600 hover:bg-indigo-700 text-white"
-                      onClick={() => handleConnectProvider('discord')}
-                    >
-                      Connect
-                    </Button>
-                  )}
-                </Label>
-                <Input
-                  id="discord_username"
-                  value={formData.discord_username}
-                  onChange={(e) => handleInputChange('discord_username', e.target.value)}
-                  placeholder="discord#1234"
-                  className="bg-gray-700 border-gray-600 text-white"
-                  disabled={!!formData.discord_username}
-                />
-              </div>
-
-              <div>
-                <Label htmlFor="twitter_handle" className="text-gray-300 flex items-center gap-2">
-                  <Twitter className="w-4 h-4 text-blue-400" />
-                  Twitter Handle
-                </Label>
-                <Input
-                  id="twitter_handle"
-                  value={formData.twitter_handle}
-                  onChange={(e) => handleInputChange('twitter_handle', e.target.value)}
-                  placeholder="@twitter_handle"
-                  className="bg-gray-700 border-gray-600 text-white"
-                />
-              </div>
-
-              <div>
-                <Label htmlFor="instagram_handle" className="text-gray-300 flex items-center gap-2">
-                  <Instagram className="w-4 h-4 text-pink-500" />
-                  Instagram Handle
-                </Label>
-                <Input
-                  id="instagram_handle"
-                  value={formData.instagram_handle}
-                  onChange={(e) => handleInputChange('instagram_handle', e.target.value)}
-                  placeholder="@instagram_handle"
-                  className="bg-gray-700 border-gray-600 text-white"
-                />
-              </div>
-
-              <div>
-                <Label htmlFor="tiktok_handle" className="text-gray-300 flex items-center gap-2">
-                  <Video className="w-4 h-4 text-red-500" />
-                  TikTok Handle
-                </Label>
-                <Input
-                  id="tiktok_handle"
-                  value={formData.tiktok_handle}
-                  onChange={(e) => handleInputChange('tiktok_handle', e.target.value)}
-                  placeholder="@tiktok_handle"
-                  className="bg-gray-700 border-gray-600 text-white"
-                />
-              </div>
-
-              <div>
-                <Label htmlFor="ebay_store_url" className="text-gray-300 flex items-center gap-2">
-                  <ShoppingBag className="w-4 h-4 text-yellow-500" />
-                  eBay Store URL
-                </Label>
-                <Input
-                  id="ebay_store_url"
-                  value={formData.ebay_store_url}
-                  onChange={(e) => handleInputChange('ebay_store_url', e.target.value)}
-                  placeholder="https://ebay.com/str/yourstore"
-                  className="bg-gray-700 border-gray-600 text-white"
-                />
-              </div>
-            </div>
-          </div>
-
-          {/* Gaming Platforms */}
-          <div className="space-y-4">
-            <h3 className="text-lg font-semibold text-white flex items-center gap-2">
-              <Gamepad2 className="w-5 h-5" />
-              Gaming Platforms
-            </h3>
-            
-            <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-              <div>
-                <Label htmlFor="playstation_username" className="text-gray-300 flex items-center gap-2">
-                  <div className="w-4 h-4 bg-blue-600 rounded"></div>
-                  PlayStation ID
-                </Label>
-                <Input
-                  id="playstation_username"
-                  value={formData.playstation_username}
-                  onChange={(e) => handleInputChange('playstation_username', e.target.value)}
-                  placeholder="your_psn_id"
-                  className="bg-gray-700 border-gray-600 text-white"
-                />
-              </div>
-
-              <div>
-                <Label htmlFor="xbox_gamertag" className="text-gray-300 flex items-center gap-2">
-                  <div className="w-4 h-4 bg-green-600 rounded"></div>
-                  Xbox Gamertag
-                </Label>
-                <Input
-                  id="xbox_gamertag"
-                  value={formData.xbox_gamertag}
-                  onChange={(e) => handleInputChange('xbox_gamertag', e.target.value)}
-                  placeholder="YourGamertag"
-                  className="bg-gray-700 border-gray-600 text-white"
-                />
-              </div>
-
-              <div>
-                <Label htmlFor="nintendo_friend_code" className="text-gray-300 flex items-center gap-2">
-                  <div className="w-4 h-4 bg-red-500 rounded"></div>
-                  Nintendo Friend Code
-                </Label>
-                <Input
-                  id="nintendo_friend_code"
-                  value={formData.nintendo_friend_code}
-                  onChange={(e) => handleInputChange('nintendo_friend_code', e.target.value)}
-                  placeholder="SW-1234-5678-9012"
-                  className="bg-gray-700 border-gray-600 text-white"
-                />
-              </div>
-
-              <div>
-                <Label htmlFor="steam_username" className="text-gray-300 flex items-center gap-2">
-                  <div className="w-4 h-4 bg-gray-700 rounded"></div>
-                  Steam Username
-                </Label>
-                <Input
-                  id="steam_username"
-                  value={formData.steam_username}
-                  onChange={(e) => handleInputChange('steam_username', e.target.value)}
-                  placeholder="steamusername"
-                  className="bg-gray-700 border-gray-600 text-white"
-                />
-              </div>
-            </div>
-          </div>
-
-          {/* Add Lists to Public Profile */}
-          <div className="space-y-4">
-            <h3 className="text-lg font-semibold text-white">Add Lists to Your Public Profile</h3>
-            <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-              {lists.map(list => (
-                <label key={list.id} className="flex items-center gap-2 bg-gray-700 p-3 rounded cursor-pointer">
-                  <input
-                    type="checkbox"
-                    checked={selectedListIds.includes(list.id)}
-                    onChange={() => handleListSelection(list.id)}
-                    className="accent-orange-500"
+          )}
+          {/* Gaming Platforms only */}
+          {section === 'gaming' && (
+            <div className="space-y-4">
+              <h3 className="text-lg font-semibold text-white flex items-center gap-2">
+                <Gamepad2 className="w-5 h-5" />
+                Gaming Platforms
+              </h3>
+              
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                <div>
+                  <Label htmlFor="playstation_username" className="text-gray-300 flex items-center gap-2">
+                    <div className="w-4 h-4 bg-blue-600 rounded"></div>
+                    PlayStation ID
+                  </Label>
+                  <Input
+                    id="playstation_username"
+                    value={formData.playstation_username}
+                    onChange={(e) => handleInputChange('playstation_username', e.target.value)}
+                    placeholder="your_psn_id"
+                    className="bg-gray-700 border-gray-600 text-white"
                   />
-                  <span className="text-white font-medium">{list.name}</span>
-                  <span className="text-gray-400 text-xs">{list.description}</span>
-                </label>
-              ))}
-              {lists.length === 0 && (
-                <span className="text-gray-400">You have no custom lists yet.</span>
-              )}
-            </div>
-          </div>
+                </div>
 
+                <div>
+                  <Label htmlFor="xbox_gamertag" className="text-gray-300 flex items-center gap-2">
+                    <div className="w-4 h-4 bg-green-600 rounded"></div>
+                    Xbox Gamertag
+                  </Label>
+                  <Input
+                    id="xbox_gamertag"
+                    value={formData.xbox_gamertag}
+                    onChange={(e) => handleInputChange('xbox_gamertag', e.target.value)}
+                    placeholder="YourGamertag"
+                    className="bg-gray-700 border-gray-600 text-white"
+                  />
+                </div>
+
+                <div>
+                  <Label htmlFor="nintendo_friend_code" className="text-gray-300 flex items-center gap-2">
+                    <div className="w-4 h-4 bg-red-500 rounded"></div>
+                    Nintendo Friend Code
+                  </Label>
+                  <Input
+                    id="nintendo_friend_code"
+                    value={formData.nintendo_friend_code}
+                    onChange={(e) => handleInputChange('nintendo_friend_code', e.target.value)}
+                    placeholder="SW-1234-5678-9012"
+                    className="bg-gray-700 border-gray-600 text-white"
+                  />
+                </div>
+
+                <div>
+                  <Label htmlFor="steam_username" className="text-gray-300 flex items-center gap-2">
+                    <div className="w-4 h-4 bg-gray-700 rounded"></div>
+                    Steam Username
+                  </Label>
+                  <Input
+                    id="steam_username"
+                    value={formData.steam_username}
+                    onChange={(e) => handleInputChange('steam_username', e.target.value)}
+                    placeholder="steamusername"
+                    className="bg-gray-700 border-gray-600 text-white"
+                  />
+                </div>
+              </div>
+            </div>
+          )}
+          {/* Add Lists only */}
+          {section === 'lists' && (
+            <div className="space-y-4">
+              <h3 className="text-lg font-semibold text-white">Add Lists to Your Public Profile</h3>
+              <Dialog>
+                <DialogTrigger asChild>
+                  <Button className="bg-orange-500 hover:bg-orange-600 text-white mb-2">Create List</Button>
+                </DialogTrigger>
+                <DialogContent className="bg-gray-900 border-gray-700 text-white">
+                  <DialogHeader>
+                    <DialogTitle>Create New List</DialogTitle>
+                  </DialogHeader>
+                  <CreateListDialogContent />
+                </DialogContent>
+              </Dialog>
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                {lists.map(list => (
+                  <div key={list.id} className="flex items-center gap-2 bg-gray-700 p-3 rounded">
+                    <input
+                      type="checkbox"
+                      checked={selectedListIds.includes(list.id)}
+                      onChange={() => handleListSelection(list.id)}
+                      className="accent-orange-500"
+                    />
+                    <span className="text-white font-medium">{list.name}</span>
+                    <span className="text-gray-400 text-xs">{list.description}</span>
+                    <Dialog>
+                      <DialogTrigger asChild>
+                        <Button size="sm" className="ml-auto bg-orange-500 hover:bg-orange-600 text-white">Transfer this list</Button>
+                      </DialogTrigger>
+                      <DialogContent className="bg-gray-900 border-gray-700 text-white">
+                        <DialogHeader>
+                          <DialogTitle>Transfer List</DialogTitle>
+                        </DialogHeader>
+                        <TransferListDialogContent list={list} user={user} toast={toast} />
+                      </DialogContent>
+                    </Dialog>
+                  </div>
+                ))}
+                {lists.length === 0 && (
+                  <span className="text-gray-400">You have no custom lists yet.</span>
+                )}
+              </div>
+            </div>
+          )}
           <Button 
             type="submit" 
             disabled={isSubmitting}
@@ -506,6 +533,132 @@ const ProfileEditor = () => {
       </CardContent>
     </Card>
   );
-};
+}
+
+function TransferListDialogContent({ list, user, toast }) {
+  const [input, setInput] = useState('');
+  const [loading, setLoading] = useState(false);
+  const [error, setError] = useState('');
+
+  const handleTransfer = async () => {
+    setError('');
+    if (!user) {
+      toast({ title: 'You must be logged in', description: 'Please log in to transfer a list.', variant: 'destructive' });
+      return;
+    }
+    if (!input.trim()) {
+      setError('Please enter a username or email.');
+      return;
+    }
+    setLoading(true);
+    try {
+      // Look up recipient by username or email
+      let { data: recipient, error: lookupError } = await supabase
+        .from('public_profiles')
+        .select('user_id,username,email')
+        .or(`username.eq.${input},email.eq.${input}`)
+        .maybeSingle();
+      if (lookupError || !recipient) {
+        setError('User not found.');
+        setLoading(false);
+        return;
+      }
+      if (recipient.user_id === user.id) {
+        setError('You cannot transfer a list to yourself.');
+        setLoading(false);
+        return;
+      }
+      // Create transfer request
+      const { error: transferError } = await supabase
+        .from('list_transfers')
+        .insert({
+          list_id: list.id,
+          from_user_id: user.id,
+          to_user_id: recipient.user_id,
+          status: 'pending',
+        });
+      if (transferError) throw transferError;
+      // Create notification for recipient
+      await supabase.from('notifications').insert({
+        user_id: recipient.user_id,
+        type: 'list_transfer',
+        message: `${user.email || 'A user'} wants to transfer the list '${list.name}' to you.`,
+        data: { list_id: list.id, from_user_id: user.id },
+      });
+      // Optionally, send email (if you have a utility)
+      // await sendListTransferEmail(recipient.user_id, user.email, list.name);
+      toast({ title: 'Transfer request sent!', description: 'The user has been notified.' });
+      setInput('');
+    } catch (err: any) {
+      setError(err.message || 'Failed to request transfer.');
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  return (
+    <div className="space-y-4">
+      <p>Enter the username or email of the user you want to transfer this list to:</p>
+      <Input placeholder="Username or email" value={input} onChange={e => setInput(e.target.value)} />
+      {error && <div className="text-red-500 text-xs">{error}</div>}
+      <Button className="bg-orange-500 hover:bg-orange-600 w-full" onClick={handleTransfer} disabled={loading}>{loading ? 'Sending...' : 'Send Transfer Request'}</Button>
+    </div>
+  );
+}
+
+function CreateListDialogContent() {
+  const { createList } = useCustomLists();
+  const { toast } = useToast();
+  const [name, setName] = useState('');
+  const [description, setDescription] = useState('');
+  const [isPublic, setIsPublic] = useState(false);
+  const [loading, setLoading] = useState(false);
+  const [error, setError] = useState('');
+
+  const handleCreate = async () => {
+    setError('');
+    if (!name.trim()) {
+      setError('List name is required.');
+      return;
+    }
+    setLoading(true);
+    try {
+      await createList.mutateAsync({ name, description, isPublic });
+      toast({ title: 'List created!', description: 'Your new list has been created.' });
+      setName('');
+      setDescription('');
+      setIsPublic(false);
+      // Close dialog by triggering parent Dialog's onOpenChange
+      document.activeElement?.blur();
+    } catch (err: any) {
+      setError(err.message || 'Failed to create list.');
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  return (
+    <div className="space-y-4">
+      <Input 
+        placeholder="List name" 
+        value={name} 
+        onChange={e => setName(e.target.value)} 
+        className="bg-white text-[#232837] placeholder:text-gray-400"
+      />
+      <Textarea 
+        placeholder="Description (optional)" 
+        value={description} 
+        onChange={e => setDescription(e.target.value)} 
+        className="bg-white text-[#232837] placeholder:text-gray-400"
+      />
+      <div className="flex items-center space-x-2">
+        <Switch id="isPublic" checked={isPublic} onCheckedChange={setIsPublic} />
+        <Label htmlFor="isPublic">Make this list public</Label>
+      </div>
+      {error && <div className="text-red-500 text-xs">{error}</div>}
+      <Button className="bg-orange-500 hover:bg-orange-600 w-full" onClick={handleCreate} disabled={loading}>{loading ? 'Creating...' : 'Create List'}</Button>
+    </div>
+  );
+}
 
 export default ProfileEditor;

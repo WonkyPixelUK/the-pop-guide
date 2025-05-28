@@ -1,28 +1,27 @@
-import type { Request, Response } from 'express';
+import type { NextApiRequest, NextApiResponse } from 'next';
+import { supabase } from '@/integrations/supabase/client';
 
-const pops = [
-  {
-    id: '1',
-    name: 'Darth Vader',
-    series: 'Star Wars',
-    number: '01',
-    image_url: 'https://example.com/darth-vader.png',
-    value: 25.00
-  },
-  {
-    id: '2',
-    name: 'Harry Potter',
-    series: 'Harry Potter',
-    number: '10',
-    image_url: 'https://example.com/harry-potter.png',
-    value: 18.00
+async function getUserFromRequest(req: NextApiRequest) {
+  const token = req.headers.authorization?.replace('Bearer ', '');
+  if (!token) return null;
+  const { data, error } = await supabase.auth.getUser(token);
+  if (error || !data?.user) return null;
+  return data.user;
+}
+
+export default async function handler(req: NextApiRequest, res: NextApiResponse) {
+  const user = await getUserFromRequest(req);
+  if (!user) {
+    return res.status(401).json({ error: 'Unauthorized' });
   }
-];
 
-export default function handler(req: Request, res: Response) {
   if (req.method === 'GET') {
-    res.status(200).json(pops);
-  } else {
-    res.status(405).json({ error: 'Method not allowed' });
+    const { data, error } = await supabase
+      .from('funko_pops')
+      .select('*');
+    if (error) return res.status(500).json({ error: error.message });
+    return res.status(200).json(data || []);
   }
+
+  return res.status(405).json({ error: 'Method not allowed' });
 } 

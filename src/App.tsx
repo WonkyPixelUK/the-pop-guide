@@ -33,6 +33,17 @@ import SystemStatus from './pages/SystemStatus';
 import HowItWorks from './pages/HowItWorks';
 import Faq from './pages/Faq';
 import LogTicket from './pages/LogTicket';
+import MobileBottomNav from './components/MobileBottomNav';
+import BecomeRetailer from "./pages/retailers/become";
+import RetailerDashboard from "./pages/RetailerDashboard";
+import ChromeExtension from "./pages/ChromeExtension";
+import StickerGuide from "./pages/StickerGuide";
+import Privacy from "./pages/Privacy";
+import CookiePolicy from "./pages/CookiePolicy";
+import Legal from "./pages/Legal";
+import Blog from "./pages/Blog";
+import PublicPopView from "./pages/PublicPopView";
+import Members from "./pages/Members";
 
 const queryClient = new QueryClient();
 
@@ -66,18 +77,27 @@ const App = () => (
             <Route path="/directory" element={<Directory />} />
             <Route path="/directory-all" element={<DirectoryAll />} />
             <Route path="/recently-added" element={<RecentlyAdded />} />
+            <Route path="/retailers/become" element={<BecomeRetailer />} />
+            <Route path="/retailers/dashboard" element={<RetailerDashboard />} />
             <Route path="/retailers/:slug" element={<RetailerProfile />} />
             <Route path="/get-started" element={<GetStarted />} />
             <Route path="/howitworks" element={<HowItWorks />} />
             <Route path="/faq" element={<Faq />} />
             <Route path="/log-ticket" element={<LogTicket />} />
-            <Route path="/privacy" element={<NotFound />} />
-            <Route path="/legal" element={<NotFound />} />
-            <Route path="/cookie-policy" element={<NotFound />} />
+            <Route path="/privacy" element={<Privacy />} />
+            <Route path="/legal" element={<Legal />} />
+            <Route path="/cookie-policy" element={<CookiePolicy/>} />
             <Route path="/system-status" element={<SystemStatus />} />
+            <Route path="/blog" element={<Blog/>} />
+            <Route path="/chrome-extension" element={<ChromeExtension />} />
+            <Route path="/sticker-guide" element={<StickerGuide />} />
+            <Route path="/pop/:id" element={<PublicPopView />} />
+            <Route path="/members" element={<Members />} />
+
             {/* ADD ALL CUSTOM ROUTES ABOVE THE CATCH-ALL "*" ROUTE */}
             <Route path="*" element={<NotFound />} />
           </Routes>
+          <MobileBottomNav />
         </BrowserRouter>
       </TooltipProvider>
     </HelmetProvider>

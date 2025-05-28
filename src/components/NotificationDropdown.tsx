@@ -1,16 +1,32 @@
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { Bell, CheckCircle, Store, User } from "lucide-react";
 import { Badge } from "@/components/ui/badge";
-
-const placeholderNotifications = [
-  { id: 1, type: "retailer", message: "PopMania UK added a new deal!", read: false },
-  { id: 2, type: "user", message: "popfan99 followed you.", read: false },
-  { id: 3, type: "retailer", message: "Vinyl Vault is live on Whatnot.", read: true },
-];
+import { supabase } from '@/integrations/supabase/client';
+import { useAuth } from '@/hooks/useAuth';
 
 const NotificationDropdown = () => {
+  const { user } = useAuth();
   const [open, setOpen] = useState(false);
-  const unreadCount = placeholderNotifications.filter(n => !n.read).length;
+  const [notifications, setNotifications] = useState<any[]>([]);
+
+  useEffect(() => {
+    if (!user) return;
+    const fetchNotifications = async () => {
+      const { data, error } = await supabase
+        .from('notifications')
+        .select('*')
+        .eq('user_id', user.id)
+        .order('created_at', { ascending: false })
+        .limit(20);
+      if (!error) setNotifications(data || []);
+    };
+    fetchNotifications();
+    // Optionally poll every 30s
+    const interval = setInterval(fetchNotifications, 30000);
+    return () => clearInterval(interval);
+  }, [user]);
+
+  const unreadCount = notifications.filter(n => !n.read).length;
 
   return (
     <div className="relative inline-block text-left">
@@ -30,10 +46,10 @@ const NotificationDropdown = () => {
         <div className="absolute right-0 mt-2 w-80 bg-gray-900 border border-gray-700 rounded shadow-lg z-50">
           <div className="p-4 border-b border-gray-700 font-bold text-white">Notifications</div>
           <div className="max-h-80 overflow-y-auto divide-y divide-gray-800">
-            {placeholderNotifications.length === 0 ? (
+            {notifications.length === 0 ? (
               <div className="p-4 text-gray-400 text-center">No notifications</div>
             ) : (
-              placeholderNotifications.map(n => (
+              notifications.map(n => (
                 <div key={n.id} className={`flex items-center gap-3 p-4 ${n.read ? "bg-gray-900" : "bg-gray-800/70"}`}>
                   {n.type === "retailer" ? (
                     <Store className="w-5 h-5 text-orange-400" />

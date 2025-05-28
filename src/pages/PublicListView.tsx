@@ -8,11 +8,18 @@ import { useToast } from "@/hooks/use-toast";
 import { Link } from "react-router-dom";
 import MobileBottomNav from '@/components/MobileBottomNav';
 import Navigation from '@/components/Navigation';
+import { useAuth } from '@/hooks/useAuth';
+import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger } from '@/components/ui/dialog';
+import { useState } from 'react';
+import { supabase } from '@/integrations/supabase/client';
 
 const PublicListView = () => {
   const { listId } = useParams<{ listId: string }>();
   const { toast } = useToast();
   const { data: list, isLoading } = useListById(listId || '');
+  const { user } = useAuth();
+  const [transferDialogOpen, setTransferDialogOpen] = useState(false);
+  const isOwner = user && list && user.id === list.user_id;
 
   const handleShare = () => {
     navigator.clipboard.writeText(window.location.href);
@@ -192,6 +199,58 @@ const PublicListView = () => {
         </div>
       </div>
       <MobileBottomNav />
+      {!isOwner && (
+        <div className="fixed bottom-6 right-6 z-50">
+          <Dialog open={transferDialogOpen} onOpenChange={setTransferDialogOpen}>
+            <DialogTrigger asChild>
+              <Button className="bg-orange-500 hover:bg-orange-600 text-white shadow-lg">I've purchased this list, request transfer to me</Button>
+            </DialogTrigger>
+            <DialogContent className="bg-gray-900 border-gray-700 text-white">
+              <DialogHeader>
+                <DialogTitle>Request List Transfer</DialogTitle>
+              </DialogHeader>
+              <div className="space-y-4">
+                <p>Are you sure you want to request this list be transferred to your account? The owner will be notified and must approve the transfer.</p>
+                <Button className="bg-orange-500 hover:bg-orange-600 w-full" onClick={async () => {
+                  if (!user) {
+                    toast({ title: 'You must be logged in', description: 'Please log in to request a transfer.', variant: 'destructive' });
+                    return;
+                  }
+                  if (!list || !list.user_id) {
+                    toast({ title: 'Error', description: 'List owner not found.', variant: 'destructive' });
+                    return;
+                  }
+                  try {
+                    // Create transfer request
+                    const { error: transferError } = await supabase
+                      .from('list_transfers')
+                      .insert({
+                        list_id: list.id,
+                        from_user_id: list.user_id,
+                        to_user_id: user.id,
+                        status: 'pending',
+                      });
+                    if (transferError) throw transferError;
+                    // Create notification for owner
+                    await supabase.from('notifications').insert({
+                      user_id: list.user_id,
+                      type: 'list_transfer',
+                      message: `${user.email || 'A user'} has requested to transfer your list '${list.name}'.`,
+                      data: { list_id: list.id, requester_id: user.id },
+                    });
+                    // Optionally, send email (if you have a utility)
+                    // await sendListTransferEmail(list.user_id, user.email, list.name);
+                    setTransferDialogOpen(false);
+                    toast({ title: 'Request sent!', description: 'The list owner has been notified.' });
+                  } catch (err: any) {
+                    toast({ title: 'Error', description: err.message || 'Failed to request transfer.', variant: 'destructive' });
+                  }
+                }}>Send Request</Button>
+              </div>
+            </DialogContent>
+          </Dialog>
+        </div>
+      )}
     </div>
   );
 };

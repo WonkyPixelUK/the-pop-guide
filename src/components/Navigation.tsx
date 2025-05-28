@@ -156,11 +156,11 @@ const Navigation = () => {
             </Link>
           </div>
           <nav className="flex items-center space-x-10 hidden md:flex">
-            <Link to="/recently-added" className="text-white hover:text-orange-500 font-normal text-base transition-colors">Recently Added</Link>
+            <Link to="/directory-all" className="text-white hover:text-orange-500 font-normal text-base transition-colors">Browse Database</Link>
             <Link to="/features" className="text-white hover:text-orange-500 font-normal text-base transition-colors">Features</Link>
             <Link to="/pricing" className="text-white hover:text-orange-500 font-normal text-base transition-colors">Pricing</Link>
             <Link to="/browse-lists" className="text-white hover:text-orange-500 font-normal text-base transition-colors">Lists</Link>
-            <Link to="/about" className="text-white hover:text-orange-500 font-normal text-base transition-colors">About</Link>
+            <Link to="/members" className="text-white hover:text-orange-500 font-normal text-base transition-colors">Members</Link>
             <DropdownMenu as="div" className="relative inline-block text-left">
               <DropdownMenu.Button className="flex items-center text-white hover:text-orange-500 font-normal text-base transition-colors">
                 Support <ChevronDown className="ml-1 w-5 h-5" />
@@ -178,15 +178,18 @@ const Navigation = () => {
                 <DropdownMenu.Item>
                   <Link to="/howitworks" className="block px-4 py-2 text-sm text-white hover:bg-gray-700">How it works</Link>
                 </DropdownMenu.Item>
+                <DropdownMenu.Item>
+                  <Link to="/api" className="block px-4 py-2 text-sm text-white hover:bg-gray-700">API</Link>
+                </DropdownMenu.Item>
               </DropdownMenu.Items>
             </DropdownMenu>
             <DropdownMenu as="div" className="relative inline-block text-left">
               <DropdownMenu.Button className="flex items-center text-white hover:text-orange-500 font-normal text-base transition-colors">
-                Directory <ChevronDown className="ml-1 w-5 h-5" />
+                Retailers <ChevronDown className="ml-1 w-5 h-5" />
               </DropdownMenu.Button>
               <DropdownMenu.Items className="origin-top-right absolute right-0 mt-2 w-56 rounded-md shadow-lg bg-gray-800 ring-1 ring-black ring-opacity-5 focus:outline-none z-50">
                 <DropdownMenu.Item>
-                  <Link to="/directory" className="block px-4 py-2 text-sm text-white hover:bg-gray-700">Browse Directory</Link>
+                  <Link to="/directory" className="block px-4 py-2 text-sm text-white hover:bg-gray-700">Browse Retailers</Link>
                 </DropdownMenu.Item>
                 <DropdownMenu.Item>
                   <Link to="/retailers/become" className="block px-4 py-2 text-sm text-white hover:bg-gray-700">Add your business</Link>

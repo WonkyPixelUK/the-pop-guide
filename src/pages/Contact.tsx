@@ -12,6 +12,7 @@ import Navigation from '@/components/Navigation';
 import SEO from '@/components/SEO';
 import Footer from '@/components/Footer';
 import { Accordion, AccordionItem, AccordionTrigger, AccordionContent } from "@/components/ui/accordion";
+import { ChartTooltip } from "@/components/ui/chart";
 
 const Contact = () => {
   const [formData, setFormData] = useState({
@@ -67,13 +68,26 @@ const Contact = () => {
       icon: Mail,
       title: "Email Us",
       description: "Get in touch via email",
-      contact: "hello@popguide.com"
+      contact: "brainso@popguide.co.uk"
     },
     {
       icon: MessageSquare,
       title: "Live Chat",
       description: "Chat with our support team",
-      contact: "Available 9 AM - 6 PM EST"
+      contact: "Available 9 AM - 5 PM BST"
+    },
+    {
+      icon: MessageSquare,
+      title: "Discord",
+      description: "Join Our Discord Server",
+      contact: "https://discord.gg/popguide"
+    }
+    ,
+    {
+      icon: MessageSquare,
+      title: "Community Forum",
+      description: "Join Our Community",
+      contact: "Comming Soon"
     }
   ];
 

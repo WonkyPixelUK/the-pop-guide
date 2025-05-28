@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -9,6 +9,8 @@ import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger } from 
 import { Plus, List, Eye, EyeOff, Settings, Trash2 } from "lucide-react";
 import { useCustomLists } from "@/hooks/useCustomLists";
 import ListManagementDialog from "./ListManagementDialog";
+import { useAuth } from '@/hooks/useAuth';
+import { supabase } from '@/integrations/supabase/client';
 
 const CustomListsManager = () => {
   const [isCreateDialogOpen, setIsCreateDialogOpen] = useState(false);
@@ -19,8 +21,20 @@ const CustomListsManager = () => {
   const [customSlug, setCustomSlug] = useState("");
   const [slugError, setSlugError] = useState("");
   const [createError, setCreateError] = useState("");
+  const [transferRequests, setTransferRequests] = useState([]);
 
   const { lists, isLoading, createList, deleteList } = useCustomLists();
+  const { user } = useAuth();
+
+  useEffect(() => {
+    if (!user) return;
+    supabase
+      .from('list_transfers')
+      .select('*, to_user:to_user_id (email, username), list: list_id (name)')
+      .eq('from_user_id', user.id)
+      .eq('status', 'pending')
+      .then(({ data }) => setTransferRequests(data || []));
+  }, [user]);
 
   const validateSlug = (slug: string) => /^[a-z0-9-]+$/.test(slug);
   const checkSlugAvailability = async (slug: string) => {
@@ -233,6 +247,44 @@ const CustomListsManager = () => {
           open={!!managingListId}
           onOpenChange={(open) => !open && setManagingListId(null)}
         />
+      )}
+
+      {/* Transfer Requests Section */}
+      {transferRequests.length > 0 && (
+        <div className="mb-6">
+          <h3 className="text-lg font-semibold text-white mb-2">Pending List Transfer Requests</h3>
+          <div className="space-y-3">
+            {transferRequests.map(req => (
+              <div key={req.id} className="flex items-center gap-4 bg-gray-900/60 rounded p-3">
+                <div className="flex-1">
+                  <div className="font-semibold text-white">{req.list?.name}</div>
+                  <div className="text-xs text-gray-400">Requested by: {req.to_user?.email || req.to_user?.username}</div>
+                </div>
+                <Button className="bg-green-600 hover:bg-green-700 text-white mr-2" onClick={async () => {
+                  // Accept: update status, transfer ownership, notify both
+                  await supabase.from('list_transfers').update({ status: 'accepted', accepted_at: new Date().toISOString() }).eq('id', req.id);
+                  await supabase.from('custom_lists').update({ user_id: req.to_user_id }).eq('id', req.list_id);
+                  await supabase.from('notifications').insert([
+                    { user_id: req.to_user_id, type: 'list_transfer', message: `Your request for list '${req.list?.name}' was accepted.`, data: { list_id: req.list_id } },
+                    { user_id: user.id, type: 'list_transfer', message: `You transferred list '${req.list?.name}' to ${req.to_user?.email || req.to_user?.username}.`, data: { list_id: req.list_id } }
+                  ]);
+                  setTransferRequests(trs => trs.filter(r => r.id !== req.id));
+                }}>Accept</Button>
+                <Button className="bg-red-600 hover:bg-red-700 text-white" onClick={async () => {
+                  // Decline: update status, notify requester
+                  await supabase.from('list_transfers').update({ status: 'declined', declined_at: new Date().toISOString() }).eq('id', req.id);
+                  await supabase.from('notifications').insert({
+                    user_id: req.to_user_id,
+                    type: 'list_transfer',
+                    message: `Your request for list '${req.list?.name}' was declined.`,
+                    data: { list_id: req.list_id }
+                  });
+                  setTransferRequests(trs => trs.filter(r => r.id !== req.id));
+                }}>Decline</Button>
+              </div>
+            ))}
+          </div>
+        </div>
       )}
     </div>
   );

@@ -1,10 +1,11 @@
 import { useAuth } from '@/hooks/useAuth';
 import { useRetailer } from '@/hooks/useRetailer';
+import { useRetailerPayments } from '@/hooks/useRetailerPayments';
 import { Button } from '@/components/ui/button';
 import Navigation from '@/components/Navigation';
 import MobileBottomNav from '@/components/MobileBottomNav';
 import { useState } from 'react';
-import { supabase } from '@/lib/supabase';
+import { supabase } from '@/integrations/supabase/client';
 
 const PRODUCT_ID = 'prod_SNsIp44U71FGP5';
 const SUPABASE_FUNCTION_URL = "https://pafgjwmgueerxdxtneyg.functions.supabase.co/stripe-checkout-public";
@@ -16,6 +17,8 @@ const BecomeRetailer = () => {
   const [success, setSuccess] = useState(false);
   // Check if user is already a retailer
   const { data: retailer, isLoading: retailerLoading } = useRetailer(user?.id || '');
+  const { data: paymentsRaw = [], isLoading: loadingPayments } = useRetailerPayments(retailer?.id || '');
+  const payments = paymentsRaw as { expires_at?: string }[];
 
   const handleCheckout = async () => {
     if (!user) return;
@@ -72,7 +75,7 @@ const BecomeRetailer = () => {
     );
   }
 
-  if (retailer && retailer.id) {
+  if (retailer && retailer.id && payments && payments.some(p => new Date(p.expires_at) > new Date())) {
     return (
       <div className="min-h-screen bg-gradient-to-br from-gray-900 via-gray-800 to-black text-white flex flex-col items-center justify-center">
         <Navigation />
@@ -90,7 +93,7 @@ const BecomeRetailer = () => {
 
   if (error) {
     return (
-      <div className="min-h-screen flex items-center justify-center bg-gradient-to-br from-gray-900 via-gray-800 to-black text-red-500">Error: {error.message}</div>
+      <div className="min-h-screen flex items-center justify-center bg-gradient-to-br from-gray-900 via-gray-800 to-black text-red-500">Error: {error}</div>
     );
   }
 

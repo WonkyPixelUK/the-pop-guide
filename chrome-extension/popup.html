@@ -1,0 +1,42 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <title>PopGuide Collector</title>
+  <script src="https://cdn.jsdelivr.net/npm/tesseract.js@5.0.1/dist/tesseract.min.js"></script>
+  <script src="popup.js" defer></script>
+</head>
+<body>
+  <h1>PopGuide Collector</h1>
+  <button id="capture-btn">Capture Screenshot</button>
+  <div id="screenshot-preview"></div>
+  <form id="details-form" style="display:none;">
+    <label>
+      List:
+      <select id="list-select"></select>
+    </label>
+    <label>
+      Name:
+      <input type="text" id="name-input" />
+    </label>
+    <label>
+      Genre:
+      <input type="text" id="genre-input" />
+    </label>
+    <label>
+      Price:
+      <input type="text" id="price-input" />
+    </label>
+    <label>
+      Description:
+      <textarea id="desc-input"></textarea>
+    </label>
+    <label>
+      EAN:
+      <input type="text" id="ean-input" />
+    </label>
+    <button type="submit">Add to Collection</button>
+  </form>
+  <div id="status"></div>
+</body>
+</html> 

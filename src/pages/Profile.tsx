@@ -16,6 +16,7 @@ import { useCustomLists } from '@/hooks/useCustomLists';
 import Navigation from '@/components/Navigation';
 import { useAuth } from '@/hooks/useAuth';
 import MobileBottomNav from '@/components/MobileBottomNav';
+import { supabase } from '@/integrations/supabase/client';
 
 const SEND_EMAIL_ENDPOINT = "https://pafgjwmgueerxdxtneyg.functions.supabase.co/send-email";
 
@@ -23,8 +24,8 @@ const Profile = () => {
   const { username } = useParams<{ username: string }>();
   const { profile, loading: profileLoading } = usePublicProfileByUsername(username || '');
   const { data: funkoPops = [], isLoading: funkoLoading, error: funkoError } = useFunkoPops();
-  const { data: userCollection = [], isLoading: collectionLoading, error: collectionError } = useUserCollection(profile?.user_id);
-  const { activities, loading: activitiesLoading } = useProfileActivities(profile?.user_id);
+  const { data: userCollection = [], isLoading: collectionLoading, error: collectionError } = useUserCollection(profile?.user_id || '');
+  const { activities, loading: activitiesLoading } = useProfileActivities(profile?.user_id || '');
   const [selectedItem, setSelectedItem] = useState(null);
   const { publicLists } = useCustomLists();
   const { user } = useAuth();
@@ -32,6 +33,10 @@ const Profile = () => {
   const navigate = useNavigate();
   const params = new URLSearchParams(location.search);
   const checkoutSuccess = params.get('checkout') === 'success';
+  const [activeTab, setActiveTab] = useState('collection');
+  const [apiKey, setApiKey] = useState<string | null>(null);
+  const [apiKeyLoading, setApiKeyLoading] = useState(false);
+  const [apiKeyError, setApiKeyError] = useState<string | null>(null);
 
   useEffect(() => {
     if (checkoutSuccess && user) {
@@ -47,6 +52,57 @@ const Profile = () => {
       return () => clearTimeout(timeout);
     }
   }, [checkoutSuccess, navigate, user]);
+
+  // Fetch API key if on API tab
+  useEffect(() => {
+    if (activeTab === 'api' && user && profile && user.id === profile.user_id) {
+      setApiKeyLoading(true);
+      setApiKeyError(null);
+      supabase.auth.getSession().then(({ data }) => {
+        const token = data?.session?.access_token;
+        fetch(`/api/userApiKey?userId=${user.id}`, {
+          headers: token ? { Authorization: `Bearer ${token}` } : {},
+        })
+          .then(res => res.json())
+          .then(data => setApiKey(data.api_key || null))
+          .catch(err => setApiKeyError('Failed to load API key'))
+          .finally(() => setApiKeyLoading(false));
+      });
+    }
+  }, [activeTab, user, profile]);
+
+  const handleGenerateApiKey = () => {
+    if (!user || !profile || user.id !== profile.user_id) return;
+    setApiKeyLoading(true);
+    setApiKeyError(null);
+    supabase.auth.getSession().then(({ data }) => {
+      const token = data?.session?.access_token;
+      fetch(`/api/userApiKey?userId=${user.id}`, {
+        method: 'POST',
+        headers: token ? { Authorization: `Bearer ${token}` } : {},
+      })
+        .then(res => res.json())
+        .then(data => setApiKey(data.api_key || null))
+        .catch(err => setApiKeyError('Failed to generate API key'))
+        .finally(() => setApiKeyLoading(false));
+    });
+  };
+
+  const handleRevokeApiKey = () => {
+    if (!user || !profile || user.id !== profile.user_id) return;
+    setApiKeyLoading(true);
+    setApiKeyError(null);
+    supabase.auth.getSession().then(({ data }) => {
+      const token = data?.session?.access_token;
+      fetch(`/api/userApiKey?userId=${user.id}`, {
+        method: 'DELETE',
+        headers: token ? { Authorization: `Bearer ${token}` } : {},
+      })
+        .then(() => setApiKey(null))
+        .catch(err => setApiKeyError('Failed to revoke API key'))
+        .finally(() => setApiKeyLoading(false));
+    });
+  };
 
   if (profileLoading || funkoLoading || collectionLoading) {
     return (
@@ -248,7 +304,7 @@ const Profile = () => {
                     </div>
                   </div>
                   {/* If logged-in user is viewing their own profile, show dashboard/edit buttons */}
-                  {user && user.id === profile.user_id && (
+                  {user && profile && user.id === profile.user_id && (
                     <div className="flex flex-col gap-2 ml-auto">
                       <Link to="/dashboard">
                         <Button className="bg-orange-500 hover:bg-orange-600 text-white w-full">Go to Dashboard</Button>

@@ -4,13 +4,13 @@ import { useAuth } from '@/hooks/useAuth';
 import { useState } from 'react';
 
 const navItems = [
-  { to: '/recently-added', label: 'Recently Added', icon: Home },
+  { to: '/directory-all', label: 'Browse Database', icon: Home },
   { to: '/features', label: 'Features', icon: BookOpen },
   { to: '/pricing', label: 'Pricing', icon: Folder },
   { to: '/browse-lists', label: 'Lists', icon: List },
-  { to: '/about', label: 'About', icon: Info },
+  { to: '/members', label: 'Members', icon: Info },
   { label: 'Support', icon: HelpCircle, modal: 'support' },
-  { label: 'Directory', icon: Folder, modal: 'directory' },
+  { label: 'Retailers', icon: Folder, modal: 'retailers' },
 ];
 
 const supportLinks = [
@@ -18,17 +18,18 @@ const supportLinks = [
   { to: '/faq', label: 'FAQ' },
   { to: '/log-ticket', label: 'Log a ticket' },
   { to: '/howitworks', label: 'How it works' },
+  { to: '/api', label: 'API' },
 ];
 
-const directoryLinks = [
-  { to: '/directory', label: 'Browse Directory' },
+const retailersLinks = [
+  { to: '/directory', label: 'Browse Retailers' },
   { to: '/retailers/become', label: 'Add your business' },
 ];
 
 const MobileBottomNav = () => {
   const location = useLocation();
   const { user } = useAuth();
-  const [modal, setModal] = useState<null | 'support' | 'directory'>(null);
+  const [modal, setModal] = useState<null | 'support' | 'retailers'>(null);
   return (
     <>
       <nav className="fixed bottom-0 left-0 right-0 z-50 bg-white border-t border-orange-200 shadow-lg md:hidden">
@@ -40,7 +41,7 @@ const MobileBottomNav = () => {
                   <button
                     className={`flex flex-col items-center justify-center px-3 py-1 rounded transition-colors text-[#232837] hover:text-orange-500 focus:outline-none`}
                     aria-label={label}
-                    onClick={() => setModal(modalType as 'support' | 'directory')}
+                    onClick={() => setModal(modalType as 'support' | 'retailers')}
                   >
                     <Icon className="w-6 h-6 mb-0.5" />
                     <span className="text-xs font-medium">{label}</span>
@@ -81,11 +82,11 @@ const MobileBottomNav = () => {
         <div className="fixed inset-0 z-50 flex items-end justify-center md:hidden bg-black bg-opacity-40" onClick={() => setModal(null)}>
           <div className="bg-white w-full rounded-t-lg p-6 pb-10 max-w-md mx-auto" onClick={e => e.stopPropagation()}>
             <div className="flex justify-between items-center mb-4">
-              <span className="font-semibold text-lg text-[#232837]">{modal === 'support' ? 'Support' : 'Directory'}</span>
+              <span className="font-semibold text-lg text-[#232837]">{modal === 'support' ? 'Support' : 'Retailers'}</span>
               <button onClick={() => setModal(null)} className="text-gray-500 text-2xl leading-none">&times;</button>
             </div>
             <ul className="space-y-4">
-              {(modal === 'support' ? supportLinks : directoryLinks).map(link => (
+              {(modal === 'support' ? supportLinks : retailersLinks).map(link => (
                 <li key={link.to}>
                   <Link
                     to={link.to}

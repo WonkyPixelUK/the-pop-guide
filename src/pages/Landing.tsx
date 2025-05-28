@@ -1,6 +1,6 @@
 import { Button } from "@/components/ui/button";
 import { Card, CardContent } from "@/components/ui/card";
-import { BarChart3, Users, Zap, Star, Shield, TrendingUp, Smartphone, Globe, Monitor, Check } from "lucide-react";
+import { BarChart3, Users, Zap, Star, Shield, TrendingUp, Smartphone, Globe, Monitor, Check, Puzzle } from "lucide-react";
 import { Link } from "react-router-dom";
 import SEO from '@/components/SEO';
 import { useState } from 'react';
@@ -68,67 +68,6 @@ const Landing = () => {
           </DialogContent>
         </Dialog>
 
-        {/* Quick Signup & Pricing Summary */}
-        <section className="py-8 px-4 bg-gray-900/60 border-b border-gray-800">
-          <div className="container mx-auto flex flex-col md:flex-row items-center justify-center gap-8 max-w-2xl">
-            <div className="flex-1 max-w-md bg-gray-900/90 border border-orange-500 rounded-lg px-8 py-10 flex flex-col justify-center items-start shadow-lg min-w-[220px] min-h-[260px]">
-              <div className="text-orange-500 font-bold text-lg mb-1">Pro</div>
-              <div className="text-white text-3xl font-bold mb-1">$3.99 <span className="text-base font-normal text-gray-400">/mo</span></div>
-              <div className="text-white mb-4">3-day free trial</div>
-              <ul className="text-gray-400 text-sm mb-0 list-disc list-inside text-left">
-                <li>Unlimited items</li>
-                <li>Advanced analytics</li>
-                <li>Export & API access</li>
-              </ul>
-            </div>
-            <Link to="/auth?plan=pro" className="flex-1 w-full md:w-auto">
-              <Button className="w-full md:w-auto bg-orange-500 hover:bg-orange-600 text-white px-8 py-4 rounded font-semibold text-lg">
-                Get Started (3-day free trial)
-              </Button>
-            </Link>
-          </div>
-        </section>
-
-        {/* New Additions Section */}
-        <section className="py-12 px-4 bg-gray-900/30 border-b border-gray-800">
-          <div className="container mx-auto">
-            <div className="flex flex-col md:flex-row md:items-center md:justify-between mb-6 gap-4">
-              <h2 className="text-3xl font-bold text-white">New Additions</h2>
-              <div className="flex items-center gap-2">
-                <span className="text-gray-400">Filter:</span>
-                <select
-                  value={filter}
-                  onChange={e => setFilter(e.target.value)}
-                  className="bg-gray-800 border border-gray-700 text-white rounded px-3 py-2"
-                >
-                  <option value="All">All</option>
-                  {categories.map(cat => (
-                    <option key={cat} value={cat}>{cat}</option>
-                  ))}
-                </select>
-              </div>
-            </div>
-            <div className="grid grid-cols-2 md:grid-cols-4 lg:grid-cols-6 gap-6">
-              {funkoPops
-                .filter(pop => filter === 'All' || pop.series === filter)
-                .sort((a, b) => new Date(b.created_at) - new Date(a.created_at))
-                .slice(0, 12)
-                .map(pop => (
-                  <button
-                    key={pop.id}
-                    className="bg-gray-800/70 border border-gray-700 rounded-lg p-3 flex flex-col items-center hover:shadow-lg transition focus:outline-none focus:ring-2 focus:ring-orange-500"
-                    onClick={() => setSelectedPop(pop)}
-                    aria-label={`View details for ${pop.name}`}
-                  >
-                    <img src={pop.image_url} alt={pop.name} className="w-20 h-20 object-contain mb-2 rounded" />
-                    <div className="font-semibold text-white text-center text-sm mb-1">{pop.name}</div>
-                    <div className="text-xs text-gray-400">{pop.series}</div>
-                  </button>
-                ))}
-            </div>
-          </div>
-        </section>
-
         {/* Platform Support Section */}
         <section className="py-16 px-4 bg-gray-900/30">
           <div className="container mx-auto">
@@ -138,7 +77,7 @@ const Landing = () => {
             <p className="text-gray-300 text-center mb-12 max-w-2xl mx-auto">
               Access your collection anywhere with our cross-platform support
             </p>
-            <div className="grid grid-cols-1 md:grid-cols-3 gap-8 max-w-4xl mx-auto mb-12">
+            <div className="grid grid-cols-1 md:grid-cols-4 gap-8 max-w-5xl mx-auto mb-12">
               <Card className="bg-gray-800/50 border-gray-700">
                 <CardContent className="p-8 text-center">
                   <Monitor className="w-12 h-12 text-orange-500 mx-auto mb-4" />
@@ -167,13 +106,87 @@ const Landing = () => {
                   <h3 className="text-xl font-bold text-white mb-3">Android</h3>
                   <p className="text-gray-400 mb-4">Install as a PWA or download from the Play Store (coming soon).</p>
                   <a href="/android" className="inline-block bg-orange-500 hover:bg-orange-600 text-white px-6 py-2 rounded font-semibold mb-2">Android App Info</a>
-                  <div className="text-xs text-gray-300 mt-2">
-                    <strong>Install Instructions:</strong><br />
-                    1. Open popguide.co.uk in Chrome<br />
-                    2. Tap the menu (⋮) and select "Install App"
-                  </div>
                 </CardContent>
               </Card>
+              <Card className="bg-gray-800/50 border-gray-700 text-center">
+                <CardContent className="p-8">
+                  <Puzzle className="w-12 h-12 text-orange-500 mx-auto mb-4 animate-pulse" />
+                  <h3 className="text-xl font-bold text-white mb-3">Chrome Extension</h3>
+                  <p className="text-gray-400 mb-4">Add Pops to your collection from any website. Take a screenshot and the extension fills in the details for you!</p>
+                  <Link to="/chrome-extension" className="inline-block bg-orange-500 hover:bg-orange-600 text-white px-6 py-2 rounded font-semibold mb-2">Learn More</Link>
+                </CardContent>
+              </Card>
+            </div>
+          </div>
+        </section>
+
+        {/* New Additions Section */}
+        <section className="py-12 px-4 bg-gray-900/30 border-b border-gray-800">
+          <div className="container mx-auto">
+            <div className="flex flex-col md:flex-row md:items-center md:justify-between mb-6 gap-4">
+              <h2 className="text-3xl font-bold text-white">Browse Entire Database</h2>
+              <div className="flex items-center gap-2">
+                <span className="text-gray-400">Filter:</span>
+                <select
+                  value={filter}
+                  onChange={e => setFilter(e.target.value)}
+                  className="bg-gray-800 border border-gray-700 text-white rounded px-3 py-2"
+                >
+                  <option value="All">All</option>
+                  {categories.map(cat => (
+                    <option key={cat} value={cat}>{cat}</option>
+                  ))}
+                </select>
+              </div>
+            </div>
+            <div className="grid grid-cols-2 md:grid-cols-4 lg:grid-cols-6 gap-6">
+              {funkoPops
+                .filter(pop => filter === 'All' || pop.series === filter)
+                .sort((a, b) => new Date(b.created_at) - new Date(a.created_at))
+                .slice(0, 24)
+                .map(pop => (
+                  <button
+                    key={pop.id}
+                    className="bg-gray-800/70 border border-gray-700 rounded-lg p-3 flex flex-col items-center hover:shadow-lg transition focus:outline-none focus:ring-2 focus:ring-orange-500"
+                    onClick={() => setSelectedPop({
+                      id: pop.id,
+                      name: pop.name,
+                      series: pop.series,
+                      number: pop.number || '',
+                      image: pop.image_url || '',
+                      value: typeof pop.estimated_value === 'number' ? pop.estimated_value : null,
+                      rarity: pop.rarity || pop.is_chase ? 'Chase' : pop.is_exclusive ? 'Exclusive' : 'Common',
+                      owned: !!pop.owned,
+                      description: pop.description || '',
+                    })}
+                    aria-label={`View details for ${pop.name}`}
+                  >
+                    <div className="w-full aspect-square bg-gray-700 rounded-lg mb-2 flex items-center justify-center overflow-hidden">
+                      {pop.image_url ? (
+                        <img src={pop.image_url} alt={pop.name} className="w-full h-full object-contain" />
+                      ) : (
+                        <Users className="w-16 h-16 text-orange-400 animate-pulse" />
+                      )}
+                    </div>
+                    <div className="font-semibold text-white text-center text-base mb-1 truncate w-full">{pop.name}</div>
+                    <div className="text-xs text-gray-400 mb-1">Character: {pop.name}</div>
+                    <div className="text-xs text-gray-400 mb-1">Series: {pop.series}</div>
+                    <div className="text-xs text-gray-400 mb-1">{pop.series} {pop.number ? `#${pop.number}` : ''}</div>
+                    <div className="text-xs text-gray-400 mb-1">{pop.fandom}</div>
+                    <div className="text-xs text-gray-400 mb-1">{pop.genre}</div>
+                    <div className="text-xs text-gray-400 mb-1">{pop.edition}</div>
+                    <div className="text-xs text-gray-400 mb-1">{pop.release_year || '—'}{pop.is_vaulted ? ' • Vaulted' : ''}</div>
+                    <div className="text-xs text-orange-400 font-bold mb-2">{typeof pop.estimated_value === 'number' ? `£${pop.estimated_value}` : 'N/A'}</div>
+                    {pop.description && <div className="text-xs text-gray-300 mb-2 line-clamp-3">{pop.description}</div>}
+                  </button>
+                ))}
+            </div>
+            <div className="flex justify-center mt-8">
+              <Link to="/directory-all">
+                <Button className="bg-orange-500 hover:bg-orange-600 text-white px-8 py-3 rounded font-semibold text-lg">
+                  See Entire Database
+                </Button>
+              </Link>
             </div>
           </div>
         </section>
@@ -254,7 +267,7 @@ const Landing = () => {
                   <p className="text-gray-400 mb-6">Join thousands of collectors who trust PopGuide with their collections.</p>
                   <Link to="/get-started">
                     <Button className="bg-orange-500 hover:bg-orange-600 text-white w-full">
-                      Create Free Account
+                      Get Started
                     </Button>
                   </Link>
                 </div>

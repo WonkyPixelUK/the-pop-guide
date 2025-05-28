@@ -1,4 +1,3 @@
-
 import { useState, useEffect } from 'react';
 import { supabase } from '@/integrations/supabase/client';
 import { useAuth } from './useAuth';
@@ -165,4 +164,31 @@ export const usePublicProfileByUsername = (username: string) => {
   };
 
   return { profile, loading };
+};
+
+export const useAllPublicProfiles = () => {
+  const [profiles, setProfiles] = useState<PublicProfile[]>([]);
+  const [loading, setLoading] = useState(true);
+
+  useEffect(() => {
+    const fetchAll = async () => {
+      setLoading(true);
+      try {
+        const { data, error } = await supabase
+          .from('public_profiles')
+          .select('*')
+          .eq('is_public', true)
+          .order('display_name', { ascending: true });
+        if (error) throw error;
+        setProfiles(data || []);
+      } catch (e) {
+        setProfiles([]);
+      } finally {
+        setLoading(false);
+      }
+    };
+    fetchAll();
+  }, []);
+
+  return { profiles, loading };
 };

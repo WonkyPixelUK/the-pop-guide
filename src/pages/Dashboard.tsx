@@ -22,6 +22,7 @@ import MobileBottomNav from '@/components/MobileBottomNav';
 import Navigation from '@/components/Navigation';
 import FriendsList from "@/components/FriendsList";
 import Paywall from '@/components/Paywall';
+import NotificationDropdown from '@/components/NotificationDropdown';
 
 const Dashboard = () => {
   const [searchQuery, setSearchQuery] = useState("");
@@ -123,6 +124,7 @@ const Dashboard = () => {
                 <GlobalSearch />
               </div>
               <div className="flex flex-col sm:flex-row sm:items-center gap-2">
+                <NotificationDropdown />
                 <span className="text-white text-center sm:text-left">Welcome, {user.user_metadata?.full_name || user.email}</span>
                 <Button 
                   onClick={() => setIsAddDialogOpen(true)}
