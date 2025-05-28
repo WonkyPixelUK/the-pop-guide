@@ -27,6 +27,11 @@ const DirectoryAll = () => {
   });
   const loader = useRef(null);
 
+  // Always scroll to top on mount to prevent jump-to-bottom bug
+  useEffect(() => {
+    window.scrollTo(0, 0);
+  }, []);
+
   // Move these inside the component, after allPops is defined
   const characterOptions = Array.from(new Set(allPops.map(pop => pop.name).filter(Boolean))).sort();
   const seriesOptions = Array.from(new Set(allPops.map(pop => pop.series).filter(Boolean))).sort();
@@ -101,7 +106,7 @@ const DirectoryAll = () => {
       <div className="text-xs text-gray-400 mb-1">{pop.genre}</div>
       <div className="text-xs text-gray-400 mb-1">{pop.edition}</div>
       <div className="text-xs text-gray-400 mb-1">{pop.release_year || '—'}{pop.is_vaulted ? ' • Vaulted' : ''}</div>
-      <div className="text-xs text-orange-400 font-bold mb-2">{typeof pop.estimated_value === 'number' ? `£${pop.estimated_value}` : 'N/A'}</div>
+      <div className="text-xs text-orange-400 font-bold mb-2">{typeof pop.estimated_value === 'number' ? `£${pop.estimated_value}` : 'Pending'}</div>
       {pop.description && <div className="text-xs text-gray-300 mb-2 line-clamp-3">{pop.description}</div>}
       {/* Usual action buttons can be added here if needed */}
     </Card>
