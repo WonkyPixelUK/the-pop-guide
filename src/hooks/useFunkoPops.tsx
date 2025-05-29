@@ -99,6 +99,12 @@ export const useAddToCollection = () => {
         action: 'add_to_collection',
         details: { funkoPopId },
       });
+      // Activity log
+      await supabase.from('activity_log').insert({
+        user_id: userId,
+        type: 'add_to_collection',
+        data: { funkoPopId },
+      });
       return data;
     },
     onSuccess: () => {

@@ -78,6 +78,12 @@ export const useCustomLists = () => {
         action: 'create_list',
         details: { listId: data.id, name },
       });
+      // Activity log
+      await supabase.from('activity_log').insert({
+        user_id: user.id,
+        type: 'create_list',
+        data: { listId: data.id, name },
+      });
       return data;
     },
     onSuccess: () => {
@@ -174,6 +180,12 @@ export const useCustomLists = () => {
         user_id: user.id,
         action: 'add_to_list',
         details: { listId, funkoPopId },
+      });
+      // Activity log
+      await supabase.from('activity_log').insert({
+        user_id: user.id,
+        type: 'add_to_list',
+        data: { listId, funkoPopId },
       });
       return data;
     },

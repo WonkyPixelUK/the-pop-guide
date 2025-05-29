@@ -41,6 +41,14 @@ async function updateCollectionValues() {
       last_collection_value_updated: new Date().toISOString(),
       last_collection_value_change: valueChange
     }).eq('id', user.id)
+    // Activity log: only if change is >= £10
+    if (Math.abs(valueChange) >= 10) {
+      await supabaseClient.from('activity_log').insert({
+        user_id: user.id,
+        type: 'collection_value_change',
+        data: { oldValue: user.last_collection_value, newValue: totalValue, change: valueChange },
+      });
+    }
   }
 }
 

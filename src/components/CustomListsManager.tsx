@@ -11,6 +11,7 @@ import { useCustomLists } from "@/hooks/useCustomLists";
 import ListManagementDialog from "./ListManagementDialog";
 import { useAuth } from '@/hooks/useAuth';
 import { supabase } from '@/integrations/supabase/client';
+import { useToast } from '@/hooks/use-toast';
 
 const CustomListsManager = () => {
   const [isCreateDialogOpen, setIsCreateDialogOpen] = useState(false);
@@ -25,6 +26,7 @@ const CustomListsManager = () => {
 
   const { lists, isLoading, createList, deleteList } = useCustomLists();
   const { user } = useAuth();
+  const { toast } = useToast();
 
   useEffect(() => {
     if (!user) return;
@@ -84,6 +86,73 @@ const CustomListsManager = () => {
         console.error('Error deleting list:', error);
       }
     }
+  };
+
+  const TransferListDialogContent = ({ list, user, toast, onSuccess }) => {
+    const [input, setInput] = useState('');
+    const [loading, setLoading] = useState(false);
+    const [error, setError] = useState('');
+
+    const handleTransfer = async () => {
+      setError('');
+      if (!user) {
+        toast({ title: 'You must be logged in', description: 'Please log in to transfer a list.', variant: 'destructive' });
+        return;
+      }
+      if (!input.trim()) {
+        setError('Please enter a username or email.');
+        return;
+      }
+      setLoading(true);
+      try {
+        let { data: recipient, error: lookupError } = await supabase
+          .from('public_profiles')
+          .select('user_id,username,email')
+          .or(`username.eq.${input},email.eq.${input}`)
+          .maybeSingle();
+        if (lookupError || !recipient) {
+          setError('User not found.');
+          setLoading(false);
+          return;
+        }
+        if (recipient.user_id === user.id) {
+          setError('You cannot transfer a list to yourself.');
+          setLoading(false);
+          return;
+        }
+        const { error: transferError } = await supabase
+          .from('list_transfers')
+          .insert({
+            list_id: list.id,
+            from_user_id: user.id,
+            to_user_id: recipient.user_id,
+            status: 'pending',
+          });
+        if (transferError) throw transferError;
+        await supabase.from('notifications').insert({
+          user_id: recipient.user_id,
+          type: 'list_transfer',
+          message: `${user.email || 'A user'} wants to transfer the list '${list.name}' to you.`,
+          data: { list_id: list.id, from_user_id: user.id },
+        });
+        toast({ title: 'Transfer request sent!', description: 'The user has been notified.' });
+        setInput('');
+        if (onSuccess) onSuccess();
+      } catch (err) {
+        setError(err.message || 'Failed to request transfer.');
+      } finally {
+        setLoading(false);
+      }
+    };
+
+    return (
+      <div className="space-y-4">
+        <p>Enter the username or email of the user you want to transfer this list to:</p>
+        <Input placeholder="Username or email" value={input} onChange={e => setInput(e.target.value)} className="text-[#232837]" />
+        {error && <div className="text-red-500 text-xs">{error}</div>}
+        <Button className="bg-orange-500 hover:bg-orange-600 w-full" onClick={handleTransfer} disabled={loading}>{loading ? 'Sending...' : 'Send Transfer Request'}</Button>
+      </div>
+    );
   };
 
   if (isLoading) {
@@ -182,6 +251,17 @@ const CustomListsManager = () => {
                   >
                     <Trash2 className="w-4 h-4" />
                   </Button>
+                  <Dialog>
+                    <DialogTrigger asChild>
+                      <Button size="sm" className="bg-orange-500 hover:bg-orange-600 text-white">Transfer this list</Button>
+                    </DialogTrigger>
+                    <DialogContent className="bg-gray-900 border-gray-700 text-white">
+                      <DialogHeader>
+                        <DialogTitle>Transfer List</DialogTitle>
+                      </DialogHeader>
+                      <TransferListDialogContent list={list} user={user} toast={toast} />
+                    </DialogContent>
+                  </Dialog>
                 </div>
               </CardTitle>
             </CardHeader>

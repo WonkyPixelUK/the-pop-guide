@@ -1,4 +1,3 @@
-
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import { supabase } from '@/integrations/supabase/client';
 import { useAuth } from './useAuth';
@@ -41,6 +40,11 @@ export const useWishlist = () => {
         });
       
       if (error) throw error;
+      await supabase.from('activity_log').insert({
+        user_id: user.id,
+        type: 'add_to_wishlist',
+        data: { funkoPopId },
+      });
       return data;
     },
     onSuccess: () => {

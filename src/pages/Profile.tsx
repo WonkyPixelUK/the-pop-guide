@@ -349,6 +349,9 @@ const Profile = () => {
                     <div className="flex items-center gap-3 mb-2">
                       <CardTitle className="text-white text-2xl flex items-center gap-2">
                         {profile.display_name || profile.username}
+                        {profile.email === 'rich@maintainhq.com' && (
+                          <div className="inline-block bg-orange-500 text-white text-xs font-semibold rounded px-2 py-1 mb-2">Pop Guide Team</div>
+                        )}
                         <span className="bg-blue-900/80 text-blue-200 text-xs font-semibold px-2 py-0.5 rounded ml-2">Public Profile</span>
                       </CardTitle>
                       <PremiumBadge isPremium={profile.is_premium || false} />

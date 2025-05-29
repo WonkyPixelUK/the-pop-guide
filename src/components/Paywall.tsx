@@ -6,9 +6,15 @@ import { useAuth } from '@/hooks/useAuth';
 const SUPABASE_FUNCTION_URL = "https://pafgjwmgueerxdxtneyg.functions.supabase.co/stripe-checkout-public";
 
 const Paywall = () => {
-  const { user } = useAuth();
-  const [loading, setLoading] = useState(false);
+  const { user, loading } = useAuth();
+  const [loadingUpgrade, setLoadingUpgrade] = useState(false);
   const [show, setShow] = useState(false);
+
+  // Wait for auth to load before checking admin
+  if (loading) return null;
+  if (user && user.email === 'rich@maintainhq.com') {
+    return null;
+  }
 
   useEffect(() => {
     // Show the paywall with a swoosh effect after mount
@@ -16,7 +22,7 @@ const Paywall = () => {
   }, []);
 
   const handleUpgrade = async () => {
-    setLoading(true);
+    setLoadingUpgrade(true);
     try {
       const headers: Record<string, string> = { 'Content-Type': 'application/json' };
       const { data } = await supabase.auth.getSession();
@@ -38,7 +44,7 @@ const Paywall = () => {
     } catch (e) {
       alert('Could not start checkout');
     } finally {
-      setLoading(false);
+      setLoadingUpgrade(false);
     }
   };
 
@@ -54,8 +60,8 @@ const Paywall = () => {
         <div className="mb-6 text-orange-500 font-bold text-lg">Pro Membership Required</div>
         <div className="text-white text-2xl font-bold mb-2">Add your card details now to start your 3-day trial</div>
         <div className="text-gray-300 mb-4">Unlock unlimited items, analytics, price history, and more. Cancel anytime during your trial and you won't be charged.</div>
-        <Button className="bg-orange-500 hover:bg-orange-600 text-white text-lg mt-4" onClick={handleUpgrade} disabled={loading}>
-          {loading ? 'Redirecting…' : 'Start 3-Day Trial'}
+        <Button className="bg-orange-500 hover:bg-orange-600 text-white text-lg mt-4" onClick={handleUpgrade} disabled={loadingUpgrade}>
+          {loadingUpgrade ? 'Redirecting…' : 'Start 3-Day Trial'}
         </Button>
       </div>
     </div>

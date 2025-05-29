@@ -48,7 +48,8 @@ const CollectionGrid = ({ items, onItemClick, searchQuery, showWishlistOnly = fa
     return matchesSearch;
   });
 
-  const getRarityColor = (rarity: string) => {
+  const getRarityColor = (rarity: string | undefined) => {
+    if (!rarity) return 'bg-gray-500/20 text-gray-300 border-gray-500/30';
     switch (rarity.toLowerCase()) {
       case 'chase':
         return 'bg-yellow-500/20 text-yellow-300 border-yellow-500/30';
@@ -133,23 +134,23 @@ const CollectionGrid = ({ items, onItemClick, searchQuery, showWishlistOnly = fa
   };
 
   return (
-    <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6">
+    <div className="grid grid-cols-2 md:grid-cols-4 lg:grid-cols-6 gap-6">
       {filteredItems.map((item) => (
         <Card 
           key={item.id}
-          className={`cursor-pointer transition-all duration-200 hover:scale-105 hover:shadow-lg ${
+          className={`bg-gray-800/70 border border-gray-700 rounded-lg p-3 flex flex-col items-center hover:shadow-lg transition cursor-pointer ${
             item.owned 
-              ? 'bg-gray-800/70 border-gray-600 hover:border-orange-500/50' 
-              : 'bg-gray-800/30 border-gray-700 opacity-70 hover:opacity-100'
+              ? 'hover:border-orange-500/50' 
+              : 'opacity-70 hover:opacity-100'
           }`}
           onClick={() => onItemClick(item)}
         >
           <CardContent className="p-4">
-            <div className="aspect-square bg-gray-700 rounded-lg mb-4 flex items-center justify-center overflow-hidden">
+            <div className="w-full aspect-square bg-gray-700 rounded-lg mb-2 flex items-center justify-center overflow-hidden">
               <img 
                 src={item.image} 
                 alt={item.name}
-                className="w-full h-full object-cover"
+                className="w-full h-full object-contain"
                 onError={(e) => {
                   e.currentTarget.src = 'data:image/svg+xml;base64,PHN2ZyB3aWR0aD0iMjAwIiBoZWlnaHQ9IjIwMCIgdmlld0JveD0iMCAwIDIwMCAyMDAiIGZpbGw9Im5vbmUiIHhtbG5zPSJodHRwOi8vd3d3LnczLm9yZy8yMDAwL3N2ZyI+CjxyZWN0IHdpZHRoPSIyMDAiIGhlaWdodD0iMjAwIiBmaWxsPSIjMzc0MTUxIi8+CjxwYXRoIGQ9Ik0xMDAgNTBDMTI3LjYxNCA1MCA1MCA3Ny4zODU4IDUwIDEwNUM1MCAxMzIuNjE0IDc3LjM4NTggMTYwIDEwMCAxNjBDMTIyLjYxNCAxNjAgMTUwIDEzMi42MTQgMTUwIDEwNUMxNTAgNzcuMzg1OCAxMjIuNjE0IDUwIDEwMCA1MFoiIGZpbGw9IiM2QjcyODAiLz4KPC9zdmc+';
                 }}
@@ -201,7 +202,7 @@ const CollectionGrid = ({ items, onItemClick, searchQuery, showWishlistOnly = fa
                   {item.rarity}
                 </Badge>
                 <span className="text-orange-500 font-semibold text-sm">
-                  ${item.value.toFixed(2)}
+                  ${typeof item.value === 'number' ? item.value.toFixed(2) : '0.00'}
                 </span>
               </div>
 

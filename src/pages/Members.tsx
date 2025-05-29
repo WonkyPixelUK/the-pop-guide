@@ -131,6 +131,9 @@ const Members = () => {
                   </Avatar>
                   <div className="flex-1 min-w-0">
                     <div className="font-semibold text-white truncate">{profile.display_name || profile.username}</div>
+                    {profile.email === 'rich@maintainhq.com' && (
+                      <div className="inline-block bg-orange-500 text-white text-xs font-semibold rounded px-2 py-1 mb-1">Pop Guide Team</div>
+                    )}
                     <div className="text-gray-400 text-xs truncate">@{profile.username}</div>
                   </div>
                   <div className="font-bold text-orange-400 text-lg ml-auto">£{profile.worth.worth}</div>
@@ -162,6 +165,9 @@ const Members = () => {
                           </AvatarFallback>
                         </Avatar>
                         <div className="text-xl font-bold text-white mb-1">{profile.display_name || profile.username}</div>
+                        {profile.email === 'rich@maintainhq.com' && (
+                          <div className="inline-block bg-orange-500 text-white text-xs font-semibold rounded px-2 py-1 mb-1">Pop Guide Team</div>
+                        )}
                         <div className="text-gray-400 mb-2">@{profile.username}</div>
                         <div className="flex items-center gap-2 mb-2">
                           <span className="text-sm text-gray-300">Collection Worth:</span>
