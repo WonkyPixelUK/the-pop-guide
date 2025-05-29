@@ -1,4 +1,4 @@
-# Pop Universe Tracker
+#The Pop Guide
 
 A platform for tracking, valuing, and managing Funko Pop collections, with Pro features and retailer onboarding.
 
