@@ -3,7 +3,9 @@ import { Card, CardContent } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import Navigation from '@/components/Navigation';
 import Footer from '@/components/Footer';
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
+import { supabase } from '@/integrations/supabase/client';
+import { FeatureRequest, FeatureRequestVote } from '@/types/supabase';
 
 const deployed = [
   'Bulk Actions (add/edit/remove)',
@@ -41,18 +43,81 @@ export default function Roadmap() {
   const [featureModalOpen, setFeatureModalOpen] = useState(false);
   const [featureTitle, setFeatureTitle] = useState('');
   const [featureDesc, setFeatureDesc] = useState('');
-  const [featureRequests, setFeatureRequests] = useState<{title: string, desc: string, up: number, down: number}[]>([]);
+  const [featureRequests, setFeatureRequests] = useState<FeatureRequest[]>([]);
+  const [votes, setVotes] = useState<FeatureRequestVote[]>([]);
+  const [userId, setUserId] = useState<string | null>(null);
+  const [loading, setLoading] = useState(true);
+  const [submitting, setSubmitting] = useState(false);
+  const [voteLoading, setVoteLoading] = useState<string | null>(null);
 
-  const handleFeatureSubmit = (e) => {
+  useEffect(() => {
+    const fetchData = async () => {
+      setLoading(true);
+      // Get user
+      const { data: { session } } = await supabase.auth.getSession();
+      setUserId(session?.user?.id || null);
+      // Get feature requests
+      const { data: reqs } = await supabase.from('feature_requests').select('*').order('created_at', { ascending: false });
+      setFeatureRequests(reqs || []);
+      // Get votes
+      if (session?.user?.id) {
+        const { data: vts } = await supabase.from('feature_request_votes').select('*').eq('user_id', session.user.id);
+        setVotes(vts || []);
+      } else {
+        setVotes([]);
+      }
+      setLoading(false);
+    };
+    fetchData();
+  }, [userId]);
+
+  const handleFeatureSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-    if (!featureTitle.trim()) return;
-    setFeatureRequests([{ title: featureTitle, desc: featureDesc, up: 0, down: 0 }, ...featureRequests]);
-    setFeatureTitle('');
-    setFeatureDesc('');
-    setFeatureModalOpen(false);
+    if (!featureTitle.trim() || !userId) return;
+    setSubmitting(true);
+    const { error } = await supabase.from('feature_requests').insert({
+      title: featureTitle.trim(),
+      description: featureDesc.trim() || null,
+      created_by: userId,
+    });
+    setSubmitting(false);
+    if (!error) {
+      setFeatureTitle('');
+      setFeatureDesc('');
+      setFeatureModalOpen(false);
+      // Refresh
+      const { data: reqs } = await supabase.from('feature_requests').select('*').order('created_at', { ascending: false });
+      setFeatureRequests(reqs || []);
+    }
   };
-  const handleVote = (idx: number, type: 'up' | 'down') => {
-    setFeatureRequests(reqs => reqs.map((r, i) => i === idx ? { ...r, [type]: r[type] + 1 } : r));
+
+  const handleVote = async (featureId: string, vote: 1 | -1) => {
+    if (!userId) return;
+    setVoteLoading(featureId + vote);
+    // Upsert vote (one per user per feature)
+    const { error } = await supabase.from('feature_request_votes').upsert({
+      feature_request_id: featureId,
+      user_id: userId,
+      vote,
+    }, { onConflict: ['feature_request_id', 'user_id'] });
+    setVoteLoading(null);
+    if (!error) {
+      // Refresh votes
+      const { data: vts } = await supabase.from('feature_request_votes').select('*').eq('user_id', userId);
+      setVotes(vts || []);
+    }
+  };
+
+  // Aggregate votes for each feature
+  const getVoteCounts = (featureId: string) => {
+    const ups = votes.filter(v => v.feature_request_id === featureId && v.vote === 1).length;
+    const downs = votes.filter(v => v.feature_request_id === featureId && v.vote === -1).length;
+    return { up: ups, down: downs };
+  };
+
+  const getUserVote = (featureId: string) => {
+    const v = votes.find(v => v.feature_request_id === featureId);
+    return v ? v.vote : 0;
   };
 
   return (
@@ -67,6 +132,8 @@ export default function Roadmap() {
           <button
             className="flex items-center gap-2 bg-orange-500 hover:bg-orange-600 text-white font-bold px-4 py-2 rounded shadow transition"
             onClick={() => setFeatureModalOpen(true)}
+            disabled={!userId}
+            title={!userId ? 'Log in to request a feature' : ''}
           >
             <Plus className="w-4 h-4" /> Request a feature
           </button>
@@ -143,6 +210,7 @@ export default function Roadmap() {
                   value={featureTitle}
                   onChange={e => setFeatureTitle(e.target.value)}
                   required
+                  disabled={submitting}
                 />
                 <textarea
                   className="w-full border border-gray-300 rounded px-3 py-2 mb-4 text-gray-900"
@@ -150,44 +218,53 @@ export default function Roadmap() {
                   value={featureDesc}
                   onChange={e => setFeatureDesc(e.target.value)}
                   rows={3}
+                  disabled={submitting}
                 />
                 <div className="flex justify-end gap-2">
-                  <button type="button" onClick={() => setFeatureModalOpen(false)} className="px-4 py-2 rounded bg-gray-200 text-gray-700 font-semibold hover:bg-gray-300">Cancel</button>
-                  <button type="submit" className="px-4 py-2 rounded bg-orange-500 text-white font-bold hover:bg-orange-600">Submit</button>
+                  <button type="button" onClick={() => setFeatureModalOpen(false)} className="px-4 py-2 rounded bg-gray-200 text-gray-700 font-semibold hover:bg-gray-300" disabled={submitting}>Cancel</button>
+                  <button type="submit" className="px-4 py-2 rounded bg-orange-500 text-white font-bold hover:bg-orange-600" disabled={submitting || !featureTitle.trim()}>Submit</button>
                 </div>
               </form>
             </div>
           </div>
         )}
         {/* Feature Requests List */}
-        {featureRequests.length > 0 && (
+        {loading ? (
+          <div className="text-white text-center py-12"><Loader className="animate-spin inline-block mr-2" /> Loading feature requests...</div>
+        ) : featureRequests.length > 0 && (
           <section className="mt-12" id="feature-requests">
             <h2 className="text-2xl font-bold text-white mb-4">Requested Features (Vote!)</h2>
             <ul className="space-y-4">
-              {featureRequests.map((req, idx) => (
-                <li key={idx} className="bg-gray-800/70 border border-gray-700 rounded-lg p-4 flex flex-col md:flex-row md:items-center md:justify-between">
-                  <div>
-                    <div className="font-semibold text-white text-lg mb-1">{req.title}</div>
-                    {req.desc && <div className="text-gray-300 text-sm mb-2">{req.desc}</div>}
-                  </div>
-                  <div className="flex items-center gap-3 mt-2 md:mt-0">
-                    <button
-                      className="flex items-center gap-1 px-3 py-1 rounded bg-green-600 hover:bg-green-700 text-white font-bold"
-                      onClick={() => handleVote(idx, 'up')}
-                      aria-label="Thumbs up"
-                    >
-                      <ThumbsUp className="w-4 h-4" /> {req.up}
-                    </button>
-                    <button
-                      className="flex items-center gap-1 px-3 py-1 rounded bg-red-600 hover:bg-red-700 text-white font-bold"
-                      onClick={() => handleVote(idx, 'down')}
-                      aria-label="Thumbs down"
-                    >
-                      <ThumbsDown className="w-4 h-4" /> {req.down}
-                    </button>
-                  </div>
-                </li>
-              ))}
+              {featureRequests.map((req) => {
+                const { up, down } = getVoteCounts(req.id);
+                const userVote = getUserVote(req.id);
+                return (
+                  <li key={req.id} className="bg-gray-800/70 border border-gray-700 rounded-lg p-4 flex flex-col md:flex-row md:items-center md:justify-between">
+                    <div>
+                      <div className="font-semibold text-white text-lg mb-1">{req.title}</div>
+                      {req.description && <div className="text-gray-300 text-sm mb-2">{req.description}</div>}
+                    </div>
+                    <div className="flex items-center gap-3 mt-2 md:mt-0">
+                      <button
+                        className={`flex items-center gap-1 px-3 py-1 rounded font-bold ${userVote === 1 ? 'bg-green-700' : 'bg-green-600 hover:bg-green-700'} text-white`}
+                        onClick={() => handleVote(req.id, 1)}
+                        aria-label="Thumbs up"
+                        disabled={voteLoading === req.id + 1}
+                      >
+                        <ThumbsUp className="w-4 h-4" /> {up}
+                      </button>
+                      <button
+                        className={`flex items-center gap-1 px-3 py-1 rounded font-bold ${userVote === -1 ? 'bg-red-700' : 'bg-red-600 hover:bg-red-700'} text-white`}
+                        onClick={() => handleVote(req.id, -1)}
+                        aria-label="Thumbs down"
+                        disabled={voteLoading === req.id + -1}
+                      >
+                        <ThumbsDown className="w-4 h-4" /> {down}
+                      </button>
+                    </div>
+                  </li>
+                );
+              })}
             </ul>
           </section>
         )}

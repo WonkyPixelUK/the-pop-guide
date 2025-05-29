@@ -334,7 +334,7 @@ const Profile = () => {
         )}
         {/* Profile Section */}
         <section className="py-8 px-4">
-          <div className="container mx-auto max-w-6xl">
+          <div className="grid gap-6 grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 auto-rows-fr">
             {/* Profile Card */}
             <Card className="bg-gray-800/50 border-gray-700 mb-8">
               <CardHeader>
