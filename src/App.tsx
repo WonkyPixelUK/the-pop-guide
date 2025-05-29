@@ -47,6 +47,7 @@ import AuthSuccess from "./pages/auth/success";
 import AuthDeclined from "./pages/auth/declined";
 import ChromeExtension from "./pages/ChromeExtension";
 import Roadmap from "./pages/roadmap";
+import ShoppersAdvice from "./pages/ShoppersAdvice";
 
 const queryClient = new QueryClient();
 
@@ -99,6 +100,7 @@ const App = () => (
             <Route path="/roadmap" element={<Roadmap />} />
             <Route path="/auth/success" element={<AuthSuccess />} />
             <Route path="/auth/declined" element={<AuthDeclined />} />
+            <Route path="/shoppers-advice" element={<ShoppersAdvice />} />
 
             {/* ADD ALL CUSTOM ROUTES ABOVE THE CATCH-ALL "*" ROUTE */}
             <Route path="*" element={<NotFound />} />

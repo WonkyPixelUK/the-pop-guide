@@ -35,8 +35,9 @@ const inPlanning = [
   'More Gamification',
 ];
 const changelog = [
-  { version: 'v1.1.0', date: '2024-06-10', details: 'Bulk actions, CSV import/export, value alerts, insurance report, social upgrades, analytics, wish tracker, gamification, recommendations, showcase/shelf.' },
-  { version: 'v1.0.0', date: '2024-05-01', details: 'Initial launch, collection tracking, wishlist, analytics, notifications, public profiles.' },
+  { version: 'v1.1.1', date: '29/04/2025', details: 'Added 60+ new feature requests for voting and improved roadmap display.' },
+  { version: 'v1.1.0', date: '12/06/2024', details: 'Bulk actions, CSV import/export, value alerts, insurance report, social upgrades, analytics, wish tracker, gamification, recommendations, showcase/shelf.' },
+  { version: 'v1.0.0', date: '01/05/2024', details: 'Initial launch, collection tracking, wishlist, analytics, notifications, public profiles.' },
 ];
 
 export default function Roadmap() {
@@ -138,29 +139,28 @@ export default function Roadmap() {
             <Plus className="w-4 h-4" /> Request a feature
           </button>
         </div>
+        {/* Latest Version Highlight */}
+        <div className="mb-10">
+          <div className="bg-gradient-to-r from-green-500 to-green-700 rounded-xl shadow-lg p-6 flex flex-col md:flex-row md:items-center md:justify-between border-4 border-green-300 animate-pop">
+            <div>
+              <div className="text-2xl md:text-3xl font-extrabold text-white mb-2 flex items-center gap-3">
+                <Rocket className="w-8 h-8 text-white animate-bounce" />
+                v1.1.1 <span className="text-green-200 text-lg font-bold ml-3">(29/04/2025)</span>
+              </div>
+              <div className="text-lg text-white font-semibold">Added 60+ new feature requests for voting and improved roadmap display.</div>
+            </div>
+          </div>
+        </div>
         <div className="grid grid-cols-1 md:grid-cols-4 gap-6 mb-12">
-          {/* Deployed */}
-          <Card className="bg-gray-900 border-2 border-green-500 rounded-lg shadow-md animate-pulse-green">
+          {/* In Planning */}
+          <Card className="bg-gray-900 border-2 border-gray-500 rounded-lg shadow-md">
             <CardContent className="p-6">
               <div className="flex items-center gap-2 mb-2">
-                <CheckCircle className="w-5 h-5 text-green-400 animate-pop" />
-                <span className="font-bold text-green-300">Deployed</span>
+                <Lightbulb className="w-5 h-5 text-gray-300 animate-flicker" />
+                <span className="font-bold text-gray-300">In Planning</span>
               </div>
               <ul className="text-sm text-gray-200 space-y-1">
-                {deployed.map(f => <li key={f}>{f}</li>)}
-              </ul>
-              <div className="text-xs text-gray-400 mt-2">Latest: v1.1.0 (2024-06-10)</div>
-            </CardContent>
-          </Card>
-          {/* Being Built */}
-          <Card className="bg-gray-900 border-2 border-blue-500 rounded-lg shadow-md">
-            <CardContent className="p-6">
-              <div className="flex items-center gap-2 mb-2">
-                <Loader className="w-5 h-5 text-blue-400 animate-spin" />
-                <span className="font-bold text-blue-300">Being Built</span>
-              </div>
-              <ul className="text-sm text-gray-200 space-y-1">
-                {beingBuilt.map(f => <li key={f}>{f}</li>)}
+                {inPlanning.map(f => <li key={f}>{f}</li>)}
               </ul>
             </CardContent>
           </Card>
@@ -176,23 +176,36 @@ export default function Roadmap() {
               </ul>
             </CardContent>
           </Card>
-          {/* In Planning */}
-          <Card className="bg-gray-900 border-2 border-gray-500 rounded-lg shadow-md">
+          {/* Being Built */}
+          <Card className="bg-gray-900 border-2 border-blue-500 rounded-lg shadow-md">
             <CardContent className="p-6">
               <div className="flex items-center gap-2 mb-2">
-                <Lightbulb className="w-5 h-5 text-gray-300 animate-flicker" />
-                <span className="font-bold text-gray-300">In Planning</span>
+                <Loader className="w-5 h-5 text-blue-400 animate-spin" />
+                <span className="font-bold text-blue-300">Being Built</span>
               </div>
               <ul className="text-sm text-gray-200 space-y-1">
-                {inPlanning.map(f => <li key={f}>{f}</li>)}
+                {beingBuilt.map(f => <li key={f}>{f}</li>)}
               </ul>
+            </CardContent>
+          </Card>
+          {/* Deployed */}
+          <Card className="bg-gray-900 border-2 border-green-500 rounded-lg shadow-md animate-pulse-green">
+            <CardContent className="p-6">
+              <div className="flex items-center gap-2 mb-2">
+                <CheckCircle className="w-5 h-5 text-green-400 animate-pop" />
+                <span className="font-bold text-green-300">Deployed</span>
+              </div>
+              <ul className="text-sm text-gray-200 space-y-1">
+                {deployed.map(f => <li key={f}>{f}</li>)}
+              </ul>
+              <div className="text-xs text-gray-400 mt-2">Latest: v1.1.1 (29/04/2025)</div>
             </CardContent>
           </Card>
         </div>
         {/* Changelog/Version Control */}
         <div className="bg-gray-900 border border-gray-700 rounded p-6 text-sm text-gray-300">
           <h2 className="text-xl font-bold text-white mb-4">Changelog</h2>
-          {changelog.map(entry => (
+          {changelog.slice(1).map(entry => (
             <div key={entry.version} className="mb-2">
               <span className={`font-bold ${entry.version === 'v1.1.0' ? 'text-green-400' : 'text-blue-400'}`}>{entry.version}</span> ({entry.date}): {entry.details}
             </div>
@@ -266,6 +279,16 @@ export default function Roadmap() {
                 );
               })}
             </ul>
+            {/* Back to Top Button */}
+            <div className="flex justify-center mt-10">
+              <button
+                className="bg-orange-500 hover:bg-orange-600 text-white font-bold px-6 py-3 rounded-full shadow-lg transition text-lg"
+                onClick={() => window.scrollTo({ top: 0, behavior: 'smooth' })}
+                aria-label="Back to top"
+              >
+                ↑ Back to Top
+              </button>
+            </div>
           </section>
         )}
       </div>

@@ -24,13 +24,18 @@ const Footer = () => {
   return (
     <footer className="bg-gray-900 border-t border-gray-700 py-12 px-4">
       <div className="container mx-auto">
-        <div className="grid grid-cols-1 md:grid-cols-4 gap-8">
-          <div>
+        <div className="grid grid-cols-1 md:grid-cols-5 gap-8">
+          <div className="flex flex-col items-start">
             <img 
               src="https://Maintainhq-pull-zone.b-cdn.net/02_the_pop_guide/pop-guide-logo-trans-white.svg" 
               alt="PopGuide Logo" 
               className="h-16 w-auto mb-4"
             />
+            <div className="flex gap-2 mb-4 mt-1">
+              <button aria-label="System" className={`p-1 rounded-full ${theme==='system' ? 'bg-orange-100' : ''}`} onClick={() => setTheme('system')}><Monitor className="w-4 h-4" color="#e46c1b" /></button>
+              <button aria-label="Light" className={`p-1 rounded-full ${theme==='light' ? 'bg-orange-100' : ''}`} onClick={() => setTheme('light')}><Sun className="w-4 h-4" color="#e46c1b" /></button>
+              <button aria-label="Dark" className={`p-1 rounded-full ${theme==='dark' ? 'bg-orange-100' : ''}`} onClick={() => setTheme('dark')}><Moon className="w-4 h-4" color="#e46c1b" /></button>
+            </div>
             <p className="text-gray-400">
               The ultimate platform for Funko Pop collectors to track, value, and showcase their collections.
             </p>
@@ -62,6 +67,13 @@ const Footer = () => {
               <li><Link to="/blog" className="hover:text-orange-500 transition-colors">Blog</Link></li>
               <li><a href="https://discord.gg/J8WkTpKc" target="_blank" rel="noopener noreferrer" className="hover:text-orange-500 transition-colors">Discord</a></li>
               <li><a href="https://www.tiktok.com/@popguideuk" target="_blank" rel="noopener noreferrer" className="hover:text-orange-500 transition-colors">TikTok</a></li>
+            </ul>
+          </div>
+          <div>
+            <h4 className="text-white font-semibold mb-4">Retailers</h4>
+            <ul className="space-y-2 text-gray-400">
+              <li><Link to="/directory" className="hover:text-orange-500 transition-colors">Browse Retailers</Link></li>
+              <li><Link to="/retailers/become" className="hover:text-orange-500 transition-colors">Add your business</Link></li>
             </ul>
           </div>
         </div>

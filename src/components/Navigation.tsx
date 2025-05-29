@@ -1,9 +1,9 @@
+import React, { useState, useEffect } from 'react';
 import { Link, useLocation } from 'react-router-dom';
 import { Button } from '@/components/ui/button';
-import { Activity, LogIn, LogOut, Plus, Search, Menu, Home, List, DollarSign, Star, Server, Sun, Moon, Monitor, ChevronDown, Facebook } from 'lucide-react';
+import { Activity, LogIn, LogOut, Plus, Search, Menu, Home, List, DollarSign, Star, Server, Sun, Moon, Monitor, ChevronDown, Facebook, Users, HelpCircle, Store } from 'lucide-react';
 import { useAuth } from '@/hooks/useAuth';
 import { useToast } from '@/hooks/use-toast';
-import { useState, useEffect } from 'react';
 import { CommandDialog, CommandInput, CommandList, CommandItem, CommandEmpty } from '@/components/ui/command';
 import { useFunkoPops, useUserCollection, useAddToCollection } from '@/hooks/useFunkoPops';
 import { Loader2, Check } from 'lucide-react';
@@ -92,11 +92,18 @@ const Navigation = () => {
       {/* Sticky Top Bar for Action Buttons */}
       <div className="sticky top-0 z-50 w-full bg-[#FFF6ED] border-b border-orange-200">
         <div className="max-w-screen-xl mx-auto flex justify-between items-center px-4 py-0.5" style={{ minHeight: '28px' }}>
-          {/* Theme Toggle Left */}
-          <div className="flex items-center gap-1">
-            <button aria-label="System" className={`p-1 rounded-full ${theme==='system' ? 'bg-gray-200' : ''}`} onClick={() => setTheme('system')}><Monitor className="w-4 h-4 text-[#232837]" /></button>
-            <button aria-label="Light" className={`p-1 rounded-full ${theme==='light' ? 'bg-gray-200' : ''}`} onClick={() => setTheme('light')}><Sun className="w-4 h-4 text-[#232837]" /></button>
-            <button aria-label="Dark" className={`p-1 rounded-full ${theme==='dark' ? 'bg-gray-200' : ''}`} onClick={() => setTheme('dark')}><Moon className="w-4 h-4 text-[#232837]" /></button>
+          {/* Social Icons Left */}
+          <div className="flex items-center gap-3">
+            {/* Social Icons */}
+            <a href="https://www.facebook.com/profile.php?id=61574031106533" target="_blank" rel="noopener noreferrer" className="hover:text-orange-500 transition-colors"><Facebook className="w-4 h-4" color="#e46c1b" /></a>
+            <a href="https://discord.gg/J8WkTpKc" target="_blank" rel="noopener noreferrer" aria-label="Discord" className="hover:text-orange-500 transition-colors">
+              <svg viewBox="0 0 24 24" fill="#e46c1b" className="w-4 h-4" xmlns="http://www.w3.org/2000/svg">
+                <path d="M20.317 4.3698a19.7913 19.7913 0 00-4.8851-1.5152.0741.0741 0 00-.0785.0371c-.211.3753-.4447.8648-.6083 1.2495-1.8447-.2762-3.68-.2762-5.4868 0-.1636-.3933-.4058-.8742-.6177-1.2495a.077.077 0 00-.0785-.037 19.7363 19.7363 0 00-4.8852 1.515.0699.0699 0 00-.0321.0277C.5334 9.0458-.319 13.5799.0992 18.0578a.0824.0824 0 00.0312.0561c2.0528 1.5076 4.0413 2.4228 5.9929 3.0294a.0777.0777 0 00.0842-.0276c.4616-.6304.8731-1.2952 1.226-1.9942a.076.076 0 00-.0416-.1057c-.6528-.2476-1.2743-.5495-1.8722-.8923a.077.077 0 01-.0076-.1277c.1258-.0943.2517-.1923.3718-.2914a.0743.0743 0 01.0776-.0105c3.9278 1.7933 8.18 1.7933 12.0614 0a.0739.0739 0 01.0785.0095c.1202.099.246.1981.3728.2924a.077.077 0 01-.0066.1276c-.598.3428-1.2205.6447-1.8733.8923a.0766.0766 0 00-.0407.1067c.3604.698.7719 1.3628 1.225 1.9932a.076.076 0 00.0842.0286c1.961-.6067 3.9495-1.5219 6.0023-3.0294a.077.077 0 00.0313-.0552c.5004-5.177-.8382-9.6739-3.5485-13.6604a.061.061 0 00-.0312-.0286zM8.02 15.3312c-1.1825 0-2.1569-1.0857-2.1569-2.419 0-1.3332.9555-2.4189 2.157-2.4189 1.2108 0 2.1757 1.0952 2.1568 2.419 0 1.3332-.9555 2.4189-2.1569 2.4189zm7.9748 0c-1.1825 0-2.1569-1.0857-2.1569-2.419 0-1.3332.9554-2.4189 2.1569-2.4189 1.2108 0 2.1757 1.0952 2.1568 2.419 0 1.3332-.946 2.4189-2.1568 2.4189Z" />
+              </svg>
+            </a>
+            <a href="https://www.tiktok.com/@popguideuk" target="_blank" rel="noopener noreferrer" aria-label="TikTok" className="hover:text-orange-500 transition-colors">
+              <FaTiktok className="w-4 h-4" color="#e46c1b" />
+            </a>
             {/* Currency Switcher */}
             <div className="ml-3 flex items-center gap-1 bg-gray-200 rounded px-2 py-1">
               <button
@@ -175,59 +182,96 @@ const Navigation = () => {
             >
               Lists
             </Link>
-            <Link to="/members" className="text-white hover:text-orange-500 font-normal text-base transition-colors">Members</Link>
+            {/* Community Dropdown */}
             <DropdownMenu as="div" className="relative inline-block text-left">
               <DropdownMenu.Button className="flex items-center text-white hover:text-orange-500 font-normal text-base transition-colors">
-                Support <ChevronDown className="ml-1 w-5 h-5" />
+                Community <ChevronDown className="ml-1 w-5 h-5 text-[#e46c1b] animate-bounce-y" />
               </DropdownMenu.Button>
-              <DropdownMenu.Items className="origin-top-right absolute right-0 mt-2 w-56 rounded-md shadow-lg bg-gray-800 ring-1 ring-black ring-opacity-5 focus:outline-none z-50">
+              <DropdownMenu.Items className="origin-top-right absolute right-0 mt-2 w-64 rounded-xl shadow-2xl bg-[#232837] border border-gray-800 focus:outline-none z-50 p-2">
                 <DropdownMenu.Item>
-                <Link to="/api" className="block px-4 py-2 text-sm text-white hover:bg-gray-700">API</Link>
-                  
+                  <Link to="/members" className="flex items-center gap-3 px-4 py-3 text-base font-medium text-white rounded-lg transition group hover:bg-gray-800/80 hover:border-l-4 hover:border-orange-500">
+                    <Users className="w-5 h-5 text-orange-400 group-hover:scale-110 transition-transform" /> Members
+                  </Link>
                 </DropdownMenu.Item>
                 <DropdownMenu.Item>
-                <Link to="/faq" className="block px-4 py-2 text-sm text-white hover:bg-gray-700">FAQ</Link>
-                  
+                  <Link to="/shoppers-advice" className="flex items-center gap-3 px-4 py-3 text-base font-medium text-white rounded-lg transition group hover:bg-gray-800/80 hover:border-l-4 hover:border-orange-500">
+                    <HelpCircle className="w-5 h-5 text-orange-400 group-hover:scale-110 transition-transform" /> Shoppers Advice
+                  </Link>
                 </DropdownMenu.Item>
                 <DropdownMenu.Item>
-                <Link to="/log-ticket" className="block px-4 py-2 text-sm text-white hover:bg-gray-700">Log a ticket</Link>
-                
+                  <Link to="/deals" className="flex items-center gap-3 px-4 py-3 text-base font-medium text-white rounded-lg transition group hover:bg-gray-800/80 hover:border-l-4 hover:border-orange-500">
+                    <DollarSign className="w-5 h-5 text-orange-400 group-hover:scale-110 transition-transform" /> Latest Deals
+                  </Link>
                 </DropdownMenu.Item>
                 <DropdownMenu.Item>
-                <Link to="/howitworks" className="block px-4 py-2 text-sm text-white hover:bg-gray-700">How it works</Link>
+                  <Link to="/coming-soon" className="flex items-center gap-3 px-4 py-3 text-base font-medium text-white rounded-lg transition group hover:bg-gray-800/80 hover:border-l-4 hover:border-orange-500">
+                    <Star className="w-5 h-5 text-orange-400 group-hover:scale-110 transition-transform" /> Coming Soon
+                  </Link>
                 </DropdownMenu.Item>
                 <DropdownMenu.Item>
-                  
-                  <Link to="/system-status" className="block px-4 py-2 text-sm text-white hover:bg-gray-700">Service Status</Link>
-                </DropdownMenu.Item>
-                <DropdownMenu.Item>
-                <Link to="/roadmap" className="block px-4 py-2 text-sm text-white hover:bg-gray-700">Roadmap & Changelog</Link>
+                  <Link to="/browse-lists" className="flex items-center gap-3 px-4 py-3 text-base font-medium text-white rounded-lg transition group hover:bg-gray-800/80 hover:border-l-4 hover:border-orange-500">
+                    <List className="w-5 h-5 text-orange-400 group-hover:scale-110 transition-transform" /> Lists
+                  </Link>
                 </DropdownMenu.Item>
               </DropdownMenu.Items>
             </DropdownMenu>
+            {/* Support Dropdown */}
             <DropdownMenu as="div" className="relative inline-block text-left">
               <DropdownMenu.Button className="flex items-center text-white hover:text-orange-500 font-normal text-base transition-colors">
-                Retailers <ChevronDown className="ml-1 w-5 h-5" />
+                Support <ChevronDown className="ml-1 w-5 h-5 text-[#e46c1b] animate-bounce-y" />
               </DropdownMenu.Button>
-              <DropdownMenu.Items className="origin-top-right absolute right-0 mt-2 w-56 rounded-md shadow-lg bg-gray-800 ring-1 ring-black ring-opacity-5 focus:outline-none z-50">
+              <DropdownMenu.Items className="origin-top-right absolute right-0 mt-2 w-64 rounded-xl shadow-2xl bg-[#232837] border border-gray-800 focus:outline-none z-50 p-2">
                 <DropdownMenu.Item>
-                  <Link to="/directory" className="block px-4 py-2 text-sm text-white hover:bg-gray-700">Browse Retailers</Link>
+                  <Link to="/api" className="flex items-center gap-3 px-4 py-3 text-base font-medium text-white rounded-lg transition group hover:bg-gray-800/80 hover:border-l-4 hover:border-orange-500">
+                    <HelpCircle className="w-5 h-5 text-orange-400 group-hover:scale-110 transition-transform" /> API
+                  </Link>
                 </DropdownMenu.Item>
                 <DropdownMenu.Item>
-                  <Link to="/retailers/become" className="block px-4 py-2 text-sm text-white hover:bg-gray-700">Add your business</Link>
+                  <Link to="/faq" className="flex items-center gap-3 px-4 py-3 text-base font-medium text-white rounded-lg transition group hover:bg-gray-800/80 hover:border-l-4 hover:border-orange-500">
+                    <HelpCircle className="w-5 h-5 text-orange-400 group-hover:scale-110 transition-transform" /> FAQ
+                  </Link>
+                </DropdownMenu.Item>
+                <DropdownMenu.Item>
+                  <Link to="/log-ticket" className="flex items-center gap-3 px-4 py-3 text-base font-medium text-white rounded-lg transition group hover:bg-gray-800/80 hover:border-l-4 hover:border-orange-500">
+                    <HelpCircle className="w-5 h-5 text-orange-400 group-hover:scale-110 transition-transform" /> Log a ticket
+                  </Link>
+                </DropdownMenu.Item>
+                <DropdownMenu.Item>
+                  <Link to="/howitworks" className="flex items-center gap-3 px-4 py-3 text-base font-medium text-white rounded-lg transition group hover:bg-gray-800/80 hover:border-l-4 hover:border-orange-500">
+                    <HelpCircle className="w-5 h-5 text-orange-400 group-hover:scale-110 transition-transform" /> How it works
+                  </Link>
+                </DropdownMenu.Item>
+                <DropdownMenu.Item>
+                  <Link to="/system-status" className="flex items-center gap-3 px-4 py-3 text-base font-medium text-white rounded-lg transition group hover:bg-gray-800/80 hover:border-l-4 hover:border-orange-500">
+                    <HelpCircle className="w-5 h-5 text-orange-400 group-hover:scale-110 transition-transform" /> Service Status
+                  </Link>
+                </DropdownMenu.Item>
+                <DropdownMenu.Item>
+                  <Link to="/roadmap" className="flex items-center gap-3 px-4 py-3 text-base font-medium text-white rounded-lg transition group hover:bg-gray-800/80 hover:border-l-4 hover:border-orange-500">
+                    <HelpCircle className="w-5 h-5 text-orange-400 group-hover:scale-110 transition-transform" /> Roadmap & Changelog
+                  </Link>
+                </DropdownMenu.Item>
+              </DropdownMenu.Items>
+            </DropdownMenu>
+            {/* Retailers Dropdown */}
+            <DropdownMenu as="div" className="relative inline-block text-left">
+              <DropdownMenu.Button className="flex items-center text-white hover:text-orange-500 font-normal text-base transition-colors">
+                Retailers <ChevronDown className="ml-1 w-5 h-5 text-[#e46c1b] animate-bounce-y" />
+              </DropdownMenu.Button>
+              <DropdownMenu.Items className="origin-top-right absolute right-0 mt-2 w-64 rounded-xl shadow-2xl bg-[#232837] border border-gray-800 focus:outline-none z-50 p-2">
+                <DropdownMenu.Item>
+                  <Link to="/directory" className="flex items-center gap-3 px-4 py-3 text-base font-medium text-white rounded-lg transition group hover:bg-gray-800/80 hover:border-l-4 hover:border-orange-500">
+                    <Store className="w-5 h-5 text-orange-400 group-hover:scale-110 transition-transform" /> Browse Retailers
+                  </Link>
+                </DropdownMenu.Item>
+                <DropdownMenu.Item>
+                  <Link to="/retailers/become" className="flex items-center gap-3 px-4 py-3 text-base font-medium text-white rounded-lg transition group hover:bg-gray-800/80 hover:border-l-4 hover:border-orange-500">
+                    <Store className="w-5 h-5 text-orange-400 group-hover:scale-110 transition-transform" /> Add your business
+                  </Link>
                 </DropdownMenu.Item>
               </DropdownMenu.Items>
             </DropdownMenu>
             {user && <Link to="/dashboard" className="text-white hover:text-orange-500 font-normal text-base transition-colors">Dashboard</Link>}
-            <a href="https://www.facebook.com/profile.php?id=61574031106533" target="_blank" rel="noopener noreferrer" className="ml-4 text-white hover:text-orange-500 transition-colors"><Facebook className="w-5 h-5" /></a>
-            <a href="https://discord.gg/J8WkTpKc" target="_blank" rel="noopener noreferrer" className="ml-2 text-white hover:text-orange-500 transition-colors" aria-label="Discord">
-              <svg viewBox="0 0 24 24" fill="currentColor" className="w-5 h-5" xmlns="http://www.w3.org/2000/svg">
-                <path d="M20.317 4.3698a19.7913 19.7913 0 00-4.8851-1.5152.0741.0741 0 00-.0785.0371c-.211.3753-.4447.8648-.6083 1.2495-1.8447-.2762-3.68-.2762-5.4868 0-.1636-.3933-.4058-.8742-.6177-1.2495a.077.077 0 00-.0785-.037 19.7363 19.7363 0 00-4.8852 1.515.0699.0699 0 00-.0321.0277C.5334 9.0458-.319 13.5799.0992 18.0578a.0824.0824 0 00.0312.0561c2.0528 1.5076 4.0413 2.4228 5.9929 3.0294a.0777.0777 0 00.0842-.0276c.4616-.6304.8731-1.2952 1.226-1.9942a.076.076 0 00-.0416-.1057c-.6528-.2476-1.2743-.5495-1.8722-.8923a.077.077 0 01-.0076-.1277c.1258-.0943.2517-.1923.3718-.2914a.0743.0743 0 01.0776-.0105c3.9278 1.7933 8.18 1.7933 12.0614 0a.0739.0739 0 01.0785.0095c.1202.099.246.1981.3728.2924a.077.077 0 01-.0066.1276c-.598.3428-1.2205.6447-1.8733.8923a.0766.0766 0 00-.0407.1067c.3604.698.7719 1.3628 1.225 1.9932a.076.076 0 00.0842.0286c1.961-.6067 3.9495-1.5219 6.0023-3.0294a.077.077 0 00.0313-.0552c.5004-5.177-.8382-9.6739-3.5485-13.6604a.061.061 0 00-.0312-.0286zM8.02 15.3312c-1.1825 0-2.1569-1.0857-2.1569-2.419 0-1.3332.9555-2.4189 2.157-2.4189 1.2108 0 2.1757 1.0952 2.1568 2.419 0 1.3332-.9555 2.4189-2.1569 2.4189zm7.9748 0c-1.1825 0-2.1569-1.0857-2.1569-2.419 0-1.3332.9554-2.4189 2.1569-2.4189 1.2108 0 2.1757 1.0952 2.1568 2.419 0 1.3332-.946 2.4189-2.1568 2.4189Z" />
-              </svg>
-            </a>
-            <a href="https://www.tiktok.com/@popguideuk" target="_blank" rel="noopener noreferrer" aria-label="TikTok">
-              <FaTiktok className="w-5 h-5" color="white" />
-            </a>
           </nav>
         </div>
       </header>
