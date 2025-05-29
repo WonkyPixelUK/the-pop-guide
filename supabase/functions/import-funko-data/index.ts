@@ -1,4 +1,3 @@
-
 import { serve } from "https://deno.land/std@0.168.0/http/server.ts"
 import { createClient } from 'https://esm.sh/@supabase/supabase-js@2'
 
@@ -313,9 +312,10 @@ serve(async (req) => {
       console.log(`🚀 Processing batch ${batchNumber}/${totalBatches} (${batch.length} records)`);
       
       try {
-        const { error } = await supabase
+        const { data: inserted, error } = await supabase
           .from('funko_pops')
-          .insert(batch);
+          .insert(batch)
+          .select();
 
         if (error) {
           console.error(`❌ Batch ${batchNumber} error:`, error);
@@ -323,6 +323,31 @@ serve(async (req) => {
         } else {
           importedCount += batch.length;
           console.log(`✅ Batch ${batchNumber}/${totalBatches} completed, total imported: ${importedCount}`);
+          // --- Saved Search Notification Logic ---
+          if (inserted && inserted.length > 0) {
+            // Fetch all saved searches
+            const { data: savedSearches } = await supabase
+              .from('saved_searches')
+              .select('*');
+            for (const pop of inserted) {
+              for (const search of savedSearches || []) {
+                const q = search.query?.q?.toLowerCase?.() || '';
+                if (
+                  (pop.name && pop.name.toLowerCase().includes(q)) ||
+                  (pop.series && pop.series.toLowerCase().includes(q)) ||
+                  (pop.number && pop.number.toLowerCase().includes(q))
+                ) {
+                  await supabase.from('notifications').insert({
+                    user_id: search.user_id,
+                    type: 'saved_search_match',
+                    message: `New Pop matches your saved search: "${search.name}"`,
+                    data: { pop_id: pop.id, search_id: search.id },
+                  });
+                }
+              }
+            }
+          }
+          // --- End Saved Search Notification Logic ---
         }
       } catch (batchError) {
         console.error(`❌ Batch ${batchNumber} failed:`, batchError);

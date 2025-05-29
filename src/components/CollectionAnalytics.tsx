@@ -1,4 +1,3 @@
-
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { BarChart3, TrendingUp, Award, Target, DollarSign, Calendar } from "lucide-react";
 import { LineChart, Line, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer, PieChart, Pie, Cell } from 'recharts';
@@ -6,9 +5,10 @@ import { LineChart, Line, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContai
 interface CollectionAnalyticsProps {
   userCollection: any[];
   funkoPops: any[];
+  profile?: any;
 }
 
-const CollectionAnalytics = ({ userCollection, funkoPops }: CollectionAnalyticsProps) => {
+const CollectionAnalytics = ({ userCollection, funkoPops, profile }: CollectionAnalyticsProps) => {
   // Calculate analytics data with proper type safety
   const totalValue = userCollection.reduce((sum, item) => {
     const value = item.funko_pops?.estimated_value;
@@ -62,6 +62,10 @@ const CollectionAnalytics = ({ userCollection, funkoPops }: CollectionAnalyticsP
   const topSeriesName: string = seriesEntries.length > 0 ? seriesEntries[0][0] : 'N/A';
   const topSeriesCount: number = seriesEntries.length > 0 ? seriesEntries[0][1] : 0;
 
+  // Get value change and last updated from profile if available
+  const valueChange = profile?.last_collection_value_change ?? 0;
+  const lastUpdated = profile?.last_collection_value_updated;
+
   return (
     <div className="space-y-6">
       <h2 className="text-2xl font-bold text-white mb-6">Collection Analytics</h2>
@@ -74,6 +78,10 @@ const CollectionAnalytics = ({ userCollection, funkoPops }: CollectionAnalyticsP
               <div>
                 <p className="text-gray-400 text-sm">Total Value</p>
                 <p className="text-2xl font-bold text-white">${numericTotalValue.toFixed(2)}</p>
+                {lastUpdated && (
+                  <p className="text-xs text-gray-400 mt-1">Updated {new Date(lastUpdated).toLocaleDateString()}</p>
+                )}
+                <p className={`text-xs mt-1 font-semibold ${valueChange > 0 ? 'text-green-500' : valueChange < 0 ? 'text-red-500' : 'text-gray-400'}`}>{valueChange > 0 ? '+' : ''}{valueChange.toFixed(2)} this week</p>
               </div>
               <DollarSign className="w-8 h-8 text-orange-500" />
             </div>

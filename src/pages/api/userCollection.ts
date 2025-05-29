@@ -23,7 +23,7 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
 
   if (req.method === 'GET') {
     const { data, error } = await supabase
-      .from('user_collection')
+      .from('user_collections')
       .select('*')
       .eq('user_id', userId);
     if (error) return res.status(500).json({ error: error.message });
@@ -35,7 +35,7 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
     const { funko_pop_id, ...rest } = req.body;
     if (!funko_pop_id) return res.status(400).json({ error: 'Missing funko_pop_id' });
     const { data, error } = await supabase
-      .from('user_collection')
+      .from('user_collections')
       .insert([{ user_id: userId, funko_pop_id, ...rest }])
       .select('*')
       .maybeSingle();
@@ -48,7 +48,7 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
     const { id, ...rest } = req.body;
     if (!id) return res.status(400).json({ error: 'Missing id' });
     const { data, error } = await supabase
-      .from('user_collection')
+      .from('user_collections')
       .update(rest)
       .eq('id', id)
       .eq('user_id', userId)
@@ -63,7 +63,7 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
     const { id } = req.body;
     if (!id) return res.status(400).json({ error: 'Missing id' });
     const { error } = await supabase
-      .from('user_collection')
+      .from('user_collections')
       .delete()
       .eq('id', id)
       .eq('user_id', userId);

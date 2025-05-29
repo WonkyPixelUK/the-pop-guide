@@ -2,7 +2,7 @@ import { useState } from "react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Card, CardContent } from "@/components/ui/card";
-import { Search, Plus, BarChart3, Users, Zap, LogOut } from "lucide-react";
+import { Search, Plus, BarChart3, Users, Zap, LogOut, CheckCircle, Loader, Lightbulb, ClipboardList, Rocket, Shield } from "lucide-react";
 import CollectionGrid from "@/components/CollectionGrid";
 import EnhancedAddItemDialog from "@/components/EnhancedAddItemDialog";
 import ItemDetailsDialog from "@/components/ItemDetailsDialog";
@@ -10,6 +10,8 @@ import Navigation from "@/components/Navigation";
 import { useAuth } from "@/hooks/useAuth";
 import { useFunkoPops, useUserCollection } from "@/hooks/useFunkoPops";
 import { useToast } from "@/hooks/use-toast";
+import { useCurrency } from '@/contexts/CurrencyContext';
+import { formatCurrency } from '@/utils/formatCurrency';
 
 const Index = () => {
   const [searchQuery, setSearchQuery] = useState("");
@@ -19,6 +21,7 @@ const Index = () => {
   const { user, loading: authLoading } = useAuth();
   const { data: funkoPops = [], isLoading: funkoLoading } = useFunkoPops();
   const { data: userCollection = [], isLoading: collectionLoading } = useUserCollection(user?.id);
+  const { currency } = useCurrency();
 
   // Transform data to match the existing component interface
   const transformedItems = funkoPops.map(pop => {
@@ -73,7 +76,7 @@ const Index = () => {
             <Card className="bg-gray-800/50 border-gray-700">
               <CardContent className="p-6 text-center">
                 <BarChart3 className="w-8 h-8 text-orange-500 mx-auto mb-3" />
-                <div className="text-2xl font-bold text-white">${totalValue.toFixed(2)}</div>
+                <div className="text-2xl font-bold text-white">{formatCurrency(totalValue, currency)}</div>
                 <div className="text-gray-400">Collection Value</div>
               </CardContent>
             </Card>
@@ -102,6 +105,31 @@ const Index = () => {
               Add Item
             </Button>
           )}
+        </div>
+      </section>
+
+      {/* Announcement Box: Latest Version & New Features */}
+      <section className="py-6 px-4">
+        <div className="container mx-auto">
+          <div className="bg-gradient-to-r from-orange-500 via-orange-400 to-yellow-400 border border-orange-300 rounded-xl shadow-lg p-6 flex flex-col md:flex-row md:items-center md:justify-between gap-6 animate-fade-in">
+            <div className="flex items-center gap-4">
+              <Rocket className="w-10 h-10 text-white animate-bounce" />
+              <div>
+                <div className="text-lg font-bold text-white flex items-center gap-2">
+                  PopGuide <span className="bg-white/20 text-white px-2 py-1 rounded-lg text-sm animate-pulse">v1.1.0</span>
+                </div>
+                <div className="text-white text-sm mt-1">New features just launched:</div>
+              </div>
+            </div>
+            <ul className="flex-1 grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-2 mt-4 md:mt-0 text-white text-sm font-medium">
+              <li className="flex items-center gap-2"><CheckCircle className="w-4 h-4 text-green-200 animate-pop" /> Bulk Actions (add/edit/remove)</li>
+              <li className="flex items-center gap-2"><CheckCircle className="w-4 h-4 text-green-200 animate-pop" /> CSV Import & Export</li>
+              <li className="flex items-center gap-2"><Zap className="w-4 h-4 text-yellow-200 animate-bounce" /> Smart Value Alerts</li>
+              <li className="flex items-center gap-2"><Shield className="w-4 h-4 text-blue-200 animate-fade-in" /> Collection Insurance Report</li>
+              <li className="flex items-center gap-2"><Users className="w-4 h-4 text-pink-200 animate-fade-in" /> Social & Community Upgrades</li>
+              <li className="flex items-center gap-2"><BarChart3 className="w-4 h-4 text-orange-200 animate-fade-in" /> Advanced Analytics</li>
+            </ul>
+          </div>
         </div>
       </section>
 

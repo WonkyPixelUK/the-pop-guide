@@ -23,6 +23,11 @@ interface Item {
   rarity: string;
   owned: boolean;
   description?: string;
+  fandom?: string;
+  genre?: string;
+  edition?: string;
+  release_year?: string;
+  is_vaulted?: boolean;
 }
 
 interface ItemDetailsDialogProps {
@@ -151,7 +156,11 @@ const ItemDetailsDialog = ({ item, open, onOpenChange }: ItemDetailsDialogProps)
               <span className="flex items-center"><User className="w-4 h-4 mr-1" />Character: {item.name}</span>
               <span className="flex items-center"><Calendar className="w-4 h-4 mr-1" />Series: {item.series}</span>
               <span className="flex items-center"><TrendingUp className="w-4 h-4 mr-1" />Number: {item.number}</span>
-              {/* Add more fields as needed, e.g. Fandom, Genre, Edition, Release Year, Vaulted */}
+              <span className="flex items-center">Fandom: {item.fandom || '—'}</span>
+              <span className="flex items-center">Genre: {item.genre || '—'}</span>
+              <span className="flex items-center">Edition: {item.edition || '—'}</span>
+              <span className="flex items-center">Release Year: {item.release_year || '—'}</span>
+              <span className="flex items-center">Vaulted: {item.is_vaulted ? 'Yes' : 'No'}</span>
             </div>
             <div className="flex flex-wrap gap-2 text-sm text-gray-400 mt-2">
               <span className="flex items-center"><User className="w-4 h-4 mr-1" />Owned: {item.owned ? 'Yes' : 'No'}</span>

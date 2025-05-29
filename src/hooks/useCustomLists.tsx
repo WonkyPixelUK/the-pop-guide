@@ -72,6 +72,12 @@ export const useCustomLists = () => {
         .single();
       
       if (error) throw error;
+      // Audit log
+      await supabase.from('audit_log').insert({
+        user_id: user.id,
+        action: 'create_list',
+        details: { listId: data.id, name },
+      });
       return data;
     },
     onSuccess: () => {
@@ -112,6 +118,12 @@ export const useCustomLists = () => {
         .single();
       
       if (error) throw error;
+      // Audit log
+      await supabase.from('audit_log').insert({
+        user_id: user.id,
+        action: 'update_list',
+        details: { listId, name },
+      });
       return data;
     },
     onSuccess: () => {
@@ -131,6 +143,12 @@ export const useCustomLists = () => {
         .eq('id', listId);
       
       if (error) throw error;
+      // Audit log
+      await supabase.from('audit_log').insert({
+        user_id: user.id,
+        action: 'delete_list',
+        details: { listId },
+      });
     },
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ['custom-lists'] });
@@ -151,6 +169,12 @@ export const useCustomLists = () => {
         });
       
       if (error) throw error;
+      // Audit log
+      await supabase.from('audit_log').insert({
+        user_id: user.id,
+        action: 'add_to_list',
+        details: { listId, funkoPopId },
+      });
       return data;
     },
     onSuccess: () => {
@@ -171,6 +195,12 @@ export const useCustomLists = () => {
         .eq('funko_pop_id', funkoPopId);
       
       if (error) throw error;
+      // Audit log
+      await supabase.from('audit_log').insert({
+        user_id: user.id,
+        action: 'remove_from_list',
+        details: { listId, funkoPopId },
+      });
     },
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ['custom-lists'] });

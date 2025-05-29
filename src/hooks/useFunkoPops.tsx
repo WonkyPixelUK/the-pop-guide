@@ -1,6 +1,7 @@
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import { supabase } from '@/integrations/supabase/client';
 import { Tables } from '@/integrations/supabase/types';
+import { useAuth } from '@/hooks/useAuth';
 
 type FunkoPop = Tables<'funko_pops'>;
 type UserCollection = Tables<'user_collections'>;
@@ -75,7 +76,7 @@ export const useUserCollection = (userId?: string) => {
 
 export const useAddToCollection = () => {
   const queryClient = useQueryClient();
-  
+  const { user } = useAuth();
   return useMutation({
     mutationFn: async ({ funkoPopId, userId, condition, purchasePrice }: {
       funkoPopId: string;
@@ -91,8 +92,13 @@ export const useAddToCollection = () => {
           condition: condition || 'mint',
           purchase_price: purchasePrice,
         });
-      
       if (error) throw error;
+      // Audit log
+      await supabase.from('audit_log').insert({
+        user_id: userId,
+        action: 'add_to_collection',
+        details: { funkoPopId },
+      });
       return data;
     },
     onSuccess: () => {
@@ -103,7 +109,7 @@ export const useAddToCollection = () => {
 
 export const useRemoveFromCollection = () => {
   const queryClient = useQueryClient();
-  
+  const { user } = useAuth();
   return useMutation({
     mutationFn: async ({ funkoPopId, userId }: {
       funkoPopId: string;
@@ -114,8 +120,13 @@ export const useRemoveFromCollection = () => {
         .delete()
         .eq('funko_pop_id', funkoPopId)
         .eq('user_id', userId);
-      
       if (error) throw error;
+      // Audit log
+      await supabase.from('audit_log').insert({
+        user_id: userId,
+        action: 'remove_from_collection',
+        details: { funkoPopId },
+      });
     },
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ['user-collection'] });

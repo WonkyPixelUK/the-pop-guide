@@ -6,6 +6,7 @@ import Navigation from '@/components/Navigation';
 import { Button } from '@/components/ui/button';
 import { Plus, Heart, List as ListIcon, Check } from 'lucide-react';
 import MobileBottomNav from '@/components/MobileBottomNav';
+import { supabase } from '@/integrations/supabase/client';
 
 function useQuery() {
   return new URLSearchParams(useLocation().search);
@@ -18,6 +19,7 @@ const SearchPage = () => {
   const { data: userCollection = [] } = useUserCollection(user?.id);
   const addToCollection = useAddToCollection();
   const [addedId, setAddedId] = useState<string | null>(null);
+  const [saving, setSaving] = useState(false);
 
   const filteredResults = useMemo(() => {
     const q = query.trim().toLowerCase();
@@ -38,11 +40,32 @@ const SearchPage = () => {
     setTimeout(() => setAddedId(null), 1200);
   };
 
+  const handleSaveSearch = async () => {
+    if (!user || !query) return;
+    setSaving(true);
+    const { error } = await supabase.from('saved_searches').insert({
+      user_id: user.id,
+      name: query,
+      query: { q: query },
+    });
+    setSaving(false);
+    if (error) {
+      alert('Failed to save search');
+    } else {
+      alert('Search saved!');
+    }
+  };
+
   return (
     <div className="min-h-screen bg-gradient-to-br from-gray-900 via-gray-800 to-black">
       <Navigation className="hidden md:block" />
       <div className="container mx-auto px-4 py-12">
         <h1 className="text-3xl font-bold text-white mb-8">Search Results for "{query}"</h1>
+        {user && query && (
+          <Button className="mb-6 bg-orange-500 hover:bg-orange-600 text-white" onClick={handleSaveSearch} disabled={saving}>
+            {saving ? 'Saving...' : 'Save Search'}
+          </Button>
+        )}
         {isLoading ? (
           <div className="text-gray-300">Loading...</div>
         ) : filteredResults.length === 0 ? (

@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useRef } from "react";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
@@ -13,6 +13,7 @@ import SEO from '@/components/SEO';
 import Footer from '@/components/Footer';
 import { Accordion, AccordionItem, AccordionTrigger, AccordionContent } from "@/components/ui/accordion";
 import { ChartTooltip } from "@/components/ui/chart";
+import { useState } from "react";
 
 const Contact = () => {
   const [formData, setFormData] = useState({

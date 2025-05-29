@@ -1,6 +1,6 @@
 import { Button } from "@/components/ui/button";
 import { Card, CardContent } from "@/components/ui/card";
-import { BarChart3, Users, Zap, Star, Shield, TrendingUp, Smartphone, Globe, Monitor, Check, Puzzle } from "lucide-react";
+import { BarChart3, Users, Zap, Star, Shield, TrendingUp, Smartphone, Globe, Monitor, Check, Puzzle, Rocket, CheckCircle } from "lucide-react";
 import { Link } from "react-router-dom";
 import SEO from '@/components/SEO';
 import { useState } from 'react';
@@ -10,6 +10,9 @@ import Navigation from '@/components/Navigation';
 import { Dialog, DialogContent } from '@/components/ui/dialog';
 import MobileBottomNav from '@/components/MobileBottomNav';
 import Footer from '@/components/Footer';
+import OnboardingTour from '@/components/OnboardingTour';
+import { useCurrency } from '@/contexts/CurrencyContext';
+import { formatCurrency } from '@/utils/formatCurrency';
 
 const Landing = () => {
   const [email, setEmail] = useState('');
@@ -19,6 +22,7 @@ const Landing = () => {
   const categories = Array.from(new Set(funkoPops.map(pop => pop.series))).filter(Boolean);
   const [selectedPop, setSelectedPop] = useState(null);
   const [demoOpen, setDemoOpen] = useState(false);
+  const { currency } = useCurrency();
 
   const handleSignup = (e) => {
     e.preventDefault();
@@ -28,6 +32,7 @@ const Landing = () => {
 
   return (
     <>
+      <OnboardingTour />
       <SEO />
       <div className="min-h-screen bg-gradient-to-br from-gray-900 via-gray-800 to-black text-white">
         {/* Use shared Navigation component */}
@@ -105,7 +110,7 @@ const Landing = () => {
                   <Smartphone className="w-12 h-12 text-orange-500 mx-auto mb-4" />
                   <h3 className="text-xl font-bold text-white mb-3">Android</h3>
                   <p className="text-gray-400 mb-4">Install as a PWA or download from the Play Store (coming soon).</p>
-                  <a href="/android" className="inline-block bg-orange-500 hover:bg-orange-600 text-white px-6 py-2 rounded font-semibold mb-2">Android App Info</a>
+                  <a href="/android" className="inline-block bg-orange-500 hover:bg-orange-600 text-white px-6 py-2 rounded font-semibold mb-2">Learn More</a>
                 </CardContent>
               </Card>
               <Card className="bg-gray-800/50 border-gray-700 text-center">
@@ -176,7 +181,7 @@ const Landing = () => {
                     <div className="text-xs text-gray-400 mb-1">{pop.genre}</div>
                     <div className="text-xs text-gray-400 mb-1">{pop.edition}</div>
                     <div className="text-xs text-gray-400 mb-1">{pop.release_year || '—'}{pop.is_vaulted ? ' • Vaulted' : ''}</div>
-                    <div className="text-xs text-orange-400 font-bold mb-2">{typeof pop.estimated_value === 'number' ? `£${pop.estimated_value}` : 'N/A'}</div>
+                    <div className="text-xs text-orange-400 font-bold mb-2">{typeof pop.estimated_value === 'number' ? formatCurrency(pop.estimated_value, currency) : 'N/A'}</div>
                     {pop.description && <div className="text-xs text-gray-300 mb-2 line-clamp-3">{pop.description}</div>}
                   </button>
                 ))}
@@ -271,6 +276,38 @@ const Landing = () => {
                     </Button>
                   </Link>
                 </div>
+              </div>
+            </div>
+          </div>
+        </section>
+
+        {/* Announcement Box: Latest Version & New Features */}
+        <section className="py-6 px-4">
+          <div className="container mx-auto">
+            <div className="bg-gradient-to-r from-orange-500 via-orange-400 to-yellow-400 border border-orange-300 rounded-xl shadow-lg p-6 flex flex-col md:flex-row md:items-center md:justify-between gap-6 animate-fade-in">
+              <div className="flex items-center gap-4">
+                <Rocket className="w-10 h-10 text-white animate-bounce" />
+                <div>
+                  <div className="text-lg font-bold text-white flex items-center gap-2">
+                    PopGuide <span className="bg-white/20 text-white px-2 py-1 rounded-lg text-sm animate-pulse">v1.1.0</span>
+                  </div>
+                  <div className="text-white text-sm mt-1">New features just launched:</div>
+                </div>
+              </div>
+              <ul className="flex-1 grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-2 mt-4 md:mt-0 text-white text-sm font-medium">
+                <li className="flex items-center gap-2"><CheckCircle className="w-4 h-4 text-green-200 animate-pop" /> Bulk Actions (add/edit/remove)</li>
+                <li className="flex items-center gap-2"><CheckCircle className="w-4 h-4 text-green-200 animate-pop" /> CSV Import & Export</li>
+                <li className="flex items-center gap-2"><Zap className="w-4 h-4 text-yellow-200 animate-bounce" /> Smart Value Alerts</li>
+                <li className="flex items-center gap-2"><Shield className="w-4 h-4 text-blue-200 animate-fade-in" /> Collection Insurance Report</li>
+                <li className="flex items-center gap-2"><Users className="w-4 h-4 text-pink-200 animate-fade-in" /> Social & Community Upgrades</li>
+                <li className="flex items-center gap-2"><BarChart3 className="w-4 h-4 text-orange-200 animate-fade-in" /> Advanced Analytics</li>
+              </ul>
+              <div className="flex justify-end mt-4 md:mt-0">
+                <Link to="/roadmap#new-features">
+                  <Button className="bg-white text-orange-600 font-bold hover:bg-orange-100 transition">
+                    See full roadmap & changelog
+                  </Button>
+                </Link>
               </div>
             </div>
           </div>

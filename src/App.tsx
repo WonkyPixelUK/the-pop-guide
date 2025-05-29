@@ -36,7 +36,6 @@ import LogTicket from './pages/LogTicket';
 import MobileBottomNav from './components/MobileBottomNav';
 import BecomeRetailer from "./pages/retailers/become";
 import RetailerDashboard from "./pages/RetailerDashboard";
-import ChromeExtension from "./pages/ChromeExtension";
 import StickerGuide from "./pages/StickerGuide";
 import Privacy from "./pages/Privacy";
 import CookiePolicy from "./pages/CookiePolicy";
@@ -46,6 +45,8 @@ import PublicPopView from "./pages/PublicPopView";
 import Members from "./pages/Members";
 import AuthSuccess from "./pages/auth/success";
 import AuthDeclined from "./pages/auth/declined";
+import ChromeExtension from "./pages/ChromeExtension";
+import Roadmap from "./pages/roadmap";
 
 const queryClient = new QueryClient();
 
@@ -95,6 +96,7 @@ const App = () => (
             <Route path="/sticker-guide" element={<StickerGuide />} />
             <Route path="/pop/:id" element={<PublicPopView />} />
             <Route path="/members" element={<Members />} />
+            <Route path="/roadmap" element={<Roadmap />} />
             <Route path="/auth/success" element={<AuthSuccess />} />
             <Route path="/auth/declined" element={<AuthDeclined />} />
 

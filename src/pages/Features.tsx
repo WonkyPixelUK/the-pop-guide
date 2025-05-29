@@ -152,6 +152,76 @@ const Features = () => {
                   <p className="text-gray-400">Your data is encrypted and secure. Only you can access your collection.</p>
                 </CardContent>
               </Card>
+              <Card className="bg-gray-800/50 border-gray-700">
+                <CardContent className="p-8 text-center">
+                  <List className="w-12 h-12 text-orange-500 mx-auto mb-4" />
+                  <h3 className="text-xl font-bold text-white mb-3">Bulk Actions</h3>
+                  <p className="text-gray-400">Add, edit, or remove multiple Pops at once. Save time with bulk selection, editing, and removal tools.</p>
+                </CardContent>
+              </Card>
+              <Card className="bg-gray-800/50 border-gray-700">
+                <CardContent className="p-8 text-center">
+                  <List className="w-12 h-12 text-orange-500 mx-auto mb-4" />
+                  <h3 className="text-xl font-bold text-white mb-3">CSV Import & Export</h3>
+                  <p className="text-gray-400">Import your collection from a CSV file or export it for backup, insurance, or sharing. Supports all key fields.</p>
+                </CardContent>
+              </Card>
+              <Card className="bg-gray-800/50 border-gray-700">
+                <CardContent className="p-8 text-center">
+                  <Bell className="w-12 h-12 text-orange-500 mx-auto mb-4" />
+                  <h3 className="text-xl font-bold text-white mb-3">Smart Value Alerts</h3>
+                  <p className="text-gray-400">Get notified when a Pop in your collection or wishlist changes in value, or when it hits your target price.</p>
+                </CardContent>
+              </Card>
+              <Card className="bg-gray-800/50 border-gray-700">
+                <CardContent className="p-8 text-center">
+                  <Shield className="w-12 h-12 text-orange-500 mx-auto mb-4" />
+                  <h3 className="text-xl font-bold text-white mb-3">Collection Insurance Report</h3>
+                  <p className="text-gray-400">Generate a printable or PDF report of your collection for insurance or record-keeping, including images and values.</p>
+                </CardContent>
+              </Card>
+              <Card className="bg-gray-800/50 border-gray-700">
+                <CardContent className="p-8 text-center">
+                  <Users className="w-12 h-12 text-orange-500 mx-auto mb-4" />
+                  <h3 className="text-xl font-bold text-white mb-3">Social & Community</h3>
+                  <p className="text-gray-400">Showcase your collection, comment on lists, and trade or swap Pops with other collectors in a safe, friendly environment.</p>
+                </CardContent>
+              </Card>
+              <Card className="bg-gray-800/50 border-gray-700">
+                <CardContent className="p-8 text-center">
+                  <TrendingUp className="w-12 h-12 text-orange-500 mx-auto mb-4" />
+                  <h3 className="text-xl font-bold text-white mb-3">Advanced Analytics</h3>
+                  <p className="text-gray-400">See value trends, acquisition stats, and rarest Pops in your collection with beautiful, interactive analytics.</p>
+                </CardContent>
+              </Card>
+              <Card className="bg-gray-800/50 border-gray-700">
+                <CardContent className="p-8 text-center">
+                  <Bell className="w-12 h-12 text-orange-500 mx-auto mb-4" />
+                  <h3 className="text-xl font-bold text-white mb-3">Wish Tracker & Drop Alerts</h3>
+                  <p className="text-gray-400">Track upcoming releases and get notified when a Pop on your wishlist is available or drops in price.</p>
+                </CardContent>
+              </Card>
+              <Card className="bg-gray-800/50 border-gray-700">
+                <CardContent className="p-8 text-center">
+                  <Star className="w-12 h-12 text-orange-500 mx-auto mb-4" />
+                  <h3 className="text-xl font-bold text-white mb-3">Gamification</h3>
+                  <p className="text-gray-400">Earn badges and achievements for collecting, trading, and engaging with the community. Track your streaks and milestones.</p>
+                </CardContent>
+              </Card>
+              <Card className="bg-gray-800/50 border-gray-700">
+                <CardContent className="p-8 text-center">
+                  <Monitor className="w-12 h-12 text-orange-500 mx-auto mb-4" />
+                  <h3 className="text-xl font-bold text-white mb-3">Personalized Recommendations</h3>
+                  <p className="text-gray-400">Get suggestions for new Pops to collect based on your collection, wishlist, and market trends.</p>
+                </CardContent>
+              </Card>
+              <Card className="bg-gray-800/50 border-gray-700">
+                <CardContent className="p-8 text-center">
+                  <Star className="w-12 h-12 text-orange-500 mx-auto mb-4" />
+                  <h3 className="text-xl font-bold text-white mb-3">Showcase & Virtual Shelf</h3>
+                  <p className="text-gray-400">Arrange your collection visually on a virtual shelf and share it with friends or the community.</p>
+                </CardContent>
+              </Card>
             </div>
           </div>
         </section>

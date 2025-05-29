@@ -5,7 +5,7 @@ import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
 import { usePublicProfileByUsername } from '@/hooks/usePublicProfile';
 import { useFunkoPops, useUserCollection } from '@/hooks/useFunkoPops';
 import { useProfileActivities } from '@/hooks/useProfileActivities';
-import { Music, MessageCircle, Twitter, Instagram, Video, ShoppingBag, ArrowLeft, ExternalLink, Gamepad2 } from 'lucide-react';
+import { Music, MessageCircle, Twitter, Instagram, Video, ShoppingBag, ArrowLeft, ExternalLink, Gamepad2, Mail } from 'lucide-react';
 import CollectionGrid from '@/components/CollectionGrid';
 import CollectionInsights from '@/components/CollectionInsights';
 import ActivityFeed from '@/components/ActivityFeed';
@@ -37,6 +37,13 @@ const Profile = () => {
   const [apiKey, setApiKey] = useState<string | null>(null);
   const [apiKeyLoading, setApiKeyLoading] = useState(false);
   const [apiKeyError, setApiKeyError] = useState<string | null>(null);
+  const [savedSearches, setSavedSearches] = useState([]);
+  const [loadingSaved, setLoadingSaved] = useState(false);
+  const [dmOpen, setDmOpen] = useState(false);
+  const [dmMessages, setDmMessages] = useState([]);
+  const [dmInput, setDmInput] = useState("");
+  const [dmLoading, setDmLoading] = useState(false);
+  const [auditLog, setAuditLog] = useState([]);
 
   useEffect(() => {
     if (checkoutSuccess && user) {
@@ -71,6 +78,31 @@ const Profile = () => {
     }
   }, [activeTab, user, profile]);
 
+  useEffect(() => {
+    if (user && profile && user.id === profile.user_id) {
+      setLoadingSaved(true);
+      supabase
+        .from('saved_searches')
+        .select('*')
+        .eq('user_id', user.id)
+        .order('created_at', { ascending: false })
+        .then(({ data }) => setSavedSearches(data || []))
+        .finally(() => setLoadingSaved(false));
+    }
+  }, [user, profile]);
+
+  useEffect(() => {
+    if (user && profile && user.id === profile.user_id) {
+      supabase
+        .from('audit_log')
+        .select('*')
+        .eq('user_id', user.id)
+        .order('created_at', { ascending: false })
+        .limit(20)
+        .then(({ data }) => setAuditLog(data || []));
+    }
+  }, [user, profile]);
+
   const handleGenerateApiKey = () => {
     if (!user || !profile || user.id !== profile.user_id) return;
     setApiKeyLoading(true);
@@ -102,6 +134,47 @@ const Profile = () => {
         .catch(err => setApiKeyError('Failed to revoke API key'))
         .finally(() => setApiKeyLoading(false));
     });
+  };
+
+  const handleDeleteSearch = async (id) => {
+    await supabase.from('saved_searches').delete().eq('id', id);
+    setSavedSearches(s => s.filter(ss => ss.id !== id));
+  };
+
+  const openDm = async () => {
+    setDmOpen(true);
+    setDmLoading(true);
+    // Fetch messages between user and profile
+    const { data } = await supabase
+      .from('messages')
+      .select('*')
+      .or(`and(sender_id.eq.${user.id},receiver_id.eq.${profile.id}),and(sender_id.eq.${profile.id},receiver_id.eq.${user.id})`)
+      .order('created_at', { ascending: true });
+    setDmMessages(data || []);
+    setDmLoading(false);
+  };
+
+  const sendDm = async (e) => {
+    e.preventDefault();
+    if (!dmInput.trim() || !profile) return;
+    setDmLoading(true);
+    await supabase.from('messages').insert({ sender_id: user.id, receiver_id: profile.id, content: dmInput.trim() });
+    setDmInput("");
+    // Refresh messages
+    const { data } = await supabase
+      .from('messages')
+      .select('*')
+      .or(`and(sender_id.eq.${user.id},receiver_id.eq.${profile.id}),and(sender_id.eq.${profile.id},receiver_id.eq.${user.id})`)
+      .order('created_at', { ascending: true });
+    setDmMessages(data || []);
+    setDmLoading(false);
+  };
+
+  const closeDm = () => {
+    setDmOpen(false);
+    setDmMessages([]);
+    setDmInput("");
+    setDmLoading(false);
   };
 
   if (profileLoading || funkoLoading || collectionLoading) {
@@ -288,7 +361,7 @@ const Profile = () => {
                     )}
                     
                     {/* Collection Stats */}
-                    <div className="flex gap-6 text-sm">
+                    <div className="flex gap-6 text-sm mb-2">
                       <div>
                         <span className="text-orange-500 font-bold">{ownedCount}</span>
                         <span className="text-gray-400 ml-1">Items</span>
@@ -302,6 +375,12 @@ const Profile = () => {
                         <span className="text-gray-400 ml-1">Total Value</span>
                       </div>
                     </div>
+                    {/* Direct Message button for public profiles (not own profile) */}
+                    {user && profile && user.id !== profile.user_id && (
+                      <Button className="bg-orange-500 hover:bg-orange-600 text-white mb-2 flex items-center gap-2" onClick={openDm}>
+                        <Mail className="w-4 h-4" /> Direct Message
+                      </Button>
+                    )}
                   </div>
                   {/* If logged-in user is viewing their own profile, show dashboard/edit buttons */}
                   {user && profile && user.id === profile.user_id && (
@@ -404,6 +483,45 @@ const Profile = () => {
               </div>
             )}
 
+            {/* Saved Searches */}
+            {user && profile && user.id === profile.user_id && (
+              <div className="mb-8">
+                <h2 className="text-2xl font-bold text-white mb-4">Saved Searches</h2>
+                {loadingSaved ? (
+                  <div className="text-gray-400">Loading...</div>
+                ) : savedSearches.length === 0 ? (
+                  <div className="text-gray-400">No saved searches.</div>
+                ) : (
+                  <ul>
+                    {savedSearches.map(ss => (
+                      <li key={ss.id} className="flex items-center gap-2 mb-2">
+                        <span className="text-white">{ss.name}</span>
+                        <span className="text-gray-500 text-xs">{new Date(ss.created_at).toLocaleString()}</span>
+                        <Button size="sm" className="bg-red-600 hover:bg-red-700 text-white" onClick={() => handleDeleteSearch(ss.id)}>Delete</Button>
+                      </li>
+                    ))}
+                  </ul>
+                )}
+              </div>
+            )}
+
+            {/* Audit Log */}
+            {user && profile && user.id === profile.user_id && (
+              <div className="mb-8">
+                <h2 className="text-xl font-bold text-white mb-4">Audit Log</h2>
+                <ul className="space-y-2">
+                  {auditLog.map((entry) => (
+                    <li key={entry.id} className="bg-gray-800 p-3 rounded">
+                      <div className="text-sm text-gray-300">{entry.action}</div>
+                      <div className="text-xs text-gray-500">{new Date(entry.created_at).toLocaleString()}</div>
+                      <div className="text-xs text-gray-400">{JSON.stringify(entry.details)}</div>
+                    </li>
+                  ))}
+                  {auditLog.length === 0 && <li className="text-gray-500 text-sm">No recent activity.</li>}
+                </ul>
+              </div>
+            )}
+
             {/* Featured Lists */}
             {profile.profile_list_ids && profile.profile_list_ids.length > 0 && (
               <div className="mb-8">
@@ -466,6 +584,52 @@ const Profile = () => {
         </section>
       </div>
       <MobileBottomNav />
+      {/* DM Modal */}
+      {dmOpen && (
+        <div className="fixed inset-0 bg-black bg-opacity-60 flex items-center justify-center z-50">
+          <div className="bg-gray-900 rounded-lg p-6 w-full max-w-md relative">
+            <button className="absolute top-2 right-2 text-gray-400 hover:text-white" onClick={closeDm}>&times;</button>
+            <div className="flex items-center gap-3 mb-4">
+              <img src={profile.avatar_url || '/default-avatar.png'} alt="avatar" className="w-10 h-10 rounded-full" />
+              <div>
+                <div className="font-semibold">{profile.display_name || profile.username}</div>
+                <div className="text-xs text-gray-400">@{profile.username}</div>
+              </div>
+            </div>
+            <div className="bg-gray-800 rounded p-3 h-64 overflow-y-auto mb-4 flex flex-col-reverse">
+              <div>
+                {dmLoading ? (
+                  <div className="text-gray-400 text-center">Loading...</div>
+                ) : (
+                  dmMessages.length === 0 ? (
+                    <div className="text-gray-500 text-center">No messages yet.</div>
+                  ) : (
+                    dmMessages.slice().reverse().map(msg => (
+                      <div key={msg.id} className={`mb-2 flex ${msg.sender_id === user.id ? 'justify-end' : 'justify-start'}`}>
+                        <div className={`px-3 py-2 rounded-lg max-w-xs ${msg.sender_id === user.id ? 'bg-orange-500 text-white' : 'bg-gray-700 text-gray-200'}`}>
+                          {msg.content}
+                          <div className="text-xs text-gray-300 mt-1 text-right">{new Date(msg.created_at).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}</div>
+                        </div>
+                      </div>
+                    ))
+                  )
+                )}
+              </div>
+            </div>
+            <form onSubmit={sendDm} className="flex gap-2">
+              <input
+                type="text"
+                placeholder="Type a message..."
+                value={dmInput}
+                onChange={e => setDmInput(e.target.value)}
+                className="flex-1 px-3 py-2 rounded bg-gray-800 text-white border border-gray-700 focus:outline-none"
+                disabled={dmLoading}
+              />
+              <Button type="submit" className="bg-orange-500 hover:bg-orange-600 text-white" disabled={dmLoading || !dmInput.trim()}>Send</Button>
+            </form>
+          </div>
+        </div>
+      )}
     </>
   );
 };
