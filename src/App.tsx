@@ -44,6 +44,8 @@ import Legal from "./pages/Legal";
 import Blog from "./pages/Blog";
 import PublicPopView from "./pages/PublicPopView";
 import Members from "./pages/Members";
+import AuthSuccess from "./pages/auth/success";
+import AuthDeclined from "./pages/auth/declined";
 
 const queryClient = new QueryClient();
 
@@ -93,6 +95,8 @@ const App = () => (
             <Route path="/sticker-guide" element={<StickerGuide />} />
             <Route path="/pop/:id" element={<PublicPopView />} />
             <Route path="/members" element={<Members />} />
+            <Route path="/auth/success" element={<AuthSuccess />} />
+            <Route path="/auth/declined" element={<AuthDeclined />} />
 
             {/* ADD ALL CUSTOM ROUTES ABOVE THE CATCH-ALL "*" ROUTE */}
             <Route path="*" element={<NotFound />} />
