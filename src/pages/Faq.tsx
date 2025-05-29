@@ -5,7 +5,7 @@ import { Accordion, AccordionItem, AccordionTrigger, AccordionContent } from '@/
 const Faq = () => (
   <>
     <Navigation />
-    <div className="min-h-screen bg-gradient-to-br from-gray-900 via-gray-800 to-black text-white py-16">
+    <div className="min-h-screen bg-gradient-to-br from-gray-900 via-gray-800 to-black pb-20 md:pb-0 text-white py-16">
       <div className="container mx-auto max-w-4xl">
         <h1 className="text-4xl font-bold text-center mb-12">Frequently Asked Questions</h1>
         <div className="max-w-2xl mx-auto">

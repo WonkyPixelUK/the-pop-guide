@@ -65,7 +65,7 @@ const PublicListView = () => {
   }
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-gray-900 via-gray-800 to-black text-white">
+    <div className="min-h-screen bg-gradient-to-br from-gray-900 via-gray-800 to-black flex flex-col pb-20 md:pb-0">
       <div className="container mx-auto px-4 py-8">
         {/* Logo Header */}
         <div className="text-center mb-6">

@@ -247,7 +247,7 @@ const Profile = () => {
 
   return (
     <>
-      <div className="min-h-screen bg-gradient-to-br from-gray-900 via-gray-800 to-black">
+      <div className="min-h-screen bg-gradient-to-br from-gray-900 via-gray-800 to-black pb-20 md:pb-0">
         <Navigation />
         {checkoutSuccess && (
           <div className="bg-green-700/90 border border-green-500 rounded-lg px-6 py-4 text-center shadow-lg max-w-xl mx-auto mt-8 mb-6">

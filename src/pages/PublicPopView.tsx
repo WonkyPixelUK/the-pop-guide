@@ -18,7 +18,7 @@ const PublicPopView = () => {
     <>
       <SEO title={`${pop.name} | PopGuide`} description={pop.description || pop.series || ''} />
       <Navigation />
-      <div className="min-h-screen bg-gradient-to-br from-gray-900 via-gray-800 to-black flex flex-col">
+      <div className="min-h-screen bg-gradient-to-br from-gray-900 via-gray-800 to-black flex flex-col pb-20 md:pb-0">
         <div className="container mx-auto py-12 px-4 max-w-3xl flex-1">
           <Card className="bg-gray-800/70 border border-gray-700 p-6 flex flex-col md:flex-row gap-8 items-center">
             <div className="w-56 h-56 bg-gray-700 rounded-lg flex items-center justify-center overflow-hidden mb-4 md:mb-0">
@@ -38,7 +38,9 @@ const PublicPopView = () => {
               <div className="text-sm text-gray-400 mb-2">Edition: {pop.edition}</div>
               <div className="text-sm text-gray-400 mb-2">Release Year: {pop.release_year || '—'}</div>
               <div className="text-sm text-gray-400 mb-2">Vaulted: {pop.is_vaulted ? 'Yes' : 'No'}</div>
-              <div className="text-sm text-gray-400 mb-2">Estimated Value: <span className="text-orange-400 font-bold">{typeof pop.estimated_value === 'number' ? `£${pop.estimated_value}` : 'N/A'}</span></div>
+              <div className="text-lg font-semibold text-orange-400 mb-4">
+                {pop.estimated_value !== null && pop.estimated_value !== undefined ? `£${pop.estimated_value}` : 'Pending'}
+              </div>
               {pop.description && <div className="text-gray-300 mb-2 text-base">{pop.description}</div>}
               {/* Stickers, exclusives, etc. can be added here if available */}
               <div className="flex gap-3 mt-auto">

@@ -49,7 +49,7 @@ const Features = () => {
   return (
     <>
       <SEO title="Features | The Pop Guide" description="Explore features of The Pop Guide." />
-      <div className="min-h-screen bg-gradient-to-br from-gray-900 via-gray-800 to-black">
+      <div className="min-h-screen bg-gradient-to-br from-gray-900 via-gray-800 to-black pb-20 md:pb-0">
         <Navigation />
 
         {/* Hero Section */}

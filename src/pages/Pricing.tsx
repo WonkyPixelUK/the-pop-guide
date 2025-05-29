@@ -133,32 +133,32 @@ const Pricing = () => {
           <div className="max-w-2xl mx-auto">
             <Accordion type="single" collapsible className="faq-accordion">
               <AccordionItem value="faq1">
-                <AccordionTrigger>What happens after my 3-day Pro trial?</AccordionTrigger>
-                <AccordionContent>
+                <AccordionTrigger className="text-orange-500">What happens after my 3-day Pro trial?</AccordionTrigger>
+                <AccordionContent className="text-white">
                   You'll be automatically billed $3.99/month unless you cancel before the trial ends. You can cancel anytime in your account settings.
                 </AccordionContent>
               </AccordionItem>
               <AccordionItem value="faq2">
-                <AccordionTrigger>Can I switch between Free and Pro?</AccordionTrigger>
-                <AccordionContent>
+                <AccordionTrigger className="text-orange-500">Can I switch between Free and Pro?</AccordionTrigger>
+                <AccordionContent className="text-white">
                   Yes! You can upgrade or downgrade your plan at any time. Your data and collection will always be safe.
                 </AccordionContent>
               </AccordionItem>
               <AccordionItem value="faq3">
-                <AccordionTrigger>What payment methods do you accept?</AccordionTrigger>
-                <AccordionContent>
+                <AccordionTrigger className="text-orange-500">What payment methods do you accept?</AccordionTrigger>
+                <AccordionContent className="text-white">
                   We accept all major credit/debit cards. For Enterprise or special billing, contact us.
                 </AccordionContent>
               </AccordionItem>
               <AccordionItem value="faq4">
-                <AccordionTrigger>Is there a limit on the number of items in Pro?</AccordionTrigger>
-                <AccordionContent>
+                <AccordionTrigger className="text-orange-500">Is there a limit on the number of items in Pro?</AccordionTrigger>
+                <AccordionContent className="text-white">
                   No, Pro users can add unlimited items to their collection.
                 </AccordionContent>
               </AccordionItem>
               <AccordionItem value="faq5">
-                <AccordionTrigger>How do I cancel my subscription?</AccordionTrigger>
-                <AccordionContent>
+                <AccordionTrigger className="text-orange-500">How do I cancel my subscription?</AccordionTrigger>
+                <AccordionContent className="text-white">
                   You can cancel anytime from your account settings. Your Pro features will remain active until the end of your billing period.
                 </AccordionContent>
               </AccordionItem>

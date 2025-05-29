@@ -1,5 +1,5 @@
 import { Link, useLocation } from 'react-router-dom';
-import { Home, List, Grid, Info, HelpCircle, BookOpen, Folder } from 'lucide-react';
+import { Home, List, Grid, BookOpen, Folder, Users, HelpCircle, Store } from 'lucide-react';
 import { useAuth } from '@/hooks/useAuth';
 import { useState } from 'react';
 
@@ -8,9 +8,9 @@ const navItems = [
   { to: '/features', label: 'Features', icon: BookOpen },
   { to: '/pricing', label: 'Pricing', icon: Folder },
   { to: '/browse-lists', label: 'Lists', icon: List },
-  { to: '/members', label: 'Members', icon: Info },
+  { to: '/members', label: 'Members', icon: Users },
   { label: 'Support', icon: HelpCircle, modal: 'support' },
-  { label: 'Retailers', icon: Folder, modal: 'retailers' },
+  { label: 'Retailers', icon: Store, modal: 'retailers' },
 ];
 
 const supportLinks = [
