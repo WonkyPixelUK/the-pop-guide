@@ -2,6 +2,8 @@ import React, { useEffect, useState } from "react";
 import { useAuth } from "@/hooks/useAuth";
 import { supabase } from '@/integrations/supabase/client';
 import { Button } from "@/components/ui/button";
+import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
+import { Clock, UserPlus, Star, List, Heart, Users } from 'lucide-react';
 
 const TABS = ["Friends", "Requests", "Groups"];
 const REACTIONS = ["👍", "❤️", "😂", "🔥", "😮", "😢"];
@@ -35,11 +37,13 @@ const FriendsList = () => {
   const [groupDmLoading, setGroupDmLoading] = useState(false);
   // Notification state
   const [unreadCount, setUnreadCount] = useState(0);
+  const [activityFeed, setActivityFeed] = useState([]);
 
   useEffect(() => {
     if (!user) return;
     fetchAll();
     fetchUnreadCount();
+    fetchActivityFeed();
     // Optionally, set up a real-time listener for notifications
     const channel = supabase
       .channel(`notifications_${user.id}`)
@@ -47,6 +51,49 @@ const FriendsList = () => {
       .subscribe();
     return () => { supabase.removeChannel(channel); };
   }, [user]);
+
+  // Inject dummy activity data for dev/testing if feed is empty
+  useEffect(() => {
+    if (activityFeed.length === 0) {
+      setActivityFeed([
+        {
+          id: '1',
+          type: 'add_to_collection',
+          created_at: new Date().toISOString(),
+          profile: { display_name: 'Rich', username: 'rich', avatar_url: '' },
+          data: { funkoPopId: 'pop1' },
+        },
+        {
+          id: '2',
+          type: 'add_to_wishlist',
+          created_at: new Date(Date.now() - 1000 * 60 * 60).toISOString(),
+          profile: { display_name: 'Jess', username: 'jess', avatar_url: '' },
+          data: { funkoPopId: 'pop2' },
+        },
+        {
+          id: '3',
+          type: 'create_list',
+          created_at: new Date(Date.now() - 1000 * 60 * 60 * 2).toISOString(),
+          profile: { display_name: 'Sam', username: 'sam', avatar_url: '' },
+          data: { listId: 'list1', name: 'Disney Faves' },
+        },
+        {
+          id: '4',
+          type: 'became_friends',
+          created_at: new Date(Date.now() - 1000 * 60 * 60 * 3).toISOString(),
+          profile: { display_name: 'Rich', username: 'rich', avatar_url: '' },
+          data: { friendId: 'user2' },
+        },
+        {
+          id: '5',
+          type: 'collection_value_change',
+          created_at: new Date(Date.now() - 1000 * 60 * 60 * 4).toISOString(),
+          profile: { display_name: 'Jess', username: 'jess', avatar_url: '' },
+          data: { oldValue: 100, newValue: 150, change: 50 },
+        },
+      ]);
+    }
+  }, [activityFeed.length]);
 
   const fetchAll = async () => {
     setLoading(true);
@@ -113,6 +160,15 @@ const FriendsList = () => {
 
   const acceptRequest = async (id) => {
     await supabase.from('friend_requests').update({ status: 'accepted' }).eq('id', id);
+    // Fetch the request to get both user IDs
+    const { data: req } = await supabase.from('friend_requests').select('sender_id,receiver_id').eq('id', id).single();
+    if (req) {
+      // Log for both users
+      await supabase.from('activity_log').insert([
+        { user_id: req.sender_id, type: 'became_friends', data: { friendId: req.receiver_id } },
+        { user_id: req.receiver_id, type: 'became_friends', data: { friendId: req.sender_id } },
+      ]);
+    }
     await fetchAll();
   };
 
@@ -317,6 +373,25 @@ const FriendsList = () => {
     if (groupDmOpen) openGroupDm(groupDmGroup);
   };
 
+  // Fetch activity feed for user and friends
+  const fetchActivityFeed = async () => {
+    // Get friend IDs
+    const { data: friendRows } = await supabase
+      .from('friends')
+      .select('friend_id')
+      .eq('user_id', user.id);
+    const friendIds = (friendRows || []).map(f => f.friend_id);
+    const ids = [user.id, ...friendIds];
+    // Fetch recent activity (last 30 days, limit 40)
+    const { data: activities } = await supabase
+      .from('activity_log')
+      .select('*, profile: user_id (username, display_name, avatar_url)')
+      .in('user_id', ids)
+      .order('created_at', { ascending: false })
+      .limit(40);
+    setActivityFeed(activities || []);
+  };
+
   return (
     <div className="bg-gray-800/60 border border-gray-700 rounded-lg p-8 text-white">
       <div className="flex gap-4 mb-6">
@@ -352,6 +427,64 @@ const FriendsList = () => {
         <>
           {activeTab === "Friends" && (
             <div>
+              <div className="mb-8">
+                <h3 className="text-xl font-bold flex items-center gap-2 mb-4">
+                  <Users className="w-5 h-5 text-orange-400" />
+                  Friends Activity
+                </h3>
+                {activityFeed.length === 0 ? (
+                  <div className="text-gray-400">No recent activity.</div>
+                ) : (
+                  <ul className="space-y-4">
+                    {activityFeed.map(ev => {
+                      const profile = ev.profile || {};
+                      let icon = <Clock className="w-4 h-4 text-gray-400" />;
+                      let text = '';
+                      switch (ev.type) {
+                        case 'add_to_collection':
+                          icon = <Star className="w-4 h-4 text-yellow-400" />;
+                          text = `${profile.display_name || profile.username || 'Someone'} added a Pop to their collection.`;
+                          break;
+                        case 'add_to_wishlist':
+                          icon = <Heart className="w-4 h-4 text-pink-400" />;
+                          text = `${profile.display_name || profile.username || 'Someone'} added a Pop to their wishlist.`;
+                          break;
+                        case 'create_list':
+                          icon = <List className="w-4 h-4 text-blue-400" />;
+                          text = `${profile.display_name || profile.username || 'Someone'} created a custom list.`;
+                          break;
+                        case 'add_to_list':
+                          icon = <List className="w-4 h-4 text-blue-400" />;
+                          text = `${profile.display_name || profile.username || 'Someone'} added a Pop to a custom list.`;
+                          break;
+                        case 'collection_value_change':
+                          icon = <Star className="w-4 h-4 text-green-400" />;
+                          text = `${profile.display_name || profile.username || 'Someone'}'s collection value changed by £${Math.abs(ev.data?.change || 0)}.`;
+                          break;
+                        case 'became_friends':
+                          icon = <UserPlus className="w-4 h-4 text-orange-400" />;
+                          text = `${profile.display_name || profile.username || 'Someone'} became friends with someone.`;
+                          break;
+                        default:
+                          text = `${profile.display_name || profile.username || 'Someone'} did something.`;
+                      }
+                      return (
+                        <li key={ev.id} className="flex items-center gap-3 bg-gray-900/60 rounded p-3">
+                          <Avatar className="w-8 h-8">
+                            <AvatarImage src={profile.avatar_url || undefined} />
+                            <AvatarFallback className="bg-orange-500 text-white">
+                              {(profile.display_name || profile.username || 'U')[0].toUpperCase()}
+                            </AvatarFallback>
+                          </Avatar>
+                          {icon}
+                          <span className="flex-1">{text}</span>
+                          <span className="text-xs text-gray-400 ml-2">{new Date(ev.created_at).toLocaleString()}</span>
+                        </li>
+                      );
+                    })}
+                  </ul>
+                )}
+              </div>
               {friends.length === 0 ? (
                 <div className="text-gray-400">No friends yet.</div>
               ) : (
