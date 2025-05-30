@@ -153,7 +153,7 @@ export default function ComingSoon() {
         </div>
 
         {/* Release Calendar Overview */}
-        <Card className="bg-gradient-to-r from-purple-500/20 to-blue-500/20 border border-purple-400/30 rounded-lg mb-8">
+        <Card className="bg-gray-800/70 border border-gray-700 rounded-lg mb-8">
           <CardContent className="p-6">
             <div className="flex items-center gap-3 mb-4">
               <svg className="w-6 h-6 text-orange-400" fill="none" viewBox="0 0 24 24">
@@ -166,10 +166,10 @@ export default function ComingSoon() {
             </div>
             <div className="grid grid-cols-1 md:grid-cols-4 gap-4">
               {releaseCalendar.map((month, idx) => (
-                <div key={idx} className="bg-gray-900/60 border border-gray-700 rounded-lg p-4">
+                <div key={idx} className="bg-gray-900/80 border border-gray-600 rounded-lg p-4">
                   <div className="font-bold text-white text-lg mb-2">{month.month}</div>
                   <div className="text-orange-400 font-semibold mb-2">{month.count} releases</div>
-                  <div className="text-gray-400 text-sm">
+                  <div className="text-gray-300 text-sm">
                     {month.highlights.map((highlight, i) => (
                       <div key={i} className="mb-1">• {highlight}</div>
                     ))}
