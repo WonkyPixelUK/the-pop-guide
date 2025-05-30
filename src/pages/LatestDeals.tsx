@@ -128,7 +128,7 @@ export default function LatestDeals() {
         </div>
 
         {/* Price Alerts Banner */}
-        <Card className="bg-gradient-to-r from-orange-500/20 to-red-500/20 border border-orange-400/30 rounded-lg mb-8">
+        <Card className="bg-gray-800/70 border border-gray-700 rounded-lg mb-8">
           <CardContent className="p-6">
             <div className="flex items-center gap-3 mb-4">
               <svg className="w-6 h-6 text-orange-400 animate-pulse" fill="none" viewBox="0 0 24 24">
@@ -139,7 +139,7 @@ export default function LatestDeals() {
             </div>
             <div className="grid grid-cols-1 md:grid-cols-4 gap-4">
               {priceAlerts.map((alert, idx) => (
-                <div key={idx} className="bg-gray-900/60 border border-gray-700 rounded-lg p-3">
+                <div key={idx} className="bg-gray-900/80 border border-gray-600 rounded-lg p-3">
                   <div className="font-semibold text-white text-sm">{alert.pop}</div>
                   <div className="flex items-center gap-2 mt-1">
                     <span className="text-gray-400 line-through text-xs">{alert.was}</span>
