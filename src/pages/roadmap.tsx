@@ -35,6 +35,7 @@ const inPlanning = [
   'More Gamification',
 ];
 const changelog = [
+  { version: 'v1.1.2', date: '31/01/2025', details: 'Platform section enhancements: Added styled buttons with gradients and hover effects across all platform cards (Web App, iOS, Android, Chrome Extension). Completely reworked Chrome Extension page to match Android/iOS layout with hero section, compatibility info, features grid, and installation guide. Removed "Coming Soon" from iOS platform card. Fixed syntax errors and improved button alignment consistency. Enhanced mobile app with comprehensive Expo development setup.' },
   { version: 'v1.1.1', date: '29/04/2025', details: 'Added 60+ new feature requests for voting and improved roadmap display.' },
   { version: 'v1.1.0', date: '12/06/2024', details: 'Bulk actions, CSV import/export, value alerts, insurance report, social upgrades, analytics, wish tracker, gamification, recommendations, showcase/shelf.' },
   { version: 'v1.0.0', date: '01/05/2024', details: 'Initial launch, collection tracking, wishlist, analytics, notifications, public profiles.' },
@@ -145,9 +146,9 @@ export default function Roadmap() {
             <div>
               <div className="text-2xl md:text-3xl font-extrabold text-white mb-2 flex items-center gap-3">
                 <Rocket className="w-8 h-8 text-white animate-bounce" />
-                v1.1.1 <span className="text-green-200 text-lg font-bold ml-3">(29/04/2025)</span>
+                v1.1.2 <span className="text-green-200 text-lg font-bold ml-3">(31/01/2025)</span>
               </div>
-              <div className="text-lg text-white font-semibold">Added 60+ new feature requests for voting and improved roadmap display.</div>
+              <div className="text-lg text-white font-semibold">Platform section enhancements with styled buttons, reworked Chrome Extension page, and mobile app improvements.</div>
             </div>
           </div>
         </div>
@@ -198,7 +199,7 @@ export default function Roadmap() {
               <ul className="text-sm text-gray-200 space-y-1">
                 {deployed.map(f => <li key={f}>{f}</li>)}
               </ul>
-              <div className="text-xs text-gray-400 mt-2">Latest: v1.1.1 (29/04/2025)</div>
+              <div className="text-xs text-gray-400 mt-2">Latest: v1.1.2 (31/01/2025)</div>
             </CardContent>
           </Card>
         </div>

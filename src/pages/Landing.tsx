@@ -308,18 +308,18 @@ const Landing = () => {
                 <Rocket className="w-10 h-10 text-white animate-bounce" />
                 <div>
                   <div className="text-lg font-bold text-white flex items-center gap-2">
-                    PopGuide <span className="bg-white/20 text-white px-2 py-1 rounded-lg text-sm animate-pulse">v1.1.0</span>
+                    PopGuide <span className="bg-white/20 text-white px-2 py-1 rounded-lg text-sm animate-pulse">v1.1.2</span>
                   </div>
-                  <div className="text-white text-sm mt-1">New features just launched:</div>
+                  <div className="text-white text-sm mt-1">Latest updates just launched:</div>
                 </div>
               </div>
               <ul className="flex-1 grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-2 mt-4 md:mt-0 text-white text-sm font-medium">
-                <li className="flex items-center gap-2"><CheckCircle className="w-4 h-4 text-green-200 animate-pop" /> Bulk Actions (add/edit/remove)</li>
-                <li className="flex items-center gap-2"><CheckCircle className="w-4 h-4 text-green-200 animate-pop" /> CSV Import & Export</li>
-                <li className="flex items-center gap-2"><Zap className="w-4 h-4 text-yellow-200 animate-bounce" /> Smart Value Alerts</li>
-                <li className="flex items-center gap-2"><Shield className="w-4 h-4 text-blue-200 animate-fade-in" /> Collection Insurance Report</li>
-                <li className="flex items-center gap-2"><Users className="w-4 h-4 text-pink-200 animate-fade-in" /> Social & Community Upgrades</li>
-                <li className="flex items-center gap-2"><BarChart3 className="w-4 h-4 text-orange-200 animate-fade-in" /> Advanced Analytics</li>
+                <li className="flex items-center gap-2"><CheckCircle className="w-4 h-4 text-green-200 animate-pop" /> Enhanced Platform Buttons</li>
+                <li className="flex items-center gap-2"><CheckCircle className="w-4 h-4 text-green-200 animate-pop" /> Chrome Extension Redesign</li>
+                <li className="flex items-center gap-2"><Zap className="w-4 h-4 text-yellow-200 animate-bounce" /> Improved UI/UX Design</li>
+                <li className="flex items-center gap-2"><Shield className="w-4 h-4 text-blue-200 animate-fade-in" /> Mobile App Development</li>
+                <li className="flex items-center gap-2"><Users className="w-4 h-4 text-pink-200 animate-fade-in" /> Cross-Platform Consistency</li>
+                <li className="flex items-center gap-2"><BarChart3 className="w-4 h-4 text-orange-200 animate-fade-in" /> Button Styling & Effects</li>
               </ul>
               <div className="flex justify-end mt-4 md:mt-0">
                 <Link to="/roadmap#new-features">
