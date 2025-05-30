@@ -1,7 +1,7 @@
 import Navigation from '@/components/Navigation';
 import Footer from '@/components/Footer';
 import { Card, CardContent } from '@/components/ui/card';
-import { useRef } from 'react';
+import { useRef, useState } from 'react';
 
 const sections = [
   { id: 'signature-auth', title: 'How to Get a Funko Signature Authenticated' },
@@ -20,6 +20,76 @@ const sections = [
   { id: 'legal-advice', title: 'Legal/Returns Advice' },
   { id: 'glossary', title: 'Glossary' },
 ];
+
+function FakeCheckerChecklist() {
+  const steps = [
+    {
+      icon: (
+        <svg className="w-6 h-6 text-orange-400" fill="none" viewBox="0 0 24 24"><path d="M12 21c-4.97-6.16-8-9.7-8-13A8 8 0 1112 21z" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"/></svg>
+      ),
+      label: 'Check seller location (avoid China, deep discounts, stock photos)',
+    },
+    {
+      icon: (
+        <svg className="w-6 h-6 text-orange-400" fill="none" viewBox="0 0 24 24"><path d="M9 17v-2a4 4 0 018 0v2M21 21v-2a4 4 0 00-4-4H7a4 4 0 00-4 4v2" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"/></svg>
+      ),
+      label: 'Verify product number on box and feet',
+    },
+    {
+      icon: (
+        <svg className="w-6 h-6 text-orange-400" fill="none" viewBox="0 0 24 24"><path d="M4 6h16M4 10h16M4 14h16M4 18h16" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"/></svg>
+      ),
+      label: 'Inspect box artwork (borders, logos, fonts)',
+    },
+    {
+      icon: (
+        <svg className="w-6 h-6 text-orange-400" fill="none" viewBox="0 0 24 24"><circle cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="2"/><path d="M15 9l-6 6M9 9l6 6" stroke="currentColor" strokeWidth="2" strokeLinecap="round"/></svg>
+      ),
+      label: 'Check paint quality and figure details',
+    },
+    {
+      icon: (
+        <svg className="w-6 h-6 text-orange-400" fill="none" viewBox="0 0 24 24"><rect x="3" y="3" width="18" height="18" rx="2" stroke="currentColor" strokeWidth="2"/><path d="M7 7h10v10H7z" stroke="currentColor" strokeWidth="2"/></svg>
+      ),
+      label: 'Check stickers and logos',
+    },
+    {
+      icon: (
+        <svg className="w-6 h-6 text-orange-400" fill="none" viewBox="0 0 24 24"><path d="M12 20l9-5-9-5-9 5 9 5z" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"/><path d="M12 12V4" stroke="currentColor" strokeWidth="2" strokeLinecap="round"/></svg>
+      ),
+      label: 'Check seller reputation and use PayPal Goods & Services',
+    },
+  ];
+  const [checked, setChecked] = useState(Array(steps.length).fill(false));
+
+  const toggleStep = idx => {
+    setChecked(arr => arr.map((v, i) => (i === idx ? !v : v)));
+  };
+
+  return (
+    <div className="space-y-3">
+      {steps.map((step, idx) => (
+        <button
+          key={idx}
+          type="button"
+          className={`w-full flex items-center gap-4 bg-gray-900/80 border border-gray-700 rounded-lg px-4 py-3 text-left transition shadow group focus:outline-none ${checked[idx] ? 'ring-2 ring-orange-400' : ''}`}
+          onClick={() => toggleStep(idx)}
+        >
+          <span className="flex-shrink-0">{step.icon}</span>
+          <span className={`flex-1 text-base text-white transition-colors ${checked[idx] ? 'text-orange-400' : ''}`}>{step.label}</span>
+          <span className="ml-2">
+            {checked[idx] ? (
+              <svg className="w-6 h-6 text-green-400 animate-ping-once" fill="none" viewBox="0 0 24 24"><path d="M5 13l4 4L19 7" stroke="currentColor" strokeWidth="3" strokeLinecap="round" strokeLinejoin="round"/></svg>
+            ) : (
+              <span className="inline-block w-5 h-5 border-2 border-gray-600 rounded-full" />
+            )}
+          </span>
+        </button>
+      ))}
+      <style>{`@keyframes ping-once{0%{transform:scale(1);}50%{transform:scale(1.3);}100%{transform:scale(1);}}.animate-ping-once{animation:ping-once 0.4s linear;}`}</style>
+    </div>
+  );
+}
 
 export default function ShoppersAdvice() {
   const sectionRefs = useRef({});
@@ -181,14 +251,56 @@ export default function ShoppersAdvice() {
           <h2 className="text-2xl font-bold text-white mb-4">How to Spot a Fake</h2>
           <Card className="bg-gray-800/70 border border-gray-700 rounded-lg">
             <CardContent className="p-6 text-white">
-              <ul className="list-disc ml-6 mb-4">
-                <li>Compare box details: font, logos, and holograms.</li>
-                <li>Check paint quality and figure details.</li>
-                <li>Look for missing or incorrect stickers.</li>
-                <li>Compare with official images from Funko or trusted retailers.</li>
-              </ul>
-              <div className="bg-gray-800 rounded p-4 text-sm text-gray-300 mb-2">[Side-by-side real vs. fake image placeholder]</div>
-              <div className="bg-gray-800 rounded p-4 text-sm text-gray-300">[Checklist: tick off what you've checked]</div>
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+                {/* Seller Location */}
+                <div className="flex items-start gap-4 bg-gray-900/80 border border-gray-700 rounded-lg p-4">
+                  <svg className="w-7 h-7 text-orange-400 mt-1" fill="none" viewBox="0 0 24 24"><path d="M12 21c-4.97-6.16-8-9.7-8-13A8 8 0 1112 21z" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"/></svg>
+                  <div>
+                    <div className="text-lg font-medium text-white mb-1">Check Seller Location</div>
+                    <div className="text-gray-300 text-sm">If it ships from China, it's almost certainly a fake. Avoid listings with deep discounts or stock photos.</div>
+                  </div>
+                </div>
+                {/* Product Number */}
+                <div className="flex items-start gap-4 bg-gray-900/80 border border-gray-700 rounded-lg p-4">
+                  <svg className="w-7 h-7 text-orange-400 mt-1" fill="none" viewBox="0 0 24 24"><path d="M9 17v-2a4 4 0 018 0v2M21 21v-2a4 4 0 00-4-4H7a4 4 0 00-4 4v2" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"/></svg>
+                  <div>
+                    <div className="text-lg font-medium text-white mb-1">Verify Product Number</div>
+                    <div className="text-gray-300 text-sm">Check the bottom of the box and the figure's feet for a stamped product number. Fakes often have missing or incorrect numbers.</div>
+                  </div>
+                </div>
+                {/* Box Artwork */}
+                <div className="flex items-start gap-4 bg-gray-900/80 border border-gray-700 rounded-lg p-4">
+                  <svg className="w-7 h-7 text-orange-400 mt-1" fill="none" viewBox="0 0 24 24"><path d="M4 6h16M4 10h16M4 14h16M4 18h16" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"/></svg>
+                  <div>
+                    <div className="text-lg font-medium text-white mb-1">Inspect Box Artwork</div>
+                    <div className="text-gray-300 text-sm">Look for wide or uneven borders, missing logos, or incorrect fonts. Compare with official images.</div>
+                  </div>
+                </div>
+                {/* Paint & Figure Details */}
+                <div className="flex items-start gap-4 bg-gray-900/80 border border-gray-700 rounded-lg p-4">
+                  <svg className="w-7 h-7 text-orange-400 mt-1" fill="none" viewBox="0 0 24 24"><circle cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="2"/><path d="M15 9l-6 6M9 9l6 6" stroke="currentColor" strokeWidth="2" strokeLinecap="round"/></svg>
+                  <div>
+                    <div className="text-lg font-medium text-white mb-1">Check Paint & Figure</div>
+                    <div className="text-gray-300 text-sm">Fakes often have poor paint jobs, missing details, or incorrect coloring. Compare with authentic figures.</div>
+                  </div>
+                </div>
+                {/* Stickers & Logos */}
+                <div className="flex items-start gap-4 bg-gray-900/80 border border-gray-700 rounded-lg p-4">
+                  <svg className="w-7 h-7 text-orange-400 mt-1" fill="none" viewBox="0 0 24 24"><rect x="3" y="3" width="18" height="18" rx="2" stroke="currentColor" strokeWidth="2"/><path d="M7 7h10v10H7z" stroke="currentColor" strokeWidth="2"/></svg>
+                  <div>
+                    <div className="text-lg font-medium text-white mb-1">Check Stickers & Logos</div>
+                    <div className="text-gray-300 text-sm">Missing, incorrect, or low-quality stickers are a red flag. Look for official Funko logos and correct sticker placement.</div>
+                  </div>
+                </div>
+                {/* Seller Reputation */}
+                <div className="flex items-start gap-4 bg-gray-900/80 border border-gray-700 rounded-lg p-4">
+                  <svg className="w-7 h-7 text-orange-400 mt-1" fill="none" viewBox="0 0 24 24"><path d="M12 20l9-5-9-5-9 5 9 5z" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"/><path d="M12 12V4" stroke="currentColor" strokeWidth="2" strokeLinecap="round"/></svg>
+                  <div>
+                    <div className="text-lg font-medium text-white mb-1">Check Seller Reputation</div>
+                    <div className="text-gray-300 text-sm">Avoid sellers with limited or negative feedback, or recently created accounts. Use PayPal Goods & Services for protection.</div>
+                  </div>
+                </div>
+              </div>
             </CardContent>
           </Card>
         </section>
@@ -288,9 +400,15 @@ export default function ShoppersAdvice() {
           <h2 className="text-2xl font-bold text-white mb-4">Interactive Tools</h2>
           <Card className="bg-gray-800/70 border border-gray-700 rounded-lg">
             <CardContent className="p-6 text-white">
-              <div className="mb-2">Test your knowledge or generate a checklist before buying:</div>
-              <div className="bg-gray-800 rounded p-4 text-sm text-gray-300 mb-2">[Fake Checker Quiz placeholder]</div>
-              <div className="bg-gray-800 rounded p-4 text-sm text-gray-300">[Checklist Generator placeholder]</div>
+              <div className="mb-6">
+                <div className="text-lg font-semibold mb-2">Test your knowledge or generate a checklist before buying:</div>
+                {/* Fake Checker Interactive Checklist */}
+                <FakeCheckerChecklist />
+              </div>
+              <div>
+                <div className="text-lg font-semibold mb-2">Checklist Generator</div>
+                <div className="bg-gray-900/80 border border-gray-700 rounded-lg p-4 text-gray-400">[Checklist Generator placeholder]</div>
+              </div>
             </CardContent>
           </Card>
         </section>

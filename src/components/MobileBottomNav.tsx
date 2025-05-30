@@ -27,7 +27,7 @@ const retailersLinks = [
 
 const communityLinks = [
   { to: '/members', label: 'Members' },
-  { to: '/ShoppersAdvice', label: 'Shoppers Advice' },
+  { to: '/shoppers-advice', label: 'Shoppers Advice' },
   { to: '/deals', label: 'Latest Deals' },
   { to: '/coming-soon', label: 'Coming Soon' },
   { to: '/browse-lists', label: 'Lists' },
