@@ -1,6 +1,6 @@
 import { Button } from "@/components/ui/button";
 import { Card, CardContent } from "@/components/ui/card";
-import { BarChart3, Users, Zap, Star, Shield, TrendingUp, Camera, Search, Bell, Smartphone, List, Monitor } from "lucide-react";
+import { BarChart3, Users, Zap, Star, Shield, TrendingUp, Camera, Search, Bell, Smartphone, List, Monitor, Globe } from "lucide-react";
 import { Link } from "react-router-dom";
 import Navigation from '@/components/Navigation';
 import SEO from '@/components/SEO';
@@ -233,40 +233,58 @@ const Features = () => {
               Available Everywhere You Are
             </h2>
             <div className="grid grid-cols-1 md:grid-cols-3 gap-8 max-w-4xl mx-auto">
-              <Card className="bg-gray-800/50 border-gray-700 text-center">
-                <CardContent className="p-8">
+              <Card className="bg-gray-800/50 border-gray-700 text-center hover:bg-gray-800/70 transition-all duration-300 hover:scale-105">
+                <CardContent className="p-8 flex flex-col h-full">
                   <Smartphone className="w-12 h-12 text-orange-500 mx-auto mb-4" />
                   <h3 className="text-xl font-bold text-white mb-3">Web App</h3>
-                  <p className="text-gray-400 mb-4">Full-featured web application</p>
-                  <div className="text-sm text-gray-300 space-y-1">
+                  <p className="text-gray-400 mb-4 flex-grow">Full-featured web application</p>
+                  <div className="text-sm text-gray-300 space-y-1 mb-6">
                     <div>Chrome • Edge • Firefox</div>
                     <div>Safari • Opera • Brave</div>
                     <div>Vivaldi • Arc</div>
                   </div>
+                  <Link to="/dashboard" className="mt-auto">
+                    <Button className="w-full bg-gradient-to-r from-orange-500 to-orange-600 hover:from-orange-600 hover:to-orange-700 text-white font-semibold py-3 px-6 rounded-lg transition-all duration-300 hover:shadow-lg hover:shadow-orange-500/25">
+                      <Globe className="w-4 h-4 mr-2" />
+                      Launch App
+                    </Button>
+                  </Link>
                 </CardContent>
               </Card>
-              <Card className="bg-gray-800/50 border-gray-700 text-center">
-                <CardContent className="p-8">
+              <Card className="bg-gray-800/50 border-gray-700 text-center hover:bg-gray-800/70 transition-all duration-300 hover:scale-105">
+                <CardContent className="p-8 flex flex-col h-full">
                   <Smartphone className="w-12 h-12 text-orange-500 mx-auto mb-4" />
                   <h3 className="text-xl font-bold text-white mb-3">iOS / iPad</h3>
-                  <p className="text-gray-400 mb-4">Progressive Web App</p>
-                  <div className="text-sm text-gray-300 space-y-1">
+                  <p className="text-gray-400 mb-4 flex-grow">Progressive Web App</p>
+                  <div className="text-sm text-gray-300 space-y-1 mb-6">
                     <div>iPhone • iPad</div>
                     <div>Native-like experience</div>
                     <div>Offline capability</div>
                   </div>
+                  <Link to="/ios" className="mt-auto">
+                    <Button className="w-full bg-gradient-to-r from-blue-500 to-blue-600 hover:from-blue-600 hover:to-blue-700 text-white font-semibold py-3 px-6 rounded-lg transition-all duration-300 hover:shadow-lg hover:shadow-blue-500/25">
+                      <Smartphone className="w-4 h-4 mr-2" />
+                      Learn More
+                    </Button>
+                  </Link>
                 </CardContent>
               </Card>
-              <Card className="bg-gray-800/50 border-gray-700 text-center">
-                <CardContent className="p-8">
+              <Card className="bg-gray-800/50 border-gray-700 text-center hover:bg-gray-800/70 transition-all duration-300 hover:scale-105">
+                <CardContent className="p-8 flex flex-col h-full">
                   <Smartphone className="w-12 h-12 text-orange-500 mx-auto mb-4" />
                   <h3 className="text-xl font-bold text-white mb-3">Android</h3>
-                  <p className="text-gray-400 mb-4">Progressive Web App</p>
-                  <div className="text-sm text-gray-300 space-y-1">
+                  <p className="text-gray-400 mb-4 flex-grow">Progressive Web App</p>
+                  <div className="text-sm text-gray-300 space-y-1 mb-6">
                     <div>All Android devices</div>
                     <div>Install from browser</div>
                     <div>Push notifications</div>
                   </div>
+                  <Link to="/android" className="mt-auto">
+                    <Button className="w-full bg-gradient-to-r from-green-500 to-green-600 hover:from-green-600 hover:to-green-700 text-white font-semibold py-3 px-6 rounded-lg transition-all duration-300 hover:shadow-lg hover:shadow-green-500/25">
+                      <Smartphone className="w-4 h-4 mr-2" />
+                      Learn More
+                    </Button>
+                  </Link>
                 </CardContent>
               </Card>
             </div>

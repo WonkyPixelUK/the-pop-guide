@@ -83,42 +83,61 @@ const Landing = () => {
               Access your collection anywhere with our cross-platform support
             </p>
             <div className="grid grid-cols-1 md:grid-cols-4 gap-8 max-w-5xl mx-auto mb-12">
-              <Card className="bg-gray-800/50 border-gray-700">
-                <CardContent className="p-8 text-center">
+              <Card className="bg-gray-800/50 border-gray-700 hover:bg-gray-800/70 transition-all duration-300 hover:scale-105">
+                <CardContent className="p-8 text-center flex flex-col h-full">
                   <Monitor className="w-12 h-12 text-orange-500 mx-auto mb-4" />
                   <h3 className="text-xl font-bold text-white mb-3">Web App</h3>
-                  <p className="text-gray-400 mb-4">Full-featured web application</p>
-                  <div className="text-sm text-gray-300 space-y-1">
+                  <p className="text-gray-400 mb-4 flex-grow">Full-featured web application</p>
+                  <div className="text-sm text-gray-300 space-y-1 mb-6">
                     <div>Chrome • Edge • Firefox</div>
                     <div>Safari • Opera • Brave</div>
                     <div>Vivaldi • Arc</div>
                   </div>
+                  <Link to="/dashboard" className="mt-auto">
+                    <Button className="w-full bg-gradient-to-r from-orange-500 to-orange-600 hover:from-orange-600 hover:to-orange-700 text-white font-semibold py-3 px-6 rounded-lg transition-all duration-300 hover:shadow-lg hover:shadow-orange-500/25">
+                      <Globe className="w-4 h-4 mr-2" />
+                      Launch App
+                    </Button>
+                  </Link>
                 </CardContent>
               </Card>
-              <Card className="bg-gray-800/50 border-gray-700 text-center">
-                <CardContent className="p-8">
+              <Card className="bg-gray-800/50 border-gray-700 hover:bg-gray-800/70 transition-all duration-300 hover:scale-105">
+                <CardContent className="p-8 text-center flex flex-col h-full">
                   <Smartphone className="w-12 h-12 text-orange-500 mx-auto mb-4" />
                   <h3 className="text-xl font-bold text-white mb-3">Native iOS / iPad App</h3>
-                  <p className="text-gray-400 mb-4">A true native iOS/iPad app is coming soon. Stay tuned!</p>
-                  <div className="text-xs text-gray-300 mt-2">
-                    <strong>Coming Soon</strong>
-                  </div>
+                  <p className="text-gray-400 mb-4 flex-grow">Experience the full power of PopGuide with our native iOS and iPad app, featuring optimized mobile features and seamless performance.</p>
+                  <Link to="/ios" className="mt-auto">
+                    <Button className="w-full bg-gradient-to-r from-blue-500 to-blue-600 hover:from-blue-600 hover:to-blue-700 text-white font-semibold py-3 px-6 rounded-lg transition-all duration-300 hover:shadow-lg hover:shadow-blue-500/25">
+                      <Smartphone className="w-4 h-4 mr-2" />
+                      Learn More
+                    </Button>
+                  </Link>
                 </CardContent>
               </Card>
-              <Card className="bg-gray-800/50 border-gray-700">
-                <CardContent className="p-8 text-center">
+              <Card className="bg-gray-800/50 border-gray-700 hover:bg-gray-800/70 transition-all duration-300 hover:scale-105">
+                <CardContent className="p-8 text-center flex flex-col h-full">
                   <Smartphone className="w-12 h-12 text-orange-500 mx-auto mb-4" />
                   <h3 className="text-xl font-bold text-white mb-3">Android</h3>
-                  <p className="text-gray-400 mb-4">Install as a PWA or download from the Play Store (coming soon).</p>
-                  <a href="/android" className="inline-block bg-orange-500 hover:bg-orange-600 text-white px-6 py-2 rounded font-semibold mb-2">Learn More</a>
+                  <p className="text-gray-400 mb-4 flex-grow">Install as a PWA or download from the Play Store (coming soon).</p>
+                  <Link to="/android" className="mt-auto">
+                    <Button className="w-full bg-gradient-to-r from-green-500 to-green-600 hover:from-green-600 hover:to-green-700 text-white font-semibold py-3 px-6 rounded-lg transition-all duration-300 hover:shadow-lg hover:shadow-green-500/25">
+                      <Smartphone className="w-4 h-4 mr-2" />
+                      Learn More
+                    </Button>
+                  </Link>
                 </CardContent>
               </Card>
-              <Card className="bg-gray-800/50 border-gray-700 text-center">
-                <CardContent className="p-8">
+              <Card className="bg-gray-800/50 border-gray-700 hover:bg-gray-800/70 transition-all duration-300 hover:scale-105">
+                <CardContent className="p-8 text-center flex flex-col h-full">
                   <Puzzle className="w-12 h-12 text-orange-500 mx-auto mb-4 animate-pulse" />
                   <h3 className="text-xl font-bold text-white mb-3">Chrome Extension</h3>
-                  <p className="text-gray-400 mb-4">Add Pops to your collection from any website. Take a screenshot and the extension fills in the details for you!</p>
-                  <Link to="/chrome-extension" className="inline-block bg-orange-500 hover:bg-orange-600 text-white px-6 py-2 rounded font-semibold mb-2">Learn More</Link>
+                  <p className="text-gray-400 mb-4 flex-grow">Add Pops to your collection from any website. Take a screenshot and the extension fills in the details for you!</p>
+                  <Link to="/chrome-extension" className="mt-auto">
+                    <Button className="w-full bg-gradient-to-r from-purple-500 to-purple-600 hover:from-purple-600 hover:to-purple-700 text-white font-semibold py-3 px-6 rounded-lg transition-all duration-300 hover:shadow-lg hover:shadow-purple-500/25">
+                      <Puzzle className="w-4 h-4 mr-2" />
+                      Learn More
+                    </Button>
+                  </Link>
                 </CardContent>
               </Card>
             </div>

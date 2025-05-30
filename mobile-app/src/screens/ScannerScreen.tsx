@@ -1,38 +1,29 @@
 import React, { useState, useEffect } from 'react';
-import { StyleSheet, View, Text, Button } from 'react-native';
-import { BarCodeScanner } from 'expo-barcode-scanner';
+import { StyleSheet, View, Text, TouchableOpacity } from 'react-native';
+import { CameraView, useCameraPermissions, BarcodeScanningResult } from 'expo-camera';
 import { useNavigation } from '@react-navigation/native';
 import { supabase } from '../services/supabase';
 
 export const ScannerScreen = () => {
-  const [hasPermission, setHasPermission] = useState<boolean | null>(null);
+  const [permission, requestPermission] = useCameraPermissions();
   const [scanned, setScanned] = useState(false);
   const navigation = useNavigation();
 
-  useEffect(() => {
-    const getBarCodeScannerPermissions = async () => {
-      const { status } = await BarCodeScanner.requestPermissionsAsync();
-      setHasPermission(status === 'granted');
-    };
-
-    getBarCodeScannerPermissions();
-  }, []);
-
-  const handleBarCodeScanned = async ({ data }: { data: string }) => {
+  const handleBarCodeScanned = async (result: BarcodeScanningResult) => {
     setScanned(true);
     try {
       // Query Supabase for the Funko using the barcode
       const { data: funko, error } = await supabase
         .from('funkos')
         .select('*')
-        .eq('barcode', data)
+        .eq('barcode', result.data)
         .single();
 
       if (error) throw error;
 
       if (funko) {
         // Navigate to details screen with the Funko data
-        navigation.navigate('Details', { funko });
+        (navigation as any).navigate('Details', { funko });
       } else {
         // Handle case where Funko is not found
         alert('Funko not found in database');
@@ -43,21 +34,40 @@ export const ScannerScreen = () => {
     }
   };
 
-  if (hasPermission === null) {
+  if (!permission) {
     return <Text>Requesting camera permission...</Text>;
   }
-  if (hasPermission === false) {
-    return <Text>No access to camera</Text>;
+
+  if (!permission.granted) {
+    return (
+      <View style={styles.container}>
+        <Text style={styles.permissionText}>We need your permission to show the camera</Text>
+        <TouchableOpacity style={styles.permissionButton} onPress={requestPermission}>
+          <Text style={styles.permissionButtonText}>Grant Permission</Text>
+        </TouchableOpacity>
+      </View>
+    );
   }
 
   return (
     <View style={styles.container}>
-      <BarCodeScanner
-        onBarCodeScanned={scanned ? undefined : handleBarCodeScanned}
+      <CameraView
         style={StyleSheet.absoluteFillObject}
+        facing="back"
+        onBarcodeScanned={scanned ? undefined : handleBarCodeScanned}
+        barcodeScannerSettings={{
+          barcodeTypes: ["qr", "pdf417", "aztec", "ean13", "ean8", "upc_e", "code128", "code39", "code93", "codabar", "itf14", "upc_a"],
+        }}
       />
       {scanned && (
-        <Button title="Tap to Scan Again" onPress={() => setScanned(false)} />
+        <View style={styles.scanAgainContainer}>
+          <TouchableOpacity
+            style={styles.scanAgainButton}
+            onPress={() => setScanned(false)}
+          >
+            <Text style={styles.scanAgainText}>Tap to Scan Again</Text>
+          </TouchableOpacity>
+        </View>
       )}
     </View>
   );
@@ -68,5 +78,40 @@ const styles = StyleSheet.create({
     flex: 1,
     flexDirection: 'column',
     justifyContent: 'center',
+  },
+  permissionText: {
+    textAlign: 'center',
+    color: '#fff',
+    fontSize: 16,
+    marginBottom: 20,
+  },
+  permissionButton: {
+    backgroundColor: '#e46c1b',
+    padding: 15,
+    borderRadius: 8,
+    marginHorizontal: 20,
+  },
+  permissionButtonText: {
+    color: '#fff',
+    textAlign: 'center',
+    fontSize: 16,
+    fontWeight: 'bold',
+  },
+  scanAgainContainer: {
+    position: 'absolute',
+    bottom: 50,
+    left: 20,
+    right: 20,
+  },
+  scanAgainButton: {
+    backgroundColor: '#e46c1b',
+    padding: 15,
+    borderRadius: 8,
+  },
+  scanAgainText: {
+    color: '#fff',
+    textAlign: 'center',
+    fontSize: 16,
+    fontWeight: 'bold',
   },
 }); 

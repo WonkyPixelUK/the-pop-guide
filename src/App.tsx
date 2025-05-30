@@ -104,7 +104,7 @@ const App = () => (
             <Route path="/auth/declined" element={<AuthDeclined />} />
             <Route path="/shoppers-advice" element={<ShoppersAdvice />} />
             <Route path="/coming-soon" element={<ComingSoon />} />
-            <Route path="/latest-deals" element={<LatestDeals />} />
+            <Route path="/deals" element={<LatestDeals />} />
 
             {/* ADD ALL CUSTOM ROUTES ABOVE THE CATCH-ALL "*" ROUTE */}
             <Route path="*" element={<NotFound />} />
