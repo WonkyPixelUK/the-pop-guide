@@ -5,7 +5,7 @@ import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
 import { usePublicProfileByUsername } from '@/hooks/usePublicProfile';
 import { useFunkoPops, useUserCollection } from '@/hooks/useFunkoPops';
 import { useProfileActivities } from '@/hooks/useProfileActivities';
-import { Music, MessageCircle, Twitter, Instagram, Video, ShoppingBag, ArrowLeft, ExternalLink, Gamepad2, Mail } from 'lucide-react';
+import { Music, MessageCircle, Twitter, Instagram, Video, ShoppingBag, ArrowLeft, ExternalLink, Gamepad2, Mail, Plus, User, LogOut } from 'lucide-react';
 import CollectionGrid from '@/components/CollectionGrid';
 import CollectionInsights from '@/components/CollectionInsights';
 import ActivityFeed from '@/components/ActivityFeed';
@@ -17,6 +17,11 @@ import Navigation from '@/components/Navigation';
 import { useAuth } from '@/hooks/useAuth';
 import MobileBottomNav from '@/components/MobileBottomNav';
 import { supabase } from '@/integrations/supabase/client';
+import TrophyAvatar from '@/components/TrophyAvatar';
+import { Search } from 'lucide-react';
+import { Input } from '@/components/ui/input';
+import EnhancedAddItemDialog from '@/components/EnhancedAddItemDialog';
+import { useToast } from '@/hooks/use-toast';
 
 const SEND_EMAIL_ENDPOINT = "https://pafgjwmgueerxdxtneyg.functions.supabase.co/send-email";
 
@@ -44,6 +49,11 @@ const Profile = () => {
   const [dmInput, setDmInput] = useState("");
   const [dmLoading, setDmLoading] = useState(false);
   const [auditLog, setAuditLog] = useState([]);
+  
+  // Add header navigation state
+  const [isAddDialogOpen, setIsAddDialogOpen] = useState(false);
+  const [searchQuery, setSearchQuery] = useState("");
+  const { toast } = useToast();
 
   useEffect(() => {
     if (checkoutSuccess && user) {
@@ -175,6 +185,70 @@ const Profile = () => {
     setDmMessages([]);
     setDmInput("");
     setDmLoading(false);
+  };
+
+  // Header navigation handlers
+  const handleSearch = (e: React.FormEvent) => {
+    e.preventDefault();
+    if (searchQuery.trim()) {
+      navigate(`/search?q=${encodeURIComponent(searchQuery.trim())}`);
+    }
+  };
+
+  const handleExport = () => {
+    if (!user || !userCollection.length) {
+      toast({
+        title: "Export not available",
+        description: "No collection data to export",
+        variant: "destructive",
+      });
+      return;
+    }
+    
+    const csvData = userCollection.map(item => ({
+      name: item.funko_pops?.name || '',
+      series: item.funko_pops?.series || '',
+      number: item.funko_pops?.number || '',
+      condition: item.condition || '',
+      purchase_price: item.purchase_price || '',
+      estimated_value: item.funko_pops?.estimated_value || '',
+    }));
+    
+    const csvContent = [
+      ['Name', 'Series', 'Number', 'Condition', 'Purchase Price', 'Estimated Value'],
+      ...csvData.map(row => Object.values(row))
+    ].map(row => row.join(',')).join('\n');
+    
+    const blob = new Blob([csvContent], { type: 'text/csv' });
+    const url = window.URL.createObjectURL(blob);
+    const a = document.createElement('a');
+    a.href = url;
+    a.download = `${profile?.username || 'user'}-collection.csv`;
+    a.click();
+    window.URL.revokeObjectURL(url);
+    
+    toast({
+      title: "Export successful",
+      description: "Collection exported to CSV file",
+    });
+  };
+
+  const handleSignOut = async () => {
+    try {
+      const { error } = await supabase.auth.signOut();
+      if (error) throw error;
+      navigate('/auth');
+      toast({
+        title: "Signed out",
+        description: "You have been signed out successfully",
+      });
+    } catch (error) {
+      toast({
+        title: "Error",
+        description: "Failed to sign out",
+        variant: "destructive",
+      });
+    }
   };
 
   if (profileLoading || funkoLoading || collectionLoading) {
@@ -322,6 +396,68 @@ const Profile = () => {
     <>
       <div className="min-h-screen bg-gradient-to-br from-gray-900 via-gray-800 to-black pb-20 md:pb-0">
         <Navigation />
+        
+        {/* Dashboard-style Header */}
+        <header className="bg-gray-900/50 backdrop-blur-sm border-b border-gray-700 sticky top-[116px] z-30">
+          <div className="container mx-auto px-4 py-3">
+            <div className="flex flex-col md:flex-row md:items-center md:justify-between gap-4">
+              {/* Search Bar */}
+              <form onSubmit={handleSearch} className="flex items-center space-x-4 flex-1">
+                <div className="relative flex-1 max-w-md">
+                  <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400 w-4 h-4" />
+                  <Input
+                    placeholder="Search the database..."
+                    value={searchQuery}
+                    onChange={(e) => setSearchQuery(e.target.value)}
+                    className="pl-10 bg-gray-800 border-gray-700 text-white placeholder-gray-400"
+                  />
+                </div>
+                <Button type="submit" className="bg-orange-500 hover:bg-orange-600 text-white">
+                  Search
+                </Button>
+              </form>
+
+              {/* Action Buttons */}
+              <div className="flex flex-col sm:flex-row items-stretch sm:items-center gap-2">
+                <span className="text-white text-center sm:text-left text-sm">Welcome, {user?.email}</span>
+                <div className="flex flex-col sm:flex-row gap-2">
+                  <Button 
+                    onClick={() => setIsAddDialogOpen(true)}
+                    className="bg-orange-500 hover:bg-orange-600 text-white"
+                  >
+                    <Plus className="w-4 h-4 mr-2" />
+                    Add Item
+                  </Button>
+                  <Button
+                    onClick={handleExport}
+                    variant="outline"
+                    className="border-gray-600 text-gray-200 hover:bg-gray-700 hover:text-white"
+                  >
+                    Export Collection
+                  </Button>
+                  <Link to="/profile-settings">
+                    <Button 
+                      variant="outline"
+                      className="border-gray-600 text-gray-200 hover:bg-gray-700 hover:text-white w-full"
+                    >
+                      <User className="w-4 h-4 mr-2" />
+                      Profile
+                    </Button>
+                  </Link>
+                  <Button 
+                    onClick={handleSignOut}
+                    variant="outline"
+                    className="border-gray-600 text-gray-200 hover:bg-gray-700 hover:text-white"
+                  >
+                    <LogOut className="w-4 h-4 mr-2" />
+                    Sign Out
+                  </Button>
+                </div>
+              </div>
+            </div>
+          </div>
+        </header>
+        
         {checkoutSuccess && (
           <div className="bg-green-700/90 border border-green-500 rounded-lg px-6 py-4 text-center shadow-lg max-w-xl mx-auto mt-8 mb-6">
             <div className="text-white text-2xl font-bold mb-2">Payment Successful!</div>
@@ -339,12 +475,12 @@ const Profile = () => {
             <Card className="bg-gray-800/50 border-gray-700 mb-8">
               <CardHeader>
                 <div className="flex items-start gap-6">
-                  <Avatar className="w-24 h-24">
-                    <AvatarImage src={profile.avatar_url || undefined} />
-                    <AvatarFallback className="bg-orange-500 text-white text-2xl">
-                      {profile.display_name ? profile.display_name[0].toUpperCase() : 'U'}
-                    </AvatarFallback>
-                  </Avatar>
+                  <TrophyAvatar 
+                    avatarUrl={profile.avatar_url}
+                    displayName={profile.display_name || profile.username}
+                    email={profile.email}
+                    size="w-24 h-24"
+                  />
                   <div className="flex-1">
                     <div className="flex items-center gap-3 mb-2">
                       <CardTitle className="text-white text-2xl flex items-center gap-2">
@@ -633,6 +769,12 @@ const Profile = () => {
           </div>
         </div>
       )}
+      
+      {/* Add Item Dialog */}
+      <EnhancedAddItemDialog 
+        open={isAddDialogOpen} 
+        onOpenChange={setIsAddDialogOpen} 
+      />
     </>
   );
 };

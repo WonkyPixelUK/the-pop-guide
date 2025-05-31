@@ -1,6 +1,6 @@
 import { Button } from "@/components/ui/button";
 import { Card, CardContent } from "@/components/ui/card";
-import { Check, Star } from "lucide-react";
+import { Check, Star, Bitcoin, CreditCard } from "lucide-react";
 import { Link } from "react-router-dom";
 import Navigation from "@/components/Navigation";
 import { Accordion, AccordionItem, AccordionTrigger, AccordionContent } from '@/components/ui/accordion';
@@ -9,6 +9,7 @@ import { useToast } from '@/hooks/use-toast';
 import { useState } from 'react';
 import MobileBottomNav from '@/components/MobileBottomNav';
 import Footer from '@/components/Footer';
+import { Badge } from '@/components/ui/badge';
 
 const SUPABASE_FUNCTION_URL = "https://pafgjwmgueerxdxtneyg.functions.supabase.co/stripe-checkout-public";
 
@@ -20,6 +21,7 @@ const Pricing = () => {
     {
       name: "Pro",
       price: "$3.99",
+      cryptoPrice: "$3.49",
       period: "per month",
       description: "For serious collectors",
       features: [
@@ -33,7 +35,7 @@ const Pricing = () => {
       ],
       cta: "Start 3-Day Pro Trial",
       popular: true,
-      link: "/auth?plan=pro"
+      link: "/get-started"
     },
     {
       name: "Retailer",
@@ -96,18 +98,57 @@ const Pricing = () => {
           <p className="text-xl text-gray-300 mb-8 max-w-3xl mx-auto">
             Start free and upgrade as your collection grows. No hidden fees, cancel anytime.
           </p>
+          
+          {/* Payment Options Banner */}
+          <div className="flex items-center justify-center gap-6 mb-8">
+            <div className="flex items-center text-gray-400">
+              <CreditCard className="w-5 h-5 mr-2" />
+              Credit/Debit Cards
+            </div>
+            <div className="text-gray-600">•</div>
+            <div className="flex items-center text-orange-400">
+              <Bitcoin className="w-5 h-5 mr-2" />
+              Crypto (5% discount)
+            </div>
+          </div>
         </div>
       </section>
 
       {/* Pricing Cards */}
       <section className="py-16 px-4">
         <div className="container mx-auto">
-          <div className="grid grid-cols-1 md:grid-cols-2 gap-8 max-w-3xl mx-auto mb-16">
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-8 max-w-4xl mx-auto mb-16">
             {plans.map((plan) => (
-              <div key={plan.name} className="bg-gray-900/90 border border-orange-500 rounded-lg px-8 py-10 text-center shadow-lg flex flex-col justify-between">
+              <div key={plan.name} className={`bg-gray-900/90 border rounded-lg px-8 py-10 text-center shadow-lg flex flex-col justify-between relative ${plan.popular ? 'border-orange-500' : 'border-gray-700'}`}>
+                {plan.popular && (
+                  <Badge className="absolute -top-3 left-1/2 transform -translate-x-1/2 bg-orange-500 text-white px-4 py-1">
+                    <Star className="w-4 h-4 mr-1" />
+                    Most Popular
+                  </Badge>
+                )}
+                
                 <div>
                   <div className="text-orange-500 font-bold text-lg mb-1">{plan.name}</div>
-                  <div className="text-white text-3xl font-bold mb-1">{plan.price} <span className="text-base font-normal text-gray-400">{plan.period}</span></div>
+                  
+                  <div className="mb-4">
+                    <div className="text-white text-3xl font-bold mb-1">
+                      {plan.price} 
+                      <span className="text-base font-normal text-gray-400"> {plan.period}</span>
+                    </div>
+                    
+                    {plan.cryptoPrice && (
+                      <div className="mt-2">
+                        <div className="flex items-center justify-center gap-2 text-lg">
+                          <span className="text-gray-500">or</span>
+                          <span className="text-gray-500 line-through">{plan.price}</span>
+                          <span className="text-green-400 font-bold">{plan.cryptoPrice}</span>
+                          <span className="text-gray-400 text-sm">with crypto</span>
+                        </div>
+                        <Badge className="bg-green-500 text-white text-xs mt-1">5% crypto discount</Badge>
+                      </div>
+                    )}
+                  </div>
+                  
                   <div className="text-gray-300 mb-4">{plan.description}</div>
                   <ul className="text-gray-400 text-sm mb-6 list-disc list-inside text-left mx-auto max-w-xs">
                     {plan.features.map((feature) => (
@@ -116,8 +157,16 @@ const Pricing = () => {
                   </ul>
                 </div>
                 <a href={plan.link}>
-                  <Button className="w-full bg-orange-500 hover:bg-orange-600 text-white text-lg mt-4">{plan.cta}</Button>
+                  <Button className={`w-full text-lg mt-4 ${plan.popular ? 'bg-orange-500 hover:bg-orange-600' : 'bg-gray-700 hover:bg-gray-600'} text-white`}>
+                    {plan.cta}
+                  </Button>
                 </a>
+                
+                {plan.cryptoPrice && (
+                  <p className="text-center text-xs text-gray-400 mt-3">
+                    💰 Save money every month with cryptocurrency payments
+                  </p>
+                )}
               </div>
             ))}
           </div>
@@ -135,7 +184,7 @@ const Pricing = () => {
               <AccordionItem value="faq1">
                 <AccordionTrigger className="text-orange-500">What happens after my 3-day Pro trial?</AccordionTrigger>
                 <AccordionContent className="text-white">
-                  You'll be automatically billed $3.99/month unless you cancel before the trial ends. You can cancel anytime in your account settings.
+                  You'll be automatically billed $3.99/month (or $3.49 with crypto) unless you cancel before the trial ends. You can cancel anytime in your account settings.
                 </AccordionContent>
               </AccordionItem>
               <AccordionItem value="faq2">
@@ -147,16 +196,28 @@ const Pricing = () => {
               <AccordionItem value="faq3">
                 <AccordionTrigger className="text-orange-500">What payment methods do you accept?</AccordionTrigger>
                 <AccordionContent className="text-white">
-                  We accept all major credit/debit cards. For Enterprise or special billing, contact us.
+                  We accept all major credit/debit cards through Stripe, and cryptocurrencies (Bitcoin, Ethereum, Litecoin, etc.) through Coinbase Commerce. Crypto payments get a 5% discount!
                 </AccordionContent>
               </AccordionItem>
               <AccordionItem value="faq4">
+                <AccordionTrigger className="text-orange-500">Which cryptocurrencies do you support?</AccordionTrigger>
+                <AccordionContent className="text-white">
+                  We support Bitcoin (BTC), Ethereum (ETH), Litecoin (LTC), Bitcoin Cash (BCH), USD Coin (USDC), and many other popular cryptocurrencies through Coinbase Commerce.
+                </AccordionContent>
+              </AccordionItem>
+              <AccordionItem value="faq5">
+                <AccordionTrigger className="text-orange-500">How does the crypto discount work?</AccordionTrigger>
+                <AccordionContent className="text-white">
+                  When you pay with cryptocurrency, you get a 5% discount on your subscription. So instead of $3.99/month, you only pay $3.49/month - saving you $6 per year!
+                </AccordionContent>
+              </AccordionItem>
+              <AccordionItem value="faq6">
                 <AccordionTrigger className="text-orange-500">Is there a limit on the number of items in Pro?</AccordionTrigger>
                 <AccordionContent className="text-white">
                   No, Pro users can add unlimited items to their collection.
                 </AccordionContent>
               </AccordionItem>
-              <AccordionItem value="faq5">
+              <AccordionItem value="faq7">
                 <AccordionTrigger className="text-orange-500">How do I cancel my subscription?</AccordionTrigger>
                 <AccordionContent className="text-white">
                   You can cancel anytime from your account settings. Your Pro features will remain active until the end of your billing period.

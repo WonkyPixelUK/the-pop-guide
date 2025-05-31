@@ -1,15 +1,17 @@
 import React, { useState, useEffect } from 'react';
-import { Link, useLocation } from 'react-router-dom';
+import { Link, useLocation, useNavigate } from 'react-router-dom';
 import { Button } from '@/components/ui/button';
-import { Activity, LogIn, LogOut, Plus, Search, Menu, Home, List, DollarSign, Star, Server, Sun, Moon, Monitor, ChevronDown, Facebook, Users, HelpCircle, Store } from 'lucide-react';
+import { Activity, LogIn, LogOut, Plus, Search, Menu, Home, List, DollarSign, Star, Server, Sun, Moon, Monitor, ChevronDown, Facebook, Users, HelpCircle, Store, Clock, Castle, Zap } from 'lucide-react';
 import { useAuth } from '@/hooks/useAuth';
 import { useToast } from '@/hooks/use-toast';
-import { CommandDialog, CommandInput, CommandList, CommandItem, CommandEmpty } from '@/components/ui/command';
+import { CommandDialog, CommandInput, CommandList, CommandItem, CommandEmpty, CommandGroup } from '@/components/ui/command';
 import { useFunkoPops, useUserCollection, useAddToCollection } from '@/hooks/useFunkoPops';
 import { Loader2, Check } from 'lucide-react';
 import { Menu as DropdownMenu, MenuItem } from '@headlessui/react';
 import { FaTiktok } from 'react-icons/fa';
 import { useCurrency } from '@/contexts/CurrencyContext';
+import { useMutation } from '@tanstack/react-query';
+import { supabase } from '@/integrations/supabase/client';
 
 const getInitialTheme = () => {
   if (typeof window === 'undefined') return 'system';
@@ -182,6 +184,26 @@ const Navigation = () => {
             >
               Lists
             </Link>
+            
+            {/* Advanced Features Dropdown */}
+            <DropdownMenu as="div" className="relative inline-block text-left">
+              <DropdownMenu.Button className="flex items-center text-white hover:text-orange-500 font-normal text-base transition-colors">
+                Tools <ChevronDown className="ml-1 w-5 h-5 text-[#e46c1b] animate-bounce-y" />
+              </DropdownMenu.Button>
+              <DropdownMenu.Items className="origin-top-right absolute right-0 mt-2 w-64 rounded-xl shadow-2xl bg-[#232837] border border-gray-800 focus:outline-none z-50 p-2">
+                <DropdownMenu.Item>
+                  <Link to="/time-machine" className="flex items-center gap-3 px-4 py-3 text-base font-medium text-white rounded-lg transition group hover:bg-gray-800/80 hover:border-l-4 hover:border-orange-500">
+                    <Clock className="w-5 h-5 text-orange-400 group-hover:scale-110 transition-transform" /> Time Machine
+                  </Link>
+                </DropdownMenu.Item>
+                <DropdownMenu.Item>
+                  <Link to="/grail-galaxy" className="flex items-center gap-3 px-4 py-3 text-base font-medium text-white rounded-lg transition group hover:bg-gray-800/80 hover:border-l-4 hover:border-orange-500">
+                    <Castle className="w-5 h-5 text-orange-400 group-hover:scale-110 transition-transform" /> Grail-Galaxy
+                  </Link>
+                </DropdownMenu.Item>
+              </DropdownMenu.Items>
+            </DropdownMenu>
+            
             {/* Community Dropdown */}
             <DropdownMenu as="div" className="relative inline-block text-left">
               <DropdownMenu.Button className="flex items-center text-white hover:text-orange-500 font-normal text-base transition-colors">

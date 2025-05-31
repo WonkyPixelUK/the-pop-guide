@@ -9,7 +9,7 @@ const corsHeaders = {
 };
 
 interface EmailRequest {
-  type: 'welcome' | 'contact' | 'reset' | 'milestone' | 'confirmation' | 'pro_welcome' | 'invoice_reminder' | 'payment_receipt';
+  type: 'welcome' | 'contact' | 'reset' | 'milestone' | 'confirmation' | 'pro_welcome' | 'invoice_reminder' | 'payment_receipt' | 'crypto_payment_success' | 'crypto_payment_pending';
   to: string;
   data: any;
 }
@@ -260,6 +260,95 @@ const handler = async (req: Request): Promise<Response> => {
                   <p style="margin: 0; color: #6b7280; font-size: 14px;"><strong>Date:</strong> ${data.date}</p>
                 </div>
                 <p style="color: #374151;">If you have any questions, reply to this email or <a href="${baseUrl}/support" style="color: #e46c1b;">contact support</a>.</p>
+              </div>
+            </div>
+          `,
+        };
+        break;
+
+      case 'crypto_payment_success':
+        emailOptions = {
+          from: "PopGuide <hello@popguide.com>",
+          to: [to],
+          subject: "🎉 Crypto Payment Confirmed - Welcome to PopGuide Pro!",
+          html: `
+            <div style="font-family: Arial, sans-serif; max-width: 600px; margin: 0 auto;">
+              <div style="background: linear-gradient(135deg, #1f2937, #111827); padding: 40px; text-align: center;">
+                <img src="https://Maintainhq-pull-zone.b-cdn.net/02_the_pop_guide/pop-guide-logo-trans-white.svg" alt="PopGuide" style="height: 100px; margin-bottom: 20px;">
+                <h1 style="color: #10b981; font-size: 32px; margin: 0;">🎉 Payment Confirmed!</h1>
+                <p style="color: #d1d5db; font-size: 18px; margin: 10px 0 0 0;">Your crypto payment was successful</p>
+              </div>
+              <div style="padding: 40px; background: #ffffff;">
+                <h2 style="color: #1f2937; margin-bottom: 20px;">Hi there!</h2>
+                <p style="color: #374151; line-height: 1.6; margin-bottom: 20px;">
+                  Congratulations! Your cryptocurrency payment has been confirmed on the blockchain and your <strong>PopGuide Pro</strong> subscription is now active.
+                </p>
+                <div style="background: #10b981; color: white; padding: 20px; border-radius: 8px; margin: 30px 0; text-align: center;">
+                  <h3 style="margin: 0 0 10px 0; font-size: 24px;">✅ Payment Confirmed</h3>
+                  <p style="margin: 0; opacity: 0.9;">Thanks for choosing crypto payments!</p>
+                </div>
+                <div style="background: #f3f4f6; padding: 20px; border-radius: 8px; margin: 20px 0;">
+                  <h4 style="margin: 0 0 15px 0; color: #1f2937;">Payment Details:</h4>
+                  <p style="margin: 5px 0; color: #6b7280; font-size: 14px;"><strong>Amount (USD):</strong> $${data.amount} ${data.currency}</p>
+                  <p style="margin: 5px 0; color: #6b7280; font-size: 14px;"><strong>Crypto Amount:</strong> ${data.cryptoAmount} ${data.cryptoCurrency}</p>
+                  <p style="margin: 5px 0; color: #6b7280; font-size: 14px;"><strong>Transaction ID:</strong> ${data.chargeId}</p>
+                  <p style="margin: 5px 0; color: #6b7280; font-size: 14px;"><strong>Date:</strong> ${new Date().toLocaleDateString()}</p>
+                </div>
+                <div style="background: #fef3cd; border-left: 4px solid #f59e0b; padding: 15px; margin: 20px 0;">
+                  <p style="margin: 0; color: #92400e; font-size: 14px;">
+                    <strong>💰 Crypto Discount Applied:</strong> You saved 5% by paying with cryptocurrency!
+                  </p>
+                </div>
+                <div style="text-align: center; margin: 30px 0;">
+                  <a href="${baseUrl}/dashboard" style="background: #f97316; color: white; padding: 15px 30px; text-decoration: none; border-radius: 8px; display: inline-block; font-weight: bold;">Access Your Pro Features</a>
+                </div>
+                <p style="color: #374151; line-height: 1.6;">
+                  You now have unlimited access to all PopGuide Pro features including unlimited collection tracking, advanced analytics, price predictions, and priority support.
+                </p>
+                <p style="color: #6b7280; font-size: 14px; text-align: center; margin-top: 30px;">
+                  Questions about your payment? <a href="${baseUrl}/support" style="color: #f97316;">Contact our support team</a>
+                </p>
+              </div>
+            </div>
+          `,
+        };
+        break;
+
+      case 'crypto_payment_pending':
+        emailOptions = {
+          from: "PopGuide <hello@popguide.com>",
+          to: [to],
+          subject: "⏳ Crypto Payment Received - Awaiting Confirmation",
+          html: `
+            <div style="font-family: Arial, sans-serif; max-width: 600px; margin: 0 auto;">
+              <div style="background: linear-gradient(135deg, #1f2937, #111827); padding: 40px; text-align: center;">
+                <img src="https://Maintainhq-pull-zone.b-cdn.net/02_the_pop_guide/pop-guide-logo-trans-white.svg" alt="PopGuide" style="height: 100px; margin-bottom: 20px;">
+                <h1 style="color: #f59e0b; font-size: 32px; margin: 0;">⏳ Payment Received</h1>
+                <p style="color: #d1d5db; font-size: 18px; margin: 10px 0 0 0;">Awaiting blockchain confirmation</p>
+              </div>
+              <div style="padding: 40px; background: #ffffff;">
+                <h2 style="color: #1f2937; margin-bottom: 20px;">Hi there!</h2>
+                <p style="color: #374151; line-height: 1.6; margin-bottom: 20px;">
+                  We've received your cryptocurrency payment for <strong>PopGuide Pro</strong>! Your transaction is currently being confirmed on the blockchain.
+                </p>
+                <div style="background: #fef3cd; border-left: 4px solid #f59e0b; padding: 20px; margin: 30px 0;">
+                  <h3 style="margin: 0 0 10px 0; color: #92400e;">🔄 Confirmation in Progress</h3>
+                  <p style="margin: 0; color: #92400e;">
+                    Crypto payments typically take 10-60 minutes to confirm depending on network congestion. We'll email you as soon as it's confirmed!
+                  </p>
+                </div>
+                <div style="background: #f3f4f6; padding: 20px; border-radius: 8px; margin: 20px 0;">
+                  <h4 style="margin: 0 0 15px 0; color: #1f2937;">Payment Details:</h4>
+                  <p style="margin: 5px 0; color: #6b7280; font-size: 14px;"><strong>Amount:</strong> $${data.amount} ${data.currency}</p>
+                  <p style="margin: 5px 0; color: #6b7280; font-size: 14px;"><strong>Transaction ID:</strong> ${data.chargeId}</p>
+                  <p style="margin: 5px 0; color: #6b7280; font-size: 14px;"><strong>Status:</strong> Awaiting confirmation</p>
+                </div>
+                <p style="color: #374151; line-height: 1.6;">
+                  Once confirmed, you'll immediately have access to all PopGuide Pro features. Thank you for choosing cryptocurrency payments!
+                </p>
+                <p style="color: #6b7280; font-size: 14px; text-align: center; margin-top: 30px;">
+                  Questions? <a href="${baseUrl}/support" style="color: #f97316;">Contact our support team</a>
+                </p>
               </div>
             </div>
           `,

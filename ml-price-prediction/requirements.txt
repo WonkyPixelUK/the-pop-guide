@@ -1,0 +1,33 @@
+# Core ML libraries
+pandas>=1.5.0
+numpy>=1.24.0
+scikit-learn>=1.2.0
+xgboost>=1.7.0
+joblib>=1.2.0
+
+# AWS and SageMaker
+boto3>=1.26.0
+sagemaker>=2.130.0
+
+# API framework
+fastapi>=0.95.0
+uvicorn[standard]>=0.20.0
+pydantic>=1.10.0
+
+# Database
+supabase>=1.0.0
+
+# Data processing
+pytz>=2023.3
+
+# Testing
+pytest>=7.0.0
+pytest-asyncio>=0.21.0
+
+# Development
+black>=23.0.0
+flake8>=6.0.0
+mypy>=1.0.0
+
+# Monitoring and logging
+prometheus-client>=0.16.0 

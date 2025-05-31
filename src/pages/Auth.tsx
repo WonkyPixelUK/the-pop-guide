@@ -3,12 +3,15 @@ import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
+import { Badge } from '@/components/ui/badge';
+import { CreditCard, Bitcoin } from 'lucide-react';
 import { useAuth } from '@/hooks/useAuth';
 import { useWelcomeEmail } from '@/hooks/useWelcomeEmail';
 import { useToast } from '@/hooks/use-toast';
 import { useNavigate, Link, useLocation } from 'react-router-dom';
 
-const SUPABASE_FUNCTION_URL = "https://pafgjwmgueerxdxtneyg.functions.supabase.co/stripe-checkout-public";
+const STRIPE_FUNCTION_URL = "https://pafgjwmgueerxdxtneyg.functions.supabase.co/stripe-checkout-public";
+const CRYPTO_FUNCTION_URL = "https://pafgjwmgueerxdxtneyg.functions.supabase.co/crypto-checkout";
 const SEND_EMAIL_ENDPOINT = "https://pafgjwmgueerxdxtneyg.functions.supabase.co/send-email";
 
 const Auth = () => {
@@ -17,6 +20,7 @@ const Auth = () => {
   const [password, setPassword] = useState('');
   const [fullName, setFullName] = useState('');
   const [loading, setLoading] = useState(false);
+  const [selectedPaymentMethod, setSelectedPaymentMethod] = useState<'traditional' | 'crypto'>('traditional');
   const { user, signUp, signIn } = useAuth();
   const { toast } = useToast();
   const navigate = useNavigate();
@@ -83,8 +87,50 @@ const Auth = () => {
           headers: { 'Content-Type': 'application/json' },
           body: JSON.stringify({ type: 'welcome', to: email, data: { fullName: fullName } })
         });
-        // No email confirmation required, go straight to login/checkout
-        navigate('/auth?checkout=1&email=' + encodeURIComponent(email));
+
+        // Route to appropriate checkout based on selected payment method
+        if (plan === 'pro') {
+          const headers: Record<string, string> = { 'Content-Type': 'application/json' };
+          if (result.data?.session?.access_token) {
+            headers['Authorization'] = `Bearer ${result.data.session.access_token}`;
+          }
+
+          let functionUrl: string;
+          let requestBody: any;
+
+          if (selectedPaymentMethod === 'traditional') {
+            functionUrl = STRIPE_FUNCTION_URL;
+            requestBody = { email };
+          } else {
+            functionUrl = CRYPTO_FUNCTION_URL;
+            requestBody = { 
+              user_id: result.data?.user?.id, 
+              email,
+              plan_type: 'pro'
+            };
+          }
+
+          const res = await fetch(functionUrl, {
+            method: 'POST',
+            headers,
+            body: JSON.stringify(requestBody),
+          });
+
+          const data = await res.json();
+          
+          if (data.url || data.checkout_url) {
+            window.location.href = data.url || data.checkout_url;
+          } else {
+            toast({ 
+              title: 'Error', 
+              description: data.error || 'Could not start checkout', 
+              variant: 'destructive' 
+            });
+          }
+        } else {
+          // Free plan - go to dashboard
+          navigate('/dashboard');
+        }
       } else {
         // Sign in as normal
         const result = await signIn(email, password);
@@ -102,7 +148,7 @@ const Auth = () => {
             } else if (user && user.access_token) {
               headers['Authorization'] = `Bearer ${user.access_token}`;
             }
-            fetch(SUPABASE_FUNCTION_URL, {
+            fetch(STRIPE_FUNCTION_URL, {
               method: 'POST',
               headers,
               body: JSON.stringify({ email }),
@@ -151,12 +197,80 @@ const Auth = () => {
               />
             </Link>
             {/* Info block for price and trial */}
-            {isSignUp && (
-              <div className="bg-gray-900/90 border border-orange-500 rounded-lg px-6 py-4 text-center shadow-lg mt-6 mb-4">
-                <div className="text-orange-500 font-bold text-lg mb-1">Pro Membership</div>
-                <div className="text-white text-xl font-bold mb-1">$3.99/mo</div>
-                <div className="text-gray-300 mb-1">3-day free trial. Cancel anytime.</div>
-                <div className="text-gray-400 text-sm">Unlock unlimited items, analytics, and more.</div>
+            {isSignUp && plan === 'pro' && (
+              <div className="space-y-4 mt-6 mb-4">
+                {/* Payment Options Header */}
+                <div className="flex items-center justify-center gap-6 mb-4">
+                  <div className="flex items-center text-gray-400 text-sm">
+                    <CreditCard className="w-4 h-4 mr-2" />
+                    Credit Cards
+                  </div>
+                  <div className="text-gray-600">•</div>
+                  <div className="flex items-center text-orange-400 text-sm">
+                    <Bitcoin className="w-4 h-4 mr-2" />
+                    Crypto (5% discount)
+                  </div>
+                </div>
+
+                {/* Pricing Cards - Now Clickable */}
+                <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                  {/* Credit Card Option */}
+                  <div 
+                    className={`bg-gray-900/90 border rounded-lg p-4 text-center cursor-pointer transition-all duration-200 ${
+                      selectedPaymentMethod === 'traditional' 
+                        ? 'border-orange-500 ring-2 ring-orange-500/50' 
+                        : 'border-gray-700 hover:border-gray-600'
+                    }`}
+                    onClick={() => setSelectedPaymentMethod('traditional')}
+                  >
+                    <CreditCard className="w-6 h-6 text-gray-400 mx-auto mb-2" />
+                    <div className="text-orange-500 font-bold text-sm mb-1">Pro Membership</div>
+                    <div className="text-white text-lg font-bold mb-1">$3.99/mo</div>
+                    <div className="text-gray-400 text-xs">Credit/Debit Cards</div>
+                    {selectedPaymentMethod === 'traditional' && (
+                      <div className="mt-2">
+                        <Badge className="bg-orange-500 text-white text-xs">Selected</Badge>
+                      </div>
+                    )}
+                  </div>
+
+                  {/* Crypto Option */}
+                  <div 
+                    className={`bg-gray-900/90 border rounded-lg p-4 text-center relative cursor-pointer transition-all duration-200 ${
+                      selectedPaymentMethod === 'crypto' 
+                        ? 'border-orange-500 ring-2 ring-orange-500/50' 
+                        : 'border-orange-500 hover:border-orange-400'
+                    }`}
+                    onClick={() => setSelectedPaymentMethod('crypto')}
+                  >
+                    <Badge className="absolute -top-2 left-1/2 transform -translate-x-1/2 bg-green-500 text-white px-2 py-0.5 text-xs">
+                      5% OFF
+                    </Badge>
+                    <Bitcoin className="w-6 h-6 text-orange-500 mx-auto mb-2" />
+                    <div className="text-orange-500 font-bold text-sm mb-1">Pro Membership</div>
+                    <div className="flex items-center justify-center gap-1 mb-1">
+                      <span className="text-gray-500 line-through text-sm">$3.99</span>
+                      <span className="text-white text-lg font-bold">$3.49/mo</span>
+                    </div>
+                    <div className="text-green-400 text-xs">Cryptocurrency</div>
+                    {selectedPaymentMethod === 'crypto' && (
+                      <div className="mt-2">
+                        <Badge className="bg-orange-500 text-white text-xs">Selected</Badge>
+                      </div>
+                    )}
+                  </div>
+                </div>
+
+                {/* Features */}
+                <div className="bg-gray-800/50 rounded-lg p-3 mt-4">
+                  <div className="text-gray-300 text-xs text-center">
+                    ✅ 3-day free trial • ✅ Cancel anytime • ✅ Unlimited items • ✅ Advanced analytics
+                  </div>
+                </div>
+
+                <p className="text-gray-400 text-xs text-center">
+                  💰 Save $6/year by paying with cryptocurrency!
+                </p>
               </div>
             )}
             <p className="text-gray-400 mt-2">
@@ -209,7 +323,9 @@ const Auth = () => {
                   />
                 </div>
                 {isSignUp && plan === 'pro' && (
-                  <div className="text-orange-400 text-sm text-center mb-2">You must pay for Pro before your account is created. You'll be redirected to Stripe checkout.</div>
+                  <div className="text-orange-400 text-sm text-center mb-2">
+                    You'll be redirected to {selectedPaymentMethod === 'traditional' ? 'Stripe' : 'Coinbase Commerce'} checkout after account creation.
+                  </div>
                 )}
                 <Button 
                   type="submit" 

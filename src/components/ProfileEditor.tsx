@@ -7,12 +7,13 @@ import { Textarea } from '@/components/ui/textarea';
 import { Switch } from '@/components/ui/switch';
 import { usePublicProfile } from '@/hooks/usePublicProfile';
 import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
-import { User, Music, MessageCircle, Twitter, Instagram, Video, ShoppingBag, Gamepad2, Copy as CopyIcon } from 'lucide-react';
+import { User, Music, MessageCircle, Twitter, Instagram, Video, ShoppingBag, Gamepad2, Copy as CopyIcon, Mail, Lock, Eye, EyeOff, Crown, Award, Trophy } from 'lucide-react';
 import { useCustomLists } from '@/hooks/useCustomLists';
 import { supabase } from '@/integrations/supabase/client';
 import { useToast } from '@/hooks/use-toast';
 import { useAuth } from '@/hooks/useAuth';
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger } from '@/components/ui/dialog';
+import TrophyAvatar from '@/components/TrophyAvatar';
 
 function ProfileEditor({ section }: { section?: string }) {
   const { profile, loading, createProfile, updateProfile } = usePublicProfile();
@@ -40,6 +41,76 @@ function ProfileEditor({ section }: { section?: string }) {
   const [selectedListIds, setSelectedListIds] = useState<string[]>(profile?.profile_list_ids || []);
   const { toast } = useToast();
   const [uploading, setUploading] = useState(false);
+  const [newEmail, setNewEmail] = useState('');
+  const [currentPassword, setCurrentPassword] = useState('');
+  const [newPassword, setNewPassword] = useState('');
+  const [confirmPassword, setConfirmPassword] = useState('');
+  const [emailLoading, setEmailLoading] = useState(false);
+  const [passwordLoading, setPasswordLoading] = useState(false);
+  const [userStatus, setUserStatus] = useState<'free' | 'pro' | 'top_member' | 'team'>('free');
+  
+  // Public profile visibility controls
+  const [publicProfileSettings, setPublicProfileSettings] = useState({
+    show_bio: true,
+    show_avatar: true,
+    show_social_links: true,
+    show_gaming_profiles: true,
+    show_lists: true,
+    show_join_date: true,
+    show_collection_stats: true
+  });
+
+  // Function to calculate user status based on various factors
+  const calculateUserStatus = async () => {
+    if (!user) return 'free';
+    
+    try {
+      // Check if user is team member
+      if (user.email === 'rich@maintainhq.com') {
+        setUserStatus('team');
+        return 'team';
+      }
+
+      // Check subscription status
+      const { data: userData } = await supabase
+        .from('users')
+        .select('subscription_status')
+        .eq('id', user.id)
+        .single();
+
+      if (userData?.subscription_status === 'active') {
+        // Check if they're a top member (based on collection size, activity, etc.)
+        const { data: collection } = await supabase
+          .from('collection_items')
+          .select('id')
+          .eq('user_id', user.id);
+
+        const collectionSize = collection?.length || 0;
+        
+        // Top member criteria: 100+ items OR active for 6+ months
+        if (collectionSize >= 100) {
+          setUserStatus('top_member');
+          return 'top_member';
+        }
+        
+        setUserStatus('pro');
+        return 'pro';
+      }
+
+      setUserStatus('free');
+      return 'free';
+    } catch (error) {
+      console.error('Error calculating user status:', error);
+      setUserStatus('free');
+      return 'free';
+    }
+  };
+
+  useEffect(() => {
+    if (user) {
+      calculateUserStatus();
+    }
+  }, [user]);
 
   useEffect(() => {
     if (profile) {
@@ -61,8 +132,21 @@ function ProfileEditor({ section }: { section?: string }) {
         steam_username: profile.steam_username || '',
       });
       setSelectedListIds(profile.profile_list_ids || []);
+      
+      // Load public profile visibility settings
+      if (profile.public_profile_settings) {
+        setPublicProfileSettings({
+          ...publicProfileSettings,
+          ...profile.public_profile_settings
+        });
+      }
     }
-  }, [profile]);
+    
+    // Set current email
+    if (user?.email) {
+      setNewEmail(user.email);
+    }
+  }, [profile, user]);
 
   const validateUsername = (username: string) => /^[a-z0-9-_]+$/.test(username);
   const checkUsernameAvailability = async (username: string) => {
@@ -160,22 +244,113 @@ function ProfileEditor({ section }: { section?: string }) {
     const file = e.target.files?.[0];
     if (!file) return;
     setUploading(true);
-    const fileExt = file.name.split('.').pop();
-    const filePath = `user-profiles/${user.id}.${fileExt}`;
-    const { error: uploadError } = await supabase.storage.from('user-profiles').upload(filePath, file, { upsert: true });
-    if (uploadError) {
-      toast({ title: 'Upload failed', description: uploadError.message, variant: 'destructive' });
-      setUploading(false);
-      return;
-    }
-    const { data: urlData } = supabase.storage.from('user-profiles').getPublicUrl(filePath);
-    if (urlData?.publicUrl) {
-      setFormData(prev => ({ ...prev, avatar_url: urlData.publicUrl }));
-      // Optionally auto-save profile with new avatar_url
-      await updateProfile({ ...formData, avatar_url: urlData.publicUrl });
-      toast({ title: 'Profile picture updated!', variant: 'success' });
+    
+    try {
+      // Generate unique filename
+      const fileExt = file.name.split('.').pop();
+      const fileName = `user-profiles/${user.id}-${Date.now()}.${fileExt}`;
+      
+      // Upload to Bunny CDN
+      const response = await fetch(`https://storage.bunnycdn.com/popguide-storage/${fileName}`, {
+        method: 'PUT',
+        headers: {
+          'AccessKey': process.env.REACT_APP_BUNNY_CDN_API_KEY || '',
+          'Content-Type': 'application/octet-stream',
+        },
+        body: file
+      });
+      
+      if (!response.ok) {
+        throw new Error(`Upload failed: ${response.status}`);
+      }
+      
+      // Generate CDN URL
+      const fileUrl = `https://popguide-cdn.b-cdn.net/${fileName}`;
+      
+      setFormData(prev => ({ ...prev, avatar_url: fileUrl }));
+      // Auto-save profile with new avatar_url
+      await updateProfile({ ...formData, avatar_url: fileUrl });
+      toast({ title: 'Profile picture updated!', variant: 'default' });
+    } catch (error) {
+      console.error('Upload error:', error);
+      toast({ title: 'Upload failed', description: 'Please try again', variant: 'destructive' });
     }
     setUploading(false);
+  };
+
+  const handleEmailChange = async () => {
+    if (!newEmail || newEmail === user?.email) return;
+    
+    setEmailLoading(true);
+    try {
+      const { error } = await supabase.auth.updateUser({ 
+        email: newEmail 
+      });
+      
+      if (error) throw error;
+      
+      toast({ 
+        title: 'Email update initiated', 
+        description: 'Please check both your old and new email for confirmation links.',
+        variant: 'default'
+      });
+    } catch (error: any) {
+      toast({ 
+        title: 'Email update failed', 
+        description: error.message,
+        variant: 'destructive'
+      });
+    } finally {
+      setEmailLoading(false);
+    }
+  };
+
+  const handlePasswordChange = async () => {
+    if (!newPassword || newPassword !== confirmPassword) {
+      toast({ 
+        title: 'Password mismatch', 
+        description: 'New passwords do not match',
+        variant: 'destructive'
+      });
+      return;
+    }
+    
+    if (newPassword.length < 6) {
+      toast({ 
+        title: 'Password too short', 
+        description: 'Password must be at least 6 characters',
+        variant: 'destructive'
+      });
+      return;
+    }
+    
+    setPasswordLoading(true);
+    try {
+      const { error } = await supabase.auth.updateUser({ 
+        password: newPassword 
+      });
+      
+      if (error) throw error;
+      
+      toast({ 
+        title: 'Password updated', 
+        description: 'Your password has been successfully changed.',
+        variant: 'default'
+      });
+      
+      // Clear password fields
+      setCurrentPassword('');
+      setNewPassword('');
+      setConfirmPassword('');
+    } catch (error: any) {
+      toast({ 
+        title: 'Password update failed', 
+        description: error.message,
+        variant: 'destructive'
+      });
+    } finally {
+      setPasswordLoading(false);
+    }
   };
 
   if (loading) {
@@ -191,61 +366,51 @@ function ProfileEditor({ section }: { section?: string }) {
         </CardTitle>
       </CardHeader>
       <CardContent>
-        <form onSubmit={handleSubmit} className="space-y-6">
+        <form onSubmit={handleSubmit} className="space-y-8">
           {/* Profile fields only */}
           {(!section || section === 'profile') && (
-            <div className="space-y-4">
-              <h3 className="text-lg font-semibold text-white">Basic Information</h3>
+            <div className="space-y-6">
+              <h3 className="text-lg font-semibold text-white mb-6">Basic Information</h3>
               
-              <div className="flex items-center gap-4">
-                <Avatar className="w-16 h-16">
-                  <AvatarImage src={formData.avatar_url} />
-                  <AvatarFallback className="bg-orange-500 text-white">
-                    {formData.display_name ? formData.display_name[0].toUpperCase() : 'U'}
-                  </AvatarFallback>
-                </Avatar>
-                <div className="flex-1">
-                  <Label htmlFor="avatar_url" className="text-gray-300">Avatar URL</Label>
-                  <Input
-                    id="avatar_url"
-                    value={formData.avatar_url}
-                    onChange={(e) => handleInputChange('avatar_url', e.target.value)}
-                    placeholder="https://example.com/avatar.jpg"
-                    className="bg-gray-700 border-gray-600 text-white"
-                  />
-                  <div className="mt-2">
-                    <input
-                      type="file"
-                      accept="image/*"
-                      id="avatar_upload"
-                      onChange={handleAvatarUpload}
+              <div className="flex items-center gap-4 mb-6">
+                <TrophyAvatar avatarUrl={formData.avatar_url} displayName={formData.display_name} userStatus={userStatus} />
+                <div>
+                  <label htmlFor="avatar_upload" className="cursor-pointer">
+                    <Button 
+                      type="button" 
                       disabled={uploading}
-                    />
-                    {uploading && <span className="text-xs text-gray-400 ml-2">Uploading...</span>}
-                  </div>
+                      className="bg-orange-500 hover:bg-orange-600 text-white"
+                      onClick={() => document.getElementById('avatar_upload')?.click()}
+                    >
+                      {uploading ? 'Uploading...' : 'Change Photo'}
+                    </Button>
+                  </label>
+                  <input
+                    id="avatar_upload"
+                    type="file"
+                    accept="image/*"
+                    onChange={handleAvatarUpload}
+                    className="hidden"
+                  />
                 </div>
               </div>
 
-              <div>
-                <Label htmlFor="username" className="text-gray-300">Username (for profile URL)</Label>
+              <div className="space-y-3">
+                <Label htmlFor="username" className="text-gray-300 text-sm font-medium">Username *</Label>
                 <Input
                   id="username"
                   value={formData.username}
                   onChange={(e) => handleInputChange('username', e.target.value)}
-                  onBlur={() => formData.username && checkUsernameAvailability(formData.username)}
-                  placeholder="mycoolpopguide"
-                  className="bg-gray-700 border-gray-600 text-white"
+                  placeholder="username"
+                  className="bg-gray-700 border-gray-600 text-white mt-2"
+                  required
                 />
-                {usernameError && (
-                  <span className="text-red-500 text-xs">{usernameError}</span>
-                )}
-                {formData.username && (
-                  <p className="text-sm text-gray-400 mt-1 flex items-center gap-2">
-                    Your profile will be at: /profile/{formData.username}
+                {usernameError && <p className="text-red-400 text-sm mt-1">{usernameError}</p>}
+                {formData.username && !usernameError && (
+                  <p className="text-gray-400 text-sm mt-2 flex items-center gap-2">
+                    Your profile: {window.location.origin}/profile/{formData.username}
                     <button
                       type="button"
-                      aria-label="Copy profile URL"
-                      className="ml-1 p-1 rounded hover:bg-gray-700"
                       onClick={() => {
                         navigator.clipboard.writeText(`${window.location.origin}/profile/${formData.username}`);
                         toast({ title: 'Copied!', description: 'Profile URL copied to clipboard', variant: 'success' });
@@ -257,36 +422,36 @@ function ProfileEditor({ section }: { section?: string }) {
                 )}
               </div>
 
-              <div>
-                <Label htmlFor="display_name" className="text-gray-300">Display Name</Label>
+              <div className="space-y-3">
+                <Label htmlFor="display_name" className="text-gray-300 text-sm font-medium">Display Name</Label>
                 <Input
                   id="display_name"
                   value={formData.display_name}
                   onChange={(e) => handleInputChange('display_name', e.target.value)}
                   placeholder="Your display name"
-                  className="bg-gray-700 border-gray-600 text-white"
+                  className="bg-gray-700 border-gray-600 text-white mt-2"
                 />
               </div>
 
-              <div>
-                <Label htmlFor="bio" className="text-gray-300">Bio</Label>
+              <div className="space-y-3">
+                <Label htmlFor="bio" className="text-gray-300 text-sm font-medium">Bio</Label>
                 <Textarea
                   id="bio"
                   value={formData.bio}
                   onChange={(e) => handleInputChange('bio', e.target.value)}
                   placeholder="Tell others about your Funko Pop collecting journey..."
-                  className="bg-gray-700 border-gray-600 text-white"
+                  className="bg-gray-700 border-gray-600 text-white mt-2"
                   rows={3}
                 />
               </div>
 
-              <div className="flex items-center space-x-2">
+              <div className="flex items-center space-x-3 pt-4">
                 <Switch
                   id="is_public"
                   checked={formData.is_public}
                   onCheckedChange={(checked) => handleInputChange('is_public', checked)}
                 />
-                <Label htmlFor="is_public" className="text-gray-300">
+                <Label htmlFor="is_public" className="text-gray-300 text-sm font-medium">
                   Make profile public
                 </Label>
               </div>
@@ -294,12 +459,12 @@ function ProfileEditor({ section }: { section?: string }) {
           )}
           {/* Social Integrations only */}
           {section === 'social' && (
-            <div className="space-y-4">
-              <h3 className="text-lg font-semibold text-white">Social Integrations</h3>
+            <div className="space-y-6">
+              <h3 className="text-lg font-semibold text-white mb-6">Social Integrations</h3>
               
-              <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                <div>
-                  <Label htmlFor="spotify_username" className="text-gray-300 flex items-center gap-2">
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+                <div className="space-y-3">
+                  <Label htmlFor="spotify_username" className="text-gray-300 text-sm font-medium flex items-center gap-2">
                     <Music className="w-4 h-4 text-green-500" />
                     Spotify
                     {formData.spotify_username ? (
@@ -308,7 +473,7 @@ function ProfileEditor({ section }: { section?: string }) {
                       <Button
                         type="button"
                         size="sm"
-                        className="ml-2 bg-green-600 hover:bg-green-700 text-white"
+                        className="ml-2 bg-green-600 hover:bg-green-700 text-white text-xs px-2 py-1"
                         onClick={() => handleConnectProvider('spotify')}
                       >
                         Connect
@@ -320,13 +485,13 @@ function ProfileEditor({ section }: { section?: string }) {
                     value={formData.spotify_username}
                     onChange={(e) => handleInputChange('spotify_username', e.target.value)}
                     placeholder="spotify_username"
-                    className="bg-gray-700 border-gray-600 text-white"
+                    className="bg-gray-700 border-gray-600 text-white mt-2"
                     disabled={!!formData.spotify_username}
                   />
                 </div>
 
-                <div>
-                  <Label htmlFor="discord_username" className="text-gray-300 flex items-center gap-2">
+                <div className="space-y-3">
+                  <Label htmlFor="discord_username" className="text-gray-300 text-sm font-medium flex items-center gap-2">
                     <MessageCircle className="w-4 h-4 text-indigo-500" />
                     Discord
                     {formData.discord_username ? (
@@ -335,7 +500,7 @@ function ProfileEditor({ section }: { section?: string }) {
                       <Button
                         type="button"
                         size="sm"
-                        className="ml-2 bg-indigo-600 hover:bg-indigo-700 text-white"
+                        className="ml-2 bg-indigo-600 hover:bg-indigo-700 text-white text-xs px-2 py-1"
                         onClick={() => handleConnectProvider('discord')}
                       >
                         Connect
@@ -347,13 +512,13 @@ function ProfileEditor({ section }: { section?: string }) {
                     value={formData.discord_username}
                     onChange={(e) => handleInputChange('discord_username', e.target.value)}
                     placeholder="discord#1234"
-                    className="bg-gray-700 border-gray-600 text-white"
+                    className="bg-gray-700 border-gray-600 text-white mt-2"
                     disabled={!!formData.discord_username}
                   />
                 </div>
 
-                <div>
-                  <Label htmlFor="twitter_handle" className="text-gray-300 flex items-center gap-2">
+                <div className="space-y-3">
+                  <Label htmlFor="twitter_handle" className="text-gray-300 text-sm font-medium flex items-center gap-2">
                     <Twitter className="w-4 h-4 text-blue-400" />
                     Twitter Handle
                   </Label>
@@ -362,12 +527,12 @@ function ProfileEditor({ section }: { section?: string }) {
                     value={formData.twitter_handle}
                     onChange={(e) => handleInputChange('twitter_handle', e.target.value)}
                     placeholder="@twitter_handle"
-                    className="bg-gray-700 border-gray-600 text-white"
+                    className="bg-gray-700 border-gray-600 text-white mt-2"
                   />
                 </div>
 
-                <div>
-                  <Label htmlFor="instagram_handle" className="text-gray-300 flex items-center gap-2">
+                <div className="space-y-3">
+                  <Label htmlFor="instagram_handle" className="text-gray-300 text-sm font-medium flex items-center gap-2">
                     <Instagram className="w-4 h-4 text-pink-500" />
                     Instagram Handle
                   </Label>
@@ -376,12 +541,12 @@ function ProfileEditor({ section }: { section?: string }) {
                     value={formData.instagram_handle}
                     onChange={(e) => handleInputChange('instagram_handle', e.target.value)}
                     placeholder="@instagram_handle"
-                    className="bg-gray-700 border-gray-600 text-white"
+                    className="bg-gray-700 border-gray-600 text-white mt-2"
                   />
                 </div>
 
-                <div>
-                  <Label htmlFor="tiktok_handle" className="text-gray-300 flex items-center gap-2">
+                <div className="space-y-3">
+                  <Label htmlFor="tiktok_handle" className="text-gray-300 text-sm font-medium flex items-center gap-2">
                     <Video className="w-4 h-4 text-red-500" />
                     TikTok Handle
                   </Label>
@@ -390,12 +555,12 @@ function ProfileEditor({ section }: { section?: string }) {
                     value={formData.tiktok_handle}
                     onChange={(e) => handleInputChange('tiktok_handle', e.target.value)}
                     placeholder="@tiktok_handle"
-                    className="bg-gray-700 border-gray-600 text-white"
+                    className="bg-gray-700 border-gray-600 text-white mt-2"
                   />
                 </div>
 
-                <div>
-                  <Label htmlFor="ebay_store_url" className="text-gray-300 flex items-center gap-2">
+                <div className="space-y-3">
+                  <Label htmlFor="ebay_store_url" className="text-gray-300 text-sm font-medium flex items-center gap-2">
                     <ShoppingBag className="w-4 h-4 text-yellow-500" />
                     eBay Store URL
                   </Label>
@@ -404,7 +569,7 @@ function ProfileEditor({ section }: { section?: string }) {
                     value={formData.ebay_store_url}
                     onChange={(e) => handleInputChange('ebay_store_url', e.target.value)}
                     placeholder="https://ebay.com/str/yourstore"
-                    className="bg-gray-700 border-gray-600 text-white"
+                    className="bg-gray-700 border-gray-600 text-white mt-2"
                   />
                 </div>
               </div>
@@ -412,15 +577,15 @@ function ProfileEditor({ section }: { section?: string }) {
           )}
           {/* Gaming Platforms only */}
           {section === 'gaming' && (
-            <div className="space-y-4">
-              <h3 className="text-lg font-semibold text-white flex items-center gap-2">
+            <div className="space-y-6">
+              <h3 className="text-lg font-semibold text-white mb-6 flex items-center gap-2">
                 <Gamepad2 className="w-5 h-5" />
                 Gaming Platforms
               </h3>
               
-              <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                <div>
-                  <Label htmlFor="playstation_username" className="text-gray-300 flex items-center gap-2">
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+                <div className="space-y-3">
+                  <Label htmlFor="playstation_username" className="text-gray-300 text-sm font-medium flex items-center gap-2">
                     <div className="w-4 h-4 bg-blue-600 rounded"></div>
                     PlayStation ID
                   </Label>
@@ -429,12 +594,12 @@ function ProfileEditor({ section }: { section?: string }) {
                     value={formData.playstation_username}
                     onChange={(e) => handleInputChange('playstation_username', e.target.value)}
                     placeholder="your_psn_id"
-                    className="bg-gray-700 border-gray-600 text-white"
+                    className="bg-gray-700 border-gray-600 text-white mt-2"
                   />
                 </div>
 
-                <div>
-                  <Label htmlFor="xbox_gamertag" className="text-gray-300 flex items-center gap-2">
+                <div className="space-y-3">
+                  <Label htmlFor="xbox_gamertag" className="text-gray-300 text-sm font-medium flex items-center gap-2">
                     <div className="w-4 h-4 bg-green-600 rounded"></div>
                     Xbox Gamertag
                   </Label>
@@ -443,12 +608,12 @@ function ProfileEditor({ section }: { section?: string }) {
                     value={formData.xbox_gamertag}
                     onChange={(e) => handleInputChange('xbox_gamertag', e.target.value)}
                     placeholder="YourGamertag"
-                    className="bg-gray-700 border-gray-600 text-white"
+                    className="bg-gray-700 border-gray-600 text-white mt-2"
                   />
                 </div>
 
-                <div>
-                  <Label htmlFor="nintendo_friend_code" className="text-gray-300 flex items-center gap-2">
+                <div className="space-y-3">
+                  <Label htmlFor="nintendo_friend_code" className="text-gray-300 text-sm font-medium flex items-center gap-2">
                     <div className="w-4 h-4 bg-red-500 rounded"></div>
                     Nintendo Friend Code
                   </Label>
@@ -457,12 +622,12 @@ function ProfileEditor({ section }: { section?: string }) {
                     value={formData.nintendo_friend_code}
                     onChange={(e) => handleInputChange('nintendo_friend_code', e.target.value)}
                     placeholder="SW-1234-5678-9012"
-                    className="bg-gray-700 border-gray-600 text-white"
+                    className="bg-gray-700 border-gray-600 text-white mt-2"
                   />
                 </div>
 
-                <div>
-                  <Label htmlFor="steam_username" className="text-gray-300 flex items-center gap-2">
+                <div className="space-y-3">
+                  <Label htmlFor="steam_username" className="text-gray-300 text-sm font-medium flex items-center gap-2">
                     <div className="w-4 h-4 bg-gray-700 rounded"></div>
                     Steam Username
                   </Label>
@@ -471,7 +636,7 @@ function ProfileEditor({ section }: { section?: string }) {
                     value={formData.steam_username}
                     onChange={(e) => handleInputChange('steam_username', e.target.value)}
                     placeholder="steamusername"
-                    className="bg-gray-700 border-gray-600 text-white"
+                    className="bg-gray-700 border-gray-600 text-white mt-2"
                   />
                 </div>
               </div>
@@ -479,11 +644,12 @@ function ProfileEditor({ section }: { section?: string }) {
           )}
           {/* Add Lists only */}
           {section === 'lists' && (
-            <div className="space-y-4">
-              <h3 className="text-lg font-semibold text-white">Add Lists to Your Public Profile</h3>
+            <div className="space-y-6">
+              <h3 className="text-lg font-semibold text-white mb-6">Add Lists to Your Public Profile</h3>
+              
               <Dialog>
                 <DialogTrigger asChild>
-                  <Button className="bg-orange-500 hover:bg-orange-600 text-white mb-2">Create List</Button>
+                  <Button className="bg-orange-500 hover:bg-orange-600 text-white mb-4">Create List</Button>
                 </DialogTrigger>
                 <DialogContent className="bg-gray-900 border-gray-700 text-white">
                   <DialogHeader>
@@ -492,20 +658,23 @@ function ProfileEditor({ section }: { section?: string }) {
                   <CreateListDialogContent />
                 </DialogContent>
               </Dialog>
+              
               <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                 {lists.map(list => (
-                  <div key={list.id} className="flex items-center gap-2 bg-gray-700 p-3 rounded">
+                  <div key={list.id} className="flex items-center gap-3 bg-gray-700/50 p-4 rounded-lg border border-gray-600">
                     <input
                       type="checkbox"
                       checked={selectedListIds.includes(list.id)}
                       onChange={() => handleListSelection(list.id)}
-                      className="accent-orange-500"
+                      className="accent-orange-500 w-4 h-4"
                     />
-                    <span className="text-white font-medium">{list.name}</span>
-                    <span className="text-gray-400 text-xs">{list.description}</span>
+                    <div className="flex-1 min-w-0">
+                      <span className="text-white font-medium block">{list.name}</span>
+                      <span className="text-gray-400 text-sm block">{list.description}</span>
+                    </div>
                     <Dialog>
                       <DialogTrigger asChild>
-                        <Button size="sm" className="ml-auto bg-orange-500 hover:bg-orange-600 text-white">Transfer this list</Button>
+                        <Button size="sm" className="ml-auto bg-orange-500 hover:bg-orange-600 text-white text-xs px-3 py-1">Transfer</Button>
                       </DialogTrigger>
                       <DialogContent className="bg-gray-900 border-gray-700 text-white">
                         <DialogHeader>
@@ -517,18 +686,165 @@ function ProfileEditor({ section }: { section?: string }) {
                   </div>
                 ))}
                 {lists.length === 0 && (
-                  <span className="text-gray-400">You have no custom lists yet.</span>
+                  <span className="text-gray-400 col-span-2 text-center py-8">You have no custom lists yet.</span>
                 )}
               </div>
             </div>
           )}
-          <Button 
-            type="submit" 
-            disabled={isSubmitting}
-            className="w-full bg-orange-500 hover:bg-orange-600 text-white"
-          >
-            {isSubmitting ? 'Saving...' : (profile ? 'Update Profile' : 'Create Profile')}
-          </Button>
+          
+          {/* Account Security & Privacy */}
+          {section === 'account' && (
+            <div className="space-y-8">
+              <div>
+                <h2 className="text-2xl font-semibold text-white mb-6 flex items-center gap-3">
+                  <Lock className="w-6 h-6 text-orange-500" />
+                  Account Security
+                </h2>
+                
+                {/* Email Change */}
+                <div className="space-y-6 mb-8">
+                  <h3 className="text-lg font-semibold text-white">Email Address</h3>
+                  <div className="space-y-3">
+                    <Label htmlFor="new_email" className="text-gray-300 text-sm font-medium flex items-center gap-2">
+                      <Mail className="w-4 h-4" />
+                      Email Address
+                    </Label>
+                    <div className="flex gap-3">
+                      <Input
+                        id="new_email"
+                        type="email"
+                        value={newEmail}
+                        onChange={(e) => setNewEmail(e.target.value)}
+                        placeholder="your@email.com"
+                        className="bg-gray-700 border-gray-600 text-white flex-1"
+                      />
+                      <Button
+                        onClick={handleEmailChange}
+                        disabled={emailLoading || newEmail === user?.email}
+                        className="bg-orange-500 hover:bg-orange-600 text-white"
+                      >
+                        {emailLoading ? 'Updating...' : 'Update Email'}
+                      </Button>
+                    </div>
+                    <p className="text-gray-400 text-sm">
+                      Changing your email will require verification at both your old and new email addresses.
+                    </p>
+                  </div>
+                </div>
+
+                {/* Password Change */}
+                <div className="space-y-6 mb-8">
+                  <h3 className="text-lg font-semibold text-white">Change Password</h3>
+                  <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                    <div className="space-y-3">
+                      <Label htmlFor="new_password" className="text-gray-300 text-sm font-medium">New Password</Label>
+                      <Input
+                        id="new_password"
+                        type="password"
+                        value={newPassword}
+                        onChange={(e) => setNewPassword(e.target.value)}
+                        placeholder="Enter new password"
+                        className="bg-gray-700 border-gray-600 text-white"
+                      />
+                    </div>
+                    <div className="space-y-3">
+                      <Label htmlFor="confirm_password" className="text-gray-300 text-sm font-medium">Confirm Password</Label>
+                      <Input
+                        id="confirm_password"
+                        type="password"
+                        value={confirmPassword}
+                        onChange={(e) => setConfirmPassword(e.target.value)}
+                        placeholder="Confirm new password"
+                        className="bg-gray-700 border-gray-600 text-white"
+                      />
+                    </div>
+                  </div>
+                  <Button
+                    onClick={handlePasswordChange}
+                    disabled={passwordLoading || !newPassword || newPassword !== confirmPassword}
+                    className="bg-orange-500 hover:bg-orange-600 text-white"
+                  >
+                    {passwordLoading ? 'Updating...' : 'Change Password'}
+                  </Button>
+                </div>
+              </div>
+
+              <div className="border-t border-gray-700 pt-8">
+                <h2 className="text-2xl font-semibold text-white mb-6 flex items-center gap-3">
+                  <Eye className="w-6 h-6 text-orange-500" />
+                  Public Profile Visibility
+                </h2>
+                <p className="text-gray-400 mb-6">
+                  Choose what information is visible on your public profile. Even when hidden, this information is still saved.
+                </p>
+                
+                <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+                  {Object.entries({
+                    show_avatar: 'Profile Picture',
+                    show_bio: 'Bio/Description',
+                    show_social_links: 'Social Media Links',
+                    show_gaming_profiles: 'Gaming Profiles',
+                    show_lists: 'Public Lists',
+                    show_join_date: 'Join Date',
+                    show_collection_stats: 'Collection Statistics'
+                  }).map(([key, label]) => (
+                    <div key={key} className="flex items-center justify-between p-4 bg-gray-700/30 rounded-lg">
+                      <div className="flex items-center gap-3">
+                        {publicProfileSettings[key as keyof typeof publicProfileSettings] ? (
+                          <Eye className="w-4 h-4 text-green-500" />
+                        ) : (
+                          <EyeOff className="w-4 h-4 text-gray-500" />
+                        )}
+                        <div>
+                          <span className="text-white font-medium">{label}</span>
+                          <p className="text-gray-400 text-sm">
+                            {publicProfileSettings[key as keyof typeof publicProfileSettings] ? 'Visible to everyone' : 'Hidden from public'}
+                          </p>
+                        </div>
+                      </div>
+                      <Switch
+                        checked={publicProfileSettings[key as keyof typeof publicProfileSettings]}
+                        onCheckedChange={(checked) => 
+                          setPublicProfileSettings(prev => ({ ...prev, [key]: checked }))
+                        }
+                      />
+                    </div>
+                  ))}
+                </div>
+                
+                <div className="mt-6">
+                  <Button 
+                    onClick={() => {
+                      // Save public profile settings
+                      const profileData = { 
+                        ...formData, 
+                        public_profile_settings: publicProfileSettings,
+                        profile_list_ids: selectedListIds 
+                      };
+                      if (profile) {
+                        updateProfile(profileData);
+                      } else {
+                        createProfile(profileData);
+                      }
+                    }}
+                    className="bg-orange-500 hover:bg-orange-600 text-white"
+                  >
+                    Save Visibility Settings
+                  </Button>
+                </div>
+              </div>
+            </div>
+          )}
+          
+          <div className="pt-6 border-t border-gray-700">
+            <Button 
+              type="submit" 
+              disabled={isSubmitting}
+              className="w-full bg-orange-500 hover:bg-orange-600 text-white py-3 text-base font-medium"
+            >
+              {isSubmitting ? 'Saving...' : (profile ? 'Update Profile' : 'Create Profile')}
+            </Button>
+          </div>
         </form>
       </CardContent>
     </Card>

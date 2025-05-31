@@ -57,7 +57,8 @@ const Dashboard = () => {
   const [editPrice, setEditPrice] = useState('');
   const [editNotes, setEditNotes] = useState('');
   const [editing, setEditing] = useState(false);
-  const [sidebarVisible, setSidebarVisible] = useState(true);
+  const [sidebarVisible, setSidebarVisible] = useState(false);
+  const [isMobile, setIsMobile] = useState(false);
   const [filters, setFilters] = useState({
     category: [], fandom: [], genre: [], edition: [], vaulted: 'All', year: '', character: [], series: []
   });
@@ -85,6 +86,23 @@ const Dashboard = () => {
       mainRef.current.scrollIntoView({ behavior: 'auto' });
     }
   }, [activeSection]);
+
+  // Detect mobile screen size
+  useEffect(() => {
+    const checkMobile = () => {
+      const mobile = window.innerWidth < 768;
+      setIsMobile(mobile);
+      if (mobile) {
+        setSidebarVisible(false); // Auto-hide sidebar on mobile
+      } else {
+        setSidebarVisible(true); // Show sidebar on desktop
+      }
+    };
+    
+    checkMobile();
+    window.addEventListener('resize', checkMobile);
+    return () => window.removeEventListener('resize', checkMobile);
+  }, []);
 
   const handleSignOut = async () => {
     const { error } = await signOut();
@@ -248,21 +266,21 @@ const Dashboard = () => {
         {/* Header */}
         <header className="bg-gray-900/50 backdrop-blur-sm border-b border-gray-700 sticky top-0 z-50">
           <div className="container mx-auto px-4 py-4">
-            <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
-              <div className="flex flex-col sm:flex-row sm:items-center gap-3">
+            <div className={`flex flex-col gap-4 ${isMobile ? 'space-y-3' : 'sm:flex-row sm:items-center sm:justify-between'}`}>
+              <div className={`flex items-center gap-3 ${isMobile ? 'flex-col' : 'sm:flex-row'}`}>
                 <img
                   src="https://Maintainhq-pull-zone.b-cdn.net/02_the_pop_guide/pop-guide-logo-trans-white.svg"
                   alt="PopGuide Logo"
-                  className="h-10 w-auto mx-auto sm:mx-0"
+                  className={`${isMobile ? 'h-8' : 'h-10'} w-auto mx-auto sm:mx-0`}
                 />
                 <GlobalSearch />
               </div>
-              <div className="flex flex-col sm:flex-row sm:items-center gap-2">
+              <div className={`flex gap-2 ${isMobile ? 'flex-col' : 'flex-col sm:flex-row sm:items-center'}`}>
                 <NotificationDropdown />
-                <span className="text-white text-center sm:text-left">Welcome, {user.user_metadata?.full_name || user.email}</span>
+                <span className={`text-white text-center sm:text-left ${isMobile ? 'text-sm' : ''}`}>Welcome, {user.user_metadata?.full_name || user.email}</span>
                 <Button 
                   onClick={() => setIsAddDialogOpen(true)}
-                  className="bg-orange-500 hover:bg-orange-600 text-white w-full sm:w-auto"
+                  className={`bg-orange-500 hover:bg-orange-600 text-white w-full sm:w-auto ${isMobile ? 'h-12 text-base' : ''}`}
                 >
                   <Plus className="w-4 h-4 mr-2" />
                   Add Item
@@ -270,14 +288,14 @@ const Dashboard = () => {
                 <Button
                   onClick={handleExport}
                   variant="outline"
-                  className="border-gray-600 text-blue-900 hover:bg-gray-700 hover:text-white dark:text-gray-200 w-full sm:w-auto"
+                  className={`border-gray-600 text-blue-900 hover:bg-gray-700 hover:text-white dark:text-gray-200 w-full sm:w-auto ${isMobile ? 'h-12 text-base' : ''}`}
                 >
                   Export Collection
                 </Button>
                 <Link to="/profile-settings">
                   <Button 
                     variant="outline"
-                    className="border-gray-600 text-blue-900 hover:bg-gray-700 hover:text-white dark:text-gray-200 w-full sm:w-auto"
+                    className={`border-gray-600 text-blue-900 hover:bg-gray-700 hover:text-white dark:text-gray-200 w-full sm:w-auto ${isMobile ? 'h-12 text-base' : ''}`}
                   >
                     <Settings className="w-4 h-4 mr-2" />
                     Profile
@@ -286,7 +304,7 @@ const Dashboard = () => {
                 <Button 
                   onClick={handleSignOut}
                   variant="outline"
-                  className="border-gray-600 text-blue-900 hover:bg-gray-700 hover:text-white dark:text-gray-200 w-full sm:w-auto"
+                  className={`border-gray-600 text-blue-900 hover:bg-gray-700 hover:text-white dark:text-gray-200 w-full sm:w-auto ${isMobile ? 'h-12 text-base' : ''}`}
                 >
                   <LogOut className="w-4 h-4 mr-2" />
                   Sign Out
@@ -297,23 +315,43 @@ const Dashboard = () => {
         </header>
 
         {/* Sticky bottom tab bar for dashboard/app only */}
-        <div className="fixed bottom-0 left-0 w-full z-40 bg-[#fef5ed] border-t border-[#232837] shadow-lg" style={{height:'40px'}}>
-          <div className="flex w-full max-w-6xl mx-auto h-full items-center justify-center gap-1 px-1 overflow-x-auto scrollbar-hide">
-            <button onClick={() => setActiveSection('recently-added')} className={`inline-flex items-center justify-center rounded px-2 py-0.5 text-xs font-medium transition-all focus:outline-none focus:ring-2 focus:ring-orange-500 h-8 ${activeSection === 'recently-added' ? 'bg-orange-500 text-white shadow-sm' : 'text-gray-700 hover:bg-gray-200'}`}>{sidebarVisible ? (<><Zap className="w-4 h-4 mr-1" /> Recently Added</>) : (<Zap className="w-5 h-5" />)}</button>
-            <button onClick={() => setActiveSection('items-owned')} className={`inline-flex items-center justify-center rounded px-2 py-0.5 text-xs font-medium transition-all focus:outline-none focus:ring-2 focus:ring-orange-500 h-8 ${activeSection === 'items-owned' ? 'bg-orange-500 text-white shadow-sm' : 'text-gray-700 hover:bg-gray-200'}`}>{sidebarVisible ? (<><Zap className="w-4 h-4 mr-1" /> Items Owned</>) : (<Zap className="w-5 h-5" />)}</button>
-            <button onClick={() => setActiveSection('series-owned')} className={`inline-flex items-center justify-center rounded px-2 py-0.5 text-xs font-medium transition-all focus:outline-none focus:ring-2 focus:ring-orange-500 h-8 ${activeSection === 'series-owned' ? 'bg-orange-500 text-white shadow-sm' : 'text-gray-700 hover:bg-gray-200'}`}>{sidebarVisible ? (<><Users className="w-4 h-4 mr-1" /> Series Owned</>) : (<Users className="w-5 h-5" />)}</button>
-            <button onClick={() => setActiveSection('wishlist')} className={`inline-flex items-center justify-center rounded px-2 py-0.5 text-xs font-medium transition-all focus:outline-none focus:ring-2 focus:ring-orange-500 h-8 ${activeSection === 'wishlist' ? 'bg-orange-500 text-white shadow-sm' : 'text-gray-700 hover:bg-gray-200'}`}>{sidebarVisible ? (<><Heart className="w-4 h-4 mr-1" /> Wishlist</>) : (<Heart className="w-5 h-5" />)}</button>
-            <button onClick={() => setActiveSection('lists')} className={`inline-flex items-center justify-center rounded px-2 py-0.5 text-xs font-medium transition-all focus:outline-none focus:ring-2 focus:ring-orange-500 h-8 ${activeSection === 'lists' ? 'bg-orange-500 text-white shadow-sm' : 'text-gray-700 hover:bg-gray-200'}`}>{sidebarVisible ? (<><List className="w-4 h-4 mr-1" /> Custom Lists</>) : (<List className="w-5 h-5" />)}</button>
-            <button onClick={() => setActiveSection('friends')} className={`inline-flex items-center justify-center rounded px-2 py-0.5 text-xs font-medium transition-all focus:outline-none focus:ring-2 focus:ring-orange-500 h-8 ${activeSection === 'friends' ? 'bg-orange-500 text-white shadow-sm' : 'text-gray-700 hover:bg-gray-200'}`}>{sidebarVisible ? (<><Users className="w-4 h-4 mr-1" /> Friends</>) : (<Users className="w-5 h-5" />)}</button>
-            <button onClick={() => setActiveSection('analytics')} className={`inline-flex items-center justify-center rounded px-2 py-0.5 text-xs font-medium transition-all focus:outline-none focus:ring-2 focus:ring-orange-500 h-8 ${activeSection === 'analytics' ? 'bg-orange-500 text-white shadow-sm' : 'text-gray-700 hover:bg-gray-200'}`}>{sidebarVisible ? (<><TrendingUp className="w-4 h-4 mr-1" /> Analytics</>) : (<TrendingUp className="w-5 h-5" />)}</button>
-            <button onClick={() => setActiveSection('messages')} className={`inline-flex items-center justify-center rounded px-2 py-0.5 text-xs font-medium transition-all focus:outline-none focus:ring-2 focus:ring-orange-500 h-8 ${activeSection === 'messages' ? 'bg-orange-500 text-white shadow-sm' : 'text-gray-700 hover:bg-gray-200'}`}>{sidebarVisible ? (<><MessageCircle className="w-4 h-4 mr-1" /> Messages</>) : (<MessageCircle className="w-5 h-5" />)}</button>
-            <button onClick={() => setActiveSection('downloads')} className={`inline-flex items-center justify-center rounded px-2 py-0.5 text-xs font-medium transition-all focus:outline-none focus:ring-2 focus:ring-orange-500 h-8 ${activeSection === 'downloads' ? 'bg-orange-500 text-white shadow-sm' : 'text-gray-700 hover:bg-gray-200'}`}>{sidebarVisible ? (<><Download className="w-4 h-4 mr-1" /> Downloads</>) : (<Download className="w-5 h-5" />)}</button>
+        <div className={`fixed bottom-0 left-0 w-full z-40 bg-[#fef5ed] border-t border-[#232837] shadow-lg ${isMobile ? 'h-16' : 'h-10'}`}>
+          <div className={`flex w-full max-w-6xl mx-auto h-full items-center justify-center gap-1 px-1 overflow-x-auto scrollbar-hide ${isMobile ? 'py-2' : ''}`}>
+            <button onClick={() => setActiveSection('recently-added')} className={`inline-flex items-center justify-center rounded px-2 py-0.5 text-xs font-medium transition-all focus:outline-none focus:ring-2 focus:ring-orange-500 ${isMobile ? 'h-12 min-w-[80px] flex-col' : 'h-8'} ${activeSection === 'recently-added' ? 'bg-orange-500 text-white shadow-sm' : 'text-gray-700 hover:bg-gray-200'}`}>
+              <Zap className={`${isMobile ? 'w-5 h-5 mb-1' : 'w-4 h-4 mr-1'}`} />
+              {(!isMobile || sidebarVisible) && <span className={isMobile ? 'text-xs' : ''}>Recently Added</span>}
+            </button>
+            <button onClick={() => setActiveSection('items-owned')} className={`inline-flex items-center justify-center rounded px-2 py-0.5 text-xs font-medium transition-all focus:outline-none focus:ring-2 focus:ring-orange-500 ${isMobile ? 'h-12 min-w-[80px] flex-col' : 'h-8'} ${activeSection === 'items-owned' ? 'bg-orange-500 text-white shadow-sm' : 'text-gray-700 hover:bg-gray-200'}`}>
+              <Zap className={`${isMobile ? 'w-5 h-5 mb-1' : 'w-4 h-4 mr-1'}`} />
+              {(!isMobile || sidebarVisible) && <span className={isMobile ? 'text-xs' : ''}>Items Owned</span>}
+            </button>
+            <button onClick={() => setActiveSection('wishlist')} className={`inline-flex items-center justify-center rounded px-2 py-0.5 text-xs font-medium transition-all focus:outline-none focus:ring-2 focus:ring-orange-500 ${isMobile ? 'h-12 min-w-[80px] flex-col' : 'h-8'} ${activeSection === 'wishlist' ? 'bg-orange-500 text-white shadow-sm' : 'text-gray-700 hover:bg-gray-200'}`}>
+              <Heart className={`${isMobile ? 'w-5 h-5 mb-1' : 'w-4 h-4 mr-1'}`} />
+              {(!isMobile || sidebarVisible) && <span className={isMobile ? 'text-xs' : ''}>Wishlist</span>}
+            </button>
+            <button onClick={() => setActiveSection('analytics')} className={`inline-flex items-center justify-center rounded px-2 py-0.5 text-xs font-medium transition-all focus:outline-none focus:ring-2 focus:ring-orange-500 ${isMobile ? 'h-12 min-w-[80px] flex-col' : 'h-8'} ${activeSection === 'analytics' ? 'bg-orange-500 text-white shadow-sm' : 'text-gray-700 hover:bg-gray-200'}`}>
+              <TrendingUp className={`${isMobile ? 'w-5 h-5 mb-1' : 'w-4 h-4 mr-1'}`} />
+              {(!isMobile || sidebarVisible) && <span className={isMobile ? 'text-xs' : ''}>Analytics</span>}
+            </button>
+            {/* Hide less important tabs on mobile */}
+            {(!isMobile || activeSection === 'lists' || activeSection === 'friends' || activeSection === 'messages' || activeSection === 'downloads') && (
+              <>
+                <button onClick={() => setActiveSection('lists')} className={`inline-flex items-center justify-center rounded px-2 py-0.5 text-xs font-medium transition-all focus:outline-none focus:ring-2 focus:ring-orange-500 ${isMobile ? 'h-12 min-w-[80px] flex-col' : 'h-8'} ${activeSection === 'lists' ? 'bg-orange-500 text-white shadow-sm' : 'text-gray-700 hover:bg-gray-200'}`}>
+                  <List className={`${isMobile ? 'w-5 h-5 mb-1' : 'w-4 h-4 mr-1'}`} />
+                  {(!isMobile || sidebarVisible) && <span className={isMobile ? 'text-xs' : ''}>Lists</span>}
+                </button>
+                <button onClick={() => setActiveSection('downloads')} className={`inline-flex items-center justify-center rounded px-2 py-0.5 text-xs font-medium transition-all focus:outline-none focus:ring-2 focus:ring-orange-500 ${isMobile ? 'h-12 min-w-[80px] flex-col' : 'h-8'} ${activeSection === 'downloads' ? 'bg-orange-500 text-white shadow-sm' : 'text-gray-700 hover:bg-gray-200'}`}>
+                  <Download className={`${isMobile ? 'w-5 h-5 mb-1' : 'w-4 h-4 mr-1'}`} />
+                  {(!isMobile || sidebarVisible) && <span className={isMobile ? 'text-xs' : ''}>Downloads</span>}
+                </button>
+              </>
+            )}
           </div>
         </div>
 
         {/* Layout: sidebar (left) for stats, main content (right) */}
         {SidebarToggleButton}
-        <div className="flex flex-row min-h-[calc(100vh-40px)]">{/* 40px = bottom bar height */}
+        <div className={`flex flex-row ${isMobile ? 'min-h-[calc(100vh-64px)]' : 'min-h-[calc(100vh-40px)]'}`}>{/* Account for mobile bottom bar height */}
           {/* Sidebar: Stats */}
           <aside
             className={`relative bg-gray-900/70 border-r border-gray-800 py-8 px-4 flex flex-col gap-4 transition-all duration-300 ease-in-out ${sidebarVisible ? 'w-64 min-w-[220px] max-w-xs opacity-100' : 'w-0 min-w-0 max-w-0 opacity-0 overflow-hidden'}`}
@@ -380,38 +418,41 @@ const Dashboard = () => {
                 {activeSection === 'downloads' && 'Downloads'}
               </h2>
               {/* Filters and sort dropdowns */}
-              <div className="flex items-center gap-2 w-full md:w-auto">
-                {/* Filters */}
-                {['category','fandom','genre','edition','character','series'].map(key => (
-                  <DropdownMenu key={key}>
-                    <DropdownMenuTrigger asChild>
-                      <Button variant="outline" className="flex items-center gap-1">
-                        {key.charAt(0).toUpperCase() + key.slice(1)}
-                        <Filter className="w-4 h-4" />
-                      </Button>
-                    </DropdownMenuTrigger>
-                    <DropdownMenuContent className="w-64 max-h-72 overflow-y-auto">
-                      {FILTERS[key].map(opt => (
-                        <DropdownMenuCheckboxItem
-                          key={opt}
-                          checked={filters[key]?.includes(opt)}
-                          onCheckedChange={() => {
-                            setFilters(f => {
-                              const arr = (Array.isArray(f[key]) ? f[key] : []).includes(opt) ? f[key].filter(x => x !== opt) : [...f[key], opt];
-                              return { ...f, [key]: arr };
-                            });
-                          }}
-                        >
-                          {opt}
-                        </DropdownMenuCheckboxItem>
-                      ))}
-                    </DropdownMenuContent>
-                  </DropdownMenu>
-                ))}
+              <div className={`flex items-center gap-2 w-full ${isMobile ? 'flex-col space-y-2' : 'md:w-auto'}`}>
+                {/* Filters - stack on mobile */}
+                <div className={`flex items-center gap-2 ${isMobile ? 'w-full flex-wrap' : ''}`}>
+                  {['category','fandom','genre','edition','character','series'].map(key => (
+                    <DropdownMenu key={key}>
+                      <DropdownMenuTrigger asChild>
+                        <Button variant="outline" className={`flex items-center gap-1 ${isMobile ? 'flex-1 min-w-[100px]' : ''}`}>
+                          {key.charAt(0).toUpperCase() + key.slice(1)}
+                          <Filter className="w-4 h-4" />
+                        </Button>
+                      </DropdownMenuTrigger>
+                      <DropdownMenuContent className="w-64 max-h-72 overflow-y-auto">
+                        {FILTERS[key].map(opt => (
+                          <DropdownMenuCheckboxItem
+                            key={opt}
+                            checked={filters[key]?.includes(opt)}
+                            onCheckedChange={() => {
+                              setFilters(f => {
+                                const arr = (Array.isArray(f[key]) ? f[key] : []).includes(opt) ? f[key].filter(x => x !== opt) : [...f[key], opt];
+                                return { ...f, [key]: arr };
+                              });
+                            }}
+                          >
+                            {opt}
+                          </DropdownMenuCheckboxItem>
+                        ))}
+                      </DropdownMenuContent>
+                    </DropdownMenu>
+                  ))}
+                </div>
+                
                 {/* Sort dropdown */}
                 <DropdownMenu>
                   <DropdownMenuTrigger asChild>
-                    <Button variant="outline" className="flex items-center gap-1">
+                    <Button variant="outline" className={`flex items-center gap-1 ${isMobile ? 'w-full' : ''}`}>
                       Sort
                       {(() => {
                         const Icon = SORT_OPTIONS.find(opt => opt.value === sort)?.icon;
@@ -427,8 +468,9 @@ const Dashboard = () => {
                     ))}
                   </DropdownMenuContent>
                 </DropdownMenu>
+                
                 {/* Search bar */}
-                <div className="relative flex-1 md:w-80">
+                <div className={`relative ${isMobile ? 'w-full' : 'flex-1 md:w-80'}`}>
                   <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400 w-4 h-4" />
                   <Input
                     placeholder={
@@ -440,7 +482,7 @@ const Dashboard = () => {
                     }
                     value={searchQuery}
                     onChange={(e) => setSearchQuery(e.target.value)}
-                    className="pl-10 bg-gray-800 border-gray-700 text-white placeholder-gray-400"
+                    className={`pl-10 bg-gray-800 border-gray-700 text-white placeholder-gray-400 ${isMobile ? 'h-12' : ''}`}
                   />
                 </div>
               </div>
@@ -525,6 +567,166 @@ const Dashboard = () => {
             )}
             {activeSection === 'friends' && (
               <FriendsList />
+            )}
+            {activeSection === 'analytics' && (
+              <CollectionAnalytics 
+                userCollection={userCollection}
+                funkoPops={funkoPops}
+                profile={null}
+              />
+            )}
+            {activeSection === 'messages' && (
+              <MessagesInbox />
+            )}
+            {activeSection === 'downloads' && (
+              <div className="space-y-6">
+                <Card className="bg-gray-800/50 border-gray-700">
+                  <CardContent className="p-6">
+                    <div className="flex items-center gap-4 mb-6">
+                      <Download className="w-8 h-8 text-orange-500" />
+                      <div>
+                        <h3 className="text-xl font-bold text-white">Export Your Data</h3>
+                        <p className="text-gray-400">Download your collection, wishlist, and custom lists</p>
+                      </div>
+                    </div>
+                    
+                    <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
+                      <Card className="bg-gray-700/50 border-gray-600">
+                        <CardContent className="p-4">
+                          <div className="flex items-center gap-3 mb-3">
+                            <Download className="w-5 h-5 text-orange-500" />
+                            <h4 className="font-semibold text-white">Full Export</h4>
+                          </div>
+                          <p className="text-sm text-gray-400 mb-4">
+                            Export everything: collection, wishlist, and custom lists in JSON format
+                          </p>
+                          <Button 
+                            onClick={handleExport}
+                            className="w-full bg-orange-500 hover:bg-orange-600"
+                          >
+                            Download All Data
+                          </Button>
+                        </CardContent>
+                      </Card>
+
+                      <Card className="bg-gray-700/50 border-gray-600">
+                        <CardContent className="p-4">
+                          <div className="flex items-center gap-3 mb-3">
+                            <Zap className="w-5 h-5 text-orange-500" />
+                            <h4 className="font-semibold text-white">Collection CSV</h4>
+                          </div>
+                          <p className="text-sm text-gray-400 mb-4">
+                            Export your collection in CSV format for spreadsheet apps
+                          </p>
+                          <Button 
+                            onClick={() => {
+                              const csvContent = [
+                                ['Name', 'Series', 'Number', 'Condition', 'Purchase Price', 'Estimated Value', 'Notes'],
+                                ...userCollection.map(item => [
+                                  item.funko_pops?.name || '',
+                                  item.funko_pops?.series || '',
+                                  item.funko_pops?.number || '',
+                                  item.condition || 'mint',
+                                  item.purchase_price || '',
+                                  item.funko_pops?.estimated_value || '',
+                                  item.personal_notes || ''
+                                ])
+                              ].map(row => row.map(field => `"${field}"`).join(',')).join('\n');
+                              
+                              const blob = new Blob([csvContent], { type: 'text/csv' });
+                              const url = URL.createObjectURL(blob);
+                              const a = document.createElement('a');
+                              a.href = url;
+                              a.download = 'popguide-collection.csv';
+                              document.body.appendChild(a);
+                              a.click();
+                              document.body.removeChild(a);
+                              URL.revokeObjectURL(url);
+                            }}
+                            variant="outline"
+                            className="w-full border-orange-500 text-orange-500 hover:bg-orange-500 hover:text-white"
+                            disabled={userCollection.length === 0}
+                          >
+                            Download CSV
+                          </Button>
+                        </CardContent>
+                      </Card>
+
+                      <Card className="bg-gray-700/50 border-gray-600">
+                        <CardContent className="p-4">
+                          <div className="flex items-center gap-3 mb-3">
+                            <Heart className="w-5 h-5 text-orange-500" />
+                            <h4 className="font-semibold text-white">Wishlist Export</h4>
+                          </div>
+                          <p className="text-sm text-gray-400 mb-4">
+                            Export your wishlist in CSV format for easy sharing
+                          </p>
+                          <Button 
+                            onClick={() => {
+                              const csvContent = [
+                                ['Name', 'Series', 'Number', 'Estimated Value', 'Priority'],
+                                ...wishlist.map(item => [
+                                  item.funko_pops?.name || '',
+                                  item.funko_pops?.series || '',
+                                  item.funko_pops?.number || '',
+                                  item.funko_pops?.estimated_value || '',
+                                  item.priority || 'medium'
+                                ])
+                              ].map(row => row.map(field => `"${field}"`).join(',')).join('\n');
+                              
+                              const blob = new Blob([csvContent], { type: 'text/csv' });
+                              const url = URL.createObjectURL(blob);
+                              const a = document.createElement('a');
+                              a.href = url;
+                              a.download = 'popguide-wishlist.csv';
+                              document.body.appendChild(a);
+                              a.click();
+                              document.body.removeChild(a);
+                              URL.revokeObjectURL(url);
+                            }}
+                            variant="outline"
+                            className="w-full border-orange-500 text-orange-500 hover:bg-orange-500 hover:text-white"
+                            disabled={wishlist.length === 0}
+                          >
+                            Download Wishlist
+                          </Button>
+                        </CardContent>
+                      </Card>
+                    </div>
+                  </CardContent>
+                </Card>
+
+                <Card className="bg-gray-800/50 border-gray-700">
+                  <CardContent className="p-6">
+                    <div className="flex items-center gap-4 mb-6">
+                      <Badge className="w-8 h-8 text-orange-500" />
+                      <div>
+                        <h3 className="text-xl font-bold text-white">Collection Summary</h3>
+                        <p className="text-gray-400">Quick stats about your collection</p>
+                      </div>
+                    </div>
+                    
+                    <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
+                      <div className="text-center p-4 bg-gray-700/50 rounded-lg">
+                        <div className="text-2xl font-bold text-orange-500">{ownedCount}</div>
+                        <div className="text-sm text-gray-400">Total Items</div>
+                      </div>
+                      <div className="text-center p-4 bg-gray-700/50 rounded-lg">
+                        <div className="text-2xl font-bold text-green-500">${totalValue.toFixed(2)}</div>
+                        <div className="text-sm text-gray-400">Total Value</div>
+                      </div>
+                      <div className="text-center p-4 bg-gray-700/50 rounded-lg">
+                        <div className="text-2xl font-bold text-blue-500">{uniqueSeries}</div>
+                        <div className="text-sm text-gray-400">Unique Series</div>
+                      </div>
+                      <div className="text-center p-4 bg-gray-700/50 rounded-lg">
+                        <div className="text-2xl font-bold text-purple-500">{wishlistCount}</div>
+                        <div className="text-sm text-gray-400">Wishlist Items</div>
+                      </div>
+                    </div>
+                  </CardContent>
+                </Card>
+              </div>
             )}
           </main>
         </div>
