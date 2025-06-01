@@ -55,21 +55,18 @@ serve(async (req) => {
       );
     }
 
-    // Verify the customer_id belongs to the authenticated user
-    const { data: userData } = await supabase
-      .from('users')
+    // Verify the customer belongs to the authenticated user
+    const { data: userData, error: userError } = await supabase
+      .from('profiles')
       .select('stripe_customer_id')
       .eq('id', user.id)
       .single();
 
-    if (!userData || userData.stripe_customer_id !== customer_id) {
-      return new Response(
-        JSON.stringify({ error: 'Forbidden' }),
-        { 
-          status: 403, 
-          headers: { ...corsHeaders, 'Content-Type': 'application/json' } 
-        }
-      );
+    if (userError || !userData || userData.stripe_customer_id !== customer_id) {
+      return new Response(JSON.stringify({ error: 'Unauthorized' }), {
+        status: 403,
+        headers: { ...corsHeaders, 'Content-Type': 'application/json' },
+      });
     }
 
     // Initialize Stripe

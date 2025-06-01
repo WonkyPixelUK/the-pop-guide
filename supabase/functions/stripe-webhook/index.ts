@@ -41,19 +41,19 @@ serve(async (req: Request) => {
     event.type === "customer.subscription.deleted"
   ) {
     const subscription = event.data.object;
-    const user_id = subscription.metadata?.user_id;
     const customer_id = subscription.customer;
+    const user_id = subscription.metadata?.user_id;
     if (user_id) {
       let status = subscription.status;
       // Update subscription status
       await supabase
-        .from("users")
+        .from("profiles")
         .update({ subscription_status: status })
-        .eq("id", user_id);
+        .eq("stripe_customer_id", customer_id);
       // Store customer_id if not already present
       if (customer_id) {
         await supabase
-          .from("users")
+          .from("profiles")
           .update({ stripe_customer_id: customer_id })
           .eq("id", user_id)
           .is("stripe_customer_id", null);
@@ -61,7 +61,7 @@ serve(async (req: Request) => {
       // Send pro_welcome email on new active/trialing subscription
       if (event.type === "customer.subscription.created" && (status === "active" || status === "trialing")) {
         // Fetch user email and name
-        const { data: userData } = await supabase.from("users").select("email, full_name").eq("id", user_id).single();
+        const { data: userData } = await supabase.from("profiles").select("email, full_name").eq("stripe_customer_id", customer_id).single();
         if (userData?.email) {
           await sendEmail("pro_welcome", userData.email, { fullName: userData.full_name });
         }
@@ -73,7 +73,7 @@ serve(async (req: Request) => {
     const invoice = event.data.object;
     const customer_id = invoice.customer;
     // Find user by customer_id
-    const { data: userData } = await supabase.from("users").select("email, full_name").eq("stripe_customer_id", customer_id).single();
+    const { data: userData } = await supabase.from("profiles").select("email, full_name").eq("stripe_customer_id", customer_id).single();
     if (userData?.email) {
       await sendEmail("invoice_reminder", userData.email, {
         fullName: userData.full_name,
@@ -86,7 +86,7 @@ serve(async (req: Request) => {
   if (event.type === "invoice.paid") {
     const invoice = event.data.object;
     const customer_id = invoice.customer;
-    const { data: userData } = await supabase.from("users").select("email, full_name").eq("stripe_customer_id", customer_id).single();
+    const { data: userData } = await supabase.from("profiles").select("email, full_name").eq("stripe_customer_id", customer_id).single();
     if (userData?.email) {
       await sendEmail("payment_receipt", userData.email, {
         fullName: userData.full_name,

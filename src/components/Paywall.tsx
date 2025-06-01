@@ -9,17 +9,52 @@ const Paywall = () => {
   const { user, loading } = useAuth();
   const [loadingUpgrade, setLoadingUpgrade] = useState(false);
   const [show, setShow] = useState(false);
-
-  // Wait for auth to load before checking admin
-  if (loading) return null;
-  if (user && user.email === 'rich@maintainhq.com') {
-    return null;
-  }
+  const [subscriptionStatus, setSubscriptionStatus] = useState<string | null>(null);
+  const [checkingSubscription, setCheckingSubscription] = useState(true);
 
   useEffect(() => {
     // Show the paywall with a swoosh effect after mount
     setTimeout(() => setShow(true), 100);
   }, []);
+
+  useEffect(() => {
+    const checkSubscriptionStatus = async () => {
+      if (!user) {
+        setCheckingSubscription(false);
+        return;
+      }
+
+      try {
+        const { data, error } = await supabase
+          .from('profiles')
+          .select('subscription_status')
+          .eq('id', user.id)
+          .single();
+
+        if (error) {
+          console.error('Error fetching subscription status:', error);
+          setSubscriptionStatus('free');
+        } else {
+          setSubscriptionStatus(data?.subscription_status || 'free');
+        }
+      } catch (error) {
+        console.error('Error checking subscription:', error);
+        setSubscriptionStatus('free');
+      } finally {
+        setCheckingSubscription(false);
+      }
+    };
+
+    checkSubscriptionStatus();
+  }, [user]);
+
+  // Wait for auth to load and subscription check
+  if (loading || checkingSubscription) return null;
+  
+  // Hide paywall for premium users
+  if (subscriptionStatus === 'premium') {
+    return null;
+  }
 
   const handleUpgrade = async () => {
     setLoadingUpgrade(true);

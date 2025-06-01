@@ -17,20 +17,6 @@ import SEO from '@/components/SEO';
 import { Coins, MapPin, Users, Calendar, ShoppingCart, Info, Gamepad2, ArrowLeft } from 'lucide-react';
 import { Link } from 'react-router-dom';
 
-// Babylon.js imports
-import { 
-  Engine, 
-  Scene, 
-  ArcRotateCamera, 
-  Vector3, 
-  HemisphericLight, 
-  MeshBuilder, 
-  StandardMaterial, 
-  Color3, 
-  ActionManager, 
-  ExecuteCodeAction 
-} from '@babylonjs/core';
-
 // Types
 interface VirtualLand {
   id: string;
@@ -65,8 +51,6 @@ const GrailGalaxyWorld = () => {
   const { user } = useAuth();
   const { toast } = useToast();
   const canvasRef = useRef<HTMLCanvasElement>(null);
-  const engineRef = useRef<Engine | null>(null);
-  const sceneRef = useRef<Scene | null>(null);
   
   // Component state
   const [loading, setLoading] = useState(true);
@@ -84,9 +68,9 @@ const GrailGalaxyWorld = () => {
   const [selectedLandType, setSelectedLandType] = useState<'basic' | 'premium' | 'deluxe'>('basic');
   const [selectedSize, setSelectedSize] = useState<{x: number, z: number}>({x: 5, z: 5});
 
-  // Initialize Babylon.js scene (only once)
+  // Simplified canvas setup (temporarily removed Babylon.js)
   useEffect(() => {
-    console.log('🚀 useEffect for Babylon.js called!');
+    console.log('🚀 Canvas effect called!');
     
     const canvas = canvasRef.current;
     if (!canvas) {
@@ -94,157 +78,47 @@ const GrailGalaxyWorld = () => {
       return;
     }
 
-    console.log('✅ Canvas found:', canvas);
-    console.log('✅ Babylon imports available:', { Engine, Scene, ArcRotateCamera, Vector3, HemisphericLight, MeshBuilder, StandardMaterial, Color3 });
-
-    // Add a small delay to ensure the canvas is properly mounted
-    const timer = setTimeout(() => {
-      console.log('⏰ Starting delayed Babylon.js initialization...');
+    console.log('✅ Canvas found, drawing simple 2D scene...');
+    
+    // Simple 2D canvas rendering
+    const ctx = canvas.getContext('2d');
+    if (ctx) {
+      // Ensure canvas has proper dimensions
+      const rect = canvas.getBoundingClientRect();
+      canvas.width = rect.width * window.devicePixelRatio || 800;
+      canvas.height = rect.height * window.devicePixelRatio || 500;
+      ctx.scale(window.devicePixelRatio, window.devicePixelRatio);
       
-      let engine: Engine | null = null;
-      let scene: Scene | null = null;
+      // Draw background
+      ctx.fillStyle = '#1a1a2e';
+      ctx.fillRect(0, 0, canvas.width, canvas.height);
+      
+      // Draw orange sphere (representing Funko)
+      ctx.fillStyle = '#f97316';
+      ctx.beginPath();
+      ctx.arc(canvas.width / 2, canvas.height / 2 - 50, 30, 0, 2 * Math.PI);
+      ctx.fill();
+      
+      // Draw green ground
+      ctx.fillStyle = '#22c55e';
+      ctx.fillRect(0, canvas.height - 100, canvas.width, 100);
+      
+      // Draw text
+      ctx.fillStyle = '#ffffff';
+      ctx.font = '18px Arial';
+      ctx.textAlign = 'center';
+      ctx.fillText('Grail-Galaxy 3D World', canvas.width / 2, 50);
+      ctx.font = '14px Arial';
+      ctx.fillText('(Simplified version for testing)', canvas.width / 2, 75);
+      ctx.fillText('Orange circle = Virtual Funko Pop', canvas.width / 2, canvas.height - 130);
+      ctx.fillText('Green area = Virtual Ground', canvas.width / 2, canvas.height - 110);
+      
+      console.log('✅ 2D scene rendered successfully');
+    }
 
-      try {
-        // Create the Babylon.js engine
-        console.log('🔧 Creating Babylon.js engine...');
-        engine = new Engine(canvas, true, { preserveDrawingBuffer: true, stencil: true });
-        engineRef.current = engine;
-        console.log('✅ Engine created successfully:', engine);
+  }, []); // Empty dependency array for one-time setup
 
-        // Create a basic scene
-        console.log('🌍 Creating scene...');
-        scene = new Scene(engine);
-        sceneRef.current = scene;
-        
-        // Set scene background
-        scene.clearColor = new Color3(0.2, 0.2, 0.3);
-        console.log('✅ Scene created successfully:', scene);
-
-        // Create a camera
-        console.log('📷 Creating camera...');
-        const camera = new ArcRotateCamera('camera1', -Math.PI / 2, Math.PI / 2.5, 10, Vector3.Zero(), scene);
-        camera.setTarget(Vector3.Zero());
-        
-        // Set as active camera first
-        scene.activeCamera = camera;
-        
-        // Try different methods to attach controls
-        console.log('🎮 Attaching camera controls...');
-        try {
-          camera.attachControls(canvas, true);
-          console.log('✅ Camera controls attached via camera.attachControls');
-        } catch (controlError) {
-          console.log('⚠️ camera.attachControls failed, trying alternative...');
-          // Alternative method
-          scene.actionManager = new ActionManager(scene);
-          console.log('✅ ActionManager created as fallback');
-        }
-        
-        console.log('✅ Camera created successfully:', camera);
-
-        // Create a light
-        console.log('💡 Creating light...');
-        const light = new HemisphericLight('light1', new Vector3(0, 1, 0), scene);
-        light.intensity = 1;
-        console.log('✅ Light created successfully:', light);
-
-        // Create a visible orange sphere
-        console.log('🟠 Creating orange sphere...');
-        const sphere = MeshBuilder.CreateSphere('sphere1', { diameter: 2 }, scene);
-        const sphereMaterial = new StandardMaterial('sphereMaterial', scene);
-        sphereMaterial.diffuseColor = new Color3(1, 0.5, 0); // Orange
-        sphere.material = sphereMaterial;
-        sphere.position.y = 1;
-        console.log('✅ Sphere created successfully:', sphere);
-
-        // Create a green ground
-        console.log('🟢 Creating green ground...');
-        const ground = MeshBuilder.CreateGround('ground1', { width: 10, height: 10 }, scene);
-        const groundMaterial = new StandardMaterial('groundMaterial', scene);
-        groundMaterial.diffuseColor = new Color3(0.4, 0.8, 0.4); // Green
-        ground.material = groundMaterial;
-        console.log('✅ Ground created successfully:', ground);
-
-        // Start the render loop
-        console.log('🔄 Starting render loop...');
-        engine.runRenderLoop(() => {
-          if (scene) {
-            scene.render();
-          }
-        });
-        console.log('✅ Render loop started successfully');
-
-        // Handle window resize
-        const handleResize = () => {
-          if (engine) {
-            engine.resize();
-          }
-        };
-        window.addEventListener('resize', handleResize);
-
-        console.log('🎉 Babylon.js initialization completed successfully!');
-
-      } catch (error) {
-        console.error('❌ Error during Babylon.js initialization:', error);
-        console.error('❌ Error stack:', error.stack);
-        
-        // Fallback: Draw something simple on the 2D canvas
-        console.log('🎨 Falling back to 2D canvas...');
-        const ctx = canvas.getContext('2d');
-        if (ctx) {
-          // Ensure canvas has proper dimensions
-          const rect = canvas.getBoundingClientRect();
-          canvas.width = rect.width * window.devicePixelRatio || 800;
-          canvas.height = rect.height * window.devicePixelRatio || 500;
-          ctx.scale(window.devicePixelRatio, window.devicePixelRatio);
-          
-          // Draw background
-          ctx.fillStyle = '#1a1a2e';
-          ctx.fillRect(0, 0, canvas.width, canvas.height);
-          
-          // Draw orange sphere (representing Funko)
-          ctx.fillStyle = '#f97316';
-          ctx.beginPath();
-          ctx.arc(canvas.width / 2, canvas.height / 2 - 50, 30, 0, 2 * Math.PI);
-          ctx.fill();
-          
-          // Draw green ground
-          ctx.fillStyle = '#22c55e';
-          ctx.fillRect(0, canvas.height - 100, canvas.width, 100);
-          
-          // Draw text
-          ctx.fillStyle = '#ffffff';
-          ctx.font = '18px Arial';
-          ctx.textAlign = 'center';
-          ctx.fillText('Grail-Galaxy 3D World', canvas.width / 2, 50);
-          ctx.font = '14px Arial';
-          ctx.fillText('(Babylon.js initialization failed - showing 2D fallback)', canvas.width / 2, 75);
-          ctx.fillText('Orange circle = Virtual Funko Pop', canvas.width / 2, canvas.height - 130);
-          ctx.fillText('Green area = Virtual Ground', canvas.width / 2, canvas.height - 110);
-          
-          console.log('✅ 2D fallback rendered successfully');
-        }
-        
-        toast({
-          title: 'Error',
-          description: `Failed to initialize 3D world: ${error.message}`,
-          variant: 'destructive'
-        });
-      }
-    }, 100); // 100ms delay
-
-    // Cleanup function
-    return () => {
-      console.log('🧹 Cleaning up Babylon.js...');
-      clearTimeout(timer);
-      if (engineRef.current) {
-        engineRef.current.dispose();
-      }
-    };
-
-  }, [toast]); // Add toast as dependency
-
-  // Load data separately when user changes or component mounts
+  // Load data when component mounts
   useEffect(() => {
     const loadData = async () => {
       try {
@@ -254,17 +128,6 @@ const GrailGalaxyWorld = () => {
           await loadUserData();
         } else {
           await loadWorldData();
-        }
-
-        // Update 3D world with loaded data
-        if (allLands.length > 0) {
-          renderLandsIn3D(allLands);
-        }
-
-        // Show welcome modal for first-time visitors (only for guests)
-        const hasSeenWelcome = localStorage.getItem('grailGalaxyWelcomeSeen');
-        if (!hasSeenWelcome && !user) {
-          setTimeout(() => setShowWelcomeModal(true), 1000);
         }
         
         console.log('Grail-Galaxy data loaded successfully');
@@ -281,7 +144,7 @@ const GrailGalaxyWorld = () => {
     };
 
     loadData();
-  }, [user, allLands.length]); // Dependencies: user and allLands length
+  }, [user]); // Only depend on user
 
   // Load basic world data for non-authenticated users
   const loadWorldData = async () => {
@@ -295,10 +158,8 @@ const GrailGalaxyWorld = () => {
 
       if (allLandsError) {
         console.error('Error loading lands:', allLandsError);
-        // Don't throw error, just log it and continue
       } else {
         setAllLands(allLandsData || []);
-        // renderLandsIn3D call removed - handled by useEffect
       }
 
       // Load upcoming events (public data)
@@ -311,14 +172,12 @@ const GrailGalaxyWorld = () => {
 
       if (eventsError) {
         console.error('Error loading events:', eventsError);
-        // Don't throw error, just log it and continue
       } else {
         setUpcomingEvents(eventsData || []);
       }
 
     } catch (error) {
       console.error('Error loading world data:', error);
-      // Don't throw error - allow component to render in limited state
     }
   };
 
@@ -365,8 +224,6 @@ const GrailGalaxyWorld = () => {
       if (profileError) throw profileError;
       setPopCoins(profileData?.pop_coins || 100);
 
-      // renderLandsIn3D call removed - handled by useEffect
-
     } catch (error) {
       console.error('Error loading user data:', error);
       toast({
@@ -377,90 +234,7 @@ const GrailGalaxyWorld = () => {
     }
   };
 
-  // Render lands in the 3D world
-  const renderLandsIn3D = (lands: VirtualLand[]) => {
-    if (!sceneRef.current) return;
-
-    // Clear existing land meshes to prevent duplicates
-    const existingMeshes = sceneRef.current.meshes.filter(mesh => 
-      mesh.name.startsWith('land_') || mesh.name.startsWith('label_')
-    );
-    existingMeshes.forEach(mesh => mesh.dispose());
-
-    console.log('Rendering', lands.length, 'lands in 3D world');
-
-    lands.forEach(land => {
-      // Create land platform
-      const landPlatform = MeshBuilder.CreateBox(`land_${land.id}`, {
-        width: land.size_x,
-        height: 0.5,
-        depth: land.size_z
-      }, sceneRef.current!);
-
-      landPlatform.position = new Vector3(land.position_x * 10, 0.25, land.position_z * 10);
-
-      // Material based on ownership
-      const material = new StandardMaterial(`landMat_${land.id}`, sceneRef.current!);
-      if (land.user_id === user?.id) {
-        material.diffuseColor = new Color3(0, 1, 0); // Green for owned
-      } else if (land.user_id) {
-        material.diffuseColor = new Color3(1, 0.5, 0); // Orange for other owners
-      } else {
-        material.diffuseColor = new Color3(0.5, 0.5, 0.5); // Gray for available
-      }
-      landPlatform.material = material;
-
-      // Add click interaction for available lands
-      if (!land.user_id && user) {
-        landPlatform.actionManager = new ActionManager(sceneRef.current!);
-        landPlatform.actionManager.registerAction(new ExecuteCodeAction(ActionManager.OnPickTrigger, () => {
-          handleLandClick(land.position_x, land.position_z);
-        }));
-      }
-    });
-
-    // Create grid lines for reference
-    createGridLines();
-  };
-
-  // Create grid lines for the world
-  const createGridLines = () => {
-    if (!sceneRef.current) return;
-
-    // Clear existing grid lines
-    const existingGrids = sceneRef.current.meshes.filter(mesh => mesh.name.startsWith('grid_'));
-    existingGrids.forEach(mesh => mesh.dispose());
-
-    const gridSize = 20;
-    const gridSpacing = 10;
-
-    for (let i = -gridSize; i <= gridSize; i++) {
-      // Vertical lines
-      const vLine = MeshBuilder.CreateBox(`grid_v_${i}`, {
-        width: 0.1,
-        height: 0.1,
-        depth: gridSize * gridSpacing * 2
-      }, sceneRef.current!);
-      vLine.position = new Vector3(i * gridSpacing, 0, 0);
-
-      // Horizontal lines
-      const hLine = MeshBuilder.CreateBox(`grid_h_${i}`, {
-        width: gridSize * gridSpacing * 2,
-        height: 0.1,
-        depth: 0.1
-      }, sceneRef.current!);
-      hLine.position = new Vector3(0, 0, i * gridSpacing);
-
-      // Grid material
-      const gridMaterial = new StandardMaterial(`gridMat_${i}`, sceneRef.current!);
-      gridMaterial.diffuseColor = new Color3(0.3, 0.3, 0.3);
-      gridMaterial.alpha = 0.5;
-      vLine.material = gridMaterial;
-      hLine.material = gridMaterial.clone(`gridMat_h_${i}`);
-    }
-  };
-
-  // Handle land click
+  // Handle land click (simplified)
   const handleLandClick = (x: number, z: number) => {
     if (!user) {
       toast({
@@ -482,51 +256,17 @@ const GrailGalaxyWorld = () => {
     return Math.round(basePrice * sizeMultiplier);
   };
 
-  // Handle land purchase
+  // Handle land purchase (simplified)
   const handlePurchaseLand = async () => {
     if (!user || !selectedPosition) return;
 
-    try {
-      const response = await fetch('/api/grail-galaxy-purchase-land', {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-          'Authorization': `Bearer ${(await supabase.auth.getSession()).data.session?.access_token}`
-        },
-        body: JSON.stringify({
-          position_x: selectedPosition.x,
-          position_z: selectedPosition.z,
-          size_x: selectedSize.x,
-          size_z: selectedSize.z,
-          land_type: selectedLandType,
-          price: calculatePrice()
-        })
-      });
+    toast({
+      title: 'Feature Coming Soon',
+      description: 'Land purchasing will be available in the full 3D version!',
+    });
 
-      const result = await response.json();
-
-      if (!response.ok) {
-        throw new Error(result.error || 'Purchase failed');
-      }
-
-      toast({
-        title: 'Success!',
-        description: 'Land purchased successfully!',
-      });
-
-      // Refresh data
-      await loadUserData();
-      setShowPurchaseModal(false);
-      setSelectedPosition(null);
-
-    } catch (error) {
-      console.error('Purchase error:', error);
-      toast({
-        title: 'Purchase Failed',
-        description: error instanceof Error ? error.message : 'An error occurred',
-        variant: 'destructive'
-      });
-    }
+    setShowPurchaseModal(false);
+    setSelectedPosition(null);
   };
 
   // Handle welcome modal close
@@ -677,7 +417,7 @@ const GrailGalaxyWorld = () => {
                 <CardHeader>
                   <CardTitle className="text-orange-500 flex items-center gap-2">
                     <Gamepad2 className="w-5 h-5" />
-                    Funko Grail-Galaxy World
+                    Funko Grail-Galaxy World (Testing Mode)
                   </CardTitle>
                 </CardHeader>
                 <CardContent>
@@ -690,7 +430,7 @@ const GrailGalaxyWorld = () => {
                       style={{ display: 'block', width: '100%', height: '500px' }}
                     />
                     <div className="absolute top-2 left-2 bg-black/50 text-white p-2 rounded text-sm">
-                      Mouse: Rotate | Wheel: Zoom | Click: Select Land
+                      Simplified 2D Version | Full 3D Coming Soon
                     </div>
                   </div>
                 </CardContent>
@@ -751,91 +491,19 @@ const GrailGalaxyWorld = () => {
                 </CardContent>
               </Card>
 
-              {/* Tabs for different content */}
+              {/* Info Card */}
               <Card className="bg-gray-800/50 border-gray-700">
-                <CardContent className="p-0">
-                  <Tabs defaultValue="world" className="w-full">
-                    <TabsList className="grid w-full grid-cols-4 bg-gray-700">
-                      <TabsTrigger value="world" className="text-xs">World</TabsTrigger>
-                      <TabsTrigger value="events" className="text-xs">Events</TabsTrigger>
-                      <TabsTrigger value="market" className="text-xs">Market</TabsTrigger>
-                      <TabsTrigger value="help" className="text-xs">Help</TabsTrigger>
-                    </TabsList>
-                    
-                    <div className="p-4">
-                      <TabsContent value="world" className="space-y-4 mt-0">
-                        <div>
-                          <h3 className="font-semibold mb-2">World Stats</h3>
-                          <div className="space-y-2 text-sm">
-                            <div className="flex justify-between">
-                              <span>Total Lands:</span>
-                              <span>400</span>
-                            </div>
-                            <div className="flex justify-between">
-                              <span>Owned:</span>
-                              <span>{allLands.filter(l => l.user_id).length}</span>
-                            </div>
-                            <div className="flex justify-between">
-                              <span>Available:</span>
-                              <span>{allLands.filter(l => !l.user_id).length}</span>
-                            </div>
-                          </div>
-                        </div>
-                      </TabsContent>
-
-                      <TabsContent value="events" className="space-y-4 mt-0">
-                        <div>
-                          <h3 className="font-semibold mb-2">Upcoming Events</h3>
-                          {upcomingEvents.length > 0 ? (
-                            <div className="space-y-2">
-                              {upcomingEvents.map(event => (
-                                <div key={event.id} className="p-2 bg-gray-700/50 rounded text-sm">
-                                  <div className="font-medium">{event.event_name}</div>
-                                  <div className="text-gray-400 text-xs">
-                                    {new Date(event.start_time).toLocaleDateString()}
-                                  </div>
-                                </div>
-                              ))}
-                            </div>
-                          ) : (
-                            <p className="text-gray-500 mb-4">Be the first to create an event in the Grail-Galaxy!</p>
-                          )}
-                        </div>
-                      </TabsContent>
-
-                      <TabsContent value="market" className="space-y-4 mt-0">
-                        <div>
-                          <h3 className="font-semibold mb-2">Land Marketplace</h3>
-                          <div className="space-y-2 text-sm">
-                            <div className="flex justify-between">
-                              <span>Basic Land:</span>
-                              <span>50+ coins</span>
-                            </div>
-                            <div className="flex justify-between">
-                              <span>Premium Land:</span>
-                              <span>100+ coins</span>
-                            </div>
-                            <div className="flex justify-between">
-                              <span>Deluxe Land:</span>
-                              <span>150+ coins</span>
-                            </div>
-                          </div>
-                        </div>
-                      </TabsContent>
-
-                      <TabsContent value="help" className="space-y-4 mt-0">
-                        <div>
-                          <h3 className="font-semibold mb-2">How to Play</h3>
-                          <div className="space-y-2 text-sm text-gray-300">
-                            <p>• Click on gray plots to purchase land</p>
-                            <p>• Green plots are yours, orange belong to others</p>
-                            <p>• Use Pop Coins to buy larger/premium plots</p>
-                            <p>• Host events to earn more coins</p>
-                          </div>
-                        </div>
-                      </TabsContent>
-                    </div>
-                  </Tabs>
+                <CardHeader>
+                  <CardTitle className="text-sm flex items-center gap-2">
+                    <Info className="w-4 h-4" />
+                    Testing Mode
+                  </CardTitle>
+                </CardHeader>
+                <CardContent>
+                  <p className="text-sm text-gray-400">
+                    This is a simplified version to test the page structure. 
+                    The full 3D Babylon.js experience will be restored once we confirm the basic page loads correctly.
+                  </p>
                 </CardContent>
               </Card>
             </div>
