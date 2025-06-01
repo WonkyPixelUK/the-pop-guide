@@ -41,6 +41,29 @@ const ProfileSettings = () => {
   const [apiKeyLoading, setApiKeyLoading] = useState(false);
   const [apiKeyError, setApiKeyError] = useState<string | null>(null);
   
+  // Add retailer states
+  const [retailerProfile, setRetailerProfile] = useState<any>(null);
+  const [hasRetailerProfile, setHasRetailerProfile] = useState(false);
+  const [retailerLoading, setRetailerLoading] = useState(false);
+  const [showRetailerForm, setShowRetailerForm] = useState(false);
+  const [retailerFormData, setRetailerFormData] = useState({
+    business_name: '',
+    business_type: 'retail_store',
+    description: '',
+    website_url: '',
+    contact_email: '',
+    contact_phone: '',
+    address_line1: '',
+    address_line2: '',
+    city: '',
+    state_province: '',
+    postal_code: '',
+    country: 'UK',
+    vat_number: '',
+    business_registration: '',
+    specialties: []
+  });
+  
   // Add cancellation states
   const [cancelLoading, setCancelLoading] = useState(false);
   const [showCancelDialog, setShowCancelDialog] = useState(false);
@@ -434,6 +457,112 @@ const ProfileSettings = () => {
       });
     } finally {
       setCancelLoading(false);
+    }
+  };
+
+  // Fetch retailer profile data
+  useEffect(() => {
+    if (activeTab === 'subscription' && user) {
+      setRetailerLoading(true);
+      supabase.auth.getSession().then(async ({ data }) => {
+        const token = data?.session?.access_token;
+        try {
+          const res = await fetch(`https://pafgjwmgueerxdxtneyg.functions.supabase.co/retailer-manager?action=get`, {
+            method: 'GET',
+            headers: {
+              'Authorization': `Bearer ${token}`,
+              'Content-Type': 'application/json'
+            },
+          });
+          
+          if (res.ok) {
+            const data = await res.json();
+            setHasRetailerProfile(data.has_profile);
+            setRetailerProfile(data.retailer_profile);
+            if (data.retailer_profile) {
+              setRetailerFormData(data.retailer_profile);
+            }
+          }
+        } catch (error) {
+          console.error('Error fetching retailer profile:', error);
+        } finally {
+          setRetailerLoading(false);
+        }
+      });
+    }
+  }, [activeTab, user]);
+
+  const handleCreateRetailerProfile = async () => {
+    setRetailerLoading(true);
+    try {
+      const { data } = await supabase.auth.getSession();
+      const token = data?.session?.access_token;
+      
+      const res = await fetch(`https://pafgjwmgueerxdxtneyg.functions.supabase.co/retailer-manager?action=create_profile`, {
+        method: 'POST',
+        headers: {
+          'Authorization': `Bearer ${token}`,
+          'Content-Type': 'application/json'
+        },
+        body: JSON.stringify(retailerFormData)
+      });
+      
+      if (res.ok) {
+        const data = await res.json();
+        setRetailerProfile(data.retailer_profile);
+        setHasRetailerProfile(true);
+        setShowRetailerForm(false);
+        toast({
+          title: "Retailer Profile Created! 🏪",
+          description: "Your business profile has been created successfully",
+        });
+      } else {
+        const errorData = await res.json();
+        throw new Error(errorData.error || 'Failed to create retailer profile');
+      }
+    } catch (error) {
+      console.error('Error creating retailer profile:', error);
+      toast({
+        title: "Error",
+        description: "Failed to create retailer profile. Please try again.",
+        variant: "destructive",
+      });
+    } finally {
+      setRetailerLoading(false);
+    }
+  };
+
+  const handleRetailerUpgrade = async (tier: string) => {
+    try {
+      const { data } = await supabase.auth.getSession();
+      const token = data?.session?.access_token;
+      
+      const res = await fetch(`https://pafgjwmgueerxdxtneyg.functions.supabase.co/retailer-checkout`, {
+        method: 'POST',
+        headers: {
+          'Authorization': `Bearer ${token}`,
+          'Content-Type': 'application/json'
+        },
+        body: JSON.stringify({ 
+          tier,
+          email: user?.email 
+        })
+      });
+      
+      if (res.ok) {
+        const data = await res.json();
+        window.location.href = data.url;
+      } else {
+        const errorData = await res.json();
+        throw new Error(errorData.error || 'Failed to create checkout session');
+      }
+    } catch (error) {
+      console.error('Error upgrading to retailer:', error);
+      toast({
+        title: "Error",
+        description: "Failed to start retailer upgrade. Please try again.",
+        variant: "destructive",
+      });
     }
   };
 
@@ -915,6 +1044,301 @@ const ProfileSettings = () => {
                         </div>
                       </div>
                     )}
+
+                    {/* Retailer Upgrade Section */}
+                    <div className="space-y-6">
+                      <div className="p-6 bg-gradient-to-r from-purple-500/10 to-blue-500/10 border border-purple-500/20 rounded-lg">
+                        <h3 className="text-xl font-semibold text-white mb-4 flex items-center gap-2">
+                          🏪 Become a Retailer Partner
+                        </h3>
+                        
+                        {!hasRetailerProfile ? (
+                          <div className="space-y-4">
+                            <p className="text-gray-300">
+                              Join our retailer network and showcase your business to thousands of Funko Pop collectors. 
+                              Get listed in our directory, manage inventory, and grow your business.
+                            </p>
+                            
+                            <div className="grid grid-cols-1 md:grid-cols-3 gap-4 mb-6">
+                              <div className="text-center p-4 bg-gray-800/50 rounded-lg">
+                                <div className="text-2xl mb-2">📍</div>
+                                <h4 className="font-semibold text-white mb-1">Directory Listing</h4>
+                                <p className="text-gray-400 text-sm">Get found by local collectors</p>
+                              </div>
+                              <div className="text-center p-4 bg-gray-800/50 rounded-lg">
+                                <div className="text-2xl mb-2">📊</div>
+                                <h4 className="font-semibold text-white mb-1">Inventory Management</h4>
+                                <p className="text-gray-400 text-sm">Track stock and pricing</p>
+                              </div>
+                              <div className="text-center p-4 bg-gray-800/50 rounded-lg">
+                                <div className="text-2xl mb-2">⭐</div>
+                                <h4 className="font-semibold text-white mb-1">Reviews & Ratings</h4>
+                                <p className="text-gray-400 text-sm">Build customer trust</p>
+                              </div>
+                            </div>
+                            
+                            {!showRetailerForm ? (
+                              <Button
+                                onClick={() => setShowRetailerForm(true)}
+                                className="bg-purple-500 hover:bg-purple-600 text-white"
+                              >
+                                Get Started as a Retailer
+                              </Button>
+                            ) : (
+                              <div className="space-y-4 p-4 bg-gray-800/30 rounded-lg">
+                                <h4 className="font-semibold text-white">Business Information</h4>
+                                <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                                  <div>
+                                    <label className="block text-sm font-medium text-gray-300 mb-1">Business Name *</label>
+                                    <Input
+                                      value={retailerFormData.business_name}
+                                      onChange={(e) => setRetailerFormData({...retailerFormData, business_name: e.target.value})}
+                                      className="bg-gray-700 border-gray-600 text-white"
+                                      placeholder="Your Store Name"
+                                    />
+                                  </div>
+                                  <div>
+                                    <label className="block text-sm font-medium text-gray-300 mb-1">Business Type</label>
+                                    <select
+                                      value={retailerFormData.business_type}
+                                      onChange={(e) => setRetailerFormData({...retailerFormData, business_type: e.target.value})}
+                                      className="w-full p-2 bg-gray-700 border border-gray-600 rounded text-white"
+                                    >
+                                      <option value="retail_store">Retail Store</option>
+                                      <option value="online_store">Online Store</option>
+                                      <option value="marketplace">Marketplace Seller</option>
+                                      <option value="distributor">Distributor</option>
+                                    </select>
+                                  </div>
+                                  <div className="md:col-span-2">
+                                    <label className="block text-sm font-medium text-gray-300 mb-1">Description</label>
+                                    <textarea
+                                      value={retailerFormData.description}
+                                      onChange={(e) => setRetailerFormData({...retailerFormData, description: e.target.value})}
+                                      className="w-full p-2 bg-gray-700 border border-gray-600 rounded text-white h-20"
+                                      placeholder="Describe your business and what makes you special..."
+                                    />
+                                  </div>
+                                  <div>
+                                    <label className="block text-sm font-medium text-gray-300 mb-1">Website URL</label>
+                                    <Input
+                                      value={retailerFormData.website_url}
+                                      onChange={(e) => setRetailerFormData({...retailerFormData, website_url: e.target.value})}
+                                      className="bg-gray-700 border-gray-600 text-white"
+                                      placeholder="https://yourstore.com"
+                                    />
+                                  </div>
+                                  <div>
+                                    <label className="block text-sm font-medium text-gray-300 mb-1">Contact Email</label>
+                                    <Input
+                                      value={retailerFormData.contact_email}
+                                      onChange={(e) => setRetailerFormData({...retailerFormData, contact_email: e.target.value})}
+                                      className="bg-gray-700 border-gray-600 text-white"
+                                      placeholder="contact@yourstore.com"
+                                    />
+                                  </div>
+                                  <div>
+                                    <label className="block text-sm font-medium text-gray-300 mb-1">City</label>
+                                    <Input
+                                      value={retailerFormData.city}
+                                      onChange={(e) => setRetailerFormData({...retailerFormData, city: e.target.value})}
+                                      className="bg-gray-700 border-gray-600 text-white"
+                                      placeholder="London"
+                                    />
+                                  </div>
+                                  <div>
+                                    <label className="block text-sm font-medium text-gray-300 mb-1">Country</label>
+                                    <select
+                                      value={retailerFormData.country}
+                                      onChange={(e) => setRetailerFormData({...retailerFormData, country: e.target.value})}
+                                      className="w-full p-2 bg-gray-700 border border-gray-600 rounded text-white"
+                                    >
+                                      <option value="UK">United Kingdom</option>
+                                      <option value="US">United States</option>
+                                      <option value="CA">Canada</option>
+                                      <option value="AU">Australia</option>
+                                      <option value="DE">Germany</option>
+                                      <option value="FR">France</option>
+                                      <option value="ES">Spain</option>
+                                      <option value="IT">Italy</option>
+                                    </select>
+                                  </div>
+                                </div>
+                                
+                                <div className="flex gap-3 pt-4">
+                                  <Button
+                                    onClick={handleCreateRetailerProfile}
+                                    disabled={retailerLoading || !retailerFormData.business_name}
+                                    className="bg-purple-500 hover:bg-purple-600 text-white"
+                                  >
+                                    {retailerLoading ? 'Creating...' : 'Create Business Profile'}
+                                  </Button>
+                                  <Button
+                                    onClick={() => setShowRetailerForm(false)}
+                                    variant="outline"
+                                    className="border-gray-600 text-gray-300 hover:bg-gray-700"
+                                  >
+                                    Cancel
+                                  </Button>
+                                </div>
+                              </div>
+                            )}
+                          </div>
+                        ) : (
+                          <div className="space-y-4">
+                            {/* Retailer Profile Status */}
+                            <div className="flex flex-col sm:flex-row sm:items-center gap-4 p-4 bg-gray-700/30 rounded-lg">
+                              <div className="flex items-center gap-3">
+                                <span className={`px-3 py-1 rounded-full text-sm font-medium ${
+                                  retailerProfile?.retailer_status === 'active' 
+                                    ? 'bg-purple-500 text-white' 
+                                    : 'bg-yellow-500 text-black'
+                                }`}>
+                                  {retailerProfile?.retailer_status === 'active' ? '🏪 Active Retailer' : '⏳ Pending Approval'}
+                                </span>
+                                <div className="text-gray-300">
+                                  <div className="font-medium">{retailerProfile?.business_name}</div>
+                                  <div className="text-sm text-gray-400">
+                                    {retailerProfile?.retailer_tier} • {retailerProfile?.city}, {retailerProfile?.country}
+                                  </div>
+                                </div>
+                              </div>
+                              <Button
+                                onClick={() => navigate('/retailers')}
+                                className="bg-purple-500 hover:bg-purple-600 text-white"
+                              >
+                                Manage Listing
+                              </Button>
+                            </div>
+
+                            {/* Retailer Subscription Tiers */}
+                            <div className="space-y-4">
+                              <h4 className="font-semibold text-white">Retailer Subscription Tiers</h4>
+                              <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+                                {/* Basic Tier */}
+                                <div className={`p-4 rounded-lg border-2 ${
+                                  retailerProfile?.retailer_tier === 'basic' 
+                                    ? 'border-purple-500 bg-purple-500/10' 
+                                    : 'border-gray-600 bg-gray-800/30'
+                                }`}>
+                                  <h5 className="font-semibold text-white mb-2">Basic Retailer</h5>
+                                  <div className="text-2xl font-bold text-purple-400 mb-2">£29/mo</div>
+                                  <ul className="text-sm text-gray-300 space-y-1 mb-4">
+                                    <li>• Directory listing</li>
+                                    <li>• Basic business profile</li>
+                                    <li>• Customer reviews</li>
+                                    <li>• Contact information display</li>
+                                  </ul>
+                                  {retailerProfile?.retailer_tier !== 'basic' && (
+                                    <Button
+                                      onClick={() => handleRetailerUpgrade('basic')}
+                                      size="sm"
+                                      className="w-full bg-purple-500 hover:bg-purple-600"
+                                    >
+                                      Upgrade to Basic
+                                    </Button>
+                                  )}
+                                  {retailerProfile?.retailer_tier === 'basic' && (
+                                    <div className="text-center text-purple-400 font-medium">Current Plan</div>
+                                  )}
+                                </div>
+
+                                {/* Premium Tier */}
+                                <div className={`p-4 rounded-lg border-2 ${
+                                  retailerProfile?.retailer_tier === 'premium' 
+                                    ? 'border-purple-500 bg-purple-500/10' 
+                                    : 'border-gray-600 bg-gray-800/30'
+                                }`}>
+                                  <h5 className="font-semibold text-white mb-2">Premium Retailer</h5>
+                                  <div className="text-2xl font-bold text-purple-400 mb-2">£59/mo</div>
+                                  <ul className="text-sm text-gray-300 space-y-1 mb-4">
+                                    <li>• Everything in Basic</li>
+                                    <li>• Inventory management</li>
+                                    <li>• Photo gallery</li>
+                                    <li>• Featured listings</li>
+                                    <li>• Analytics dashboard</li>
+                                  </ul>
+                                  {retailerProfile?.retailer_tier !== 'premium' && (
+                                    <Button
+                                      onClick={() => handleRetailerUpgrade('premium')}
+                                      size="sm"
+                                      className="w-full bg-purple-500 hover:bg-purple-600"
+                                    >
+                                      Upgrade to Premium
+                                    </Button>
+                                  )}
+                                  {retailerProfile?.retailer_tier === 'premium' && (
+                                    <div className="text-center text-purple-400 font-medium">Current Plan</div>
+                                  )}
+                                </div>
+
+                                {/* Enterprise Tier */}
+                                <div className={`p-4 rounded-lg border-2 ${
+                                  retailerProfile?.retailer_tier === 'enterprise' 
+                                    ? 'border-purple-500 bg-purple-500/10' 
+                                    : 'border-gray-600 bg-gray-800/30'
+                                }`}>
+                                  <h5 className="font-semibold text-white mb-2">Enterprise Retailer</h5>
+                                  <div className="text-2xl font-bold text-purple-400 mb-2">£99/mo</div>
+                                  <ul className="text-sm text-gray-300 space-y-1 mb-4">
+                                    <li>• Everything in Premium</li>
+                                    <li>• API access</li>
+                                    <li>• Custom branding</li>
+                                    <li>• Priority support</li>
+                                    <li>• Advanced analytics</li>
+                                    <li>• Bulk inventory tools</li>
+                                  </ul>
+                                  {retailerProfile?.retailer_tier !== 'enterprise' && (
+                                    <Button
+                                      onClick={() => handleRetailerUpgrade('enterprise')}
+                                      size="sm"
+                                      className="w-full bg-purple-500 hover:bg-purple-600"
+                                    >
+                                      Upgrade to Enterprise
+                                    </Button>
+                                  )}
+                                  {retailerProfile?.retailer_tier === 'enterprise' && (
+                                    <div className="text-center text-purple-400 font-medium">Current Plan</div>
+                                  )}
+                                </div>
+                              </div>
+                            </div>
+
+                            {/* Quick Stats */}
+                            {retailerProfile?.retailer_status === 'active' && (
+                              <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
+                                <div className="text-center p-3 bg-gray-800/50 rounded-lg">
+                                  <div className="text-lg font-bold text-purple-400">
+                                    {retailerProfile?.average_rating?.toFixed(1) || '0.0'}
+                                  </div>
+                                  <div className="text-xs text-gray-400">Avg Rating</div>
+                                </div>
+                                <div className="text-center p-3 bg-gray-800/50 rounded-lg">
+                                  <div className="text-lg font-bold text-purple-400">
+                                    {retailerProfile?.total_reviews || 0}
+                                  </div>
+                                  <div className="text-xs text-gray-400">Reviews</div>
+                                </div>
+                                <div className="text-center p-3 bg-gray-800/50 rounded-lg">
+                                  <div className="text-lg font-bold text-purple-400">
+                                    {retailerProfile?.is_verified ? '✓' : '⏳'}
+                                  </div>
+                                  <div className="text-xs text-gray-400">Verified</div>
+                                </div>
+                                <div className="text-center p-3 bg-gray-800/50 rounded-lg">
+                                  <div className="text-lg font-bold text-purple-400">
+                                    {retailerProfile?.is_featured ? '⭐' : '📍'}
+                                  </div>
+                                  <div className="text-xs text-gray-400">
+                                    {retailerProfile?.is_featured ? 'Featured' : 'Listed'}
+                                  </div>
+                                </div>
+                              </div>
+                            )}
+                          </div>
+                        )}
+                      </div>
+                    </div>
 
                     {/* Pro Features Overview */}
                     {subStatus !== 'active' && (

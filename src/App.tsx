@@ -2,17 +2,17 @@ import { Toaster } from "@/components/ui/toaster";
 import { Toaster as Sonner } from "@/components/ui/sonner";
 import { TooltipProvider } from "@/components/ui/tooltip";
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
-import { BrowserRouter, Routes, Route } from "react-router-dom";
+import { BrowserRouter, Routes, Route, Navigate } from "react-router-dom";
 import Landing from "./pages/Landing";
-import Auth from "./pages/Auth";
-import Dashboard from "./pages/Dashboard";
+import Auth from "@/pages/Auth";
+import Dashboard from "@/pages/Dashboard";
 import Features from "./pages/Features";
 import Pricing from "./pages/Pricing";
 import PricingNew from "./pages/PricingNew";
 import About from "./pages/About";
 import Contact from "./pages/Contact";
 import Profile from "./pages/Profile";
-import ProfileSettings from "./pages/ProfileSettings";
+import ProfileSettings from "@/pages/ProfileSettings";
 import ScrapingStatus from "./pages/ScrapingStatus";
 import PublicListView from "./pages/PublicListView";
 import BrowseLists from "./pages/BrowseLists";
@@ -24,7 +24,7 @@ import { Analytics } from '@vercel/analytics/react';
 import Ios from "./pages/Ios";
 import Android from "./pages/Android";
 import Api from "./pages/Api";
-import SearchPage from "./pages/Search";
+import Search from "@/pages/Search";
 import Directory from "./pages/Directory";
 import DirectoryAll from "./pages/DirectoryAll";
 import RecentlyAdded from "./pages/RecentlyAdded";
@@ -52,8 +52,9 @@ import ShoppersAdvice from "./pages/ShoppersAdvice";
 import ComingSoon from "./pages/ComingSoon";
 import LatestDeals from "./pages/LatestDeals";
 import TimeMachine from "./pages/TimeMachine";
-import GrailGalaxyLanding from "./pages/GrailGalaxyLanding";
-import GrailGalaxyWorld from "./pages/GrailGalaxyWorld";
+import GrailGalaxyLanding from "@/pages/GrailGalaxyLanding";
+import GrailGalaxyWorld from "@/pages/GrailGalaxyWorld";
+import RetailerDirectory from "@/pages/RetailerDirectory";
 
 const queryClient = new QueryClient();
 
@@ -76,7 +77,7 @@ const App = () => (
             <Route path="/about" element={<About />} />
             <Route path="/contact" element={<Contact />} />
             <Route path="/profile/:username" element={<Profile />} />
-            <Route path="/profile-settings" element={<ProfileSettings />} />
+            <Route path="/profile" element={<ProfileSettings />} />
             <Route path="/scraping-status" element={<ScrapingStatus />} />
             <Route path="/lists/:listId" element={<PublicListView />} />
             <Route path="/browse-lists" element={<BrowseLists />} />
@@ -84,7 +85,7 @@ const App = () => (
             <Route path="/ios" element={<Ios />} />
             <Route path="/android" element={<Android />} />
             <Route path="/api" element={<Api />} />
-            <Route path="/search" element={<SearchPage />} />
+            <Route path="/search" element={<Search />} />
             <Route path="/directory" element={<Directory />} />
             <Route path="/directory-all" element={<DirectoryAll />} />
             <Route path="/recently-added" element={<RecentlyAdded />} />
@@ -113,6 +114,8 @@ const App = () => (
             <Route path="/time-machine" element={<TimeMachine />} />
             <Route path="/grail-galaxy" element={<GrailGalaxyLanding />} />
             <Route path="/grail-galaxy/world" element={<GrailGalaxyWorld />} />
+            <Route path="/retailers" element={<RetailerDirectory />} />
+            <Route path="/" element={<Navigate to="/dashboard" replace />} />
 
             {/* ADD ALL CUSTOM ROUTES ABOVE THE CATCH-ALL "*" ROUTE */}
             <Route path="*" element={<NotFound />} />

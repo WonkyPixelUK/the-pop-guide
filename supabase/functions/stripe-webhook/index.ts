@@ -43,13 +43,59 @@ serve(async (req: Request) => {
     const subscription = event.data.object;
     const customer_id = subscription.customer;
     const user_id = subscription.metadata?.user_id;
+    const subscription_type = subscription.metadata?.subscription_type || 'pro';
+    const tier = subscription.metadata?.tier;
+    
     if (user_id) {
       let status = subscription.status;
-      // Update subscription status
-      await supabase
-        .from("profiles")
-        .update({ subscription_status: status })
-        .eq("stripe_customer_id", customer_id);
+      
+      if (subscription_type === 'retailer') {
+        // Handle retailer subscriptions
+        await supabase
+          .from("profiles")
+          .update({ 
+            retailer_subscription_status: status,
+            retailer_tier: tier,
+            is_retailer: true
+          })
+          .eq("stripe_customer_id", customer_id);
+          
+        // Update retailer profile
+        await supabase
+          .from("retailer_profiles")
+          .update({ 
+            retailer_status: status === 'active' ? 'active' : 'pending',
+            retailer_tier: tier,
+            stripe_retailer_subscription_id: subscription.id
+          })
+          .eq("user_id", user_id);
+          
+        // Send retailer welcome email on new active subscription
+        if (event.type === "customer.subscription.created" && status === "active") {
+          const { data: userData } = await supabase.from("profiles").select("email, full_name").eq("stripe_customer_id", customer_id).single();
+          if (userData?.email) {
+            await sendEmail("retailer_welcome", userData.email, { 
+              fullName: userData.full_name,
+              tier: tier 
+            });
+          }
+        }
+      } else {
+        // Handle regular Pro subscriptions
+        await supabase
+          .from("profiles")
+          .update({ subscription_status: status })
+          .eq("stripe_customer_id", customer_id);
+          
+        // Send pro_welcome email on new active/trialing subscription
+        if (event.type === "customer.subscription.created" && (status === "active" || status === "trialing")) {
+          const { data: userData } = await supabase.from("profiles").select("email, full_name").eq("stripe_customer_id", customer_id).single();
+          if (userData?.email) {
+            await sendEmail("pro_welcome", userData.email, { fullName: userData.full_name });
+          }
+        }
+      }
+      
       // Store customer_id if not already present
       if (customer_id) {
         await supabase
@@ -57,14 +103,6 @@ serve(async (req: Request) => {
           .update({ stripe_customer_id: customer_id })
           .eq("id", user_id)
           .is("stripe_customer_id", null);
-      }
-      // Send pro_welcome email on new active/trialing subscription
-      if (event.type === "customer.subscription.created" && (status === "active" || status === "trialing")) {
-        // Fetch user email and name
-        const { data: userData } = await supabase.from("profiles").select("email, full_name").eq("stripe_customer_id", customer_id).single();
-        if (userData?.email) {
-          await sendEmail("pro_welcome", userData.email, { fullName: userData.full_name });
-        }
       }
     }
   }
