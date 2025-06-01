@@ -1320,17 +1320,56 @@ const ProfileSettings = () => {
                           <div className="pt-3 border-t border-gray-600">
                             <div className="flex gap-2">
                               <Button
-                                onClick={() => window.open('https://github.com/popguide/api-examples', '_blank')}
+                                onClick={() => {
+                                  // Create a simple example and copy to clipboard
+                                  const exampleCode = `// Example: Get your collection using the PopGuide API
+fetch('https://pafgjwmgueerxdxtneyg.functions.supabase.co/api-v1-collection', {
+  method: 'GET',
+  headers: {
+    'Authorization': 'Bearer ${apiKey || 'YOUR_API_KEY'}',
+    'Content-Type': 'application/json'
+  }
+})
+.then(response => response.json())
+.then(data => {
+  console.log('Collection:', data.data.collection);
+  console.log('Stats:', data.data.stats);
+})
+.catch(error => console.error('Error:', error));
+
+// Example: Add item to collection
+fetch('https://pafgjwmgueerxdxtneyg.functions.supabase.co/api-v1-collection', {
+  method: 'POST',
+  headers: {
+    'Authorization': 'Bearer ${apiKey || 'YOUR_API_KEY'}',
+    'Content-Type': 'application/json'
+  },
+  body: JSON.stringify({
+    funko_pop_id: 'your-funko-pop-id',
+    condition: 'mint',
+    purchase_price: 15.99,
+    notes: 'Bought from local store'
+  })
+})
+.then(response => response.json())
+.then(data => console.log('Added:', data));`;
+                                  
+                                  navigator.clipboard.writeText(exampleCode);
+                                  toast({
+                                    title: "Code Examples Copied! 📋",
+                                    description: "JavaScript examples copied to clipboard",
+                                  });
+                                }}
                                 className="bg-gray-700 hover:bg-gray-600 text-white border-gray-600"
                               >
-                                View Code Examples
+                                Copy Code Examples
                               </Button>
                               <Button
-                                onClick={() => window.open('https://docs.popguide.co.uk/api', '_blank')}
+                                onClick={() => window.open('https://supabase.com/docs/guides/functions', '_blank')}
                                 variant="outline"
                                 className="border-gray-600 text-white hover:bg-gray-700 bg-gray-800"
                               >
-                                Full Documentation
+                                Supabase Functions Guide
                               </Button>
                             </div>
                           </div>
