@@ -80,7 +80,7 @@ const Footer = () => {
         <div className="border-t border-gray-700 mt-8 pt-8">
           <div className="text-center text-gray-400">
             <p>&copy; 2024-2025 PopGuide. All rights reserved.</p>
-            <p className="text-sm mt-2 text-gray-500">Version 2.0.0 • Released June 2nd, 2025</p>
+            <p className="text-sm mt-2 text-gray-500">Version 1.2.0 • Released June 2nd, 2025</p>
             <div className="mt-4 flex justify-center">
               <img src="https://api.checklyhq.com/v1/badges/checks/e94c9b1a-d3da-4b89-b8d8-2606014dad8d?style=for-the-badge&theme=light" alt="Uptime monitored by Checkly" />
             </div>
