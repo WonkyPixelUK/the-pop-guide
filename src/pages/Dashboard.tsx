@@ -2,13 +2,13 @@ import { useState, useEffect, useRef } from "react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Card, CardContent } from "@/components/ui/card";
-import { Search, Plus, BarChart3, Users, Zap, LogOut, Settings, Heart, List, TrendingUp, MessageCircle, ChevronLeft, ChevronRight, Download, Badge, Filter, ArrowDownAZ, ArrowUpAZ, ArrowDownWideNarrow, ArrowUpWideNarrow, ArrowUpDown } from "lucide-react";
+import { Search, Plus, BarChart3, Users, Zap, LogOut, Settings, Heart, List, TrendingUp, MessageCircle, ChevronLeft, ChevronRight, Download, Badge, Filter, ArrowDownAZ, ArrowUpAZ, ArrowDownWideNarrow, ArrowUpWideNarrow, ArrowUpDown, ChevronDown, ChevronUp, User, Share2 } from "lucide-react";
 import CollectionGrid from "@/components/CollectionGrid";
 import WishlistGrid from "@/components/WishlistGrid";
 import CustomListsManager from "@/components/CustomListsManager";
 import CollectionAnalytics from "@/components/CollectionAnalytics";
 import EnhancedAddItemDialog from "@/components/EnhancedAddItemDialog";
-import ItemDetailsDialog from "@/components/ItemDetailsDialog";
+import PriceHistory from "@/components/PriceHistory";
 import { useAuth } from "@/hooks/useAuth";
 import { useFunkoPops, useUserCollection } from "@/hooks/useFunkoPops";
 import { useWishlist } from "@/hooks/useWishlist";
@@ -47,7 +47,7 @@ const SORT_OPTIONS = [
 const Dashboard = () => {
   const [searchQuery, setSearchQuery] = useState("");
   const [isAddDialogOpen, setIsAddDialogOpen] = useState(false);
-  const [selectedItem, setSelectedItem] = useState(null);
+  const [expandedPop, setExpandedPop] = useState(null);
   const [activeSection, setActiveSection] = useState("recently-added");
   const [bulkActionsOpen, setBulkActionsOpen] = useState(false);
   const [importCsvOpen, setImportCsvOpen] = useState(false);
@@ -224,7 +224,7 @@ const Dashboard = () => {
       'Animation', 'Anime & Manga', '80s Flashback', 'Movies & TV', 'Horror', 'Music', 'Sports', 'Video Games', 'Retro Toys', 'Ad Icons'
     ],
     edition: [
-      'Exclusives', 'Convention Style', 'Character Cosplay', 'Rainbow Brights', 'Retro Rewind', 'Theme Park Favourites', 'Disney Princesses', 'All The Sparkles', 'Back in Stock', 'BLACK LIGHT', 'BRONZE', 'BTS X MINIONS', 'CHASE', 'CONVENTION', 'DIAMON COLLECTION', 'DIAMOND COLLECTION', 'EASTER', 'FACET COLLECTION', 'FLOCKED', 'GLITTER', 'GLOW IN THE DARK', 'HOLIDAY', 'HYPERSPACE HEROES', 'LIGHTS AND SOUND', 'MEME', 'METALLIC', 'PEARLESCENT', 'PRIDE', 'RETRO COMIC', 'RETRO SERIES', 'SCOOPS AHOY', 'SOFT COLOUR', "VALENTINE'S"
+      'New Releases', 'Exclusives', 'Convention Style', 'Character Cosplay', 'Rainbow Brights', 'Retro Rewind', 'Theme Park Favourites', 'Disney Princesses', 'All The Sparkles', 'Back in Stock', 'BLACK LIGHT', 'BRONZE', 'BTS X MINIONS', 'CHASE', 'CONVENTION', 'DIAMON COLLECTION', 'DIAMOND COLLECTION', 'EASTER', 'FACET COLLECTION', 'FLOCKED', 'GLITTER', 'GLOW IN THE DARK', 'HOLIDAY', 'HYPERSPACE HEROES', 'LIGHTS AND SOUND', 'MEME', 'METALLIC', 'PEARLESCENT', 'PRIDE', 'RETRO COMIC', 'RETRO SERIES', 'SCOOPS AHOY', 'SOFT COLOUR', "VALENTINE'S"
     ],
     vaulted: ['All', 'Vaulted', 'Available'],
     character: Array.from(new Set(userCollection.map(item => item.funko_pops?.name).filter(Boolean))).sort(),
@@ -244,6 +244,50 @@ const Dashboard = () => {
     condition: item.condition,
     purchase_price: item.purchase_price,
   });
+
+  // Handle expanding pop details
+  const handleExpandPop = (pop) => {
+    setExpandedPop(expandedPop?.id === pop.id ? null : pop);
+  };
+
+  // Get product badges
+  const getProductBadges = (pop) => {
+    const badges = [];
+    
+    if (pop.data_sources?.includes('new-releases') || pop.data_sources?.includes('Funko Europe')) {
+      badges.push({
+        text: 'New Release',
+        className: 'bg-green-500/20 text-green-300 border-green-500/30',
+        icon: Zap
+      });
+    }
+    
+    if (pop.is_chase) {
+      badges.push({
+        text: 'Chase',
+        className: 'bg-yellow-500/20 text-yellow-300 border-yellow-500/30',
+        icon: Zap
+      });
+    }
+    
+    if (pop.is_exclusive) {
+      badges.push({
+        text: 'Exclusive',
+        className: 'bg-purple-500/20 text-purple-300 border-purple-500/30',
+        icon: Badge
+      });
+    }
+    
+    if (pop.is_vaulted) {
+      badges.push({
+        text: 'Vaulted',
+        className: 'bg-red-500/20 text-red-300 border-red-500/30',
+        icon: Badge
+      });
+    }
+    
+    return badges;
+  };
 
   if (authLoading || funkoLoading) {
     return (
@@ -332,6 +376,10 @@ const Dashboard = () => {
               <Heart className={`${isMobile ? 'w-5 h-5 mb-1' : 'w-4 h-4 mr-1'}`} />
               {(!isMobile || sidebarVisible) && <span className={isMobile ? 'text-xs' : ''}>Wishlist</span>}
             </button>
+            <button onClick={() => setActiveSection('new-releases')} className={`inline-flex items-center justify-center rounded px-2 py-0.5 text-xs font-medium transition-all focus:outline-none focus:ring-2 focus:ring-orange-500 ${isMobile ? 'h-12 min-w-[80px] flex-col' : 'h-8'} ${activeSection === 'new-releases' ? 'bg-orange-500 text-white shadow-sm' : 'text-gray-700 hover:bg-gray-200'}`}>
+              <Zap className={`${isMobile ? 'w-5 h-5 mb-1' : 'w-4 h-4 mr-1'}`} />
+              {(!isMobile || sidebarVisible) && <span className={isMobile ? 'text-xs' : ''}>New Releases</span>}
+            </button>
             <button onClick={() => setActiveSection('analytics')} className={`inline-flex items-center justify-center rounded px-2 py-0.5 text-xs font-medium transition-all focus:outline-none focus:ring-2 focus:ring-orange-500 ${isMobile ? 'h-12 min-w-[80px] flex-col' : 'h-8'} ${activeSection === 'analytics' ? 'bg-orange-500 text-white shadow-sm' : 'text-gray-700 hover:bg-gray-200'}`}>
               <TrendingUp className={`${isMobile ? 'w-5 h-5 mb-1' : 'w-4 h-4 mr-1'}`} />
               {(!isMobile || sidebarVisible) && <span className={isMobile ? 'text-xs' : ''}>Analytics</span>}
@@ -405,6 +453,7 @@ const Dashboard = () => {
                 {activeSection === 'items-owned' && <Zap className="w-7 h-7 text-orange-500" />} 
                 {activeSection === 'series-owned' && <Users className="w-7 h-7 text-orange-500" />} 
                 {activeSection === 'wishlist' && <Heart className="w-7 h-7 text-orange-500" />} 
+                {activeSection === 'new-releases' && <Zap className="w-7 h-7 text-orange-500" />} 
                 {activeSection === 'lists' && <List className="w-7 h-7 text-orange-500" />} 
                 {activeSection === 'friends' && <Users className="w-7 h-7 text-orange-500" />} 
                 {activeSection === 'analytics' && <TrendingUp className="w-7 h-7 text-orange-500" />} 
@@ -414,6 +463,7 @@ const Dashboard = () => {
                 {activeSection === 'items-owned' && 'Items Owned'}
                 {activeSection === 'series-owned' && 'Series Owned'}
                 {activeSection === 'wishlist' && 'My Wishlist'}
+                {activeSection === 'new-releases' && 'New Releases'}
                 {activeSection === 'lists' && 'Custom Lists'}
                 {activeSection === 'friends' && 'Friends'}
                 {activeSection === 'analytics' && 'Analytics'}
@@ -472,8 +522,8 @@ const Dashboard = () => {
                         >
                           Clear All Filters
                         </Button>
-            </div>
-          </div>
+                      </div>
+                    </div>
                   </DropdownMenuContent>
                 </DropdownMenu>
                 
@@ -526,24 +576,322 @@ const Dashboard = () => {
               userCollection.length === 0 ? (
                 <AnimatedFallback icon={Zap} message="No items found! Time to add some Pops to your collection." />
               ) : (
-                <CollectionGrid 
-                  items={sortedItems.slice(0, 24).map(mapToGridItem)}
-                  onItemClick={setSelectedItem}
-                  searchQuery={searchQuery}
-                  showWishlistOnly={false}
-                />
+                <div className="space-y-6">
+                  {sortedItems.slice(0, 24).map((item) => {
+                    const pop = item.funko_pops;
+                    const isExpanded = expandedPop?.id === pop?.id;
+                    const badges = getProductBadges(pop);
+                    
+                    // If this pop is expanded, render it full width
+                    if (isExpanded) {
+                      return (
+                        <div key={pop.id} className="w-full">
+                          {/* Compact card for expanded item */}
+                          <Card 
+                            className="bg-gray-800/70 border border-gray-700 rounded-lg p-4 flex flex-row items-center hover:shadow-lg transition cursor-pointer mb-4" 
+                            onClick={() => handleExpandPop(pop)}
+                          >
+                            <div className="w-20 h-20 bg-gray-700 rounded-lg flex items-center justify-center overflow-hidden mr-4 flex-shrink-0">
+                              {pop.image_url ? (
+                                <img src={pop.image_url} alt={pop.name} className="w-full h-full object-contain" />
+                              ) : (
+                                <User className="w-8 h-8 text-orange-400" />
+                              )}
+                            </div>
+                            <div className="flex-1 min-w-0">
+                              <div className="font-semibold text-white text-lg truncate">{pop.name}</div>
+                              <div className="text-sm text-gray-400">{pop.series} {pop.number ? `#${pop.number}` : ''}</div>
+                              <div className="text-sm text-orange-400 font-bold">{formatCurrency(pop.estimated_value || 0, currency)}</div>
+                            </div>
+                            <div className="flex items-center text-gray-400 text-sm">
+                              <ChevronUp className="w-4 h-4 mr-1" />
+                              <span>Hide Details</span>
+                            </div>
+                          </Card>
+
+                          {/* Full width expanded details */}
+                          <Card className="bg-gray-800 border border-gray-700 rounded-lg p-6 mb-8">
+                            <div className="flex flex-col lg:flex-row gap-8">
+                              {/* Left Side - Large Image */}
+                              <div className="lg:w-96 lg:flex-shrink-0">
+                                <div className="aspect-square bg-gray-700 rounded-lg border border-gray-600 overflow-hidden mb-6">
+                                  {pop.image_url ? (
+                                    <img src={pop.image_url} alt={pop.name} className="w-full h-full object-contain" />
+                                  ) : (
+                                    <div className="w-full h-full flex flex-col items-center justify-center text-gray-400">
+                                      <div className="text-6xl mb-4">📦</div>
+                                      <div className="text-lg">No Image Available</div>
+                                    </div>
+                                  )}
+                                </div>
+                              </div>
+
+                              {/* Right Side - Details */}
+                              <div className="flex-1 min-w-0">
+                                <div className="grid grid-cols-2 md:grid-cols-3 gap-4 mb-6">
+                                  <div className="bg-gray-700 p-4 rounded-lg border border-gray-600">
+                                    <div className="text-sm text-gray-400 mb-1 flex items-center">
+                                      <span className="mr-2">💎</span>
+                                      Value
+                                    </div>
+                                    <div className="font-semibold text-white text-lg">
+                                      {formatCurrency(pop.estimated_value || 0, currency)}
+                                    </div>
+                                  </div>
+                                  
+                                  <div className="bg-gray-700 p-4 rounded-lg border border-gray-600">
+                                    <div className="text-sm text-gray-400 mb-1 flex items-center">
+                                      <span className="mr-2">🎬</span>
+                                      Series
+                                    </div>
+                                    <div className="font-semibold text-white text-lg">{pop.series || '—'}</div>
+                                  </div>
+                                  
+                                  <div className="bg-gray-700 p-4 rounded-lg border border-gray-600">
+                                    <div className="text-sm text-gray-400 mb-1 flex items-center">
+                                      <span className="mr-2">🏷️</span>
+                                      Condition
+                                    </div>
+                                    <div className="font-semibold text-white text-lg">{item.condition || 'Mint'}</div>
+                                  </div>
+                                </div>
+
+                                {/* Price History */}
+                                <div className="border-t border-gray-600 pt-6">
+                                  <PriceHistory funkoPopId={pop.id} funkoPopName={pop.name} />
+                                </div>
+                              </div>
+                            </div>
+                          </Card>
+                        </div>
+                      );
+                    }
+                    
+                    // Regular grid item (not expanded) - return null, we'll render these separately
+                    return null;
+                  })}
+                  
+                  {/* Regular grid for non-expanded items */}
+                  <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-4 xl:grid-cols-6 gap-6">
+                    {sortedItems.slice(0, 24).map((item) => {
+                      const pop = item.funko_pops;
+                      const isExpanded = expandedPop?.id === pop?.id;
+                      const badges = getProductBadges(pop);
+                      
+                      // Skip expanded items (they're rendered above)
+                      if (isExpanded) return null;
+                      
+                      return (
+                        <Card 
+                          key={pop.id}
+                          className="bg-gray-800/70 border border-gray-700 rounded-lg p-3 flex flex-col items-center hover:shadow-lg transition cursor-pointer" 
+                          onClick={() => handleExpandPop(pop)}
+                        >
+                          <div className="w-full aspect-square bg-gray-700 rounded-lg mb-2 flex items-center justify-center overflow-hidden">
+                            {pop.image_url ? (
+                              <img src={pop.image_url} alt={pop.name} className="w-full h-full object-contain" />
+                            ) : (
+                              <User className="w-16 h-16 text-orange-400 animate-pulse" />
+                            )}
+                          </div>
+                          
+                          {/* Product Badges */}
+                          {badges.length > 0 && (
+                            <div className="flex flex-wrap gap-1 mb-2 w-full justify-center">
+                              {badges.slice(0, 2).map((badge, idx) => {
+                                const IconComponent = badge.icon;
+                                return (
+                                  <Badge key={idx} className={`text-xs ${badge.className}`}>
+                                    <IconComponent className="w-3 h-3 mr-1" />
+                                    {badge.text}
+                                  </Badge>
+                                );
+                              })}
+                            </div>
+                          )}
+                          
+                          <div className="font-semibold text-white text-center text-base mb-1 truncate w-full">{pop.name}</div>
+                          <div className="text-xs text-gray-400 mb-1">{pop.series} {pop.number ? `#${pop.number}` : ''}</div>
+                          <div className="text-xs text-orange-400 font-bold mb-2">{formatCurrency(pop.estimated_value || 0, currency)}</div>
+                          <div className="text-xs text-gray-400 mb-2">Condition: {item.condition || 'Mint'}</div>
+                          
+                          <Button 
+                            variant="default"
+                            className="bg-orange-500 hover:bg-orange-600 text-white w-full mt-auto py-2 px-4 rounded-lg font-semibold transition-all duration-200"
+                            onClick={(e) => {
+                              e.stopPropagation();
+                              handleExpandPop(pop);
+                            }}
+                          >
+                            <ChevronDown className="w-4 h-4 mr-2" />
+                            View Details
+                          </Button>
+                        </Card>
+                      );
+                    })}
+                  </div>
+                </div>
               )
             )}
             {activeSection === 'items-owned' && (
               userCollection.length === 0 ? (
                 <AnimatedFallback icon={Zap} message="No items found! Time to add some Pops to your collection." />
               ) : (
-                <CollectionGrid 
-                  items={sortedItems.map(mapToGridItem)}
-                  onItemClick={setSelectedItem}
-                  searchQuery={searchQuery}
-                  showWishlistOnly={false}
-                />
+                <div className="space-y-6">
+                  {sortedItems.map((item) => {
+                    const pop = item.funko_pops;
+                    const isExpanded = expandedPop?.id === pop?.id;
+                    const badges = getProductBadges(pop);
+                    
+                    // If this pop is expanded, render it full width
+                    if (isExpanded) {
+                      return (
+                        <div key={pop.id} className="w-full">
+                          {/* Compact card for expanded item */}
+                          <Card 
+                            className="bg-gray-800/70 border border-gray-700 rounded-lg p-4 flex flex-row items-center hover:shadow-lg transition cursor-pointer mb-4" 
+                            onClick={() => handleExpandPop(pop)}
+                          >
+                            <div className="w-20 h-20 bg-gray-700 rounded-lg flex items-center justify-center overflow-hidden mr-4 flex-shrink-0">
+                              {pop.image_url ? (
+                                <img src={pop.image_url} alt={pop.name} className="w-full h-full object-contain" />
+                              ) : (
+                                <User className="w-8 h-8 text-orange-400" />
+                              )}
+                            </div>
+                            <div className="flex-1 min-w-0">
+                              <div className="font-semibold text-white text-lg truncate">{pop.name}</div>
+                              <div className="text-sm text-gray-400">{pop.series} {pop.number ? `#${pop.number}` : ''}</div>
+                              <div className="text-sm text-orange-400 font-bold">{formatCurrency(pop.estimated_value || 0, currency)}</div>
+                            </div>
+                            <div className="flex items-center text-gray-400 text-sm">
+                              <ChevronUp className="w-4 h-4 mr-1" />
+                              <span>Hide Details</span>
+                            </div>
+                          </Card>
+
+                          {/* Full width expanded details */}
+                          <Card className="bg-gray-800 border border-gray-700 rounded-lg p-6 mb-8">
+                            <div className="flex flex-col lg:flex-row gap-8">
+                              {/* Left Side - Large Image */}
+                              <div className="lg:w-96 lg:flex-shrink-0">
+                                <div className="aspect-square bg-gray-700 rounded-lg border border-gray-600 overflow-hidden mb-6">
+                                  {pop.image_url ? (
+                                    <img src={pop.image_url} alt={pop.name} className="w-full h-full object-contain" />
+                                  ) : (
+                                    <div className="w-full h-full flex flex-col items-center justify-center text-gray-400">
+                                      <div className="text-6xl mb-4">📦</div>
+                                      <div className="text-lg">No Image Available</div>
+                                    </div>
+                                  )}
+                                </div>
+                              </div>
+
+                              {/* Right Side - Details */}
+                              <div className="flex-1 min-w-0">
+                                <div className="grid grid-cols-2 md:grid-cols-3 gap-4 mb-6">
+                                  <div className="bg-gray-700 p-4 rounded-lg border border-gray-600">
+                                    <div className="text-sm text-gray-400 mb-1 flex items-center">
+                                      <span className="mr-2">💎</span>
+                                      Value
+                                    </div>
+                                    <div className="font-semibold text-white text-lg">
+                                      {formatCurrency(pop.estimated_value || 0, currency)}
+                                    </div>
+                                  </div>
+                                  
+                                  <div className="bg-gray-700 p-4 rounded-lg border border-gray-600">
+                                    <div className="text-sm text-gray-400 mb-1 flex items-center">
+                                      <span className="mr-2">🎬</span>
+                                      Series
+                                    </div>
+                                    <div className="font-semibold text-white text-lg">{pop.series || '—'}</div>
+                                  </div>
+                                  
+                                  <div className="bg-gray-700 p-4 rounded-lg border border-gray-600">
+                                    <div className="text-sm text-gray-400 mb-1 flex items-center">
+                                      <span className="mr-2">🏷️</span>
+                                      Condition
+                                    </div>
+                                    <div className="font-semibold text-white text-lg">{item.condition || 'Mint'}</div>
+                                  </div>
+                                </div>
+
+                                {/* Price History */}
+                                <div className="border-t border-gray-600 pt-6">
+                                  <PriceHistory funkoPopId={pop.id} funkoPopName={pop.name} />
+                                </div>
+                              </div>
+                            </div>
+                          </Card>
+                        </div>
+                      );
+                    }
+                    
+                    // Regular grid item (not expanded) - return null, we'll render these separately
+                    return null;
+                  })}
+                  
+                  {/* Regular grid for non-expanded items */}
+                  <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-4 xl:grid-cols-6 gap-6">
+                    {sortedItems.map((item) => {
+                      const pop = item.funko_pops;
+                      const isExpanded = expandedPop?.id === pop?.id;
+                      const badges = getProductBadges(pop);
+                      
+                      // Skip expanded items (they're rendered above)
+                      if (isExpanded) return null;
+                      
+                      return (
+                        <Card 
+                          key={pop.id}
+                          className="bg-gray-800/70 border border-gray-700 rounded-lg p-3 flex flex-col items-center hover:shadow-lg transition cursor-pointer" 
+                          onClick={() => handleExpandPop(pop)}
+                        >
+                          <div className="w-full aspect-square bg-gray-700 rounded-lg mb-2 flex items-center justify-center overflow-hidden">
+                            {pop.image_url ? (
+                              <img src={pop.image_url} alt={pop.name} className="w-full h-full object-contain" />
+                            ) : (
+                              <User className="w-16 h-16 text-orange-400 animate-pulse" />
+                            )}
+                          </div>
+                          
+                          {/* Product Badges */}
+                          {badges.length > 0 && (
+                            <div className="flex flex-wrap gap-1 mb-2 w-full justify-center">
+                              {badges.slice(0, 2).map((badge, idx) => {
+                                const IconComponent = badge.icon;
+                                return (
+                                  <Badge key={idx} className={`text-xs ${badge.className}`}>
+                                    <IconComponent className="w-3 h-3 mr-1" />
+                                    {badge.text}
+                                  </Badge>
+                                );
+                              })}
+                            </div>
+                          )}
+                          
+                          <div className="font-semibold text-white text-center text-base mb-1 truncate w-full">{pop.name}</div>
+                          <div className="text-xs text-gray-400 mb-1">{pop.series} {pop.number ? `#${pop.number}` : ''}</div>
+                          <div className="text-xs text-orange-400 font-bold mb-2">{formatCurrency(pop.estimated_value || 0, currency)}</div>
+                          <div className="text-xs text-gray-400 mb-2">Condition: {item.condition || 'Mint'}</div>
+                          
+                          <Button 
+                            variant="default"
+                            className="bg-orange-500 hover:bg-orange-600 text-white w-full mt-auto py-2 px-4 rounded-lg font-semibold transition-all duration-200"
+                            onClick={(e) => {
+                              e.stopPropagation();
+                              handleExpandPop(pop);
+                            }}
+                          >
+                            <ChevronDown className="w-4 h-4 mr-2" />
+                            View Details
+                          </Button>
+                        </Card>
+                      );
+                    })}
+                  </div>
+                </div>
               )
             )}
             {activeSection === 'wishlist' && (
@@ -759,24 +1107,187 @@ const Dashboard = () => {
                 </Card>
               </div>
             )}
+            {activeSection === 'new-releases' && (
+              (() => {
+                // Filter items that have new-releases in their data_sources
+                const newReleaseItems = userCollection.filter(item => 
+                  item.funko_pops?.data_sources?.includes('new-releases') || 
+                  item.funko_pops?.data_sources?.includes('Funko Europe')
+                );
+                
+                if (newReleaseItems.length === 0) {
+                  return <AnimatedFallback icon={Zap} message="No new releases in your collection yet!" />;
+                }
+                
+                return (
+                  <div className="space-y-6">
+                    {newReleaseItems.map((item) => {
+                      const pop = item.funko_pops;
+                      const isExpanded = expandedPop?.id === pop?.id;
+                      const badges = getProductBadges(pop);
+                      
+                      // If this pop is expanded, render it full width
+                      if (isExpanded) {
+                        return (
+                          <div key={pop.id} className="w-full">
+                            {/* Compact card for expanded item */}
+                            <Card 
+                              className="bg-gray-800/70 border border-gray-700 rounded-lg p-4 flex flex-row items-center hover:shadow-lg transition cursor-pointer mb-4" 
+                              onClick={() => handleExpandPop(pop)}
+                            >
+                              <div className="w-20 h-20 bg-gray-700 rounded-lg flex items-center justify-center overflow-hidden mr-4 flex-shrink-0">
+                                {pop.image_url ? (
+                                  <img src={pop.image_url} alt={pop.name} className="w-full h-full object-contain" />
+                                ) : (
+                                  <User className="w-8 h-8 text-orange-400" />
+                                )}
+                              </div>
+                              <div className="flex-1 min-w-0">
+                                <div className="font-semibold text-white text-lg truncate">{pop.name}</div>
+                                <div className="text-sm text-gray-400">{pop.series} {pop.number ? `#${pop.number}` : ''}</div>
+                                <div className="text-sm text-orange-400 font-bold">{formatCurrency(pop.estimated_value || 0, currency)}</div>
+                              </div>
+                              <div className="flex items-center text-gray-400 text-sm">
+                                <ChevronUp className="w-4 h-4 mr-1" />
+                                <span>Hide Details</span>
+                              </div>
+                            </Card>
+
+                            {/* Full width expanded details */}
+                            <Card className="bg-gray-800 border border-gray-700 rounded-lg p-6 mb-8">
+                              <div className="flex flex-col lg:flex-row gap-8">
+                                {/* Left Side - Large Image */}
+                                <div className="lg:w-96 lg:flex-shrink-0">
+                                  <div className="aspect-square bg-gray-700 rounded-lg border border-gray-600 overflow-hidden mb-6">
+                                    {pop.image_url ? (
+                                      <img src={pop.image_url} alt={pop.name} className="w-full h-full object-contain" />
+                                    ) : (
+                                      <div className="w-full h-full flex flex-col items-center justify-center text-gray-400">
+                                        <div className="text-6xl mb-4">📦</div>
+                                        <div className="text-lg">No Image Available</div>
+                                      </div>
+                                    )}
+                                  </div>
+                                </div>
+
+                                {/* Right Side - Details */}
+                                <div className="flex-1 min-w-0">
+                                  <div className="grid grid-cols-2 md:grid-cols-3 gap-4 mb-6">
+                                    <div className="bg-gray-700 p-4 rounded-lg border border-gray-600">
+                                      <div className="text-sm text-gray-400 mb-1 flex items-center">
+                                        <span className="mr-2">💎</span>
+                                        Value
+                                      </div>
+                                      <div className="font-semibold text-white text-lg">
+                                        {formatCurrency(pop.estimated_value || 0, currency)}
+                                      </div>
+                                    </div>
+                                    
+                                    <div className="bg-gray-700 p-4 rounded-lg border border-gray-600">
+                                      <div className="text-sm text-gray-400 mb-1 flex items-center">
+                                        <span className="mr-2">🎬</span>
+                                        Series
+                                      </div>
+                                      <div className="font-semibold text-white text-lg">{pop.series || '—'}</div>
+                                    </div>
+                                    
+                                    <div className="bg-gray-700 p-4 rounded-lg border border-gray-600">
+                                      <div className="text-sm text-gray-400 mb-1 flex items-center">
+                                        <span className="mr-2">⚡</span>
+                                        Source
+                                      </div>
+                                      <div className="font-semibold text-green-300 text-lg">New Release</div>
+                                    </div>
+                                  </div>
+
+                                  {/* Price History */}
+                                  <div className="border-t border-gray-600 pt-6">
+                                    <PriceHistory funkoPopId={pop.id} funkoPopName={pop.name} />
+                                  </div>
+                                </div>
+                              </div>
+                            </Card>
+                          </div>
+                        );
+                      }
+                      
+                      // Regular grid item (not expanded) - return null, we'll render these separately
+                      return null;
+                    })}
+                    
+                    {/* Regular grid for non-expanded items */}
+                    <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-4 xl:grid-cols-6 gap-6">
+                      {newReleaseItems.map((item) => {
+                        const pop = item.funko_pops;
+                        const isExpanded = expandedPop?.id === pop?.id;
+                        const badges = getProductBadges(pop);
+                        
+                        // Skip expanded items (they're rendered above)
+                        if (isExpanded) return null;
+                        
+                        return (
+                          <Card 
+                            key={pop.id}
+                            className="bg-gray-800/70 border border-gray-700 rounded-lg p-3 flex flex-col items-center hover:shadow-lg transition cursor-pointer" 
+                            onClick={() => handleExpandPop(pop)}
+                          >
+                            <div className="w-full aspect-square bg-gray-700 rounded-lg mb-2 flex items-center justify-center overflow-hidden">
+                              {pop.image_url ? (
+                                <img src={pop.image_url} alt={pop.name} className="w-full h-full object-contain" />
+                              ) : (
+                                <User className="w-16 h-16 text-orange-400 animate-pulse" />
+                              )}
+                            </div>
+                            
+                            {/* Product Badges */}
+                            {badges.length > 0 && (
+                              <div className="flex flex-wrap gap-1 mb-2 w-full justify-center">
+                                {badges.slice(0, 2).map((badge, idx) => {
+                                  const IconComponent = badge.icon;
+                                  return (
+                                    <Badge key={idx} className={`text-xs ${badge.className}`}>
+                                      <IconComponent className="w-3 h-3 mr-1" />
+                                      {badge.text}
+                                    </Badge>
+                                  );
+                                })}
+                              </div>
+                            )}
+                            
+                            <div className="font-semibold text-white text-center text-base mb-1 truncate w-full">{pop.name}</div>
+                            <div className="text-xs text-gray-400 mb-1">{pop.series} {pop.number ? `#${pop.number}` : ''}</div>
+                            <div className="text-xs text-orange-400 font-bold mb-2">{formatCurrency(pop.estimated_value || 0, currency)}</div>
+                            <div className="text-xs text-green-400 mb-2">✨ New Release</div>
+                            
+                            <Button 
+                              variant="default"
+                              className="bg-orange-500 hover:bg-orange-600 text-white w-full mt-auto py-2 px-4 rounded-lg font-semibold transition-all duration-200"
+                              onClick={(e) => {
+                                e.stopPropagation();
+                                handleExpandPop(pop);
+                              }}
+                            >
+                              <ChevronDown className="w-4 h-4 mr-2" />
+                              View Details
+                            </Button>
+                          </Card>
+                        );
+                      })}
+                    </div>
+                  </div>
+                );
+              })()
+            )}
           </main>
         </div>
-          </div>
+      </div>
       <MobileBottomNav />
 
-        {/* Dialogs */}
-        <EnhancedAddItemDialog 
-          open={isAddDialogOpen} 
-          onOpenChange={setIsAddDialogOpen} 
-        />
-        
-        {selectedItem && (
-          <ItemDetailsDialog 
-            item={selectedItem}
-            open={!!selectedItem}
-            onOpenChange={() => setSelectedItem(null)}
-          />
-        )}
+      {/* Dialogs */}
+      <EnhancedAddItemDialog 
+        open={isAddDialogOpen} 
+        onOpenChange={setIsAddDialogOpen} 
+      />
 
       <Dialog open={bulkActionsOpen} onOpenChange={setBulkActionsOpen}>
         <DialogContent className="max-w-2xl bg-gray-900 border-gray-700 text-white">
@@ -835,177 +1346,8 @@ const Dashboard = () => {
           </div>
         </DialogContent>
       </Dialog>
-      <Dialog open={importCsvOpen} onOpenChange={setImportCsvOpen}>
-        <DialogContent className="max-w-lg bg-gray-900 border-gray-700 text-white">
-          <DialogHeader>
-            <DialogTitle className="text-2xl font-bold">Import Collection from CSV</DialogTitle>
-          </DialogHeader>
-          <div>CSV import UI coming soon.</div>
-        </DialogContent>
-      </Dialog>
-      <Dialog open={confirmRemoveOpen} onOpenChange={setConfirmRemoveOpen}>
-        <DialogContent className="max-w-md bg-gray-900 border-gray-700 text-white">
-          <DialogHeader>
-            <DialogTitle className="text-xl font-bold">Confirm Bulk Remove</DialogTitle>
-          </DialogHeader>
-          <div className="mb-4">Are you sure you want to remove {bulkSelected.length} item(s) from your collection? This cannot be undone.</div>
-          <DialogFooter>
-            <Button
-              variant="outline"
-              onClick={() => setConfirmRemoveOpen(false)}
-              className="border-gray-500 text-gray-200 hover:bg-gray-700 hover:text-white"
-              disabled={removing}
-            >
-              Cancel
-            </Button>
-            <Button
-              variant="destructive"
-              onClick={async () => {
-                setRemoving(true);
-                try {
-                  await Promise.all(
-                    bulkSelected.map(funkoPopId =>
-                      removeFromCollection.mutateAsync({ funkoPopId, userId: user.id })
-                    )
-                  );
-                  setBulkSelected([]);
-                  setConfirmRemoveOpen(false);
-                  setBulkActionsOpen(false);
-                  toast({
-                    title: "Removed",
-                    description: `${bulkSelected.length} item(s) removed from your collection`,
-                    variant: "default",
-                  });
-                } catch (err) {
-                  toast({
-                    title: "Error",
-                    description: "Failed to remove one or more items.",
-                    variant: "destructive",
-                  });
-                } finally {
-                  setRemoving(false);
-                }
-              }}
-              className="bg-red-600 hover:bg-red-700 text-white disabled:bg-red-400"
-              disabled={removing}
-            >
-              {removing ? 'Removing...' : 'Remove'}
-            </Button>
-          </DialogFooter>
-        </DialogContent>
-      </Dialog>
-      <Dialog open={bulkEditOpen} onOpenChange={setBulkEditOpen}>
-        <DialogContent className="max-w-md bg-gray-900 border-gray-700 text-white">
-          <DialogHeader>
-            <DialogTitle className="text-xl font-bold">Bulk Edit</DialogTitle>
-          </DialogHeader>
-          <form
-            onSubmit={async (e) => {
-              e.preventDefault();
-              setEditing(true);
-              try {
-                await Promise.all(
-                  bulkSelected.map(async (funkoPopId) => {
-                    const collectionItem = userCollection.find((item) => item.funko_pops?.id === funkoPopId);
-                    if (!collectionItem) return;
-                    const updates: any = {};
-                    if (editCondition) updates.condition = editCondition;
-                    if (editPrice) updates.purchase_price = parseFloat(editPrice);
-                    if (editNotes) updates.personal_notes = editNotes;
-                    if (Object.keys(updates).length === 0) return;
-                    await supabase
-                      .from('user_collections')
-                      .update(updates)
-                      .eq('id', collectionItem.id)
-                      .eq('user_id', user.id);
-                    await supabase.from('audit_log').insert({
-                      user_id: user.id,
-                      action: 'bulk_edit_collection',
-                      details: { funkoPopId, updates },
-                    });
-                  })
-                );
-                setBulkEditOpen(false);
-                setBulkSelected([]);
-                setEditCondition('');
-                setEditPrice('');
-                setEditNotes('');
-                toast({
-                  title: 'Updated',
-                  description: `${bulkSelected.length} item(s) updated`,
-                  variant: 'default',
-                });
-              } catch (err) {
-                toast({
-                  title: 'Error',
-                  description: 'Failed to update one or more items.',
-                  variant: 'destructive',
-                });
-              } finally {
-                setEditing(false);
-              }
-            }}
-            className="space-y-4"
-          >
-            <div>
-              <label className="block text-sm mb-1">Condition</label>
-              <select
-                value={editCondition}
-                onChange={(e) => setEditCondition(e.target.value)}
-                className="w-full bg-gray-800 border border-gray-600 rounded px-3 py-2 text-white"
-              >
-                <option value="">-- No Change --</option>
-                <option value="mint">Mint</option>
-                <option value="good">Good</option>
-                <option value="fair">Fair</option>
-                <option value="poor">Poor</option>
-              </select>
-            </div>
-            <div>
-              <label className="block text-sm mb-1">Purchase Price</label>
-              <input
-                type="number"
-                step="0.01"
-                min="0"
-                value={editPrice}
-                onChange={(e) => setEditPrice(e.target.value)}
-                className="w-full bg-gray-800 border border-gray-600 rounded px-3 py-2 text-white"
-                placeholder="-- No Change --"
-              />
-            </div>
-            <div>
-              <label className="block text-sm mb-1">Notes</label>
-              <input
-                type="text"
-                value={editNotes}
-                onChange={(e) => setEditNotes(e.target.value)}
-                className="w-full bg-gray-800 border border-gray-600 rounded px-3 py-2 text-white"
-                placeholder="-- No Change --"
-              />
-            </div>
-            <DialogFooter>
-              <Button
-                variant="outline"
-                onClick={() => setBulkEditOpen(false)}
-                className="border-gray-500 text-gray-200 hover:bg-gray-700 hover:text-white"
-                disabled={editing}
-                type="button"
-              >
-                Cancel
-              </Button>
-              <Button
-                type="submit"
-                className="bg-blue-600 hover:bg-blue-700 text-white disabled:bg-blue-400"
-                disabled={editing}
-              >
-                {editing ? 'Updating...' : 'Update'}
-              </Button>
-            </DialogFooter>
-          </form>
-        </DialogContent>
-      </Dialog>
 
-        <Footer />
+      <Footer />
     </>
   );
 };
