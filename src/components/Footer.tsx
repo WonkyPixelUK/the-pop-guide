@@ -78,77 +78,9 @@ const Footer = () => {
           </div>
         </div>
         <div className="border-t border-gray-700 mt-8 pt-8">
-          {/* Version Information */}
-          <div className="text-center mb-6">
-            <div className="inline-flex items-center gap-2 px-4 py-2 bg-gradient-to-r from-orange-500/20 to-orange-600/20 rounded-lg border border-orange-500/30">
-              <span className="text-orange-400 font-semibold">🚀 Version 2.0.0</span>
-              <span className="text-gray-400">•</span>
-              <span className="text-gray-300">Released June 2nd, 2025</span>
-            </div>
-          </div>
-          
-          {/* Latest Features */}
-          <div className="max-w-4xl mx-auto mb-8">
-            <h4 className="text-white font-semibold text-center mb-4">🎉 What's New in v2.0.0</h4>
-            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4 text-sm">
-              <div className="bg-gray-800/50 rounded-lg p-4 border border-gray-700">
-                <h5 className="text-orange-400 font-medium mb-2">🆕 New Releases System</h5>
-                <ul className="text-gray-300 space-y-1">
-                  <li>• Funko Europe integration</li>
-                  <li>• Real-time price tracking</li>
-                  <li>• Dedicated New Releases tab</li>
-                </ul>
-              </div>
-              
-              <div className="bg-gray-800/50 rounded-lg p-4 border border-gray-700">
-                <h5 className="text-orange-400 font-medium mb-2">👥 Social Features</h5>
-                <ul className="text-gray-300 space-y-1">
-                  <li>• Friend request system</li>
-                  <li>• Direct messaging (DM)</li>
-                  <li>• Enhanced public profiles</li>
-                </ul>
-              </div>
-              
-              <div className="bg-gray-800/50 rounded-lg p-4 border border-gray-700">
-                <h5 className="text-orange-400 font-medium mb-2">💰 Pricing & Currency</h5>
-                <ul className="text-gray-300 space-y-1">
-                  <li>• Fixed Pro pricing ($3.99/$3.49)</li>
-                  <li>• Multi-currency support (£/$/€)</li>
-                  <li>• Accurate price history</li>
-                </ul>
-              </div>
-              
-              <div className="bg-gray-800/50 rounded-lg p-4 border border-gray-700">
-                <h5 className="text-orange-400 font-medium mb-2">📊 Dashboard 2.0</h5>
-                <ul className="text-gray-300 space-y-1">
-                  <li>• Accordion-style item expansion</li>
-                  <li>• Enhanced filtering & sorting</li>
-                  <li>• Improved mobile experience</li>
-                </ul>
-              </div>
-              
-              <div className="bg-gray-800/50 rounded-lg p-4 border border-gray-700">
-                <h5 className="text-orange-400 font-medium mb-2">✨ Pro Features</h5>
-                <ul className="text-gray-300 space-y-1">
-                  <li>• 24 comprehensive features</li>
-                  <li>• Bulk actions & CSV export</li>
-                  <li>• Advanced analytics</li>
-                </ul>
-              </div>
-              
-              <div className="bg-gray-800/50 rounded-lg p-4 border border-gray-700">
-                <h5 className="text-orange-400 font-medium mb-2">🔧 Performance</h5>
-                <ul className="text-gray-300 space-y-1">
-                  <li>• Email notification system</li>
-                  <li>• Optimized data loading</li>
-                  <li>• Enhanced mobile navigation</li>
-                </ul>
-              </div>
-            </div>
-          </div>
-          
           <div className="text-center text-gray-400">
             <p>&copy; 2024-2025 PopGuide. All rights reserved.</p>
+            <p className="text-sm mt-2 text-gray-500">Version 2.0.0 • Released June 2nd, 2025</p>
             <div className="mt-4 flex justify-center">
               <img src="https://api.checklyhq.com/v1/badges/checks/e94c9b1a-d3da-4b89-b8d8-2606014dad8d?style=for-the-badge&theme=light" alt="Uptime monitored by Checkly" />
             </div>
