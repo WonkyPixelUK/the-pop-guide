@@ -30,7 +30,7 @@ const Profile = () => {
   const { username } = useParams<{ username: string }>();
   const { profile, loading: profileLoading } = usePublicProfileByUsername(username || '');
   const { data: funkoPops = [], isLoading: funkoLoading, error: funkoError } = useFunkoPops();
-  const { data: userCollection = [], isLoading: collectionLoading, error: collectionError } = useUserCollection(profile?.user_id || '');
+  const { data: userCollection = [], isLoading: collectionLoading, error: collectionError } = useUserCollection(profile?.user_id);
   const { activities, loading: activitiesLoading } = useProfileActivities(profile?.user_id || '');
   const [selectedItem, setSelectedItem] = useState(null);
   const { publicLists } = useCustomLists();
@@ -598,7 +598,7 @@ const Profile = () => {
                       {/* Pending Friend Request */}
                       {friendRequestStatus === 'pending' && (
                         <Button 
-                          className="bg-gray-500 text-white w-full cursor-default"
+                          className="bg-yellow-500 hover:bg-yellow-600 text-white w-full"
                           disabled
                         >
                           <UserPlus className="w-4 h-4 mr-2" />
@@ -609,11 +609,11 @@ const Profile = () => {
                       {/* Already Friends */}
                       {isFriend && (
                         <Button 
-                          className="bg-green-500 text-white w-full cursor-default"
+                          className="bg-green-500 hover:bg-green-600 text-white w-full"
                           disabled
                         >
                           <UserPlus className="w-4 h-4 mr-2" />
-                          Friends
+                          Friends ✓
                         </Button>
                       )}
                       
