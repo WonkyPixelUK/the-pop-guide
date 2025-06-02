@@ -581,14 +581,51 @@ const Profile = () => {
                   )}
 
                   {/* Contact Button for Non-Owners */}
-                  {!isOwner && (
-                    <Button 
-                      className="bg-orange-500 hover:bg-orange-600 text-white"
-                      onClick={() => {/* TODO: Implement messaging */}}
-                    >
-                      <MessageCircle className="w-4 h-4 mr-2" />
-                      Send Message
-                    </Button>
+                  {!isOwner && user && (
+                    <div className="flex flex-col gap-2 w-full max-w-xs">
+                      {/* Friend Request Button */}
+                      {!isFriend && friendRequestStatus !== 'pending' && (
+                        <Button 
+                          className="bg-blue-500 hover:bg-blue-600 text-white w-full"
+                          onClick={sendFriendRequest}
+                          disabled={friendRequestLoading}
+                        >
+                          <UserPlus className="w-4 h-4 mr-2" />
+                          {friendRequestLoading ? 'Sending...' : 'Send Friend Request'}
+                        </Button>
+                      )}
+                      
+                      {/* Pending Friend Request */}
+                      {friendRequestStatus === 'pending' && (
+                        <Button 
+                          className="bg-gray-500 text-white w-full cursor-default"
+                          disabled
+                        >
+                          <UserPlus className="w-4 h-4 mr-2" />
+                          Friend Request Pending
+                        </Button>
+                      )}
+                      
+                      {/* Already Friends */}
+                      {isFriend && (
+                        <Button 
+                          className="bg-green-500 text-white w-full cursor-default"
+                          disabled
+                        >
+                          <UserPlus className="w-4 h-4 mr-2" />
+                          Friends
+                        </Button>
+                      )}
+                      
+                      {/* Send Message Button */}
+                      <Button 
+                        className="bg-orange-500 hover:bg-orange-600 text-white w-full"
+                        onClick={openDm}
+                      >
+                        <MessageCircle className="w-4 h-4 mr-2" />
+                        Send Message
+                      </Button>
+                    </div>
                   )}
                 </div>
 
