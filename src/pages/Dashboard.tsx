@@ -659,7 +659,17 @@ const Dashboard = () => {
 
                                 {/* Price History */}
                                 <div className="border-t border-gray-600 pt-6">
-                                  <PriceHistory funkoPopId={pop.id} funkoPopName={pop.name} />
+                                  <PriceHistory 
+                                    funkoPopId={pop.id} 
+                                    funkoPop={{
+                                      id: pop.id,
+                                      name: pop.name,
+                                      series: pop.series,
+                                      number: pop.number,
+                                      image_url: pop.image_url,
+                                      estimated_value: pop.estimated_value
+                                    }}
+                                  />
                                 </div>
                               </div>
                             </div>
@@ -820,7 +830,17 @@ const Dashboard = () => {
 
                                 {/* Price History */}
                                 <div className="border-t border-gray-600 pt-6">
-                                  <PriceHistory funkoPopId={pop.id} funkoPopName={pop.name} />
+                                  <PriceHistory 
+                                    funkoPopId={pop.id} 
+                                    funkoPop={{
+                                      id: pop.id,
+                                      name: pop.name,
+                                      series: pop.series,
+                                      number: pop.number,
+                                      image_url: pop.image_url,
+                                      estimated_value: pop.estimated_value
+                                    }}
+                                  />
                                 </div>
                               </div>
                             </div>
@@ -1203,7 +1223,17 @@ const Dashboard = () => {
 
                                   {/* Price History */}
                                   <div className="border-t border-gray-600 pt-6">
-                                    <PriceHistory funkoPopId={pop.id} funkoPopName={pop.name} />
+                                    <PriceHistory 
+                                      funkoPopId={pop.id} 
+                                      funkoPop={{
+                                        id: pop.id,
+                                        name: pop.name,
+                                        series: pop.series,
+                                        number: pop.number,
+                                        image_url: pop.image_url,
+                                        estimated_value: pop.estimated_value
+                                      }}
+                                    />
                                   </div>
                                 </div>
                               </div>
