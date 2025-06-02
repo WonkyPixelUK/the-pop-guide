@@ -28,6 +28,8 @@ import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogFooter } from '
 import { Checkbox } from '@/components/ui/checkbox';
 import { useRemoveFromCollection } from '@/hooks/useFunkoPops';
 import { DropdownMenu, DropdownMenuTrigger, DropdownMenuContent, DropdownMenuCheckboxItem, DropdownMenuItem } from '@/components/ui/dropdown-menu';
+import { useCurrency } from '@/contexts/CurrencyContext';
+import { formatCurrency } from '@/utils/formatCurrency';
 
 const AnimatedFallback = ({ icon: Icon, message }: { icon: any, message: string }) => (
   <div className="flex flex-col items-center justify-center py-16">
@@ -72,6 +74,7 @@ const Dashboard = () => {
   const navigate = useNavigate();
   const { lists = [] } = useCustomLists();
   const removeFromCollection = useRemoveFromCollection();
+  const { currency } = useCurrency();
   const mainRef = useRef<HTMLDivElement>(null);
 
   // Redirect if not authenticated
@@ -367,7 +370,7 @@ const Dashboard = () => {
             <Card className="bg-gray-800/50 border-gray-700 cursor-pointer hover:bg-gray-800/70 transition-colors" onClick={() => setActiveSection("analytics")}> 
                 <CardContent className="p-6 text-center">
                   <BarChart3 className="w-8 h-8 text-orange-500 mx-auto mb-3" />
-                  <div className="text-2xl font-bold text-white">${totalValue.toFixed(2)}</div>
+                  <div className="text-2xl font-bold text-white">{formatCurrency(totalValue, currency)}</div>
                   <div className="text-gray-400">Collection Value</div>
                 </CardContent>
               </Card>
@@ -744,7 +747,7 @@ const Dashboard = () => {
                         <div className="text-sm text-gray-400">Total Items</div>
                       </div>
                       <div className="text-center p-4 bg-gray-700/50 rounded-lg">
-                        <div className="text-2xl font-bold text-green-500">${totalValue.toFixed(2)}</div>
+                        <div className="text-2xl font-bold text-green-500">{formatCurrency(totalValue, currency)}</div>
                         <div className="text-sm text-gray-400">Total Value</div>
                       </div>
                       <div className="text-center p-4 bg-gray-700/50 rounded-lg">
@@ -806,7 +809,7 @@ const Dashboard = () => {
                     <div className="text-xs text-gray-400 truncate">{item.funko_pops?.series} #{item.funko_pops?.number}</div>
                   </div>
                   <div className="text-xs text-gray-400">{item.condition || 'mint'}</div>
-                  <div className="text-xs text-orange-400 font-semibold">${item.funko_pops?.estimated_value || 0}</div>
+                  <div className="text-xs text-orange-400 font-semibold">{formatCurrency(item.funko_pops?.estimated_value || 0, currency)}</div>
                 </div>
               ))
             )}

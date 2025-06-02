@@ -11,6 +11,8 @@ import { useAddToCollection, useFunkoPops, useUserCollection } from "@/hooks/use
 import { useWishlist } from "@/hooks/useWishlist";
 import { useToast } from "@/hooks/use-toast";
 import { supabase } from "@/integrations/supabase/client";
+import { useCurrency } from '@/contexts/CurrencyContext';
+import { formatCurrency } from '@/utils/formatCurrency';
 
 interface EnhancedAddItemDialogProps {
   open: boolean;
@@ -27,6 +29,7 @@ const EnhancedAddItemDialog = ({ open, onOpenChange }: EnhancedAddItemDialogProp
   const { addToWishlist, wishlist } = useWishlist();
   const { data: funkoPops = [] } = useFunkoPops();
   const { data: userCollection = [] } = useUserCollection(user?.id);
+  const { currency } = useCurrency();
 
   // Manual entry state
   const [manualName, setManualName] = useState("");
@@ -230,7 +233,7 @@ const EnhancedAddItemDialog = ({ open, onOpenChange }: EnhancedAddItemDialogProp
                   </div>
                   <div className="text-right">
                     <div className="text-orange-500 font-semibold mb-2">
-                      ${item.value}
+                      {formatCurrency(item.value, currency)}
                     </div>
                     <div className="flex space-x-2">
                       <Button
