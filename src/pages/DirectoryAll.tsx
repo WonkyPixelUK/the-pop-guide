@@ -1,8 +1,9 @@
-import { useState, useEffect, useRef } from 'react';
+import { useState, useEffect, useRef, useMemo } from 'react';
 import { useFunkoPops } from '@/hooks/useFunkoPops';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent } from '@/components/ui/card';
-import { User, Filter, X, Search, Database, Heart, Share2, Plus, CheckCircle, Loader2, ChevronDown, ChevronUp, List } from 'lucide-react';
+import { Badge } from '@/components/ui/badge';
+import { User, Filter, X, Search, Database, Heart, Share2, Plus, CheckCircle, Loader2, ChevronDown, ChevronUp, List, Sparkles, Calendar, Package, Star } from 'lucide-react';
 import Navigation from '@/components/Navigation';
 import Footer from '@/components/Footer';
 import SEO from '@/components/SEO';
@@ -22,6 +23,23 @@ import { useNavigate } from 'react-router-dom';
 import PriceHistory from '@/components/PriceHistory';
 
 const PAGE_SIZE = 24;
+
+// Move static filter options outside component to prevent recreation
+const STATIC_FILTERS = {
+  category: [
+    'Pop!', 'Bitty Pop!', 'Mini Figures', 'Vinyl Soda', 'Loungefly', 'REWIND', 'Pop! Pins', 'Toys and Plushies', 'Clothing', 'Funko Gear', 'Funko Games'
+  ],
+  fandom: [
+    '8-Bit', 'Ad Icons', 'Air Force', 'Albums', 'Animation', 'Aquasox', 'Army', 'Around the World', 'Artists', 'Art Covers', 'Art Series', 'Asia', 'Bape', 'Basketball', 'Board Games', 'Books', 'Boxing', 'Broadway', 'Build a Bear', 'Candy', 'Christmas', 'Classics', 'College', 'Comedians', 'Comic Covers', 'Comics', 'Conan', 'Custom', 'Deluxe', 'Deluxe Moments', 'Die-Cast', 'Digital', 'Disney', 'Directors', 'Drag Queens', 'Fantastic Beasts', 'Fashion', 'Foodies', 'Football', 'Freddy Funko', 'Fantastik Plastik', 'Lance', 'Game of Thrones', 'Games', 'Game Covers', 'Golf', 'GPK', 'Halo', 'Harry Potter', 'Heroes', 'Hockey', 'Holidays', 'House of the Dragons', 'Icons', 'League of Legends', 'Magic: The Gathering', 'Marines', 'Marvel', 'Magazine Covers', 'Minis', 'MLB', 'Moments', 'Monsters', 'Movie Posters', 'Movies', 'Muppets', 'Myths', 'My Little Pony', 'NASCAR', 'Navy', 'NBA Mascots', 'NFL', 'Pets', 'Pusheen', 'Racing', 'Retro Toys', 'Rides', 'Rocks', 'Royals', 'Sanrio', 'Sci-Fi', 'Sesame Street', 'SNL', 'South Park', 'Special Edition', 'Sports', 'Sports Legends', 'Stan Lee', 'Star Wars', 'Television', 'Tennis', 'The Vote', 'Town', 'Town Christmas', 'Trading Cards', 'Trains', 'Trolls', 'UFC', 'Uglydoll', 'Valiant', 'Vans', 'VHS Covers', 'Wreck-It Ralph', 'Wrestling', 'WWE', 'WWE Covers', 'Zodiac'
+  ],
+  genre: [
+    'Animation', 'Anime & Manga', '80s Flashback', 'Movies & TV', 'Horror', 'Music', 'Sports', 'Video Games', 'Retro Toys', 'Ad Icons'
+  ],
+  edition: [
+    'New Releases', 'Exclusives', 'Convention Style', 'Character Cosplay', 'Rainbow Brights', 'Retro Rewind', 'Theme Park Favourites', 'Disney Princesses', 'All The Sparkles', 'Back in Stock', 'BLACK LIGHT', 'BRONZE', 'BTS X MINIONS', 'CHASE', 'CONVENTION', 'DIAMON COLLECTION', 'DIAMOND COLLECTION', 'EASTER', 'FACET COLLECTION', 'FLOCKED', 'GLITTER', 'GLOW IN THE DARK', 'HOLIDAY', 'HYPERSPACE HEROES', 'LIGHTS AND SOUND', 'MEME', 'METALLIC', 'PEARLESCENT', 'PRIDE', 'RETRO COMIC', 'RETRO SERIES', 'SCOOPS AHOY', 'SOFT COLOUR', "VALENTINE'S"
+  ],
+  vaulted: ['All', 'Vaulted', 'Available'],
+};
 
 const DirectoryAll = () => {
   const { data: allPops = [], isLoading } = useFunkoPops();
@@ -53,28 +71,63 @@ const DirectoryAll = () => {
     window.scrollTo(0, 0);
   }, []);
 
-  // Move these inside the component, after allPops is defined
-  const characterOptions = Array.from(new Set(allPops.map(pop => pop.name).filter(Boolean))).sort();
-  const seriesOptions = Array.from(new Set(allPops.map(pop => pop.series).filter(Boolean))).sort();
-  const FILTERS = {
-    category: [
-      'Pop!', 'Bitty Pop!', 'Mini Figures', 'Vinyl Soda', 'Loungefly', 'REWIND', 'Pop! Pins', 'Toys and Plushies', 'Clothing', 'Funko Gear', 'Funko Games'
-    ],
-    fandom: [
-      '8-Bit', 'Ad Icons', 'Air Force', 'Albums', 'Animation', 'Aquasox', 'Army', 'Around the World', 'Artists', 'Art Covers', 'Art Series', 'Asia', 'Bape', 'Basketball', 'Board Games', 'Books', 'Boxing', 'Broadway', 'Build a Bear', 'Candy', 'Christmas', 'Classics', 'College', 'Comedians', 'Comic Covers', 'Comics', 'Conan', 'Custom', 'Deluxe', 'Deluxe Moments', 'Die-Cast', 'Digital', 'Disney', 'Directors', 'Drag Queens', 'Fantastic Beasts', 'Fashion', 'Foodies', 'Football', 'Freddy Funko', 'Fantastik Plastik', 'Lance', 'Game of Thrones', 'Games', 'Game Covers', 'Golf', 'GPK', 'Halo', 'Harry Potter', 'Heroes', 'Hockey', 'Holidays', 'House of the Dragons', 'Icons', 'League of Legends', 'Magic: The Gathering', 'Marines', 'Marvel', 'Magazine Covers', 'Minis', 'MLB', 'Moments', 'Monsters', 'Movie Posters', 'Movies', 'Muppets', 'Myths', 'My Little Pony', 'NASCAR', 'Navy', 'NBA Mascots', 'NFL', 'Pets', 'Pusheen', 'Racing', 'Retro Toys', 'Rides', 'Rocks', 'Royals', 'Sanrio', 'Sci-Fi', 'Sesame Street', 'SNL', 'South Park', 'Special Edition', 'Sports', 'Sports Legends', 'Stan Lee', 'Star Wars', 'Television', 'Tennis', 'The Vote', 'Town', 'Town Christmas', 'Trading Cards', 'Trains', 'Trolls', 'UFC', 'Uglydoll', 'Valiant', 'Vans', 'VHS Covers', 'Wreck-It Ralph', 'Wrestling', 'WWE', 'WWE Covers', 'Zodiac'
-    ],
-    genre: [
-      'Animation', 'Anime & Manga', '80s Flashback', 'Movies & TV', 'Horror', 'Music', 'Sports', 'Video Games', 'Retro Toys', 'Ad Icons'
-    ],
-    edition: [
-      'Exclusives', 'Convention Style', 'Character Cosplay', 'Rainbow Brights', 'Retro Rewind', 'Theme Park Favourites', 'Disney Princesses', 'All The Sparkles', 'Back in Stock', 'BLACK LIGHT', 'BRONZE', 'BTS X MINIONS', 'CHASE', 'CONVENTION', 'DIAMON COLLECTION', 'DIAMOND COLLECTION', 'EASTER', 'FACET COLLECTION', 'FLOCKED', 'GLITTER', 'GLOW IN THE DARK', 'HOLIDAY', 'HYPERSPACE HEROES', 'LIGHTS AND SOUND', 'MEME', 'METALLIC', 'PEARLESCENT', 'PRIDE', 'RETRO COMIC', 'RETRO SERIES', 'SCOOPS AHOY', 'SOFT COLOUR', "VALENTINE'S"
-    ],
-    vaulted: ['All', 'Vaulted', 'Available'],
+  // Memoize expensive computations
+  const characterOptions = useMemo(() => 
+    Array.from(new Set(allPops.map(pop => pop.name).filter(Boolean))).sort(),
+    [allPops]
+  );
+  
+  const seriesOptions = useMemo(() => 
+    Array.from(new Set(allPops.map(pop => pop.series).filter(Boolean))).sort(),
+    [allPops]
+  );
+
+  const FILTERS = useMemo(() => ({
+    ...STATIC_FILTERS,
     character: characterOptions,
     series: seriesOptions,
-  };
+  }), [characterOptions, seriesOptions]);
 
-  // Infinite scroll
+  // Memoize filtered pops
+  const filteredPops = useMemo(() => {
+    return allPops.filter(pop => {
+      // Search functionality
+      const matchesSearch = !searchTerm || 
+        pop.name.toLowerCase().includes(searchTerm.toLowerCase()) ||
+        pop.series.toLowerCase().includes(searchTerm.toLowerCase()) ||
+        (pop.number && pop.number.toLowerCase().includes(searchTerm.toLowerCase())) ||
+        (pop.fandom && pop.fandom.toLowerCase().includes(searchTerm.toLowerCase()));
+      
+      // Existing filters
+      const matchesCategory = !filters.category.length || (Array.isArray(filters.category) ? filters.category : []).includes(pop.category);
+      const matchesFandom = !filters.fandom.length || (Array.isArray(filters.fandom) ? filters.fandom : []).includes(pop.fandom);
+      const matchesGenre = !filters.genre.length || (Array.isArray(filters.genre) ? filters.genre : []).includes(pop.genre);
+      
+      // Enhanced edition filter to handle "New Releases"
+      const matchesEdition = !filters.edition.length || (Array.isArray(filters.edition) ? filters.edition : []).some(edition => {
+        if (edition === 'New Releases') {
+          return pop.data_sources && pop.data_sources.includes('new-releases');
+        }
+        return pop.edition === edition;
+      });
+      
+      const matchesVaulted = filters.vaulted === 'All' || (filters.vaulted === 'Vaulted' ? pop.is_vaulted : !pop.is_vaulted);
+      const matchesYear = !filters.year || new Date(pop.created_at).getFullYear().toString() === filters.year;
+      
+      return matchesSearch && matchesCategory && matchesFandom && matchesGenre && matchesEdition && matchesVaulted && matchesYear;
+    });
+  }, [allPops, searchTerm, filters]);
+
+  // Memoize years
+  const years = useMemo(() => {
+    return Array.from(new Set(
+      allPops
+        .map(pop => pop.created_at ? new Date(pop.created_at).getFullYear() : null)
+        .filter(Boolean)
+    )).sort((a, b) => b - a);
+  }, [allPops]);
+
+  // Infinite scroll - optimize dependency array
   useEffect(() => {
     const handleScroll = () => {
       if (loader.current && window.innerHeight + window.scrollY >= document.body.offsetHeight - 200) {
@@ -83,30 +136,7 @@ const DirectoryAll = () => {
     };
     window.addEventListener('scroll', handleScroll);
     return () => window.removeEventListener('scroll', handleScroll);
-  }, [allPops, filters]);
-
-  // Filtering logic with search
-  const filteredPops = allPops.filter(pop => {
-    // Search functionality
-    const matchesSearch = !searchTerm || 
-      pop.name.toLowerCase().includes(searchTerm.toLowerCase()) ||
-      pop.series.toLowerCase().includes(searchTerm.toLowerCase()) ||
-      (pop.number && pop.number.toLowerCase().includes(searchTerm.toLowerCase())) ||
-      (pop.fandom && pop.fandom.toLowerCase().includes(searchTerm.toLowerCase()));
-    
-    // Existing filters
-    const matchesCategory = !filters.category.length || (Array.isArray(filters.category) ? filters.category : []).includes(pop.category);
-    const matchesFandom = !filters.fandom.length || (Array.isArray(filters.fandom) ? filters.fandom : []).includes(pop.fandom);
-    const matchesGenre = !filters.genre.length || (Array.isArray(filters.genre) ? filters.genre : []).includes(pop.genre);
-    const matchesEdition = !filters.edition.length || (Array.isArray(filters.edition) ? filters.edition : []).includes(pop.edition);
-    const matchesVaulted = filters.vaulted === 'All' || (filters.vaulted === 'Vaulted' ? pop.is_vaulted : !pop.is_vaulted);
-    const matchesYear = !filters.year || String(pop.release_year) === filters.year;
-    
-    return matchesSearch && matchesCategory && matchesFandom && matchesGenre && matchesEdition && matchesVaulted && matchesYear;
-  });
-
-  // Unique years for filter
-  const years = Array.from(new Set(allPops.map(pop => pop.release_year).filter(Boolean))).sort((a, b) => b - a);
+  }, [filteredPops.length]); // Only depend on length, not entire arrays
 
   const requireLogin = () => {
     if (!user) {
@@ -234,11 +264,66 @@ const DirectoryAll = () => {
     });
   };
 
+  // Helper function to determine product status badges
+  const getProductBadges = (pop) => {
+    const badges = [];
+    
+    // New Release badge (if in new-releases data source or recent)
+    if (pop.data_sources?.includes('new-releases')) {
+      badges.push({
+        text: 'New Release',
+        icon: Sparkles,
+        className: 'bg-orange-500 hover:bg-orange-600 text-white border-0'
+      });
+    }
+    
+    // Coming Soon badge (if has future release date)
+    const releaseDate = pop.release_date ? new Date(pop.release_date) : null;
+    const now = new Date();
+    if (releaseDate && releaseDate > now) {
+      badges.push({
+        text: 'Coming Soon',
+        icon: Calendar,
+        className: 'bg-blue-500 hover:bg-blue-600 text-white border-0'
+      });
+    }
+    
+    // Exclusive badge
+    if (pop.is_exclusive) {
+      badges.push({
+        text: 'Exclusive',
+        icon: Star,
+        className: 'bg-purple-600 hover:bg-purple-700 text-purple-100 border-0'
+      });
+    }
+    
+    // Vaulted badge
+    if (pop.is_vaulted) {
+      badges.push({
+        text: 'Vaulted',
+        icon: Package,
+        className: 'bg-red-600 hover:bg-red-700 text-red-100 border-0'
+      });
+    }
+    
+    // Source badges
+    if (pop.data_sources?.includes('Funko Europe')) {
+      badges.push({
+        text: 'Funko Europe',
+        icon: Package,
+        className: 'bg-blue-600 hover:bg-blue-700 text-blue-100 border-0'
+      });
+    }
+    
+    return badges;
+  };
+
   // Card rendering
   const renderCard = (pop, index) => {
     const isWishlisted = wishlist.some((w) => w.funko_pop_id === pop.id);
     const isOwned = pop.owned || ownedConfirmed;
     const isExpanded = expandedPop?.id === pop.id;
+    const badges = getProductBadges(pop);
 
     return (
       <div key={pop.id}>
@@ -253,6 +338,22 @@ const DirectoryAll = () => {
           <User className="w-16 h-16 text-orange-400 animate-pulse" />
         )}
       </div>
+      
+      {/* Product Badges */}
+      {badges.length > 0 && (
+        <div className="flex flex-wrap gap-1 mb-2 w-full justify-center">
+          {badges.slice(0, 2).map((badge, idx) => {
+            const IconComponent = badge.icon;
+            return (
+              <Badge key={idx} className={`text-xs ${badge.className}`}>
+                <IconComponent className="w-3 h-3 mr-1" />
+                {badge.text}
+              </Badge>
+            );
+          })}
+        </div>
+      )}
+      
       <div className="font-semibold text-white text-center text-base mb-1 truncate w-full">{pop.name}</div>
       <div className="text-xs text-gray-400 mb-1">Character: {pop.name}</div>
       <div className="text-xs text-gray-400 mb-1">Series: {pop.series}</div>
@@ -260,7 +361,7 @@ const DirectoryAll = () => {
       <div className="text-xs text-gray-400 mb-1">{pop.fandom}</div>
       <div className="text-xs text-gray-400 mb-1">{pop.genre}</div>
       <div className="text-xs text-gray-400 mb-1">{pop.edition}</div>
-      <div className="text-xs text-gray-400 mb-1">{pop.release_year || '—'}{pop.is_vaulted ? ' • Vaulted' : ''}</div>
+      <div className="text-xs text-gray-400 mb-1">{pop.created_at ? new Date(pop.created_at).getFullYear() : '—'}{pop.is_vaulted ? ' • Vaulted' : ''}</div>
           <div className="text-xs text-orange-400 font-bold mb-2">{typeof pop.estimated_value === 'number' ? `£${pop.estimated_value.toFixed(2)}` : 'Pending'}</div>
       {pop.description && <div className="text-xs text-gray-300 mb-2 line-clamp-3">{pop.description}</div>}
           
@@ -432,7 +533,7 @@ const DirectoryAll = () => {
                       <span className="mr-2">🗓️</span>
                       Release Year
                     </div>
-                    <div className="font-semibold text-white text-lg">{pop.release_date ? new Date(pop.release_date).getFullYear() : '—'}</div>
+                    <div className="font-semibold text-white text-lg">{pop.created_at ? new Date(pop.created_at).getFullYear() : '—'}</div>
                   </div>
                   
                   <div className="bg-gray-700 p-4 rounded-lg border border-gray-600">
@@ -531,7 +632,11 @@ const DirectoryAll = () => {
                   }}>
                     <input type="checkbox" checked={(Array.isArray(filters[key]) ? filters[key] : []).includes(opt)} readOnly className="mr-2 accent-[#232837] border-[#232837]" style={{ borderColor: '#232837' }} />
                     <span className="font-medium text-sm flex-1 truncate">{opt}</span>
-                    <span className="text-gray-400 font-bold text-sm ml-2">({allPops.filter(pop => pop[key] === opt).length})</span>
+                    <span className="text-gray-400 font-bold text-sm ml-2">
+                      ({key === 'edition' && opt === 'New Releases' 
+                        ? allPops.filter(pop => pop.data_sources && pop.data_sources.includes('new-releases')).length 
+                        : allPops.filter(pop => pop[key] === opt).length})
+                    </span>
                   </div>
                 ))}
               </DropdownMenuContent>
@@ -813,7 +918,7 @@ const DirectoryAll = () => {
                                     <span className="mr-2">🗓️</span>
                                     Release Year
                                   </div>
-                                  <div className="font-semibold text-white text-lg">{pop.release_date ? new Date(pop.release_date).getFullYear() : '—'}</div>
+                                  <div className="font-semibold text-white text-lg">{pop.created_at ? new Date(pop.created_at).getFullYear() : '—'}</div>
                                 </div>
                                 
                                 <div className="bg-gray-700 p-4 rounded-lg border border-gray-600">
@@ -881,6 +986,7 @@ const DirectoryAll = () => {
               <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-4 xl:grid-cols-6 gap-6">
                   {filteredPops.slice(0, visibleCount).map((pop, index) => {
                     const isExpanded = expandedPop?.id === pop.id;
+                    const badges = getProductBadges(pop);
                     
                     // Skip expanded items (they're rendered above)
                     if (isExpanded) return null;
@@ -898,6 +1004,22 @@ const DirectoryAll = () => {
                             <User className="w-16 h-16 text-orange-400 animate-pulse" />
                           )}
                         </div>
+                        
+                        {/* Product Badges */}
+                        {badges.length > 0 && (
+                          <div className="flex flex-wrap gap-1 mb-2 w-full justify-center">
+                            {badges.slice(0, 2).map((badge, idx) => {
+                              const IconComponent = badge.icon;
+                              return (
+                                <Badge key={idx} className={`text-xs ${badge.className}`}>
+                                  <IconComponent className="w-3 h-3 mr-1" />
+                                  {badge.text}
+                                </Badge>
+                              );
+                            })}
+                          </div>
+                        )}
+                        
                         <div className="font-semibold text-white text-center text-base mb-1 truncate w-full">{pop.name}</div>
                         <div className="text-xs text-gray-400 mb-1">Character: {pop.name}</div>
                         <div className="text-xs text-gray-400 mb-1">Series: {pop.series}</div>
@@ -905,7 +1027,7 @@ const DirectoryAll = () => {
                         <div className="text-xs text-gray-400 mb-1">{pop.fandom}</div>
                         <div className="text-xs text-gray-400 mb-1">{pop.genre}</div>
                         <div className="text-xs text-gray-400 mb-1">{pop.edition}</div>
-                        <div className="text-xs text-gray-400 mb-1">{pop.release_year || '—'}{pop.is_vaulted ? ' • Vaulted' : ''}</div>
+                        <div className="text-xs text-gray-400 mb-1">{pop.created_at ? new Date(pop.created_at).getFullYear() : '—'}{pop.is_vaulted ? ' • Vaulted' : ''}</div>
                         <div className="text-xs text-orange-400 font-bold mb-2">{typeof pop.estimated_value === 'number' ? `£${pop.estimated_value.toFixed(2)}` : 'Pending'}</div>
                         {pop.description && <div className="text-xs text-gray-300 mb-2 line-clamp-3">{pop.description}</div>}
                         

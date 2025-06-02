@@ -27,6 +27,7 @@ import Api from "./pages/Api";
 import Search from "@/pages/Search";
 import Directory from "./pages/Directory";
 import DirectoryAll from "./pages/DirectoryAll";
+import NewReleases from "./pages/NewReleases";
 import RecentlyAdded from "./pages/RecentlyAdded";
 import RetailerProfile from "./pages/retailers/[slug]";
 import GetStarted from "./pages/get-started";
@@ -91,6 +92,7 @@ const App = () => (
             <Route path="/search" element={<Search />} />
             <Route path="/directory" element={<Directory />} />
             <Route path="/directory-all" element={<DirectoryAll />} />
+            <Route path="/new-releases" element={<NewReleases />} />
             <Route path="/recently-added" element={<RecentlyAdded />} />
             <Route path="/retailers/become" element={<BecomeRetailer />} />
             <Route path="/retailers/dashboard" element={<RetailerDashboard />} />

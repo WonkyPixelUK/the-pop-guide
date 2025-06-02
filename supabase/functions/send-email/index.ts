@@ -269,7 +269,7 @@ serve(async (req: Request) => {
                 <div style="text-align: center; margin: 30px 0;">
                   <a href="https://popguide.co.uk/auth?plan=pro" style="background: #16a34a; color: white; padding: 12px 24px; text-decoration: none; border-radius: 8px; display: inline-block; font-weight: 600; margin-right: 10px;">Resubscribe</a>
                   <a href="https://popguide.co.uk/contact" style="background: #6b7280; color: white; padding: 12px 24px; text-decoration: none; border-radius: 8px; display: inline-block; font-weight: 600;">Contact Support</a>
-                </div>
+            </div>
               `
             )
           };
@@ -569,8 +569,8 @@ serve(async (req: Request) => {
                     <h4 style="color: #166534; margin: 0 0 10px 0;">👥 Community Spotlight:</h4>
                     <div style="color: #166534;">
                       ${data.communitySpotlight}
-                    </div>
-                  </div>
+              </div>
+            </div>
                 ` : ''}
                 ${createButton("Read Full Newsletter", "https://popguide.co.uk/newsletter")}
                 <p style="color: #6b7280; font-size: 14px; text-align: center;">
@@ -610,7 +610,7 @@ serve(async (req: Request) => {
                   <p style="margin: 0; color: #991b1b; font-size: 14px;">
                     <strong>⏰ Limited time:</strong> This offer expires soon. Don't miss out!
                   </p>
-                </div>
+              </div>
                 ${createButton("Claim Your Offer", data.promoUrl || "https://popguide.co.uk/promotions", "#dc2626")}
                 <p style="color: #6b7280; font-size: 14px; text-align: center;">
                   <a href="https://popguide.co.uk/promotions" style="color: ${primaryColor};">View all current offers</a>
@@ -757,7 +757,7 @@ serve(async (req: Request) => {
                 <div style="text-align: center; margin: 30px 0;">
                   <a href="https://popguide.co.uk/followers" style="background: #16a34a; color: white; padding: 12px 24px; text-decoration: none; border-radius: 8px; display: inline-block; font-weight: 600; margin-right: 10px;">View All Followers</a>
                   <a href="https://popguide.co.uk/follow/${data.followerId}" style="background: #6b7280; color: white; padding: 12px 24px; text-decoration: none; border-radius: 8px; display: inline-block; font-weight: 600;">Follow Back</a>
-                </div>
+              </div>
               `
             )
           };
@@ -783,13 +783,13 @@ serve(async (req: Request) => {
                     <ul style="color: #166534; margin: 0; padding-left: 20px;">
                       ${data.keyFeatures.split(',').map(feature => `<li>${feature.trim()}</li>`).join('')}
                     </ul>
-                  </div>
+              </div>
                 ` : ''}
                 ${data.benefits ? `
                   <div style="background: #fef3cd; border-left: 4px solid #f59e0b; padding: 20px; margin: 20px 0; border-radius: 6px;">
                     <h4 style="color: #92400e; margin: 0 0 10px 0;">🎯 How It Helps:</h4>
                     <p style="margin: 0; color: #92400e;">${data.benefits}</p>
-                  </div>
+            </div>
                 ` : ''}
                 <p style="color: #374151; line-height: 1.6; text-align: center;">
                   The feature is now live and ready for you to explore!
@@ -845,7 +845,7 @@ serve(async (req: Request) => {
                       <strong>⚠️ Failed Items:</strong> ${data.failed_items} items couldn't be processed
                     </p>
                   ` : ''}
-                </div>
+              </div>
                 ${createButton("View Pricing Dashboard", data.dashboard_url, "#16a34a")}
                 <p style="color: #6b7280; font-size: 14px; text-align: center;">
                   The updated prices are now available in your PopGuide dashboard.
@@ -882,8 +882,8 @@ serve(async (req: Request) => {
                       <p style="margin: 5px 0;"><strong>Items Processed:</strong> ${data.total_processed} / ${data.total_processed + data.failed_items}</p>
                       <p style="margin: 5px 0;"><strong>Successful:</strong> ${data.successful_items}</p>
                       <p style="margin: 5px 0;"><strong>Prices Collected:</strong> ${data.prices_collected}</p>
-                    </div>
-                  </div>
+              </div>
+            </div>
                 ` : ''}
                 <div style="background: #f0f9ff; border-left: 4px solid #0ea5e9; padding: 20px; margin: 20px 0; border-radius: 6px;">
                   <h4 style="color: #0c4a6e; margin: 0 0 10px 0;">🔧 Next Steps:</h4>
@@ -989,6 +989,220 @@ serve(async (req: Request) => {
                   </ul>
                 </div>
                 ${createButton("View Coming Soon Dashboard", "https://popguide.co.uk/coming-soon", "#dc2626")}
+                <p style="color: #6b7280; font-size: 14px; text-align: center;">
+                  Need help? Contact support at <a href="mailto:support@popguide.co.uk" style="color: ${primaryColor};">support@popguide.co.uk</a>
+                </p>
+              `
+            )
+          };
+
+        case 'funko_europe_scraper_start':
+          return {
+            subject: "🚀 Daily Funko Europe Scraper Started",
+            html: createEmailTemplate(
+              "🚀 Daily Funko Europe Scraper Started",
+              "Scraping in Progress 🚀",
+              `
+                <h2 style="color: ${darkColor}; margin-bottom: 20px;">Daily Funko Europe Scraper Started</h2>
+                <p style="color: #374151; line-height: 1.6; margin-bottom: 20px;">
+                  The daily Funko Europe scraper has been initiated and is now collecting the latest product data from funkoeurope.com.
+                </p>
+                <div style="background: linear-gradient(135deg, #dbeafe, #bfdbfe); border: 2px solid #3b82f6; padding: 25px; border-radius: 12px; margin: 25px 0;">
+                  <h3 style="color: #1e40af; margin: 0 0 15px 0; font-size: 18px;">🔄 Scraping Status</h3>
+                  <div style="color: #1e40af;">
+                    <p style="margin: 10px 0;"><strong>📅 Started:</strong> ${new Date(data.startTime).toLocaleString()}</p>
+                    <p style="margin: 10px 0;"><strong>🎯 Collections:</strong> What's New, Coming Soon</p>
+                    <p style="margin: 10px 0;"><strong>🌐 Source:</strong> funkoeurope.com</p>
+              </div>
+            </div>
+                <div style="background: #f0f9ff; border-left: 4px solid #0ea5e9; padding: 20px; margin: 20px 0; border-radius: 6px;">
+                  <h4 style="color: #0c4a6e; margin: 0 0 10px 0;">📊 What's Being Collected:</h4>
+                  <ul style="color: #0c4a6e; margin: 0; padding-left: 20px;">
+                    <li>Product titles, item numbers, and categories</li>
+                    <li>Pricing information and availability status</li>
+                    <li>Character and license information</li>
+                    <li>Product images and descriptions</li>
+                    <li>Exclusivity and deal information</li>
+                  </ul>
+                </div>
+                <p style="color: #374151; line-height: 1.6; text-align: center;">
+                  You'll receive a completion notification with a full summary once the scraping process is finished.
+                </p>
+                <p style="color: #6b7280; font-size: 14px; text-align: center;">
+                  Expected completion time: 15-30 minutes
+                </p>
+              `
+            )
+          };
+
+        case 'funko_europe_scraper_complete':
+          return {
+            subject: `✅ Funko Europe Scraper Complete - ${data.newProducts} New Products Found!`,
+            html: createEmailTemplate(
+              "✅ Funko Europe Scraper Complete",
+              "Scraping Complete! ✅",
+              `
+                <h2 style="color: ${darkColor}; margin-bottom: 20px;">Daily Funko Europe Scraper Completed</h2>
+                <p style="color: #374151; line-height: 1.6; margin-bottom: 20px;">
+                  Excellent! The daily Funko Europe scraper has successfully completed and discovered exciting new products.
+                </p>
+                <div style="background: linear-gradient(135deg, #dcfce7, #bbf7d0); border: 2px solid #16a34a; padding: 25px; border-radius: 12px; margin: 25px 0;">
+                  <h3 style="color: #166534; margin: 0 0 15px 0; font-size: 18px;">📊 Scraping Results</h3>
+                  <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 15px; color: #166534;">
+                    <div style="text-align: center; padding: 15px; background: rgba(22, 101, 52, 0.1); border-radius: 8px;">
+                      <div style="font-size: 28px; font-weight: bold; margin-bottom: 5px;">${data.newProducts || 0}</div>
+                      <div style="font-size: 14px;">New Products</div>
+                    </div>
+                    <div style="text-align: center; padding: 15px; background: rgba(22, 101, 52, 0.1); border-radius: 8px;">
+                      <div style="font-size: 28px; font-weight: bold; margin-bottom: 5px;">${data.updatedProducts || 0}</div>
+                      <div style="font-size: 14px;">Updated Products</div>
+                    </div>
+                  </div>
+                  <div style="margin-top: 15px; text-align: center;">
+                    <p style="margin: 5px 0; color: #166534;"><strong>⏱️ Duration:</strong> ${data.duration}</p>
+                    <p style="margin: 5px 0; color: #166534;"><strong>📅 Completed:</strong> ${new Date(data.endTime).toLocaleString()}</p>
+                  </div>
+                </div>
+                
+                <div style="background: #fef3cd; border-left: 4px solid #f59e0b; padding: 20px; margin: 20px 0; border-radius: 6px;">
+                  <h4 style="color: #92400e; margin: 0 0 10px 0;">🏪 Collection Breakdown:</h4>
+                  <div style="color: #92400e;">
+                    <p style="margin: 5px 0;"><strong>What's New:</strong> ${data.collections ? data.collections['whats-new'] || 0 : 0} products</p>
+                    <p style="margin: 5px 0;"><strong>Coming Soon:</strong> ${data.collections ? data.collections['coming-soon'] || 0 : 0} products</p>
+                    <p style="margin: 5px 0;"><strong>Total Processed:</strong> ${data.totalScraped || 0} products</p>
+                    <p style="margin: 5px 0;"><strong>Success Rate:</strong> ${data.totalScraped > 0 ? Math.round(((data.newProducts + data.updatedProducts) / data.totalScraped) * 100) : 100}%</p>
+                  </div>
+                </div>
+
+                ${data.errors > 0 ? `
+                  <div style="background: #fee2e2; border-left: 4px solid #dc2626; padding: 20px; margin: 20px 0; border-radius: 6px;">
+                    <h4 style="color: #991b1b; margin: 0 0 10px 0;">⚠️ Processing Notes:</h4>
+                    <p style="margin: 0; color: #991b1b;">${data.errors} product(s) encountered errors during processing but the scraper continued successfully.</p>
+              </div>
+                ` : ''}
+
+                ${createButton("View All Products", "https://popguide.co.uk/funko-europe", "#16a34a")}
+                <p style="color: #6b7280; font-size: 14px; text-align: center;">
+                  New products are now available in your PopGuide dashboard.
+                </p>
+              `
+            )
+          };
+
+        case 'funko_europe_scraper_user_summary':
+          return {
+            subject: "🆕 New Funko Europe Products Discovered!",
+            html: createEmailTemplate(
+              "🆕 New Funko Products Found",
+              "Fresh Finds! 🆕",
+              `
+                <h2 style="color: ${darkColor}; margin-bottom: 20px;">Hi Collector,</h2>
+                <p style="color: #374151; line-height: 1.6; margin-bottom: 20px;">
+                  Great news! We've just finished scanning Funko Europe and discovered <strong>${data.newProducts + data.updatedProducts}</strong> new and updated products that might interest you.
+                </p>
+                
+                <div style="background: linear-gradient(135deg, #fff7ed, #fed7aa); border: 2px solid #f97316; padding: 25px; border-radius: 12px; margin: 25px 0;">
+                  <h3 style="color: #ea580c; margin: 0 0 15px 0; font-size: 18px;">🎯 Daily Discovery Summary</h3>
+                  <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 15px; color: #ea580c;">
+                    <div style="text-align: center; padding: 15px; background: rgba(234, 88, 12, 0.1); border-radius: 8px;">
+                      <div style="font-size: 24px; font-weight: bold; margin-bottom: 5px;">${data.newProducts || 0}</div>
+                      <div style="font-size: 14px;">Brand New</div>
+                    </div>
+                    <div style="text-align: center; padding: 15px; background: rgba(234, 88, 12, 0.1); border-radius: 8px;">
+                      <div style="font-size: 24px; font-weight: bold; margin-bottom: 5px;">${data.updatedProducts || 0}</div>
+                      <div style="font-size: 14px;">Price Updates</div>
+                    </div>
+                  </div>
+                </div>
+
+                <div style="background: #dcfce7; border-left: 4px solid #16a34a; padding: 20px; margin: 20px 0; border-radius: 6px;">
+                  <h4 style="color: #166534; margin: 0 0 10px 0;">🔍 What's New Today:</h4>
+                  <ul style="color: #166534; margin: 0; padding-left: 20px;">
+                    <li>Latest arrivals in the "What's New" collection</li>
+                    <li>Upcoming releases in "Coming Soon"</li>
+                    <li>Price changes and availability updates</li>
+                    <li>Exclusive and limited edition items</li>
+                  </ul>
+                </div>
+
+                <div style="background: #fef3cd; border-left: 4px solid #f59e0b; padding: 20px; margin: 20px 0; border-radius: 6px;">
+                  <h4 style="color: #92400e; margin: 0 0 10px 0;">💡 Pro Tip:</h4>
+                  <p style="margin: 0; color: #92400e;">
+                    Check the "Coming Soon" filter to get early access to upcoming releases before they hit the general market!
+                  </p>
+                </div>
+
+                ${createButton("Browse New Products", "https://popguide.co.uk/funko-europe", "#f97316")}
+
+                <div style="text-align: center; margin: 30px 0;">
+                  <a href="https://popguide.co.uk/funko-europe?collection=whats-new" style="background: #16a34a; color: white; padding: 12px 24px; text-decoration: none; border-radius: 8px; display: inline-block; font-weight: 600; margin-right: 10px;">What's New</a>
+                  <a href="https://popguide.co.uk/funko-europe?collection=coming-soon" style="background: #dc2626; color: white; padding: 12px 24px; text-decoration: none; border-radius: 8px; display: inline-block; font-weight: 600;">Coming Soon</a>
+                </div>
+
+                <p style="color: #6b7280; font-size: 14px; text-align: center;">
+                  This scan was completed at ${new Date(data.endTime).toLocaleString()} in ${data.duration}.<br>
+                  <a href="https://popguide.co.uk/settings" style="color: ${primaryColor};">Manage email preferences</a>
+                </p>
+              `
+            )
+          };
+
+        case 'funko_europe_scraper_error':
+          return {
+            subject: "❌ Funko Europe Scraper Failed",
+            html: createEmailTemplate(
+              "❌ Funko Europe Scraper Failed",
+              "Scraper Error ❌",
+              `
+                <h2 style="color: ${darkColor}; margin-bottom: 20px;">Funko Europe Scraper Failed</h2>
+                <p style="color: #374151; line-height: 1.6; margin-bottom: 20px;">
+                  Unfortunately, the daily Funko Europe scraper encountered an error and could not complete successfully.
+                </p>
+                
+                <div style="background: linear-gradient(135deg, #fee2e2, #fecaca); border: 2px solid #dc2626; padding: 25px; border-radius: 12px; margin: 25px 0;">
+                  <h3 style="color: #991b1b; margin: 0 0 15px 0; font-size: 18px;">🚨 Error Details</h3>
+                  <div style="background: rgba(153, 27, 27, 0.1); padding: 15px; border-radius: 6px; margin: 15px 0;">
+                    <code style="color: #991b1b; font-family: monospace; font-size: 14px; white-space: pre-wrap;">${data.error || 'Unknown error occurred'}</code>
+                  </div>
+                  <div style="color: #991b1b;">
+                    <p style="margin: 10px 0;"><strong>📅 Failed at:</strong> ${new Date().toLocaleString()}</p>
+                    <p style="margin: 10px 0;"><strong>🌐 Source:</strong> funkoeurope.com</p>
+                  </div>
+                </div>
+
+                ${data.results && data.results.totalScraped > 0 ? `
+                  <div style="background: #fef3cd; border-left: 4px solid #f59e0b; padding: 20px; margin: 20px 0; border-radius: 6px;">
+                    <h4 style="color: #92400e; margin: 0 0 10px 0;">📊 Partial Progress Made:</h4>
+                    <div style="color: #92400e;">
+                      <p style="margin: 5px 0;"><strong>Products Processed:</strong> ${data.results.totalScraped}</p>
+                      <p style="margin: 5px 0;"><strong>New Products:</strong> ${data.results.newProducts}</p>
+                      <p style="margin: 5px 0;"><strong>Updated Products:</strong> ${data.results.updatedProducts}</p>
+                      <p style="margin: 5px 0;"><strong>Errors:</strong> ${data.results.errors}</p>
+              </div>
+            </div>
+                ` : ''}
+
+                <div style="background: #fef3cd; border-left: 4px solid #f59e0b; padding: 20px; margin: 20px 0; border-radius: 6px;">
+                  <h4 style="color: #92400e; margin: 0 0 10px 0;">🔍 Possible Causes:</h4>
+                  <ul style="color: #92400e; margin: 0; padding-left: 20px;">
+                    <li>Funko Europe website structure changes</li>
+                    <li>Network connectivity issues</li>
+                    <li>Rate limiting or anti-bot protection</li>
+                    <li>Firecrawl API service issues</li>
+                  </ul>
+                </div>
+
+                <div style="background: #f0f9ff; border-left: 4px solid #0ea5e9; padding: 20px; margin: 20px 0; border-radius: 6px;">
+                  <h4 style="color: #0c4a6e; margin: 0 0 10px 0;">🔧 Next Steps:</h4>
+                  <ul style="color: #0c4a6e; margin: 0; padding-left: 20px;">
+                    <li>The scraper will automatically retry tomorrow</li>
+                    <li>Monitor for website structure changes</li>
+                    <li>Check Firecrawl API status and quotas</li>
+                    <li>Review and update scraping patterns if needed</li>
+                  </ul>
+                </div>
+
+                ${createButton("View Current Products", "https://popguide.co.uk/funko-europe", "#dc2626")}
                 <p style="color: #6b7280; font-size: 14px; text-align: center;">
                   Need help? Contact support at <a href="mailto:support@popguide.co.uk" style="color: ${primaryColor};">support@popguide.co.uk</a>
                 </p>

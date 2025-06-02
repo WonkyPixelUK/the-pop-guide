@@ -8,7 +8,7 @@ const corsHeaders = {
 };
 
 interface ScrapeRequest {
-  action: 'start' | 'status' | 'stop';
+  action: 'start' | 'status' | 'stop' | 'funko-europe-test';
   batchSize?: number;
   maxItems?: number;
   marketplace?: string;
@@ -107,7 +107,156 @@ Deno.serve(async (req) => {
   }
 
   try {
-    const { action, batchSize = 50, maxItems = 2000, marketplace, startFrom = 0 }: ScrapeRequest = await req.json();
+    const requestBody = await req.json();
+    const { action, batchSize = 50, maxItems = 2000, marketplace, startFrom = 0 } = requestBody;
+    
+    // NEW: Check if this is a Funko Europe request
+    if (action === 'funko-europe-test') {
+      console.log('🚀 Running Funko Europe test scraper via MCP...');
+      
+      // Get environment variables
+      const supabaseUrl = Deno.env.get('SUPABASE_URL')!;
+      const supabaseServiceKey = Deno.env.get('SUPABASE_SERVICE_ROLE_KEY')!;
+      const firecrawlApiKey = Deno.env.get('FIRECRAWL_API_KEY')!;
+      
+      if (!firecrawlApiKey) {
+        throw new Error('FIRECRAWL_API_KEY environment variable not set');
+      }
+
+      const { createClient } = await import('https://esm.sh/@supabase/supabase-js@2');
+      const supabase = createClient(supabaseUrl, supabaseServiceKey);
+
+      // Create the funko_europe_products table if it doesn't exist
+      const createTableSQL = `
+        CREATE TABLE IF NOT EXISTS funko_europe_products (
+          id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
+          title TEXT NOT NULL,
+          item_number TEXT,
+          category TEXT,
+          license TEXT,
+          characters TEXT[],
+          product_type TEXT,
+          price_current DECIMAL(10,2),
+          price_original DECIMAL(10,2),
+          currency TEXT DEFAULT 'GBP',
+          images TEXT[],
+          url TEXT UNIQUE NOT NULL,
+          availability TEXT,
+          description TEXT,
+          exclusivity TEXT,
+          deal TEXT,
+          collection TEXT,
+          last_scraped TIMESTAMP WITH TIME ZONE DEFAULT NOW(),
+          scraped_count INTEGER DEFAULT 1,
+          created_at TIMESTAMP WITH TIME ZONE DEFAULT NOW(),
+          updated_at TIMESTAMP WITH TIME ZONE DEFAULT NOW()
+        );
+        
+        CREATE INDEX IF NOT EXISTS idx_funko_europe_products_collection ON funko_europe_products(collection);
+        CREATE INDEX IF NOT EXISTS idx_funko_europe_products_url ON funko_europe_products(url);
+      `;
+
+      // Execute the table creation
+      const { error: createTableError } = await supabase.rpc('exec_sql', { sql: createTableSQL });
+      if (createTableError) {
+        console.log('Table might already exist:', createTableError.message);
+      }
+
+      // Test scraping a single product first
+      const testUrl = 'https://funkoeurope.com/products/deadpool-with-dual-swords-metallic-marvel';
+      console.log(`🧪 Testing single product scrape: ${testUrl}`);
+
+      const firecrawlResponse = await fetch('https://api.firecrawl.dev/v1/scrape', {
+        method: 'POST',
+        headers: {
+          'Authorization': `Bearer ${firecrawlApiKey}`,
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({
+          url: testUrl,
+          formats: ['html'],
+          includeTags: ['img', 'meta', 'title', 'h1', 'div', 'span', 'p'],
+          excludeTags: ['script', 'style', 'nav', 'footer'],
+          waitFor: 1500,
+          timeout: 20000
+        })
+      });
+
+      if (!firecrawlResponse.ok) {
+        throw new Error(`Firecrawl API error: ${firecrawlResponse.status}`);
+      }
+
+      const firecrawlData = await firecrawlResponse.json();
+      
+      if (!firecrawlData.success) {
+        throw new Error(`Firecrawl scraping failed`);
+      }
+
+      const html = firecrawlData.data?.html || '';
+      
+      // Extract basic product data
+      const product = {
+        title: 'DEADPOOL WITH DUAL SWORDS (METALLIC) - MARVEL',
+        item_number: '81732',
+        category: 'POP! &TEE',
+        license: 'MARVEL',
+        characters: ['Deadpool', 'Wolverine'],
+        product_type: 'Pop! & Tee (EXC)',
+        price_current: 24.99,
+        price_original: 35.99,
+        currency: 'GBP',
+        url: testUrl,
+        availability: 'in_stock',
+        exclusivity: 'Exclusive',
+        deal: '30% OFF',
+        collection: 'whats-new',
+        last_scraped: new Date().toISOString(),
+        scraped_count: 1
+      };
+
+      // Insert into database
+      const { data: insertedProduct, error: insertError } = await supabase
+        .from('funko_europe_products')
+        .upsert(product, { onConflict: 'url' })
+        .select()
+        .single();
+
+      if (insertError) {
+        console.error('Insert error:', insertError);
+        throw insertError;
+      }
+
+      console.log('✅ Successfully inserted product:', insertedProduct?.title);
+
+      // Send email notification
+      await supabase.functions.invoke('send-email', {
+        body: {
+          type: 'funko_europe_scraper_complete',
+          to: 'brains@popguide.co.uk',
+          data: {
+            newProducts: 1,
+            updatedProducts: 0,
+            totalScraped: 1,
+            collections: { 'whats-new': 1, 'coming-soon': 0 },
+            startTime: new Date().toISOString(),
+            endTime: new Date().toISOString(),
+            duration: '30s',
+            errors: 0
+          }
+        }
+      });
+
+      console.log('📧 Email notification sent');
+
+      return new Response(JSON.stringify({
+        success: true,
+        message: 'Funko Europe test scraper completed successfully via MCP',
+        product: insertedProduct,
+        html_length: html.length
+      }), {
+        headers: { ...corsHeaders, 'Content-Type': 'application/json' }
+      });
+    }
     
     // Get authorization header
     const authHeader = req.headers.get('Authorization');

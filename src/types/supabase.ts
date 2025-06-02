@@ -13,3 +13,4 @@ export type FeatureRequestVote = {
   vote: number; // 1 or -1
   created_at: string;
 };
+
