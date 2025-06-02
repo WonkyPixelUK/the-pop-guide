@@ -1,0 +1,94 @@
+/* PopGuide Screenshot Selection Overlay */
+.popguide-screenshot-overlay {
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100vw;
+  height: 100vh;
+  background: rgba(0, 0, 0, 0.3);
+  z-index: 999999;
+  cursor: crosshair;
+  user-select: none;
+}
+
+.popguide-selection-box {
+  position: absolute;
+  border: 2px solid #e46c1b;
+  background: rgba(228, 108, 27, 0.1);
+  pointer-events: none;
+}
+
+.popguide-selection-info {
+  position: absolute;
+  background: #151c2b;
+  color: #ffffff;
+  padding: 4px 8px;
+  border-radius: 4px;
+  font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+  font-size: 12px;
+  border: 1px solid #e46c1b;
+  pointer-events: none;
+  white-space: nowrap;
+}
+
+.popguide-capture-button {
+  position: fixed;
+  bottom: 20px;
+  right: 20px;
+  background: #e46c1b;
+  color: white;
+  border: none;
+  padding: 12px 24px;
+  border-radius: 6px;
+  font-size: 14px;
+  font-weight: 600;
+  cursor: pointer;
+  z-index: 1000000;
+  font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.3);
+  transition: all 0.2s;
+}
+
+.popguide-capture-button:hover {
+  background: #c55a15;
+  transform: translateY(-1px);
+}
+
+.popguide-cancel-button {
+  position: fixed;
+  bottom: 20px;
+  right: 140px;
+  background: #404040;
+  color: white;
+  border: none;
+  padding: 12px 24px;
+  border-radius: 6px;
+  font-size: 14px;
+  font-weight: 600;
+  cursor: pointer;
+  z-index: 1000000;
+  font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.3);
+  transition: all 0.2s;
+}
+
+.popguide-cancel-button:hover {
+  background: #555555;
+  transform: translateY(-1px);
+}
+
+.popguide-instructions {
+  position: fixed;
+  top: 20px;
+  left: 50%;
+  transform: translateX(-50%);
+  background: #151c2b;
+  color: #ffffff;
+  padding: 12px 20px;
+  border-radius: 8px;
+  font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+  font-size: 14px;
+  border: 1px solid #e46c1b;
+  z-index: 1000000;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.3);
+} 

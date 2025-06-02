@@ -3,40 +3,443 @@
 <head>
   <meta charset="UTF-8">
   <title>PopGuide Collector</title>
-  <script src="https://cdn.jsdelivr.net/npm/tesseract.js@5.0.1/dist/tesseract.min.js"></script>
-  <script src="popup.js" defer></script>
+  <style>
+    * {
+      margin: 0;
+      padding: 0;
+      box-sizing: border-box;
+    }
+    
+    body {
+      width: 380px;
+      min-height: 550px;
+      background: #151c2b;
+      color: #ffffff;
+      font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+      padding: 20px;
+    }
+    
+    .header {
+      text-align: center;
+      margin-bottom: 20px;
+      border-bottom: 2px solid #e46c1b;
+      padding-bottom: 15px;
+    }
+    
+    .logo-container {
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      margin-bottom: 8px;
+    }
+    
+    .logo {
+      height: 48px;
+      width: auto;
+    }
+    
+    .subtitle {
+      font-size: 12px;
+      color: #CCCCCC;
+      margin-top: 4px;
+    }
+    
+    .login-section {
+      background: #1f2937;
+      border: 1px solid #404040;
+      border-radius: 8px;
+      padding: 16px;
+      margin-bottom: 20px;
+    }
+    
+    .login-form input {
+      width: 100%;
+      padding: 10px;
+      margin: 8px 0;
+      background: #151c2b;
+      border: 1px solid #404040;
+      border-radius: 4px;
+      color: #ffffff;
+      font-size: 14px;
+    }
+    
+    .login-form input::placeholder {
+      color: #888888;
+    }
+    
+    .btn-primary {
+      width: 100%;
+      padding: 12px;
+      background: #e46c1b;
+      color: #FFFFFF;
+      border: none;
+      border-radius: 6px;
+      font-size: 14px;
+      font-weight: 600;
+      cursor: pointer;
+      transition: background 0.2s;
+    }
+    
+    .btn-primary:hover {
+      background: #c55a15;
+    }
+    
+    .btn-secondary {
+      width: 100%;
+      padding: 12px;
+      background: transparent;
+      color: #e46c1b;
+      border: 2px solid #e46c1b;
+      border-radius: 6px;
+      font-size: 14px;
+      font-weight: 600;
+      cursor: pointer;
+      margin-bottom: 12px;
+      transition: all 0.2s;
+    }
+    
+    .btn-secondary:hover {
+      background: #e46c1b;
+      color: #FFFFFF;
+    }
+    
+    .capture-section {
+      display: none;
+    }
+    
+    .capture-section.active {
+      display: block;
+    }
+    
+    #screenshot-preview img {
+      width: 100%;
+      border-radius: 6px;
+      margin: 12px 0;
+    }
+    
+    .form-group {
+      margin-bottom: 16px;
+    }
+    
+    .form-group label {
+      display: block;
+      font-size: 12px;
+      color: #CCCCCC;
+      margin-bottom: 4px;
+      font-weight: 500;
+    }
+    
+    .form-group input,
+    .form-group textarea {
+      width: 100%;
+      padding: 10px;
+      background: #1f2937;
+      border: 1px solid #404040;
+      border-radius: 4px;
+      color: #ffffff;
+      font-size: 14px;
+    }
+    
+    .form-group textarea {
+      height: 80px;
+      resize: vertical;
+    }
+    
+    .list-selection {
+      margin-bottom: 16px;
+    }
+    
+    .list-section {
+      margin-bottom: 16px;
+    }
+    
+    .list-section h4 {
+      font-size: 14px;
+      color: #e46c1b;
+      margin-bottom: 8px;
+      font-weight: 600;
+    }
+    
+    .predefined-lists {
+      display: grid;
+      grid-template-columns: repeat(2, 1fr);
+      gap: 8px;
+      margin-bottom: 16px;
+    }
+    
+    .list-option {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      padding: 8px;
+      background: #1f2937;
+      border: 1px solid #404040;
+      border-radius: 6px;
+      cursor: pointer;
+      transition: all 0.2s;
+      font-size: 12px;
+      color: #ffffff;
+    }
+    
+    .list-option:hover {
+      border-color: #e46c1b;
+      background: #374151;
+    }
+    
+    .list-option.selected {
+      border-color: #e46c1b;
+      background: rgba(228, 108, 27, 0.1);
+    }
+    
+    .list-icon {
+      font-size: 16px;
+    }
+    
+    .custom-lists {
+      max-height: 120px;
+      overflow-y: auto;
+      margin-bottom: 12px;
+    }
+    
+    .custom-list-item {
+      padding: 8px;
+      background: #1f2937;
+      border: 1px solid #404040;
+      border-radius: 4px;
+      margin-bottom: 4px;
+      cursor: pointer;
+      transition: all 0.2s;
+      font-size: 12px;
+      color: #ffffff;
+    }
+    
+    .custom-list-item:hover {
+      border-color: #e46c1b;
+      background: #374151;
+    }
+    
+    .custom-list-item.selected {
+      border-color: #e46c1b;
+      background: rgba(228, 108, 27, 0.1);
+    }
+    
+    .create-list-form {
+      display: none;
+      padding: 12px;
+      background: #1f2937;
+      border: 1px solid #404040;
+      border-radius: 6px;
+      margin-top: 8px;
+    }
+    
+    .create-list-form.active {
+      display: block;
+    }
+    
+    .btn-small {
+      padding: 6px 12px;
+      font-size: 12px;
+      border-radius: 4px;
+      margin-right: 8px;
+    }
+    
+    .status {
+      padding: 10px;
+      margin: 12px 0;
+      border-radius: 4px;
+      font-size: 12px;
+      text-align: center;
+    }
+    
+    .status.success {
+      background: rgba(76, 175, 80, 0.2);
+      color: #4CAF50;
+      border: 1px solid #4CAF50;
+    }
+    
+    .status.error {
+      background: rgba(244, 67, 54, 0.2);
+      color: #F44336;
+      border: 1px solid #F44336;
+    }
+    
+    .status.info {
+      background: rgba(228, 108, 27, 0.2);
+      color: #e46c1b;
+      border: 1px solid #e46c1b;
+    }
+    
+    .user-info {
+      font-size: 12px;
+      color: #ffffff;
+      margin-bottom: 16px;
+      padding: 8px;
+      background: #1f2937;
+      border: 1px solid #404040;
+      border-radius: 4px;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+    }
+    
+    .logout-btn {
+      background: none;
+      border: none;
+      color: #e46c1b;
+      font-size: 12px;
+      cursor: pointer;
+      text-decoration: underline;
+    }
+    
+    .ocr-progress {
+      width: 100%;
+      height: 4px;
+      background: #404040;
+      border-radius: 2px;
+      overflow: hidden;
+      margin: 8px 0;
+    }
+    
+    .ocr-progress-bar {
+      height: 100%;
+      background: #e46c1b;
+      transition: width 0.3s ease;
+    }
+
+    .form-divider {
+      height: 1px;
+      background: #404040;
+      margin: 16px 0;
+    }
+    
+    .main-actions {
+      margin: 15px 0;
+      display: flex;
+      gap: 10px;
+    }
+    
+    .main-actions button {
+      flex: 1;
+    }
+  </style>
 </head>
 <body>
-  <h1>PopGuide Collector</h1>
-  <button id="capture-btn">Capture Screenshot</button>
-  <div id="screenshot-preview"></div>
-  <form id="details-form" style="display:none;">
-    <label>
-      List:
-      <select id="list-select"></select>
-    </label>
-    <label>
-      Name:
-      <input type="text" id="name-input" />
-    </label>
-    <label>
-      Genre:
-      <input type="text" id="genre-input" />
-    </label>
-    <label>
-      Price:
-      <input type="text" id="price-input" />
-    </label>
-    <label>
-      Description:
-      <textarea id="desc-input"></textarea>
-    </label>
-    <label>
-      EAN:
-      <input type="text" id="ean-input" />
-    </label>
-    <button type="submit">Add to Collection</button>
-  </form>
+  <div class="header">
+    <div class="logo-container">
+      <img src="https://Maintainhq-pull-zone.b-cdn.net/02_the_pop_guide/pop-guide-logo-trans-white.svg" alt="PopGuide Logo" class="logo">
+    </div>
+    <div class="subtitle">Your Ultimate Funko Pop Collection Manager</div>
+  </div>
+
+  <!-- Login Section -->
+  <div id="login-section" class="login-section">
+    <form id="login-form" class="login-form">
+      <input type="email" id="email-input" placeholder="Email" required>
+      <input type="password" id="password-input" placeholder="Password" required>
+      <button type="submit" class="btn-primary">Sign In</button>
+    </form>
+    <div style="text-align: center; margin-top: 12px; font-size: 12px; color: #CCCCCC;">
+      Don't have an account? 
+      <a href="#" id="register-link" style="color: #e46c1b;">Sign up</a>
+    </div>
+  </div>
+
+  <!-- Main App Section -->
+  <div id="app-section" class="capture-section">
+    <div class="user-info">
+      <span>Welcome, <span id="user-name">User</span></span>
+      <button id="logout-btn" class="logout-btn">Logout</button>
+    </div>
+    
+    <div class="main-actions">
+      <button id="manual-entry-btn" class="btn-primary">🔍 Search Database</button>
+      <button id="capture-btn" class="btn-secondary">📸 OCR Capture (Beta)</button>
+    </div>
+    
+    <div id="screenshot-preview"></div>
+    
+    <form id="details-form" style="display:none;">
+      <!-- List Selection Section -->
+      <div class="list-selection">
+        <div class="list-section">
+          <h4>📁 Quick Lists</h4>
+          <div class="predefined-lists">
+            <div class="list-option" data-list-type="predefined" data-list-id="owned">
+              <span class="list-icon">✅</span>
+              <span>Owned</span>
+            </div>
+            <div class="list-option" data-list-type="predefined" data-list-id="wishlist">
+              <span class="list-icon">❤️</span>
+              <span>Wishlist</span>
+            </div>
+            <div class="list-option" data-list-type="predefined" data-list-id="for-sale">
+              <span class="list-icon">💰</span>
+              <span>For Sale</span>
+            </div>
+            <div class="list-option" data-list-type="predefined" data-list-id="trading">
+              <span class="list-icon">🔄</span>
+              <span>Trading</span>
+            </div>
+          </div>
+        </div>
+
+        <div class="form-divider"></div>
+
+        <div class="list-section">
+          <h4>📋 Custom Lists</h4>
+          <div id="custom-lists" class="custom-lists">
+            <!-- Custom lists will be populated here -->
+          </div>
+          <button type="button" id="show-create-list" class="btn-small btn-secondary" style="width: auto;">
+            ➕ Create New List
+          </button>
+          
+          <div id="create-list-form" class="create-list-form">
+            <div class="form-group">
+              <label for="new-list-name">List Name</label>
+              <input type="text" id="new-list-name" placeholder="e.g. Chase Collection" maxlength="50">
+            </div>
+            <button type="button" id="create-list-btn" class="btn-primary">Create List</button>
+            <button type="button" id="cancel-create-list" class="btn-small" style="background: #404040; color: white;">Cancel</button>
+          </div>
+        </div>
+      </div>
+
+      <div class="form-divider"></div>
+      
+      <!-- Pop Details Section -->
+      <div class="form-group">
+        <label for="name-input">Pop Name</label>
+        <input type="text" id="name-input" placeholder="Auto-detected from image..." />
+      </div>
+      
+      <div class="form-group">
+        <label for="genre-input">Series/Genre</label>
+        <input type="text" id="genre-input" placeholder="Auto-detected from image..." />
+      </div>
+      
+      <div class="form-group">
+        <label for="price-input">Price</label>
+        <input type="text" id="price-input" placeholder="Auto-detected from image..." />
+      </div>
+      
+      <div class="form-group">
+        <label for="ean-input">EAN/Barcode</label>
+        <input type="text" id="ean-input" placeholder="Auto-detected from image..." />
+      </div>
+      
+      <div class="form-group">
+        <label for="desc-input">Notes</label>
+        <textarea id="desc-input" placeholder="Additional notes or description..."></textarea>
+      </div>
+      
+      <button type="submit" class="btn-primary">Add to Collection</button>
+    </form>
+  </div>
+
   <div id="status"></div>
+
+  <script src="tesseract.min.js"></script>
+  <script src="popup.js" defer></script>
 </body>
 </html> 
