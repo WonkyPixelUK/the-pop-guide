@@ -38,7 +38,7 @@ const PaymentMethodSelector: React.FC<PaymentMethodSelectorProps> = ({
       icon: <CreditCard className="w-6 h-6" />,
       fee: '2.9% + 30¢',
       processingTime: 'Instant',
-      price: 9.99,
+      price: 3.99,
       description: 'Pay with your credit or debit card through Stripe',
       benefits: [
         'Instant activation',
@@ -56,8 +56,8 @@ const PaymentMethodSelector: React.FC<PaymentMethodSelectorProps> = ({
       fee: '1% network fee',
       processingTime: '10-60 minutes',
       discount: 5,
-      price: 9.49,
-      originalPrice: 9.99,
+      price: 3.49,
+      originalPrice: 3.99,
       description: 'Pay with Bitcoin, Ethereum, Litecoin, or other supported cryptocurrencies',
       supportedCurrencies: ['BTC', 'ETH', 'LTC', 'BCH', 'USDC'],
       benefits: [

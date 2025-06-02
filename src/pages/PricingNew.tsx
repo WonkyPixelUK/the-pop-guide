@@ -40,8 +40,8 @@ const PricingNew = () => {
     },
     {
       name: "Pro",
-      price: "$9.99",
-      cryptoPrice: "$9.49",
+      price: "$3.99",
+      cryptoPrice: "$3.49",
       period: "per month",
       description: "For serious collectors",
       features: [
@@ -325,7 +325,7 @@ const PricingNew = () => {
               <AccordionItem value="faq1">
                 <AccordionTrigger className="text-orange-500">What happens after my 3-day Pro trial?</AccordionTrigger>
                 <AccordionContent className="text-white">
-                  You'll be automatically billed $9.99/month (or $9.49 with crypto) unless you cancel before the trial ends. You can cancel anytime in your account settings.
+                  You'll be automatically billed $3.99/month (or $3.49 with crypto) unless you cancel before the trial ends. You can cancel anytime in your account settings.
                 </AccordionContent>
               </AccordionItem>
               <AccordionItem value="faq2">
@@ -343,7 +343,7 @@ const PricingNew = () => {
               <AccordionItem value="faq4">
                 <AccordionTrigger className="text-orange-500">How does the crypto discount work?</AccordionTrigger>
                 <AccordionContent className="text-white">
-                  When you pay with cryptocurrency, you get a 5% discount on your subscription. So instead of $9.99/month, you only pay $9.49/month - saving you $6 per year!
+                  When you pay with cryptocurrency, you get a 5% discount on your subscription. So instead of $3.99/month, you only pay $3.49/month - saving you $6 per year!
                 </AccordionContent>
               </AccordionItem>
               <AccordionItem value="faq5">
