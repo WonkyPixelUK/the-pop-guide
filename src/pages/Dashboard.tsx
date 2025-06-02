@@ -1,4 +1,4 @@
-import { useState, useEffect, useRef } from "react";
+import React, { useState, useEffect, useRef, Suspense } from 'react';
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Card, CardContent } from "@/components/ui/card";
@@ -30,6 +30,7 @@ import { useRemoveFromCollection } from '@/hooks/useFunkoPops';
 import { DropdownMenu, DropdownMenuTrigger, DropdownMenuContent, DropdownMenuCheckboxItem, DropdownMenuItem } from '@/components/ui/dropdown-menu';
 import { useCurrency } from '@/contexts/CurrencyContext';
 import { formatCurrency } from '@/utils/formatCurrency';
+import AdvancedAnalytics from '@/components/AdvancedAnalytics';
 
 const AnimatedFallback = ({ icon: Icon, message }: { icon: any, message: string }) => (
   <div className="flex flex-col items-center justify-center py-16">
@@ -952,7 +953,7 @@ const Dashboard = () => {
               <FriendsList />
             )}
             {activeSection === 'analytics' && (
-              <CollectionAnalytics 
+              <AdvancedAnalytics 
                 userCollection={userCollection}
                 funkoPops={funkoPops}
                 profile={null}
