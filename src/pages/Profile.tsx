@@ -5,7 +5,7 @@ import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
 import { usePublicProfileByUsername } from '@/hooks/usePublicProfile';
 import { useFunkoPops, useUserCollection } from '@/hooks/useFunkoPops';
 import { useProfileActivities } from '@/hooks/useProfileActivities';
-import { Music, MessageCircle, Twitter, Instagram, Video, ShoppingBag, ArrowLeft, ExternalLink, Gamepad2, Mail, Plus, User, LogOut, Star, Trophy, Calendar, MapPin, Link as LinkIcon, Youtube, Twitch, Facebook, Globe, DollarSign, Smartphone, Monitor, Headphones, Bot, Crown } from 'lucide-react';
+import { Music, MessageCircle, Twitter, Instagram, Video, ShoppingBag, ArrowLeft, ExternalLink, Gamepad2, Mail, Plus, User, LogOut, Star, Trophy, Calendar, MapPin, Link as LinkIcon, UserPlus } from 'lucide-react';
 import CollectionGrid from '@/components/CollectionGrid';
 import CollectionInsights from '@/components/CollectionInsights';
 import ActivityFeed from '@/components/ActivityFeed';
@@ -56,6 +56,11 @@ const Profile = () => {
   const [searchQuery, setSearchQuery] = useState("");
   const { toast } = useToast();
 
+  // Friend request state
+  const [friendRequestStatus, setFriendRequestStatus] = useState(null);
+  const [isFriend, setIsFriend] = useState(false);
+  const [friendRequestLoading, setFriendRequestLoading] = useState(false);
+
   useEffect(() => {
     if (checkoutSuccess && user) {
       // Send thank you/confirmation email after successful subscription
@@ -70,6 +75,73 @@ const Profile = () => {
       return () => clearTimeout(timeout);
     }
   }, [checkoutSuccess, navigate, user]);
+
+  // Check friend status when profile loads
+  useEffect(() => {
+    if (user && profile && user.id !== profile.user_id) {
+      checkFriendStatus();
+    }
+  }, [user, profile]);
+
+  const checkFriendStatus = async () => {
+    if (!user || !profile) return;
+    
+    // Check if already friends
+    const { data: friendData } = await supabase
+      .from('friends')
+      .select('id')
+      .eq('user_id', user.id)
+      .eq('friend_id', profile.user_id)
+      .maybeSingle();
+    
+    if (friendData) {
+      setIsFriend(true);
+      return;
+    }
+    
+    // Check for pending friend requests
+    const { data: requestData } = await supabase
+      .from('friend_requests')
+      .select('id, status')
+      .or(`and(sender_id.eq.${user.id},receiver_id.eq.${profile.user_id}),and(sender_id.eq.${profile.user_id},receiver_id.eq.${user.id})`)
+      .eq('status', 'pending')
+      .maybeSingle();
+    
+    if (requestData) {
+      setFriendRequestStatus('pending');
+    }
+  };
+
+  const sendFriendRequest = async () => {
+    if (!user || !profile || friendRequestLoading) return;
+    
+    setFriendRequestLoading(true);
+    try {
+      const { error } = await supabase
+        .from('friend_requests')
+        .insert({
+          sender_id: user.id,
+          receiver_id: profile.user_id,
+          status: 'pending'
+        });
+      
+      if (error) throw error;
+      
+      setFriendRequestStatus('pending');
+      toast({
+        title: "Friend request sent!",
+        description: `Your friend request has been sent to ${profile.display_name || profile.username}`,
+      });
+    } catch (error) {
+      toast({
+        title: "Error",
+        description: "Failed to send friend request",
+        variant: "destructive",
+      });
+    } finally {
+      setFriendRequestLoading(false);
+    }
+  };
 
   // Fetch API key if on API tab
   useEffect(() => {
@@ -153,13 +225,14 @@ const Profile = () => {
   };
 
   const openDm = async () => {
+    if (!user || !profile) return;
     setDmOpen(true);
     setDmLoading(true);
     // Fetch messages between user and profile
     const { data } = await supabase
       .from('messages')
       .select('*')
-      .or(`and(sender_id.eq.${user.id},receiver_id.eq.${profile.id}),and(sender_id.eq.${profile.id},receiver_id.eq.${user.id})`)
+      .or(`and(sender_id.eq.${user.id},receiver_id.eq.${profile.user_id}),and(sender_id.eq.${profile.user_id},receiver_id.eq.${user.id})`)
       .order('created_at', { ascending: true });
     setDmMessages(data || []);
     setDmLoading(false);
@@ -333,201 +406,47 @@ const Profile = () => {
   const uniqueSeries = new Set(userCollection.map(item => item.funko_pops?.series)).size;
 
   const socialLinks = [
-    // Content & Community Platforms
     {
       name: 'Spotify',
       value: profile.spotify_username,
       icon: Music,
       url: profile.spotify_username ? `https://open.spotify.com/user/${profile.spotify_username}` : null,
-      color: 'text-green-500',
-      category: 'Content & Community'
+      color: 'text-green-500'
     },
     {
       name: 'Discord',
       value: profile.discord_username,
       icon: MessageCircle,
       url: null, // Discord doesn't have direct profile URLs
-      color: 'text-indigo-500',
-      category: 'Content & Community'
+      color: 'text-indigo-500'
     },
     {
-      name: 'YouTube',
-      value: profile.youtube_handle,
-      icon: Youtube,
-      url: profile.youtube_handle ? `https://youtube.com/@${profile.youtube_handle.replace('@', '')}` : null,
-      color: 'text-red-500',
-      category: 'Content & Community'
-    },
-    {
-      name: 'Twitch',
-      value: profile.twitch_handle,
-      icon: Twitch,
-      url: profile.twitch_handle ? `https://twitch.tv/${profile.twitch_handle}` : null,
-      color: 'text-purple-500',
-      category: 'Content & Community'
-    },
-    {
-      name: 'Twitter/X',
+      name: 'Twitter',
       value: profile.twitter_handle,
       icon: Twitter,
       url: profile.twitter_handle ? `https://twitter.com/${profile.twitter_handle.replace('@', '')}` : null,
-      color: 'text-blue-400',
-      category: 'Content & Community'
+      color: 'text-blue-400'
     },
     {
       name: 'Instagram',
       value: profile.instagram_handle,
       icon: Instagram,
       url: profile.instagram_handle ? `https://instagram.com/${profile.instagram_handle.replace('@', '')}` : null,
-      color: 'text-pink-500',
-      category: 'Content & Community'
+      color: 'text-pink-500'
     },
     {
       name: 'TikTok',
       value: profile.tiktok_handle,
       icon: Video,
       url: profile.tiktok_handle ? `https://tiktok.com/@${profile.tiktok_handle.replace('@', '')}` : null,
-      color: 'text-red-500',
-      category: 'Content & Community'
-    },
-    {
-      name: 'Facebook',
-      value: profile.facebook_handle,
-      icon: Facebook,
-      url: profile.facebook_handle ? `https://facebook.com/${profile.facebook_handle}` : null,
-      color: 'text-blue-600',
-      category: 'Content & Community'
-    },
-    {
-      name: 'Reddit',
-      value: profile.reddit_handle,
-      icon: Bot,
-      url: profile.reddit_handle ? `https://reddit.com/${profile.reddit_handle}` : null,
-      color: 'text-orange-500',
-      category: 'Content & Community'
-    },
-    {
-      name: 'Threads',
-      value: profile.threads_handle,
-      icon: MessageCircle,
-      url: profile.threads_handle ? `https://threads.net/@${profile.threads_handle.replace('@', '')}` : null,
-      color: 'text-gray-400',
-      category: 'Content & Community'
-    },
-    // Collecting & Marketplace Platforms
-    {
-      name: 'Pop Price Guide',
-      value: profile.pop_price_guide_username,
-      icon: DollarSign,
-      url: profile.pop_price_guide_username ? `https://www.poppriceguide.com/guide/member/${profile.pop_price_guide_username}/` : null,
-      color: 'text-green-500',
-      category: 'Collecting & Marketplace'
-    },
-    {
-      name: 'Stashpedia',
-      value: profile.stashpedia_username,
-      icon: Trophy,
-      url: profile.stashpedia_username ? `https://stashpedia.com/u/${profile.stashpedia_username}` : null,
-      color: 'text-blue-500',
-      category: 'Collecting & Marketplace'
-    },
-    {
-      name: 'HobbyDB',
-      value: profile.hobbydb_username,
-      icon: Crown,
-      url: profile.hobbydb_username ? `https://hobbydb.com/users/${profile.hobbydb_username}` : null,
-      color: 'text-purple-500',
-      category: 'Collecting & Marketplace'
+      color: 'text-red-500'
     },
     {
       name: 'eBay Store',
       value: profile.ebay_store_url,
       icon: ShoppingBag,
       url: profile.ebay_store_url,
-      color: 'text-yellow-500',
-      category: 'Collecting & Marketplace'
-    },
-    {
-      name: 'Mercari',
-      value: profile.mercari_username,
-      icon: Smartphone,
-      url: profile.mercari_username ? `https://mercari.com/u/${profile.mercari_username}` : null,
-      color: 'text-red-400',
-      category: 'Collecting & Marketplace'
-    },
-    {
-      name: 'Whatnot',
-      value: profile.whatnot_username,
-      icon: Monitor,
-      url: profile.whatnot_username ? `https://whatnot.com/@${profile.whatnot_username}` : null,
-      color: 'text-orange-500',
-      category: 'Collecting & Marketplace'
-    },
-    {
-      name: 'Depop',
-      value: profile.depop_username,
-      icon: User,
-      url: profile.depop_username ? `https://depop.com/${profile.depop_username.replace('@', '')}` : null,
-      color: 'text-green-400',
-      category: 'Collecting & Marketplace'
-    },
-    {
-      name: 'Vinted',
-      value: profile.vinted_username,
-      icon: ShoppingBag,
-      url: profile.vinted_username ? `https://vinted.com/member/${profile.vinted_username}` : null,
-      color: 'text-teal-500',
-      category: 'Collecting & Marketplace'
-    },
-    // Professional/Business
-    {
-      name: 'LinkedIn',
-      value: profile.linkedin_handle,
-      icon: User,
-      url: profile.linkedin_handle,
-      color: 'text-blue-600',
-      category: 'Professional/Business'
-    },
-    {
-      name: 'Etsy Store',
-      value: profile.etsy_store_url,
-      icon: ShoppingBag,
-      url: profile.etsy_store_url,
-      color: 'text-orange-400',
-      category: 'Professional/Business'
-    },
-    {
-      name: 'Website',
-      value: profile.website_url,
-      icon: Globe,
-      url: profile.website_url,
-      color: 'text-gray-400',
-      category: 'Professional/Business'
-    },
-    // Emerging Platforms
-    {
-      name: 'BeReal',
-      value: profile.bereal_handle,
-      icon: User,
-      url: null, // BeReal doesn't have public profile URLs
-      color: 'text-black bg-white rounded',
-      category: 'Emerging Platforms'
-    },
-    {
-      name: 'Mastodon',
-      value: profile.mastodon_handle,
-      icon: Bot,
-      url: profile.mastodon_handle ? `https://${profile.mastodon_handle.split('@')[2]}/@${profile.mastodon_handle.split('@')[1]}` : null,
-      color: 'text-indigo-400',
-      category: 'Emerging Platforms'
-    },
-    {
-      name: 'BlueSky',
-      value: profile.bluesky_handle,
-      icon: Twitter,
-      url: profile.bluesky_handle ? `https://bsky.app/profile/${profile.bluesky_handle}` : null,
-      color: 'text-blue-300',
-      category: 'Emerging Platforms'
+      color: 'text-yellow-500'
     }
   ].filter(link => link.value);
 
@@ -555,12 +474,6 @@ const Profile = () => {
       value: profile.steam_username,
       icon: Gamepad2,
       color: 'text-gray-500'
-    },
-    {
-      name: 'Pokémon GO',
-      value: profile.pokemon_go_code,
-      icon: Smartphone,
-      color: 'text-yellow-500'
     }
   ].filter(platform => platform.value);
 
@@ -852,81 +765,6 @@ const Profile = () => {
                 )}
               </CardContent>
             </Card>
-
-            {/* Social Links */}
-            {socialLinks.length > 0 && (
-              <Card className="bg-gray-800/30 border-gray-700">
-                <CardHeader>
-                  <CardTitle className="text-white flex items-center gap-2">
-                    <LinkIcon className="w-5 h-5 text-blue-400" />
-                    Social Links
-                  </CardTitle>
-                </CardHeader>
-                <CardContent>
-                  <div className="space-y-4">
-                    {/* Group social links by category */}
-                    {['Content & Community', 'Collecting & Marketplace', 'Professional/Business', 'Emerging Platforms'].map(category => {
-                      const categoryLinks = socialLinks.filter(link => link.category === category);
-                      if (categoryLinks.length === 0) return null;
-                      
-                      return (
-                        <div key={category}>
-                          <h4 className="text-orange-400 text-sm font-medium mb-2">{category}</h4>
-                          <div className="grid grid-cols-2 gap-2">
-                            {categoryLinks.map(link => (
-                              <div key={link.name} className="flex items-center gap-2">
-                                {link.url ? (
-                                  <a
-                                    href={link.url}
-                                    target="_blank"
-                                    rel="noopener noreferrer"
-                                    className="flex items-center gap-2 p-2 bg-gray-700/50 rounded-lg hover:bg-gray-700/70 transition-colors text-sm w-full"
-                                  >
-                                    <link.icon className={`w-4 h-4 ${link.color}`} />
-                                    <span className="text-gray-300 truncate">{link.name}</span>
-                                    <ExternalLink className="w-3 h-3 text-gray-500 ml-auto" />
-                                  </a>
-                                ) : (
-                                  <div className="flex items-center gap-2 p-2 bg-gray-700/50 rounded-lg text-sm w-full">
-                                    <link.icon className={`w-4 h-4 ${link.color}`} />
-                                    <span className="text-gray-300 truncate">{link.name}</span>
-                                  </div>
-                                )}
-                              </div>
-                            ))}
-                          </div>
-                        </div>
-                      );
-                    })}
-                  </div>
-                </CardContent>
-              </Card>
-            )}
-
-            {/* Gaming Platforms */}
-            {gamingPlatforms.length > 0 && (
-              <Card className="bg-gray-800/30 border-gray-700">
-                <CardHeader>
-                  <CardTitle className="text-white flex items-center gap-2">
-                    <Gamepad2 className="w-5 h-5 text-purple-400" />
-                    Gaming Platforms
-                  </CardTitle>
-                </CardHeader>
-                <CardContent>
-                  <div className="space-y-2">
-                    {gamingPlatforms.map(platform => (
-                      <div key={platform.name} className="flex items-center gap-3 p-2 bg-gray-700/50 rounded-lg">
-                        <platform.icon className={`w-4 h-4 ${platform.color}`} />
-                        <div className="flex-1">
-                          <p className="text-white text-sm font-medium">{platform.name}</p>
-                          <p className="text-gray-400 text-xs truncate">{platform.value}</p>
-                        </div>
-                      </div>
-                    ))}
-                  </div>
-                </CardContent>
-              </Card>
-            )}
 
             {/* Rarity Breakdown */}
             <Card className="bg-gray-800/30 border-gray-700">
