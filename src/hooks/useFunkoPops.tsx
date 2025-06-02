@@ -77,39 +77,40 @@ export const useUserCollection = (userId?: string) => {
 export const useAddToCollection = () => {
   const queryClient = useQueryClient();
   const { user } = useAuth();
+  
   return useMutation({
-    mutationFn: async ({ funkoPopId, userId, condition, purchasePrice }: {
-      funkoPopId: string;
-      userId: string;
-      condition?: string;
-      purchasePrice?: number;
-    }) => {
+    mutationFn: async (funkoPopId: string) => {
+      if (!user?.id) {
+        throw new Error('User not authenticated');
+      }
+
+      console.log('Adding to collection:', { funkoPopId, userId: user.id });
+      
       const { data, error } = await supabase
         .from('user_collections')
         .insert({
           funko_pop_id: funkoPopId,
-          user_id: userId,
-          condition: condition || 'mint',
-          purchase_price: purchasePrice,
-        });
-      if (error) throw error;
-      // Audit log
-      await supabase.from('audit_log').insert({
-        user_id: userId,
-        action: 'add_to_collection',
-        details: { funkoPopId },
-      });
-      // Activity log
-      await supabase.from('activity_log').insert({
-        user_id: userId,
-        type: 'add_to_collection',
-        data: { funkoPopId },
-      });
+          user_id: user.id,
+          condition: 'mint'
+        })
+        .select();
+        
+      if (error) {
+        console.error('Database error:', error);
+        throw new Error(`Failed to add to collection: ${error.message}`);
+      }
+      
+      console.log('Successfully added to collection:', data);
       return data;
     },
     onSuccess: () => {
+      console.log('Mutation successful, invalidating queries');
       queryClient.invalidateQueries({ queryKey: ['user-collection'] });
+      queryClient.invalidateQueries({ queryKey: ['funko-pops'] });
     },
+    onError: (error) => {
+      console.error('Mutation failed:', error);
+    }
   });
 };
 

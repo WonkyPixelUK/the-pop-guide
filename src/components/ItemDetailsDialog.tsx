@@ -1,17 +1,18 @@
+import React, { useState } from 'react';
+import { useNavigate } from 'react-router-dom';
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogDescription } from "@/components/ui/dialog";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { Separator } from "@/components/ui/separator";
-import { Heart, Share2, TrendingUp, Calendar, DollarSign, User, CheckCircle, Plus, Link as LinkIcon } from "lucide-react";
+import { Heart, Share2, TrendingUp, Calendar, DollarSign, User, CheckCircle, Plus, Link as LinkIcon, Loader2 } from "lucide-react";
 import { useAuth } from "@/hooks/useAuth";
 import { useWishlist } from "@/hooks/useWishlist";
 import { useAddToCollection } from "@/hooks/useFunkoPops";
 import { useCustomLists } from "@/hooks/useCustomLists";
-import { useState } from "react";
 import { useToast } from '@/hooks/use-toast';
-import { useNavigate } from 'react-router-dom';
 import { usePriceHistory } from '@/hooks/usePriceScraping';
 import { LineChart, Line, XAxis, YAxis, Tooltip, ResponsiveContainer, CartesianGrid } from 'recharts';
+import PriceHistory from './PriceHistory';
 
 interface Item {
   id: number;
@@ -28,6 +29,14 @@ interface Item {
   edition?: string;
   release_year?: string;
   is_vaulted?: boolean;
+  image_url?: string;
+  estimated_value?: number;
+  variant?: string;
+  is_exclusive?: boolean;
+  exclusive_to?: string;
+  is_chase?: boolean;
+  release_date?: string;
+  category?: string;
 }
 
 interface ItemDetailsDialogProps {
@@ -46,16 +55,17 @@ const ItemDetailsDialog = ({ item, open, onOpenChange }: ItemDetailsDialogProps)
   const [creatingList, setCreatingList] = useState(false);
   const [newListName, setNewListName] = useState("");
   const [ownedConfirmed, setOwnedConfirmed] = useState(false);
+  const [addingToCollection, setAddingToCollection] = useState(false);
   const { toast } = useToast();
   const navigate = useNavigate();
   const { data: priceHistory = [], isLoading: priceLoading } = usePriceHistory(item.id);
 
   const isWishlisted = wishlist.some((w: any) => w.funko_pop_id === item.id);
-  const isOwned = item.owned;
+  const isOwned = item.owned || ownedConfirmed;
 
   const requireLogin = () => {
     if (!user) {
-      navigate('/auth');
+      navigate('/login');
       return true;
     }
     return false;
@@ -72,14 +82,31 @@ const ItemDetailsDialog = ({ item, open, onOpenChange }: ItemDetailsDialogProps)
 
   const handleAddToCollection = () => {
     if (requireLogin()) return;
-    if (!isOwned && user) {
-      addToCollection.mutate({ funkoPopId: item.id, userId: user.id }, {
-        onSuccess: () => {
-          setOwnedConfirmed(true);
-          setTimeout(() => setOwnedConfirmed(false), 2000);
-        }
-      });
-    }
+    if (isOwned || addingToCollection) return;
+    
+    setAddingToCollection(true);
+    addToCollection.mutate(item.id, {
+      onSuccess: () => {
+        setOwnedConfirmed(true);
+        setAddingToCollection(false);
+        toast({ 
+          title: '✅ Added to Collection!', 
+          description: `${item.name} has been added to your collection.`,
+          duration: 3000
+        });
+        // Reset the success state after 5 seconds
+        setTimeout(() => setOwnedConfirmed(false), 5000);
+      },
+      onError: (error: any) => {
+        setAddingToCollection(false);
+        toast({
+          title: '❌ Failed to Add',
+          description: error.message || 'Could not add to collection. Please try again.',
+          variant: 'destructive',
+          duration: 5000
+        });
+      }
+    });
   };
 
   const handleAddToList = (listId: string) => {
@@ -124,149 +151,206 @@ const ItemDetailsDialog = ({ item, open, onOpenChange }: ItemDetailsDialogProps)
 
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>
-      <DialogContent className="max-w-md w-full rounded-lg p-2 bg-gray-900 border-gray-700 text-white md:max-w-2xl md:p-8">
+      <DialogContent className="max-w-[90vw] w-full rounded-lg p-6 bg-gray-900 border-gray-700 text-white max-h-[90vh] overflow-y-auto">
         <DialogDescription>
           {item.description ? item.description : <span className="sr-only">Funko Pop details and actions</span>}
         </DialogDescription>
-        <DialogHeader>
-          <DialogTitle className="text-2xl font-bold">{item.name}</DialogTitle>
+        
+        {/* Header */}
+        <DialogHeader className="mb-6">
+          <DialogTitle className="text-3xl font-bold text-white pr-8">{item.name}</DialogTitle>
+          <p className="text-gray-400 text-xl">{item.series}</p>
         </DialogHeader>
-        <div className="flex flex-col md:flex-row gap-6 mt-4">
-          <div className="flex-shrink-0 flex flex-col items-center w-full md:w-56">
-            <div className="w-40 h-40 md:w-56 md:h-56 bg-gray-800 rounded-lg flex items-center justify-center overflow-hidden mb-2">
-              {item.image ? (
-                <img src={item.image} alt={item.name} className="w-full h-full object-contain" />
-              ) : (
-                <User className="w-16 h-16 text-orange-400 animate-pulse" />
-              )}
+        
+        {/* Main Content - Side by Side Layout */}
+        <div className="flex flex-col lg:flex-row gap-8">
+          {/* Left Side - Image and Buttons */}
+          <div className="lg:w-96 lg:flex-shrink-0">
+            <div className="aspect-square bg-gray-800 rounded-lg border border-gray-700 overflow-hidden mb-6">
+              {(item.image || item.image_url) ? (
+                <img 
+                  src={item.image || item.image_url} 
+                  alt={item.name}
+                  className="w-full h-full object-contain"
+                  onError={(e) => {
+                    e.currentTarget.style.display = 'none';
+                    e.currentTarget.nextElementSibling?.classList.remove('hidden');
+                  }}
+                />
+              ) : null}
+              <div className={`w-full h-full flex flex-col items-center justify-center text-gray-400 ${(item.image || item.image_url) ? 'hidden' : ''}`}>
+                <div className="text-6xl mb-4">📦</div>
+                <div className="text-lg">No Image Available</div>
+              </div>
             </div>
-            <div className="flex flex-wrap gap-2 mt-2">
-              <Badge className={getRarityColor(item.rarity)}>{item.rarity || 'Common'}</Badge>
-              {item.value !== null && item.value !== undefined ? (
-                <Badge className="bg-green-700/20 text-green-300 border-green-700/30 flex items-center"><DollarSign className="w-4 h-4 mr-1" />£{item.value}</Badge>
-              ) : (
-                <Badge className="bg-gray-700/20 text-gray-300 border-gray-700/30">Pending</Badge>
-              )}
-            </div>
-          </div>
-          <div className="flex-1 flex flex-col gap-2">
-            <div className="text-gray-300 mb-2 text-base">{item.description}</div>
-            <Separator className="my-2 bg-gray-700" />
-            <div className="grid grid-cols-2 gap-2 text-sm text-gray-400">
-              <span className="flex items-center"><User className="w-4 h-4 mr-1" />Character: {item.name}</span>
-              <span className="flex items-center"><Calendar className="w-4 h-4 mr-1" />Series: {item.series}</span>
-              <span className="flex items-center"><TrendingUp className="w-4 h-4 mr-1" />Number: {item.number}</span>
-              <span className="flex items-center">Fandom: {item.fandom || '—'}</span>
-              <span className="flex items-center">Genre: {item.genre || '—'}</span>
-              <span className="flex items-center">Edition: {item.edition || '—'}</span>
-              <span className="flex items-center">Release Year: {item.release_year || '—'}</span>
-              <span className="flex items-center">Vaulted: {item.is_vaulted ? 'Yes' : 'No'}</span>
-            </div>
-            <div className="flex flex-wrap gap-2 text-sm text-gray-400 mt-2">
-              <span className="flex items-center"><User className="w-4 h-4 mr-1" />Owned: {item.owned ? 'Yes' : 'No'}</span>
-            </div>
+            
             {/* Action Buttons */}
-            <div className="flex flex-wrap gap-2 mt-4">
-              <Button
-                variant={isWishlisted ? 'default' : 'outline'}
-                className={isWishlisted ? 'bg-pink-600 text-white hover:bg-pink-700' : 'border-gray-600 hover:bg-gray-600'}
-                onClick={handleWishlist}
-              >
-                {isWishlisted ? <CheckCircle className="w-4 h-4 mr-1" /> : <Heart className="w-4 h-4 mr-1" />}
-                {isWishlisted ? 'Wishlisted' : 'Add to Wishlist'}
-              </Button>
+            <div className="space-y-3">
               <Button
                 variant={isOwned ? 'default' : 'outline'}
-                className={isOwned ? 'bg-orange-500 text-white hover:bg-orange-600' : 'border-gray-600 hover:bg-gray-600'}
+                className={
+                  isOwned 
+                    ? ownedConfirmed 
+                      ? 'bg-green-600 text-white hover:bg-green-700 animate-pulse w-full h-12 text-base' 
+                      : 'bg-green-600 text-white hover:bg-green-700 w-full h-12 text-base'
+                    : addingToCollection 
+                    ? 'border-orange-600 bg-orange-50 text-orange-600 hover:bg-orange-100 w-full h-12 text-base' 
+                    : 'border-gray-600 hover:bg-gray-600 w-full h-12 text-base'
+                }
                 onClick={handleAddToCollection}
-                disabled={isOwned}
+                disabled={isOwned || addingToCollection}
               >
-                {isOwned ? <CheckCircle className="w-4 h-4 mr-1" /> : <Plus className="w-4 h-4 mr-1" />}
-                {isOwned ? 'Owned' : 'Own this Pop'}
+                {addingToCollection ? (
+                  <>
+                    <Loader2 className="w-4 h-4 mr-2 animate-spin" />
+                    Adding...
+                  </>
+                ) : isOwned ? (
+                  <>
+                    <CheckCircle className="w-4 h-4 mr-2" />
+                    {ownedConfirmed ? 'Added!' : 'Owned'}
+                  </>
+                ) : (
+                  <>
+                    <Plus className="w-4 h-4 mr-2" />
+                    Own this Pop
+                  </>
+                )}
               </Button>
-              <Button
-                variant="outline"
-                className="border-gray-600 hover:bg-gray-600"
-                onClick={() => setListModalOpen(true)}
+              
+              <Button 
+                variant={isWishlisted ? 'default' : 'outline'}
+                className={`w-full h-12 text-base ${isWishlisted ? 'bg-red-600 hover:bg-red-700' : 'border-red-600 text-red-400 hover:bg-red-600'}`}
+                onClick={handleWishlist}
               >
-                <Plus className="w-4 h-4 mr-1" />Add to List
+                <Heart className={`w-4 h-4 mr-2 ${isWishlisted ? 'fill-current' : ''}`} />
+                {isWishlisted ? 'Remove from Wishlist' : 'Add to Wishlist'}
               </Button>
-              <Button
-                variant="ghost"
-                className="hover:bg-gray-700"
+              
+              <Button 
+                variant="outline" 
+                className="border-blue-600 text-blue-400 hover:bg-blue-600 w-full h-12 text-base"
                 onClick={handleShare}
               >
-                <Share2 className="w-4 h-4 mr-1" />Share
+                <Share2 className="w-4 h-4 mr-2" />
+                Share
               </Button>
             </div>
-            {/* Add to List Modal */}
-            {listModalOpen && (
-              <div className="mt-4 bg-gray-800 border border-gray-700 rounded-lg p-4">
-                <div className="mb-2 font-semibold text-white">Add to List</div>
-                <div className="flex flex-col gap-2">
-                  {lists && lists.length > 0 ? (
-                    lists.map((list: any) => (
-                      <Button
-                        key={list.id}
-                        variant="outline"
-                        className="justify-start border-gray-600 hover:bg-gray-700"
-                        onClick={() => handleAddToList(list.id)}
-                        disabled={addingToListId === list.id}
-                      >
-                        {addingToListId === list.id ? 'Adding...' : list.name}
-                      </Button>
-                    ))
-                  ) : (
-                    <div className="text-gray-400 text-sm">No lists found.</div>
+          </div>
+
+          {/* Right Side - Details */}
+          <div className="flex-1 min-w-0">
+            {/* Basic Info Cards */}
+            <div className="grid grid-cols-2 md:grid-cols-3 gap-4 mb-6">
+              <div className="bg-gray-800 p-4 rounded-lg border border-gray-700">
+                <div className="text-sm text-gray-400 mb-1 flex items-center">
+                  <span className="mr-2">📦</span>
+                  Category
+                </div>
+                <div className="font-semibold text-white text-lg">{item.category || 'Pop!'}</div>
+              </div>
+              
+              <div className="bg-gray-800 p-4 rounded-lg border border-gray-700">
+                <div className="text-sm text-gray-400 mb-1 flex items-center">
+                  <span className="mr-2">📈</span>
+                  Number
+                </div>
+                <div className="font-semibold text-white text-lg">{item.number || '—'}</div>
+              </div>
+              
+              <div className="bg-gray-800 p-4 rounded-lg border border-gray-700">
+                <div className="text-sm text-gray-400 mb-1 flex items-center">
+                  <span className="mr-2">💎</span>
+                  Value
+                </div>
+                <div className="font-semibold text-white text-lg">
+                  {item.estimated_value ? `£${item.estimated_value.toFixed(2)}` : '—'}
+                </div>
+              </div>
+              
+              <div className="bg-gray-800 p-4 rounded-lg border border-gray-700">
+                <div className="text-sm text-gray-400 mb-1 flex items-center">
+                  <span className="mr-2">🎬</span>
+                  Fandom
+                </div>
+                <div className="font-semibold text-white text-lg">{item.fandom || item.series || '—'}</div>
+              </div>
+              
+              <div className="bg-gray-800 p-4 rounded-lg border border-gray-700">
+                <div className="text-sm text-gray-400 mb-1 flex items-center">
+                  <span className="mr-2">🎭</span>
+                  Genre
+                </div>
+                <div className="font-semibold text-white text-lg">{item.genre || '—'}</div>
+              </div>
+              
+              <div className="bg-gray-800 p-4 rounded-lg border border-gray-700">
+                <div className="text-sm text-gray-400 mb-1 flex items-center">
+                  <span className="mr-2">🏷️</span>
+                  Edition
+                </div>
+                <div className="font-semibold text-white text-lg">{item.edition || (item.is_exclusive ? item.exclusive_to || 'Exclusive' : '—')}</div>
+              </div>
+              
+              <div className="bg-gray-800 p-4 rounded-lg border border-gray-700">
+                <div className="text-sm text-gray-400 mb-1 flex items-center">
+                  <span className="mr-2">🗓️</span>
+                  Release Year
+                </div>
+                <div className="font-semibold text-white text-lg">{item.release_date ? new Date(item.release_date).getFullYear() : '—'}</div>
+              </div>
+              
+              <div className="bg-gray-800 p-4 rounded-lg border border-gray-700">
+                <div className="text-sm text-gray-400 mb-1 flex items-center">
+                  <span className="mr-2">🔒</span>
+                  Vaulted
+                </div>
+                <div className="font-semibold text-white text-lg">{item.is_vaulted ? 'Yes' : 'No'}</div>
+              </div>
+              
+              <div className="bg-gray-800 p-4 rounded-lg border border-gray-700">
+                <div className="text-sm text-gray-400 mb-1 flex items-center">
+                  <span className="mr-2">👤</span>
+                  Owned
+                </div>
+                <div className={`font-semibold text-lg ${isOwned ? 'text-green-400' : 'text-white'}`}>
+                  {isOwned ? (ownedConfirmed ? '✅ Yes (Just Added!)' : '✅ Yes') : 'No'}
+                </div>
+              </div>
+            </div>
+
+            {/* Additional Details */}
+            {(item.variant || item.is_exclusive || item.is_chase) && (
+              <div className="bg-gray-800 p-4 rounded-lg border border-gray-700 mb-6">
+                <h3 className="font-semibold mb-3 text-white text-lg">Additional Details</h3>
+                <div className="space-y-2 text-sm">
+                  {item.variant && (
+                    <div className="flex justify-between">
+                      <span className="text-gray-400">Variant:</span>
+                      <span className="text-white">{item.variant}</span>
+                    </div>
                   )}
-                  <div className="flex gap-2 mt-2">
-                    <input
-                      type="text"
-                      placeholder="New list name"
-                      value={newListName}
-                      onChange={e => setNewListName(e.target.value)}
-                      className="bg-gray-900 border border-gray-700 rounded px-2 py-1 text-white flex-1"
-                      disabled={creatingList}
-                    />
-                    <Button
-                      size="sm"
-                      className="bg-orange-500 hover:bg-orange-600 text-white"
-                      onClick={handleCreateList}
-                      disabled={creatingList || !newListName.trim()}
-                    >
-                      {creatingList ? 'Creating...' : 'Create List'}
-                    </Button>
-                  </div>
-                  <Button
-                    variant="ghost"
-                    className="mt-2 text-gray-400 hover:text-white"
-                    onClick={() => setListModalOpen(false)}
-                  >
-                    Cancel
-                  </Button>
+                  {item.is_exclusive && (
+                    <div className="flex justify-between">
+                      <span className="text-gray-400">Exclusive to:</span>
+                      <span className="text-white">{item.exclusive_to || 'Yes'}</span>
+                    </div>
+                  )}
+                  {item.is_chase && (
+                    <div className="flex justify-between">
+                      <span className="text-gray-400">Chase:</span>
+                      <span className="text-yellow-400">Yes</span>
+                    </div>
+                  )}
                 </div>
               </div>
             )}
-            {/* Value History Graph */}
-            <div className="mt-8">
-              <div className="font-semibold text-white mb-2">Value History</div>
-              {priceLoading ? (
-                <div className="text-gray-400 text-sm">Loading value history...</div>
-              ) : priceHistory && priceHistory.length > 0 ? (
-                <ResponsiveContainer width="100%" height={180}>
-                  <LineChart data={priceHistory.slice().reverse()} margin={{ top: 10, right: 20, left: 0, bottom: 0 }}>
-                    <CartesianGrid strokeDasharray="3 3" stroke="#374151" />
-                    <XAxis dataKey="date_scraped" tickFormatter={d => d && d.slice(0, 10)} stroke="#9CA3AF" fontSize={12} />
-                    <YAxis stroke="#9CA3AF" fontSize={12} />
-                    <Tooltip contentStyle={{ backgroundColor: '#1F2937', border: '1px solid #374151', borderRadius: '8px' }} />
-                    <Line type="monotone" dataKey="price" stroke="#f97316" strokeWidth={2} dot={{ fill: '#f97316', r: 3 }} />
-                  </LineChart>
-                </ResponsiveContainer>
-              ) : (
-                <div className="text-gray-400 text-sm">No value history available.</div>
-              )}
-            </div>
           </div>
+        </div>
+
+        {/* Price History - Full Width */}
+        <div className="border-t border-gray-700 pt-6 mt-6">
+          <PriceHistory funkoPopId={item.id} funkoPopName={item.name} />
         </div>
       </DialogContent>
     </Dialog>

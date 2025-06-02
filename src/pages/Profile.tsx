@@ -5,7 +5,7 @@ import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
 import { usePublicProfileByUsername } from '@/hooks/usePublicProfile';
 import { useFunkoPops, useUserCollection } from '@/hooks/useFunkoPops';
 import { useProfileActivities } from '@/hooks/useProfileActivities';
-import { Music, MessageCircle, Twitter, Instagram, Video, ShoppingBag, ArrowLeft, ExternalLink, Gamepad2, Mail, Plus, User, LogOut } from 'lucide-react';
+import { Music, MessageCircle, Twitter, Instagram, Video, ShoppingBag, ArrowLeft, ExternalLink, Gamepad2, Mail, Plus, User, LogOut, Star, Trophy, Calendar, MapPin, Link as LinkIcon, Youtube, Twitch, Facebook, Globe, DollarSign, Smartphone, Monitor, Headphones, Bot, Crown } from 'lucide-react';
 import CollectionGrid from '@/components/CollectionGrid';
 import CollectionInsights from '@/components/CollectionInsights';
 import ActivityFeed from '@/components/ActivityFeed';
@@ -16,6 +16,7 @@ import { useCustomLists } from '@/hooks/useCustomLists';
 import Navigation from '@/components/Navigation';
 import { useAuth } from '@/hooks/useAuth';
 import MobileBottomNav from '@/components/MobileBottomNav';
+import Footer from '@/components/Footer';
 import { supabase } from '@/integrations/supabase/client';
 import TrophyAvatar from '@/components/TrophyAvatar';
 import { Search } from 'lucide-react';
@@ -253,8 +254,11 @@ const Profile = () => {
 
   if (profileLoading || funkoLoading || collectionLoading) {
     return (
-      <div className="min-h-screen bg-gradient-to-br from-gray-900 via-gray-800 to-black flex items-center justify-center">
-        <div className="text-white text-xl">Loading profile...</div>
+      <div className="min-h-screen bg-gradient-to-br from-gray-900 via-gray-800 to-black">
+        <Navigation />
+        <div className="flex items-center justify-center min-h-[60vh]">
+          <div className="text-white text-xl">Loading profile...</div>
+        </div>
       </div>
     );
   }
@@ -262,16 +266,17 @@ const Profile = () => {
   if (funkoError || collectionError) {
     console.error('Error loading data:', funkoError || collectionError);
     return (
-      <div className="min-h-screen bg-gradient-to-br from-gray-900 via-gray-800 to-black flex items-center justify-center">
-        <div className="text-center">
-          <h1 className="text-2xl font-bold text-white mb-4">Error Loading Profile</h1>
-          <p className="text-gray-400 mb-6">There was a problem loading this profile. Please try again later.</p>
-          <Link to="/">
-            <Button className="bg-orange-500 hover:bg-orange-600 text-white">
-              <ArrowLeft className="w-4 h-4 mr-2" />
-              Back to Home
+      <div className="min-h-screen bg-gradient-to-br from-gray-900 via-gray-800 to-black">
+        <Navigation />
+        <div className="flex items-center justify-center min-h-[60vh] text-center">
+          <div>
+            <div className="text-6xl mb-4">🔍</div>
+            <h2 className="text-2xl font-bold text-white mb-2">Error Loading Profile</h2>
+            <p className="text-gray-400 mb-6">There was a problem loading this profile. Please try again later.</p>
+            <Button onClick={() => navigate('/dashboard')} className="bg-orange-500 hover:bg-orange-600">
+              Back to Dashboard
             </Button>
-          </Link>
+          </div>
         </div>
       </div>
     );
@@ -279,20 +284,31 @@ const Profile = () => {
 
   if (!profile) {
     return (
-      <div className="min-h-screen bg-gradient-to-br from-gray-900 via-gray-800 to-black flex items-center justify-center">
-        <div className="text-center">
-          <h1 className="text-2xl font-bold text-white mb-4">Profile Not Found</h1>
-          <p className="text-gray-400 mb-6">The profile you're looking for doesn't exist or is private.</p>
-          <Link to="/">
-            <Button className="bg-orange-500 hover:bg-orange-600 text-white">
-              <ArrowLeft className="w-4 h-4 mr-2" />
-              Back to Home
+      <div className="min-h-screen bg-gradient-to-br from-gray-900 via-gray-800 to-black">
+        <Navigation />
+        <div className="flex items-center justify-center min-h-[60vh] text-center">
+          <div>
+            <div className="text-6xl mb-4">🔍</div>
+            <h2 className="text-2xl font-bold text-white mb-2">Profile Not Found</h2>
+            <p className="text-gray-400 mb-6">The profile you're looking for doesn't exist or is private.</p>
+            <Button onClick={() => navigate('/dashboard')} className="bg-orange-500 hover:bg-orange-600">
+              Back to Dashboard
             </Button>
-          </Link>
+          </div>
         </div>
       </div>
     );
   }
+
+  // Calculate collection stats
+  const totalValue = userCollection.reduce((sum, item) => sum + (item.funko_pops?.estimated_value || 0), 0);
+  const rarityBreakdown = userCollection.reduce((acc, item) => {
+    const rarity = item.funko_pops?.rarity || 'Common';
+    acc[rarity] = (acc[rarity] || 0) + 1;
+    return acc;
+  }, {});
+
+  const isOwner = user?.id === profile.user_id;
 
   // Transform data for collection display
   const transformedItems = funkoPops.map(pop => {
@@ -313,55 +329,205 @@ const Profile = () => {
     };
   }).filter(item => item.owned); // Only show owned items
 
-  const totalValue = userCollection.reduce((sum, item) => {
-    return sum + (item.funko_pops?.estimated_value || 0);
-  }, 0);
-
   const ownedCount = userCollection.length;
   const uniqueSeries = new Set(userCollection.map(item => item.funko_pops?.series)).size;
 
   const socialLinks = [
+    // Content & Community Platforms
     {
       name: 'Spotify',
       value: profile.spotify_username,
       icon: Music,
       url: profile.spotify_username ? `https://open.spotify.com/user/${profile.spotify_username}` : null,
-      color: 'text-green-500'
+      color: 'text-green-500',
+      category: 'Content & Community'
     },
     {
       name: 'Discord',
       value: profile.discord_username,
       icon: MessageCircle,
       url: null, // Discord doesn't have direct profile URLs
-      color: 'text-indigo-500'
+      color: 'text-indigo-500',
+      category: 'Content & Community'
     },
     {
-      name: 'Twitter',
+      name: 'YouTube',
+      value: profile.youtube_handle,
+      icon: Youtube,
+      url: profile.youtube_handle ? `https://youtube.com/@${profile.youtube_handle.replace('@', '')}` : null,
+      color: 'text-red-500',
+      category: 'Content & Community'
+    },
+    {
+      name: 'Twitch',
+      value: profile.twitch_handle,
+      icon: Twitch,
+      url: profile.twitch_handle ? `https://twitch.tv/${profile.twitch_handle}` : null,
+      color: 'text-purple-500',
+      category: 'Content & Community'
+    },
+    {
+      name: 'Twitter/X',
       value: profile.twitter_handle,
       icon: Twitter,
       url: profile.twitter_handle ? `https://twitter.com/${profile.twitter_handle.replace('@', '')}` : null,
-      color: 'text-blue-400'
+      color: 'text-blue-400',
+      category: 'Content & Community'
     },
     {
       name: 'Instagram',
       value: profile.instagram_handle,
       icon: Instagram,
       url: profile.instagram_handle ? `https://instagram.com/${profile.instagram_handle.replace('@', '')}` : null,
-      color: 'text-pink-500'
+      color: 'text-pink-500',
+      category: 'Content & Community'
     },
     {
       name: 'TikTok',
       value: profile.tiktok_handle,
       icon: Video,
       url: profile.tiktok_handle ? `https://tiktok.com/@${profile.tiktok_handle.replace('@', '')}` : null,
-      color: 'text-red-500'
+      color: 'text-red-500',
+      category: 'Content & Community'
+    },
+    {
+      name: 'Facebook',
+      value: profile.facebook_handle,
+      icon: Facebook,
+      url: profile.facebook_handle ? `https://facebook.com/${profile.facebook_handle}` : null,
+      color: 'text-blue-600',
+      category: 'Content & Community'
+    },
+    {
+      name: 'Reddit',
+      value: profile.reddit_handle,
+      icon: Bot,
+      url: profile.reddit_handle ? `https://reddit.com/${profile.reddit_handle}` : null,
+      color: 'text-orange-500',
+      category: 'Content & Community'
+    },
+    {
+      name: 'Threads',
+      value: profile.threads_handle,
+      icon: MessageCircle,
+      url: profile.threads_handle ? `https://threads.net/@${profile.threads_handle.replace('@', '')}` : null,
+      color: 'text-gray-400',
+      category: 'Content & Community'
+    },
+    // Collecting & Marketplace Platforms
+    {
+      name: 'Pop Price Guide',
+      value: profile.pop_price_guide_username,
+      icon: DollarSign,
+      url: profile.pop_price_guide_username ? `https://www.poppriceguide.com/guide/member/${profile.pop_price_guide_username}/` : null,
+      color: 'text-green-500',
+      category: 'Collecting & Marketplace'
+    },
+    {
+      name: 'Stashpedia',
+      value: profile.stashpedia_username,
+      icon: Trophy,
+      url: profile.stashpedia_username ? `https://stashpedia.com/u/${profile.stashpedia_username}` : null,
+      color: 'text-blue-500',
+      category: 'Collecting & Marketplace'
+    },
+    {
+      name: 'HobbyDB',
+      value: profile.hobbydb_username,
+      icon: Crown,
+      url: profile.hobbydb_username ? `https://hobbydb.com/users/${profile.hobbydb_username}` : null,
+      color: 'text-purple-500',
+      category: 'Collecting & Marketplace'
     },
     {
       name: 'eBay Store',
       value: profile.ebay_store_url,
       icon: ShoppingBag,
       url: profile.ebay_store_url,
-      color: 'text-yellow-500'
+      color: 'text-yellow-500',
+      category: 'Collecting & Marketplace'
+    },
+    {
+      name: 'Mercari',
+      value: profile.mercari_username,
+      icon: Smartphone,
+      url: profile.mercari_username ? `https://mercari.com/u/${profile.mercari_username}` : null,
+      color: 'text-red-400',
+      category: 'Collecting & Marketplace'
+    },
+    {
+      name: 'Whatnot',
+      value: profile.whatnot_username,
+      icon: Monitor,
+      url: profile.whatnot_username ? `https://whatnot.com/@${profile.whatnot_username}` : null,
+      color: 'text-orange-500',
+      category: 'Collecting & Marketplace'
+    },
+    {
+      name: 'Depop',
+      value: profile.depop_username,
+      icon: User,
+      url: profile.depop_username ? `https://depop.com/${profile.depop_username.replace('@', '')}` : null,
+      color: 'text-green-400',
+      category: 'Collecting & Marketplace'
+    },
+    {
+      name: 'Vinted',
+      value: profile.vinted_username,
+      icon: ShoppingBag,
+      url: profile.vinted_username ? `https://vinted.com/member/${profile.vinted_username}` : null,
+      color: 'text-teal-500',
+      category: 'Collecting & Marketplace'
+    },
+    // Professional/Business
+    {
+      name: 'LinkedIn',
+      value: profile.linkedin_handle,
+      icon: User,
+      url: profile.linkedin_handle,
+      color: 'text-blue-600',
+      category: 'Professional/Business'
+    },
+    {
+      name: 'Etsy Store',
+      value: profile.etsy_store_url,
+      icon: ShoppingBag,
+      url: profile.etsy_store_url,
+      color: 'text-orange-400',
+      category: 'Professional/Business'
+    },
+    {
+      name: 'Website',
+      value: profile.website_url,
+      icon: Globe,
+      url: profile.website_url,
+      color: 'text-gray-400',
+      category: 'Professional/Business'
+    },
+    // Emerging Platforms
+    {
+      name: 'BeReal',
+      value: profile.bereal_handle,
+      icon: User,
+      url: null, // BeReal doesn't have public profile URLs
+      color: 'text-black bg-white rounded',
+      category: 'Emerging Platforms'
+    },
+    {
+      name: 'Mastodon',
+      value: profile.mastodon_handle,
+      icon: Bot,
+      url: profile.mastodon_handle ? `https://${profile.mastodon_handle.split('@')[2]}/@${profile.mastodon_handle.split('@')[1]}` : null,
+      color: 'text-indigo-400',
+      category: 'Emerging Platforms'
+    },
+    {
+      name: 'BlueSky',
+      value: profile.bluesky_handle,
+      icon: Twitter,
+      url: profile.bluesky_handle ? `https://bsky.app/profile/${profile.bluesky_handle}` : null,
+      color: 'text-blue-300',
+      category: 'Emerging Platforms'
     }
   ].filter(link => link.value);
 
@@ -389,393 +555,402 @@ const Profile = () => {
       value: profile.steam_username,
       icon: Gamepad2,
       color: 'text-gray-500'
+    },
+    {
+      name: 'Pokémon GO',
+      value: profile.pokemon_go_code,
+      icon: Smartphone,
+      color: 'text-yellow-500'
     }
   ].filter(platform => platform.value);
 
   return (
-    <>
-      <div className="min-h-screen bg-gradient-to-br from-gray-900 via-gray-800 to-black pb-20 md:pb-0">
-        <Navigation />
-        
-        {/* Dashboard-style Header */}
-        <header className="bg-gray-900/50 backdrop-blur-sm border-b border-gray-700 sticky top-[116px] z-30">
-          <div className="container mx-auto px-4 py-3">
-            <div className="flex flex-col md:flex-row md:items-center md:justify-between gap-4">
-              {/* Search Bar */}
-              <form onSubmit={handleSearch} className="flex items-center space-x-4 flex-1">
-                <div className="relative flex-1 max-w-md">
-                  <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400 w-4 h-4" />
-                  <Input
-                    placeholder="Search the database..."
-                    value={searchQuery}
-                    onChange={(e) => setSearchQuery(e.target.value)}
-                    className="pl-10 bg-gray-800 border-gray-700 text-white placeholder-gray-400"
-                  />
-                </div>
-                <Button type="submit" className="bg-orange-500 hover:bg-orange-600 text-white">
-                  Search
-                </Button>
-              </form>
+    <div className="min-h-screen bg-gradient-to-br from-gray-900 via-gray-800 to-black">
+      <Navigation />
+      
+      {/* Hero Section */}
+      <div className="relative">
+        {/* Cover Image */}
+        <div 
+          className="h-80 bg-gradient-to-r from-purple-600 via-blue-600 to-indigo-600 relative overflow-hidden"
+          style={{
+            backgroundImage: profile.cover_image ? `url(${profile.cover_image})` : undefined,
+            backgroundSize: 'cover',
+            backgroundPosition: 'center'
+          }}
+        >
+          <div className="absolute inset-0 bg-black/30"></div>
+          
+          {/* Back Button */}
+          <Button
+            onClick={() => navigate(-1)}
+            className="absolute top-6 left-6 bg-black/50 hover:bg-black/70 backdrop-blur-sm border border-white/20"
+            size="sm"
+          >
+            <ArrowLeft className="w-4 h-4 mr-2" />
+            Back
+          </Button>
 
-              {/* Action Buttons */}
-              <div className="flex flex-col sm:flex-row items-stretch sm:items-center gap-2">
-                <span className="text-white text-center sm:text-left text-sm">Welcome, {user?.email}</span>
-                <div className="flex flex-col sm:flex-row gap-2">
-                  <Button 
-                    onClick={() => setIsAddDialogOpen(true)}
-                    className="bg-orange-500 hover:bg-orange-600 text-white"
-                  >
-                    <Plus className="w-4 h-4 mr-2" />
-                    Add Item
-                  </Button>
-                  <Button
-                    onClick={handleExport}
-                    variant="outline"
-                    className="border-gray-600 text-gray-200 hover:bg-gray-700 hover:text-white"
-                  >
-                    Export Collection
-                  </Button>
-                  <Link to="/profile-settings">
-                    <Button 
-                      variant="outline"
-                      className="border-gray-600 text-gray-200 hover:bg-gray-700 hover:text-white w-full"
-                    >
-                      <User className="w-4 h-4 mr-2" />
-                      Profile
-                    </Button>
-                  </Link>
-                  <Button 
-                    onClick={handleSignOut}
-                    variant="outline"
-                    className="border-gray-600 text-gray-200 hover:bg-gray-700 hover:text-white"
-                  >
-                    <LogOut className="w-4 h-4 mr-2" />
-                    Sign Out
-                  </Button>
-                </div>
-              </div>
-            </div>
-          </div>
-        </header>
-        
-        {checkoutSuccess && (
-          <div className="bg-green-700/90 border border-green-500 rounded-lg px-6 py-4 text-center shadow-lg max-w-xl mx-auto mt-8 mb-6">
-            <div className="text-white text-2xl font-bold mb-2">Payment Successful!</div>
-            <div className="text-green-200 mb-2">Your Pro membership is now active. Welcome to the full PopGuide experience!</div>
-            <div className="text-gray-200 mb-4">You'll be redirected to your dashboard in a few seconds.</div>
-            <Button className="bg-orange-500 hover:bg-orange-600 text-white" onClick={() => navigate('/dashboard')}>
-              Go to Dashboard Now
+          {/* Profile Actions for Owner */}
+          {isOwner && (
+            <Button
+              onClick={() => navigate('/profile-settings')}
+              className="absolute top-6 right-6 bg-orange-500/90 hover:bg-orange-600/90 backdrop-blur-sm"
+              size="sm"
+            >
+              Edit Profile
             </Button>
-          </div>
-        )}
-        {/* Profile Section */}
-        <section className="py-8 px-4">
-          <div className="grid gap-6 grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 auto-rows-fr">
-            {/* Profile Card */}
-            <Card className="bg-gray-800/50 border-gray-700 mb-8">
-              <CardHeader>
-                <div className="flex items-start gap-6">
-                  <TrophyAvatar 
-                    avatarUrl={profile.avatar_url}
-                    displayName={profile.display_name || profile.username}
-                    email={profile.email}
-                    size="w-24 h-24"
-                  />
-                  <div className="flex-1">
-                    <div className="flex items-center gap-3 mb-2">
-                      <CardTitle className="text-white text-2xl flex items-center gap-2">
-                        {profile.display_name || profile.username}
-                        {profile.email === 'rich@maintainhq.com' && (
-                          <div className="inline-block bg-orange-500 text-white text-xs font-semibold rounded px-2 py-1 mb-2">Pop Guide Team</div>
-                        )}
-                        <span className="bg-blue-900/80 text-blue-200 text-xs font-semibold px-2 py-0.5 rounded ml-2">Public Profile</span>
-                      </CardTitle>
-                      <PremiumBadge isPremium={profile.is_premium || false} />
-                    </div>
-                    {profile.username && (
-                      <p className="text-gray-400 mb-3">@{profile.username}</p>
-                    )}
-                    {profile.bio && (
-                      <p className="text-gray-300 mb-4">{profile.bio}</p>
-                    )}
-                    
-                    {/* Collection Stats */}
-                    <div className="flex gap-6 text-sm mb-2">
-                      <div>
-                        <span className="text-orange-500 font-bold">{ownedCount}</span>
-                        <span className="text-gray-400 ml-1">Items</span>
-                      </div>
-                      <div>
-                        <span className="text-orange-500 font-bold">{uniqueSeries}</span>
-                        <span className="text-gray-400 ml-1">Series</span>
-                      </div>
-                      <div>
-                        <span className="text-orange-500 font-bold">${totalValue.toFixed(2)}</span>
-                        <span className="text-gray-400 ml-1">Total Value</span>
-                      </div>
-                    </div>
-                    {/* Direct Message button for public profiles (not own profile) */}
-                    {user && profile && user.id !== profile.user_id && (
-                      <Button className="bg-orange-500 hover:bg-orange-600 text-white mb-2 flex items-center gap-2" onClick={openDm}>
-                        <Mail className="w-4 h-4" /> Direct Message
-                      </Button>
+          )}
+        </div>
+
+        {/* Profile Info Card */}
+        <div className="max-w-6xl mx-auto px-6 -mt-32 relative z-10">
+          <Card className="bg-gray-800/80 backdrop-blur-sm border-gray-700">
+            <CardContent className="p-8">
+              <div className="flex flex-col md:flex-row gap-8 items-start">
+                {/* Avatar & Basic Info */}
+                <div className="flex flex-col items-center text-center md:items-start md:text-left">
+                  <Avatar className="w-32 h-32 border-4 border-orange-500 mb-4">
+                    <AvatarImage src={profile.avatar_url} alt={profile.display_name} />
+                    <AvatarFallback className="text-2xl bg-orange-500 text-white">
+                      {profile.display_name?.charAt(0) || profile.username?.charAt(0) || 'U'}
+                    </AvatarFallback>
+                  </Avatar>
+                  
+                  <div className="flex items-center gap-2 mb-2">
+                    <h1 className="text-3xl font-bold text-white">
+                      {profile.display_name || profile.username}
+                    </h1>
+                    <PremiumBadge isPro={profile.subscription_status === 'active'} />
+                    {profile.is_retailer && (
+                      <span className="px-2 py-1 bg-purple-500 text-white text-xs rounded-full">
+                        🏪 Retailer
+                      </span>
                     )}
                   </div>
-                  {/* If logged-in user is viewing their own profile, show dashboard/edit buttons */}
-                  {user && profile && user.id === profile.user_id && (
-                    <div className="flex flex-col gap-2 ml-auto">
-                      <Link to="/dashboard">
-                        <Button className="bg-orange-500 hover:bg-orange-600 text-white w-full">Go to Dashboard</Button>
-                      </Link>
-                      <Link to="/profile-settings">
-                        <Button className="bg-blue-900 hover:bg-blue-800 text-white w-full">Edit Profile</Button>
-                      </Link>
+
+                  <p className="text-gray-400 mb-1">@{profile.username}</p>
+                  {profile.location && (
+                    <div className="flex items-center gap-1 text-gray-400 text-sm mb-2">
+                      <MapPin className="w-4 h-4" />
+                      {profile.location}
                     </div>
                   )}
+                  
+                  {profile.bio && (
+                    <p className="text-gray-300 max-w-md mb-4">{profile.bio}</p>
+                  )}
+
+                  <div className="flex items-center gap-2 text-sm text-gray-400 mb-4">
+                    <Calendar className="w-4 h-4" />
+                    Collecting since {new Date(profile.created_at).getFullYear()}
+                  </div>
+
+                  {/* Social Links */}
+                  {(profile.social_links?.twitter || profile.social_links?.instagram || profile.social_links?.youtube) && (
+                    <div className="flex gap-2 mb-4">
+                      {profile.social_links?.twitter && (
+                        <Button size="sm" variant="outline" className="border-gray-600 text-gray-300 hover:bg-blue-500/20">
+                          <Twitter className="w-4 h-4" />
+                        </Button>
+                      )}
+                      {profile.social_links?.instagram && (
+                        <Button size="sm" variant="outline" className="border-gray-600 text-gray-300 hover:bg-pink-500/20">
+                          <Instagram className="w-4 h-4" />
+                        </Button>
+                      )}
+                      {profile.social_links?.youtube && (
+                        <Button size="sm" variant="outline" className="border-gray-600 text-gray-300 hover:bg-red-500/20">
+                          <Video className="w-4 h-4" />
+                        </Button>
+                      )}
+                    </div>
+                  )}
+
+                  {/* Contact Button for Non-Owners */}
+                  {!isOwner && (
+                    <Button 
+                      className="bg-orange-500 hover:bg-orange-600 text-white"
+                      onClick={() => {/* TODO: Implement messaging */}}
+                    >
+                      <MessageCircle className="w-4 h-4 mr-2" />
+                      Send Message
+                    </Button>
+                  )}
                 </div>
+
+                {/* Collection Stats */}
+                <div className="flex-1 grid grid-cols-2 md:grid-cols-4 gap-6">
+                  <div className="text-center p-4 bg-gray-700/50 rounded-lg">
+                    <div className="text-2xl font-bold text-orange-400">{ownedCount}</div>
+                    <div className="text-sm text-gray-400">Total Items</div>
+                  </div>
+                  <div className="text-center p-4 bg-gray-700/50 rounded-lg">
+                    <div className="text-2xl font-bold text-green-400">${totalValue.toFixed(0)}</div>
+                    <div className="text-sm text-gray-400">Collection Value</div>
+                  </div>
+                  <div className="text-center p-4 bg-gray-700/50 rounded-lg">
+                    <div className="text-2xl font-bold text-purple-400">{Object.keys(rarityBreakdown).length}</div>
+                    <div className="text-sm text-gray-400">Rarity Types</div>
+                  </div>
+                  <div className="text-center p-4 bg-gray-700/50 rounded-lg">
+                    <div className="text-2xl font-bold text-blue-400">{publicLists?.length || 0}</div>
+                    <div className="text-sm text-gray-400">Public Lists</div>
+                  </div>
+                </div>
+              </div>
+            </CardContent>
+          </Card>
+        </div>
+      </div>
+
+      {/* Main Content */}
+      <div className="max-w-6xl mx-auto px-6 py-8">
+        <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
+          {/* Main Collection Display */}
+          <div className="lg:col-span-2 space-y-8">
+            {/* Collection Highlights */}
+            <Card className="bg-gray-800/30 border-gray-700">
+              <CardHeader>
+                <CardTitle className="text-white flex items-center gap-2">
+                  <Star className="w-5 h-5 text-yellow-400" />
+                  Collection Highlights
+                </CardTitle>
               </CardHeader>
-              
-              {/* Social & Gaming Links */}
-              {(socialLinks.length > 0 || gamingPlatforms.length > 0) && (
+              <CardContent>
+                {userCollection.length > 0 ? (
+                  <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
+                    {userCollection
+                      .sort((a, b) => (b.funko_pops?.estimated_value || 0) - (a.funko_pops?.estimated_value || 0))
+                      .slice(0, 8)
+                      .map((item, index) => (
+                        <div key={item.id} className="group relative">
+                          <div className="aspect-square bg-gray-700/50 rounded-lg p-2 group-hover:bg-gray-700/70 transition-colors">
+                            <img
+                              src={item.funko_pops?.image_url || '/placeholder-funko.png'}
+                              alt={item.funko_pops?.name}
+                              className="w-full h-full object-contain"
+                            />
+                            {index < 3 && (
+                              <div className="absolute -top-2 -right-2 bg-yellow-500 text-black text-xs font-bold rounded-full w-6 h-6 flex items-center justify-center">
+                                {index + 1}
+                              </div>
+                            )}
+                          </div>
+                          <div className="mt-2 text-center">
+                            <p className="text-white text-sm font-medium truncate">
+                              {item.funko_pops?.name}
+                            </p>
+                            <p className="text-orange-400 text-xs">
+                              ${item.funko_pops?.estimated_value || 0}
+                            </p>
+                          </div>
+                        </div>
+                      ))}
+                  </div>
+                ) : (
+                  <div className="text-center py-8">
+                    <div className="text-4xl mb-2">📦</div>
+                    <p className="text-gray-400">No items in collection yet</p>
+                  </div>
+                )}
+              </CardContent>
+            </Card>
+
+            {/* Recent Activity */}
+            <Card className="bg-gray-800/30 border-gray-700">
+              <CardHeader>
+                <CardTitle className="text-white">Recent Activity</CardTitle>
+              </CardHeader>
+              <CardContent>
+                {activities && activities.length > 0 ? (
+                  <ActivityFeed activities={activities.slice(0, 5)} />
+                ) : (
+                  <div className="text-center py-8">
+                    <div className="text-4xl mb-2">📱</div>
+                    <p className="text-gray-400">No recent activity</p>
+                  </div>
+                )}
+              </CardContent>
+            </Card>
+          </div>
+
+          {/* Sidebar */}
+          <div className="space-y-6">
+            {/* Achievements */}
+            <Card className="bg-gray-800/30 border-gray-700">
+              <CardHeader>
+                <CardTitle className="text-white flex items-center gap-2">
+                  <Trophy className="w-5 h-5 text-yellow-400" />
+                  Achievements
+                </CardTitle>
+              </CardHeader>
+              <CardContent className="space-y-3">
+                <div className="flex items-center gap-3 p-2 bg-gray-700/50 rounded-lg">
+                  <div className="w-10 h-10 bg-yellow-500/20 rounded-full flex items-center justify-center">
+                    🏆
+                  </div>
+                  <div>
+                    <p className="text-white text-sm font-medium">First Pop!</p>
+                    <p className="text-gray-400 text-xs">Started your collection</p>
+                  </div>
+                </div>
+                {userCollection.length >= 10 && (
+                  <div className="flex items-center gap-3 p-2 bg-gray-700/50 rounded-lg">
+                    <div className="w-10 h-10 bg-blue-500/20 rounded-full flex items-center justify-center">
+                      📈
+                    </div>
+                    <div>
+                      <p className="text-white text-sm font-medium">Growing Collection</p>
+                      <p className="text-gray-400 text-xs">Reached 10 items</p>
+                    </div>
+                  </div>
+                )}
+                {totalValue >= 100 && (
+                  <div className="flex items-center gap-3 p-2 bg-gray-700/50 rounded-lg">
+                    <div className="w-10 h-10 bg-green-500/20 rounded-full flex items-center justify-center">
+                      💰
+                    </div>
+                    <div>
+                      <p className="text-white text-sm font-medium">Valuable Collector</p>
+                      <p className="text-gray-400 text-xs">Collection worth $100+</p>
+                    </div>
+                  </div>
+                )}
+              </CardContent>
+            </Card>
+
+            {/* Public Lists */}
+            <Card className="bg-gray-800/30 border-gray-700">
+              <CardHeader>
+                <CardTitle className="text-white">Public Lists</CardTitle>
+              </CardHeader>
+              <CardContent>
+                {publicLists && publicLists.length > 0 ? (
+                  <div className="space-y-2">
+                    {publicLists.slice(0, 5).map(list => (
+                      <Link
+                        key={list.id}
+                        to={`/lists/${list.id}`}
+                        className="block p-3 bg-gray-700/50 rounded-lg hover:bg-gray-700/70 transition-colors"
+                      >
+                        <div className="flex items-center justify-between">
+                          <div>
+                            <p className="text-white font-medium">{list.name}</p>
+                            <p className="text-gray-400 text-sm">{list.items?.length || 0} items</p>
+                          </div>
+                          <ExternalLink className="w-4 h-4 text-gray-400" />
+                        </div>
+                      </Link>
+                    ))}
+                  </div>
+                ) : (
+                  <div className="text-center py-6">
+                    <div className="text-3xl mb-2">📋</div>
+                    <p className="text-gray-400 text-sm">No public lists</p>
+                  </div>
+                )}
+              </CardContent>
+            </Card>
+
+            {/* Social Links */}
+            {socialLinks.length > 0 && (
+              <Card className="bg-gray-800/30 border-gray-700">
+                <CardHeader>
+                  <CardTitle className="text-white flex items-center gap-2">
+                    <LinkIcon className="w-5 h-5 text-blue-400" />
+                    Social Links
+                  </CardTitle>
+                </CardHeader>
                 <CardContent>
-                  <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-                    {socialLinks.length > 0 && (
-                      <div>
-                        <h3 className="text-white font-semibold mb-4">Connect</h3>
-                        <div className="grid grid-cols-2 gap-3">
-                          {socialLinks.map((link) => {
-                            const Icon = link.icon;
-                            return (
+                  <div className="space-y-4">
+                    {/* Group social links by category */}
+                    {['Content & Community', 'Collecting & Marketplace', 'Professional/Business', 'Emerging Platforms'].map(category => {
+                      const categoryLinks = socialLinks.filter(link => link.category === category);
+                      if (categoryLinks.length === 0) return null;
+                      
+                      return (
+                        <div key={category}>
+                          <h4 className="text-orange-400 text-sm font-medium mb-2">{category}</h4>
+                          <div className="grid grid-cols-2 gap-2">
+                            {categoryLinks.map(link => (
                               <div key={link.name} className="flex items-center gap-2">
-                                <Icon className={`w-4 h-4 ${link.color}`} />
                                 {link.url ? (
                                   <a
                                     href={link.url}
                                     target="_blank"
                                     rel="noopener noreferrer"
-                                    className="text-gray-300 hover:text-white flex items-center gap-1 text-sm"
+                                    className="flex items-center gap-2 p-2 bg-gray-700/50 rounded-lg hover:bg-gray-700/70 transition-colors text-sm w-full"
                                   >
-                                    {link.value}
-                                    <ExternalLink className="w-3 h-3" />
+                                    <link.icon className={`w-4 h-4 ${link.color}`} />
+                                    <span className="text-gray-300 truncate">{link.name}</span>
+                                    <ExternalLink className="w-3 h-3 text-gray-500 ml-auto" />
                                   </a>
                                 ) : (
-                                  <span className="text-gray-300 text-sm">{link.value}</span>
+                                  <div className="flex items-center gap-2 p-2 bg-gray-700/50 rounded-lg text-sm w-full">
+                                    <link.icon className={`w-4 h-4 ${link.color}`} />
+                                    <span className="text-gray-300 truncate">{link.name}</span>
+                                  </div>
                                 )}
                               </div>
-                            );
-                          })}
+                            ))}
+                          </div>
                         </div>
-                      </div>
-                    )}
-
-                    {gamingPlatforms.length > 0 && (
-                      <div>
-                        <h3 className="text-white font-semibold mb-4 flex items-center gap-2">
-                          <Gamepad2 className="w-4 h-4" />
-                          Gaming
-                        </h3>
-                        <div className="grid grid-cols-2 gap-3">
-                          {gamingPlatforms.map((platform) => {
-                            const Icon = platform.icon;
-                            return (
-                              <div key={platform.name} className="flex items-center gap-2">
-                                <Icon className={`w-4 h-4 ${platform.color}`} />
-                                <div className="flex-1 min-w-0">
-                                  <p className="text-gray-300 text-sm">{platform.name}</p>
-                                  <p className="text-gray-400 text-xs truncate">{platform.value}</p>
-                                </div>
-                              </div>
-                            );
-                          })}
-                        </div>
-                      </div>
-                    )}
+                      );
+                    })}
                   </div>
                 </CardContent>
-              )}
-            </Card>
-
-            {/* Activity Dashboard */}
-            <div className="grid grid-cols-1 lg:grid-cols-2 gap-6 mb-8">
-              {!activitiesLoading && activities.length > 0 && (
-                <ActivityFeed 
-                  activities={activities} 
-                  displayName={profile.display_name || profile.username || 'User'} 
-                />
-              )}
-              
-              {(profile.playstation_username || profile.xbox_gamertag || profile.nintendo_friend_code || profile.steam_username) && (
-                <GamingDashboard 
-                  profile={profile} 
-                  activities={activities} 
-                />
-              )}
-            </div>
-
-            {/* Collection Insights */}
-            {transformedItems.length > 0 && (
-              <div className="mb-8">
-                <CollectionInsights 
-                  items={transformedItems} 
-                  displayName={profile.display_name || profile.username || 'User'} 
-                />
-              </div>
+              </Card>
             )}
 
-            {/* Saved Searches */}
-            {user && profile && user.id === profile.user_id && (
-              <div className="mb-8">
-                <h2 className="text-2xl font-bold text-white mb-4">Saved Searches</h2>
-                {loadingSaved ? (
-                  <div className="text-gray-400">Loading...</div>
-                ) : savedSearches.length === 0 ? (
-                  <div className="text-gray-400">No saved searches.</div>
-                ) : (
-                  <ul>
-                    {savedSearches.map(ss => (
-                      <li key={ss.id} className="flex items-center gap-2 mb-2">
-                        <span className="text-white">{ss.name}</span>
-                        <span className="text-gray-500 text-xs">{new Date(ss.created_at).toLocaleString()}</span>
-                        <Button size="sm" className="bg-red-600 hover:bg-red-700 text-white" onClick={() => handleDeleteSearch(ss.id)}>Delete</Button>
-                      </li>
-                    ))}
-                  </ul>
-                )}
-              </div>
-            )}
-
-            {/* Audit Log */}
-            {user && profile && user.id === profile.user_id && (
-              <div className="mb-8">
-                <h2 className="text-xl font-bold text-white mb-4">Audit Log</h2>
-                <ul className="space-y-2">
-                  {auditLog.map((entry) => (
-                    <li key={entry.id} className="bg-gray-800 p-3 rounded">
-                      <div className="text-sm text-gray-300">{entry.action}</div>
-                      <div className="text-xs text-gray-500">{new Date(entry.created_at).toLocaleString()}</div>
-                      <div className="text-xs text-gray-400">{JSON.stringify(entry.details)}</div>
-                    </li>
-                  ))}
-                  {auditLog.length === 0 && <li className="text-gray-500 text-sm">No recent activity.</li>}
-                </ul>
-              </div>
-            )}
-
-            {/* Featured Lists */}
-            {profile.profile_list_ids && profile.profile_list_ids.length > 0 && (
-              <div className="mb-8">
-                <h2 className="text-2xl font-bold text-white mb-4">Featured Lists</h2>
-                <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-                  {publicLists
-                    .filter(list => profile.profile_list_ids.includes(list.id))
-                    .map(list => (
-                      <Card key={list.id} className="bg-gray-800/70 border-gray-700 hover:bg-gray-800/90 transition-colors">
-                        <CardHeader>
-                          <CardTitle className="text-white text-lg flex items-center gap-2">
-                            {list.name}
-                            <span className="text-xs text-gray-400 font-normal">{list.is_public ? 'Public' : 'Private'}</span>
-                          </CardTitle>
-                        </CardHeader>
-                        <CardContent>
-                          <p className="text-gray-400 text-sm mb-2 line-clamp-2">{list.description}</p>
-                          <div className="flex items-center gap-2 mb-2">
-                            {(list.list_items || []).slice(0, 4).map(item => (
-                              item.funko_pops?.image_url ? (
-                                <img
-                                  key={item.id}
-                                  src={item.funko_pops.image_url}
-                                  alt={item.funko_pops.name}
-                                  className="w-10 h-10 object-cover rounded border border-gray-700"
-                                />
-                              ) : null
-                            ))}
-                            {list.list_items && list.list_items.length > 4 && (
-                              <span className="text-xs text-gray-400 ml-2">+{list.list_items.length - 4} more</span>
-                            )}
-                          </div>
-                          <div className="flex justify-between items-center text-xs text-gray-400 mb-2">
-                            <span>{list.list_items?.length || 0} items</span>
-                            <span>{new Date(list.created_at).toLocaleDateString()}</span>
-                          </div>
-                          <Link to={`/lists/${list.slug || list.id}`}>
-                            <Button className="w-full bg-orange-500 hover:bg-orange-600 text-white">View List</Button>
-                          </Link>
-                        </CardContent>
-                      </Card>
-                    ))}
-                </div>
-              </div>
-            )}
-
-            {/* Collection Section */}
-            <section className="mb-12">
-              <h2 className="text-2xl font-bold text-white mb-4">{profile.display_name || profile.username}'s Collection</h2>
-              {transformedItems.length === 0 ? (
-                <div className="bg-gray-800/60 border border-gray-700 rounded-lg p-8 text-center text-gray-400 text-lg">
-                  No items in collection yet.<br />
-                  <span className="text-orange-500 font-semibold">Want to see something here? Ask {profile.display_name || profile.username} to make their collection public or add items!</span>
-                </div>
-              ) : (
-                <CollectionGrid items={transformedItems} onItemClick={setSelectedItem} searchQuery="" />
-              )}
-            </section>
-          </div>
-        </section>
-      </div>
-      <MobileBottomNav />
-      {/* DM Modal */}
-      {dmOpen && (
-        <div className="fixed inset-0 bg-black bg-opacity-60 flex items-center justify-center z-50">
-          <div className="bg-gray-900 rounded-lg p-6 w-full max-w-md relative">
-            <button className="absolute top-2 right-2 text-gray-400 hover:text-white" onClick={closeDm}>&times;</button>
-            <div className="flex items-center gap-3 mb-4">
-              <img src={profile.avatar_url || '/default-avatar.png'} alt="avatar" className="w-10 h-10 rounded-full" />
-              <div>
-                <div className="font-semibold">{profile.display_name || profile.username}</div>
-                <div className="text-xs text-gray-400">@{profile.username}</div>
-              </div>
-            </div>
-            <div className="bg-gray-800 rounded p-3 h-64 overflow-y-auto mb-4 flex flex-col-reverse">
-              <div>
-                {dmLoading ? (
-                  <div className="text-gray-400 text-center">Loading...</div>
-                ) : (
-                  dmMessages.length === 0 ? (
-                    <div className="text-gray-500 text-center">No messages yet.</div>
-                  ) : (
-                    dmMessages.slice().reverse().map(msg => (
-                      <div key={msg.id} className={`mb-2 flex ${msg.sender_id === user.id ? 'justify-end' : 'justify-start'}`}>
-                        <div className={`px-3 py-2 rounded-lg max-w-xs ${msg.sender_id === user.id ? 'bg-orange-500 text-white' : 'bg-gray-700 text-gray-200'}`}>
-                          {msg.content}
-                          <div className="text-xs text-gray-300 mt-1 text-right">{new Date(msg.created_at).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}</div>
+            {/* Gaming Platforms */}
+            {gamingPlatforms.length > 0 && (
+              <Card className="bg-gray-800/30 border-gray-700">
+                <CardHeader>
+                  <CardTitle className="text-white flex items-center gap-2">
+                    <Gamepad2 className="w-5 h-5 text-purple-400" />
+                    Gaming Platforms
+                  </CardTitle>
+                </CardHeader>
+                <CardContent>
+                  <div className="space-y-2">
+                    {gamingPlatforms.map(platform => (
+                      <div key={platform.name} className="flex items-center gap-3 p-2 bg-gray-700/50 rounded-lg">
+                        <platform.icon className={`w-4 h-4 ${platform.color}`} />
+                        <div className="flex-1">
+                          <p className="text-white text-sm font-medium">{platform.name}</p>
+                          <p className="text-gray-400 text-xs truncate">{platform.value}</p>
                         </div>
                       </div>
-                    ))
-                  )
-                )}
-              </div>
-            </div>
-            <form onSubmit={sendDm} className="flex gap-2">
-              <input
-                type="text"
-                placeholder="Type a message..."
-                value={dmInput}
-                onChange={e => setDmInput(e.target.value)}
-                className="flex-1 px-3 py-2 rounded bg-gray-800 text-white border border-gray-700 focus:outline-none"
-                disabled={dmLoading}
-              />
-              <Button type="submit" className="bg-orange-500 hover:bg-orange-600 text-white" disabled={dmLoading || !dmInput.trim()}>Send</Button>
-            </form>
+                    ))}
+                  </div>
+                </CardContent>
+              </Card>
+            )}
+
+            {/* Rarity Breakdown */}
+            <Card className="bg-gray-800/30 border-gray-700">
+              <CardHeader>
+                <CardTitle className="text-white">Collection Breakdown</CardTitle>
+              </CardHeader>
+              <CardContent>
+                <div className="space-y-2">
+                  {Object.entries(rarityBreakdown).map(([rarity, count]) => (
+                    <div key={rarity} className="flex justify-between items-center">
+                      <span className="text-gray-300">{rarity}</span>
+                      <span className="text-white font-medium">{count}</span>
+                    </div>
+                  ))}
+                </div>
+              </CardContent>
+            </Card>
           </div>
         </div>
-      )}
-      
-      {/* Add Item Dialog */}
-      <EnhancedAddItemDialog 
-        open={isAddDialogOpen} 
-        onOpenChange={setIsAddDialogOpen} 
-      />
-    </>
+      </div>
+
+      <Footer />
+      <MobileBottomNav />
+    </div>
   );
 };
 

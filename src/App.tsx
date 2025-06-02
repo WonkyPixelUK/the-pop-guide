@@ -55,6 +55,8 @@ import TimeMachine from "./pages/TimeMachine";
 import GrailGalaxyLanding from "@/pages/GrailGalaxyLanding";
 import GrailGalaxyWorld from "@/pages/GrailGalaxyWorld";
 import RetailerDirectory from "@/pages/RetailerDirectory";
+import Export from "@/pages/Export";
+import PricingDashboard from "@/pages/PricingDashboard";
 
 const queryClient = new QueryClient();
 
@@ -78,6 +80,7 @@ const App = () => (
             <Route path="/contact" element={<Contact />} />
             <Route path="/profile/:username" element={<Profile />} />
             <Route path="/profile" element={<ProfileSettings />} />
+            <Route path="/profile-settings" element={<ProfileSettings />} />
             <Route path="/scraping-status" element={<ScrapingStatus />} />
             <Route path="/lists/:listId" element={<PublicListView />} />
             <Route path="/browse-lists" element={<BrowseLists />} />
@@ -115,6 +118,8 @@ const App = () => (
             <Route path="/grail-galaxy" element={<GrailGalaxyLanding />} />
             <Route path="/grail-galaxy/world" element={<GrailGalaxyWorld />} />
             <Route path="/retailers" element={<RetailerDirectory />} />
+            <Route path="/export" element={<Export />} />
+            <Route path="/pricing-dashboard" element={<PricingDashboard />} />
             <Route path="/" element={<Navigate to="/dashboard" replace />} />
 
             {/* ADD ALL CUSTOM ROUTES ABOVE THE CATCH-ALL "*" ROUTE */}

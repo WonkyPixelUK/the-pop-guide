@@ -178,10 +178,23 @@ const Landing = () => {
                       series: pop.series,
                       number: pop.number || '',
                       image: pop.image_url || '',
+                      image_url: pop.image_url || '',
                       value: typeof pop.estimated_value === 'number' ? pop.estimated_value : null,
+                      estimated_value: pop.estimated_value,
                       rarity: pop.rarity || pop.is_chase ? 'Chase' : pop.is_exclusive ? 'Exclusive' : 'Common',
                       owned: !!pop.owned,
                       description: pop.description || '',
+                      category: pop.category || 'Pop!',
+                      fandom: pop.fandom,
+                      genre: pop.genre,
+                      edition: pop.edition,
+                      release_year: pop.release_year,
+                      release_date: pop.release_date,
+                      is_vaulted: pop.is_vaulted,
+                      is_exclusive: pop.is_exclusive,
+                      exclusive_to: pop.exclusive_to,
+                      is_chase: pop.is_chase,
+                      variant: pop.variant,
                     })}
                     aria-label={`View details for ${pop.name}`}
                   >

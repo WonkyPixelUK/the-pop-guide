@@ -7,7 +7,7 @@ import { supabase } from '@/integrations/supabase/client';
 import Navigation from '@/components/Navigation';
 import MobileBottomNav from '@/components/MobileBottomNav';
 import Footer from '@/components/Footer';
-import { User, Link, Gamepad2, List, CreditCard, Key, ChevronLeft, Plus, LogOut, Search } from 'lucide-react';
+import { User, Link, Gamepad2, List, CreditCard, Key, ChevronLeft, Plus, LogOut, Search, Mail, TrendingUp } from 'lucide-react';
 import { Input } from '@/components/ui/input';
 import EnhancedAddItemDialog from '@/components/EnhancedAddItemDialog';
 import { useToast } from '@/hooks/use-toast';
@@ -21,6 +21,8 @@ const TABS = [
   { key: 'social', label: 'Social', icon: Link },
   { key: 'gaming', label: 'Gaming', icon: Gamepad2 },
   { key: 'lists', label: 'Lists', icon: List },
+  { key: 'pricing-requests', label: 'Pricing Requests', icon: TrendingUp },
+  { key: 'emails', label: 'Email History', icon: Mail },
   { key: 'account', label: 'Account', icon: Key },
   { key: 'subscription', label: 'Billing', icon: CreditCard },
   { key: 'api', label: 'API', icon: Key },
@@ -40,6 +42,10 @@ const ProfileSettings = () => {
   const [apiKey, setApiKey] = useState<string | null>(null);
   const [apiKeyLoading, setApiKeyLoading] = useState(false);
   const [apiKeyError, setApiKeyError] = useState<string | null>(null);
+  
+  // Add email history states
+  const [emailHistory, setEmailHistory] = useState<any[]>([]);
+  const [emailHistoryLoading, setEmailHistoryLoading] = useState(false);
   
   // Add retailer states
   const [retailerProfile, setRetailerProfile] = useState<any>(null);
@@ -199,6 +205,30 @@ const ProfileSettings = () => {
           setApiKeyLoading(false);
         }
       });
+    }
+  }, [activeTab, user]);
+
+  // Email history logic
+  useEffect(() => {
+    if (activeTab === 'emails' && user) {
+      setEmailHistoryLoading(true);
+      
+      supabase
+        .from('email_history')
+        .select('*')
+        .eq('user_id', user.id)
+        .order('sent_at', { ascending: false })
+        .limit(50)
+        .then(({ data, error }) => {
+          if (error) {
+            console.error('Error fetching email history:', error);
+          } else {
+            setEmailHistory(data || []);
+          }
+        })
+        .finally(() => {
+          setEmailHistoryLoading(false);
+        });
     }
   }, [activeTab, user]);
 
@@ -603,7 +633,7 @@ const ProfileSettings = () => {
                   onChange={(e) => setSearchQuery(e.target.value)}
                   className="pl-10 bg-gray-800/50 border-gray-600 text-white placeholder-gray-400 focus:ring-orange-500 focus:border-orange-500"
                 />
-              </div>
+            </div>
             </form>
             
             {/* Welcome Message & Action Buttons */}
@@ -615,7 +645,7 @@ const ProfileSettings = () => {
               
               {/* Action Buttons */}
               <div className="flex items-center gap-2">
-                <Button 
+            <Button
                   onClick={() => setIsAddDialogOpen(true)}
                   size="sm" 
                   className="bg-orange-500 hover:bg-orange-600 text-white"
@@ -728,6 +758,86 @@ const ProfileSettings = () => {
               {activeTab === 'social' && <ProfileEditor section="social" />}
               {activeTab === 'gaming' && <ProfileEditor section="gaming" />}
               {activeTab === 'lists' && <ProfileEditor section="lists" />}
+              {activeTab === 'pricing-requests' && <ProfileEditor section="pricing-requests" />}
+              {activeTab === 'emails' && (
+                <div>
+                  <h2 className="text-2xl font-semibold text-white mb-6 flex items-center gap-3">
+                    <Mail className="w-6 h-6 text-orange-500" />
+                    Email History
+                  </h2>
+                  
+                  <div className="space-y-4">
+                    <div className="p-4 bg-blue-500/10 border border-blue-500/20 rounded-lg">
+                      <div className="flex items-start gap-3">
+                        <div className="w-8 h-8 bg-blue-500/20 rounded-full flex items-center justify-center flex-shrink-0 mt-0.5">
+                          ℹ️
+                        </div>
+                        <div>
+                          <h3 className="text-white font-medium mb-1">Email Transparency</h3>
+                          <p className="text-gray-300 text-sm">
+                            For transparency, we show you all the emails we've sent to your account. 
+                            This includes welcome emails, notifications, alerts, and security messages.
+                          </p>
+                        </div>
+                      </div>
+                    </div>
+
+                    {emailHistoryLoading ? (
+                      <div className="text-center py-8">
+                        <div className="text-gray-400">Loading email history...</div>
+                      </div>
+                    ) : emailHistory.length > 0 ? (
+                      <div className="space-y-3">
+                        {emailHistory.map((email, index) => (
+                          <div key={email.id} className="p-4 bg-gray-700/30 rounded-lg border border-gray-600">
+                            <div className="flex items-start justify-between gap-4">
+                              <div className="flex-1">
+                                <div className="flex items-center gap-2 mb-2">
+                                  <span className="text-white font-medium">{email.subject}</span>
+                                  <span className={`px-2 py-1 rounded-full text-xs font-medium ${
+                                    email.status === 'sent' ? 'bg-green-500/20 text-green-400' :
+                                    email.status === 'failed' ? 'bg-red-500/20 text-red-400' :
+                                    'bg-yellow-500/20 text-yellow-400'
+                                  }`}>
+                                    {email.status}
+                                  </span>
+                                </div>
+                                
+                                <div className="flex items-center gap-4 text-sm text-gray-400">
+                                  <span>Type: {email.email_type}</span>
+                                  <span>•</span>
+                                  <span>To: {email.email_address}</span>
+                                  <span>•</span>
+                                  <span>{new Date(email.sent_at).toLocaleDateString()} {new Date(email.sent_at).toLocaleTimeString()}</span>
+                                </div>
+                                
+                                {email.data && Object.keys(email.data).length > 0 && (
+                                  <details className="mt-2">
+                                    <summary className="text-orange-400 text-sm cursor-pointer hover:text-orange-300">
+                                      View email data
+                                    </summary>
+                                    <div className="mt-2 p-3 bg-gray-800/50 rounded text-xs text-gray-300 font-mono">
+                                      <pre>{JSON.stringify(email.data, null, 2)}</pre>
+                                    </div>
+                                  </details>
+                                )}
+                              </div>
+                            </div>
+                          </div>
+                        ))}
+                      </div>
+                    ) : (
+                      <div className="text-center py-8">
+                        <div className="text-4xl mb-2">📧</div>
+                        <p className="text-gray-400">No emails found</p>
+                        <p className="text-gray-500 text-sm mt-1">
+                          Email history will appear here as we send you notifications
+                        </p>
+                      </div>
+                    )}
+                  </div>
+                </div>
+              )}
               {activeTab === 'account' && <ProfileEditor section="account" />}
               {activeTab === 'subscription' && (
                 <div>
@@ -751,28 +861,28 @@ const ProfileSettings = () => {
                       </div>
                       <Button
                         className={`bg-orange-500 hover:bg-orange-600 text-white font-semibold ${isMobile ? 'w-full' : 'ml-auto'}`}
-                        onClick={async () => {
-                          setPortalLoading(true);
-                          try {
-                            if (customerId) {
+              onClick={async () => {
+                setPortalLoading(true);
+                try {
+                  if (customerId) {
                               // Use the correct Supabase Edge Function URL for portal
                               const { data: sessionData } = await supabase.auth.getSession();
                               const res = await fetch(`https://pafgjwmgueerxdxtneyg.functions.supabase.co/stripe-portal`, {
-                                method: 'POST',
+                      method: 'POST',
                                 headers: { 
                                   'Content-Type': 'application/json',
                                   'Authorization': `Bearer ${sessionData.session?.access_token}`
                                 },
-                                body: JSON.stringify({ customer_id: customerId }),
-                              });
-                              const data = await res.json();
-                              if (data.url) {
-                                window.location.href = data.url;
+                      body: JSON.stringify({ customer_id: customerId }),
+                    });
+                    const data = await res.json();
+                    if (data.url) {
+                      window.location.href = data.url;
                               } else {
                                 console.error('Portal response:', data);
                                 alert('Unable to access billing portal. Please try again.');
-                              }
-                            } else {
+                    }
+                  } else {
                               // Use the correct checkout URL
                               const { data: sessionData } = await supabase.auth.getSession();
                               const headers: Record<string, string> = { 
@@ -782,31 +892,31 @@ const ProfileSettings = () => {
                                 headers['Authorization'] = `Bearer ${sessionData.session.access_token}`;
                               }
                               const res = await fetch(SUPABASE_FUNCTION_URL, {
-                                method: 'POST',
+                      method: 'POST',
                                 headers,
                                 body: JSON.stringify({ email: user.email }),
-                              });
-                              const data = await res.json();
+                    });
+                    const data = await res.json();
                               console.log('Checkout response:', data);
-                              if (data.url) {
-                                window.location.href = data.url;
-                              } else {
+                    if (data.url) {
+                      window.location.href = data.url;
+                    } else {
                                 console.error('Checkout error:', data);
                                 alert(`Unable to start subscription: ${data.error || 'Please try again.'}`);
-                              }
-                            }
+                    }
+                  }
                           } catch (error) {
                             console.error('Billing error:', error);
                             alert('An error occurred. Please try again.');
-                          } finally {
-                            setPortalLoading(false);
-                          }
-                        }}
-                        disabled={portalLoading}
-                      >
+                } finally {
+                  setPortalLoading(false);
+                }
+              }}
+              disabled={portalLoading}
+            >
                         {portalLoading ? 'Loading...' : customerId ? 'Manage Billing' : 'Upgrade to Pro'}
-                      </Button>
-                    </div>
+            </Button>
+          </div>
                     
                     {/* Payment Method Management */}
                     {customerId && (
@@ -848,7 +958,7 @@ const ProfileSettings = () => {
                               >
                                 Update Card
                               </Button>
-                            </div>
+        </div>
                             {card ? (
                               <div>
                                 <div className="flex items-center gap-2 mb-2">
@@ -859,8 +969,8 @@ const ProfileSettings = () => {
                                 </div>
                                 <p className="text-gray-400 text-sm">
                                   Expires {card.exp_month?.toString().padStart(2, '0')}/{card.exp_year}
-                                </p>
-                              </div>
+            </p>
+          </div>
                             ) : (
                               <div className="space-y-2">
                                 <div className="text-gray-400 text-sm">Loading card details...</div>
@@ -892,7 +1002,7 @@ const ProfileSettings = () => {
                                 >
                                   Retry Loading
                                 </button>
-                              </div>
+        </div>
                             )}
                           </div>
                           

@@ -122,43 +122,43 @@ const Navigation = () => {
           </div>
           {/* Action Buttons Right */}
           <div className="flex items-center gap-2">
-            {user ? (
+          {user ? (
               <div className="ml-3 flex items-center gap-1 bg-gray-200 rounded px-2 py-1 cursor-pointer group relative" tabIndex={0}>
                 <span className="text-xs text-gray-700 font-semibold mr-1">Logged in as:</span>
                 <DropdownMenu as="div" className="inline-block text-left">
                   <DropdownMenu.Button className="flex items-center text-[#232837] font-bold text-xs focus:outline-none">
                     {user.email}
                     <ChevronDown className="w-4 h-4 ml-1 text-gray-500 group-hover:text-orange-500 transition" />
-                  </DropdownMenu.Button>
-                  <DropdownMenu.Items className="absolute right-0 mt-2 w-40 origin-top-right bg-white border border-gray-200 rounded-md shadow-lg focus:outline-none z-50">
-                    <MenuItem>
-                      {({ active }) => (
-                        <Link to="/profile-settings" className={`block px-4 py-2 text-sm ${active ? 'bg-orange-50 text-[#e46c1b]' : 'text-gray-900'}`}>Profile</Link>
-                      )}
-                    </MenuItem>
-                    <MenuItem>
-                      {({ active }) => (
-                        <button
-                          onClick={handleSignOut}
-                          className={`block w-full text-left px-4 py-2 text-sm ${active ? 'bg-orange-50 text-[#e46c1b]' : 'text-gray-900'}`}
-                        >
-                          Logout
-                        </button>
-                      )}
-                    </MenuItem>
-                  </DropdownMenu.Items>
-                </DropdownMenu>
+                </DropdownMenu.Button>
+                <DropdownMenu.Items className="absolute right-0 mt-2 w-40 origin-top-right bg-white border border-gray-200 rounded-md shadow-lg focus:outline-none z-50">
+                  <MenuItem>
+                    {({ active }) => (
+                      <Link to="/profile-settings" className={`block px-4 py-2 text-sm ${active ? 'bg-orange-50 text-[#e46c1b]' : 'text-gray-900'}`}>Profile</Link>
+                    )}
+                  </MenuItem>
+                  <MenuItem>
+                    {({ active }) => (
+                      <button
+                        onClick={handleSignOut}
+                        className={`block w-full text-left px-4 py-2 text-sm ${active ? 'bg-orange-50 text-[#e46c1b]' : 'text-gray-900'}`}
+                      >
+                        Logout
+                      </button>
+                    )}
+                  </MenuItem>
+                </DropdownMenu.Items>
+              </DropdownMenu>
               </div>
-            ) : (
-              <>
-                <Link to="/get-started" className="border border-[#e46c1b] text-[#e46c1b] bg-transparent hover:bg-orange-50 rounded-md px-3 py-1 font-medium text-xs min-w-0 transition-colors" style={{ textAlign: 'center', border: '1px solid #e46c1b' }}>
-                  Get started
-                </Link>
-                <Link to="/auth" className="border border-[#e46c1b] text-[#e46c1b] bg-transparent hover:bg-orange-50 rounded-md px-3 py-1 font-medium text-xs min-w-0 transition-colors" style={{ textAlign: 'center', border: '1px solid #e46c1b' }}>
-                  Sign In
-                </Link>
-              </>
-            )}
+          ) : (
+            <>
+              <Link to="/get-started" className="border border-[#e46c1b] text-[#e46c1b] bg-transparent hover:bg-orange-50 rounded-md px-3 py-1 font-medium text-xs min-w-0 transition-colors" style={{ textAlign: 'center', border: '1px solid #e46c1b' }}>
+                Get started
+              </Link>
+                <Link to="/auth?signin=true" className="border border-[#e46c1b] text-[#e46c1b] bg-transparent hover:bg-orange-50 rounded-md px-3 py-1 font-medium text-xs min-w-0 transition-colors" style={{ textAlign: 'center', border: '1px solid #e46c1b' }}>
+                Sign In
+              </Link>
+            </>
+          )}
           </div>
         </div>
       </div>
@@ -175,7 +175,25 @@ const Navigation = () => {
             </Link>
           </div>
           <nav className="flex items-center space-x-10 hidden md:flex">
-            <Link to="/directory-all" className="text-white hover:text-orange-500 font-normal text-base transition-colors">Browse Database</Link>
+            {/* Database Dropdown */}
+            <DropdownMenu as="div" className="relative inline-block text-left">
+              <DropdownMenu.Button className="flex items-center text-white hover:text-orange-500 font-normal text-base transition-colors">
+                Database <ChevronDown className="ml-1 w-5 h-5 text-[#e46c1b] animate-bounce-y" />
+              </DropdownMenu.Button>
+              <DropdownMenu.Items className="origin-top-right absolute right-0 mt-2 w-64 rounded-xl shadow-2xl bg-[#232837] border border-gray-800 focus:outline-none z-50 p-2">
+                <DropdownMenu.Item>
+                  <Link to="/directory-all" className="flex items-center gap-3 px-4 py-3 text-base font-medium text-white rounded-lg transition group hover:bg-gray-800/80 hover:border-l-4 hover:border-orange-500">
+                    <Search className="w-5 h-5 text-orange-400 group-hover:scale-110 transition-transform" /> Browse Database
+                  </Link>
+                </DropdownMenu.Item>
+                <DropdownMenu.Item>
+                  <Link to="/pricing-dashboard" className="flex items-center gap-3 px-4 py-3 text-base font-medium text-white rounded-lg transition group hover:bg-gray-800/80 hover:border-l-4 hover:border-orange-500">
+                    <DollarSign className="w-5 h-5 text-orange-400 group-hover:scale-110 transition-transform" /> Live Pricing
+                  </Link>
+                </DropdownMenu.Item>
+              </DropdownMenu.Items>
+            </DropdownMenu>
+            
             <Link to="/features" className="text-white hover:text-orange-500 font-normal text-base transition-colors">Features</Link>
             <Link to="/pricing" className="text-white hover:text-orange-500 font-normal text-base transition-colors">Pricing</Link>
             <Link
@@ -282,7 +300,7 @@ const Navigation = () => {
               </DropdownMenu.Button>
               <DropdownMenu.Items className="origin-top-right absolute right-0 mt-2 w-64 rounded-xl shadow-2xl bg-[#232837] border border-gray-800 focus:outline-none z-50 p-2">
                 <DropdownMenu.Item>
-                  <Link to="/directory" className="flex items-center gap-3 px-4 py-3 text-base font-medium text-white rounded-lg transition group hover:bg-gray-800/80 hover:border-l-4 hover:border-orange-500">
+                  <Link to="/retailers" className="flex items-center gap-3 px-4 py-3 text-base font-medium text-white rounded-lg transition group hover:bg-gray-800/80 hover:border-l-4 hover:border-orange-500">
                     <Store className="w-5 h-5 text-orange-400 group-hover:scale-110 transition-transform" /> Browse Retailers
                   </Link>
                 </DropdownMenu.Item>
@@ -294,6 +312,7 @@ const Navigation = () => {
               </DropdownMenu.Items>
             </DropdownMenu>
             {user && <Link to="/dashboard" className="text-white hover:text-orange-500 font-normal text-base transition-colors">Dashboard</Link>}
+           
           </nav>
         </div>
       </header>
@@ -312,7 +331,7 @@ const Navigation = () => {
           ) : !user ? (
             <div className="flex flex-col items-center py-8 text-gray-400">
               <p className="mb-2">Sign in to add items to your collection.</p>
-              <Link to="/auth" className="bg-orange-500 hover:bg-orange-600 text-white">Sign In</Link>
+              <Link to="/auth?signin=true" className="bg-orange-500 hover:bg-orange-600 text-white">Sign In</Link>
             </div>
           ) : filteredResults.length === 0 && searchValue.length > 1 ? (
             <CommandEmpty>No results found.</CommandEmpty>

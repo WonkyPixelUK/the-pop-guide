@@ -220,8 +220,8 @@ const Features = () => {
                   <Star className="w-12 h-12 text-orange-500 mx-auto mb-4" />
                   <h3 className="text-xl font-bold text-white mb-3">Showcase & Virtual Shelf</h3>
                   <p className="text-gray-400">Arrange your collection visually on a virtual shelf and share it with friends or the community.</p>
-                </CardContent>
-              </Card>
+                  </CardContent>
+                </Card>
             </div>
           </div>
         </section>

@@ -113,7 +113,7 @@ const Ios = () => {
         description="The ultimate Funko Pop collection manager for iOS and iPad. Track your collection, discover new Pops, and connect with collectors worldwide." 
       />
       <div className="min-h-screen bg-gradient-to-br from-gray-900 via-gray-800 to-black">
-        <Navigation />
+      <Navigation />
         
         {/* Hero Section */}
         <section className="py-20 px-4">
@@ -347,14 +347,14 @@ const Ios = () => {
                   </Button>
                 </a>
               </div>
-            </div>
-          </div>
+        </div>
+      </div>
         </section>
 
-        <Footer />
-      </div>
-    </>
-  );
+      <Footer />
+    </div>
+  </>
+);
 };
 
 export default Ios; 

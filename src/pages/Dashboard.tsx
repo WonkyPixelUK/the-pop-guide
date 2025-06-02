@@ -2,7 +2,7 @@ import { useState, useEffect, useRef } from "react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Card, CardContent } from "@/components/ui/card";
-import { Search, Plus, BarChart3, Users, Zap, LogOut, Settings, Heart, List, TrendingUp, MessageCircle, ChevronLeft, ChevronRight, Download, Badge, Filter, ArrowDownAZ, ArrowUpAZ, ArrowDownWideNarrow, ArrowUpWideNarrow } from "lucide-react";
+import { Search, Plus, BarChart3, Users, Zap, LogOut, Settings, Heart, List, TrendingUp, MessageCircle, ChevronLeft, ChevronRight, Download, Badge, Filter, ArrowDownAZ, ArrowUpAZ, ArrowDownWideNarrow, ArrowUpWideNarrow, ArrowUpDown } from "lucide-react";
 import CollectionGrid from "@/components/CollectionGrid";
 import WishlistGrid from "@/components/WishlistGrid";
 import CustomListsManager from "@/components/CustomListsManager";
@@ -212,7 +212,7 @@ const Dashboard = () => {
   // Place this after userCollection is defined
   const FILTERS = {
     category: [
-      'Pop!', 'Bitty Pop!', 'Mini Figures', 'Vinyl Soda', 'REWIND', 'Pop! Pins', 'Toys and Plushies', 'Clothing', 'Funko Gear', 'Funko Games'
+      'Pop!', 'Bitty Pop!', 'Mini Figures', 'Vinyl Soda', 'Loungefly', 'REWIND', 'Pop! Pins', 'Toys and Plushies', 'Clothing', 'Funko Gear', 'Funko Games'
     ],
     fandom: [
       '8-Bit', 'Ad Icons', 'Air Force', 'Albums', 'Animation', 'Aquasox', 'Army', 'Around the World', 'Artists', 'Art Covers', 'Art Series', 'Asia', 'Bape', 'Basketball', 'Board Games', 'Books', 'Boxing', 'Broadway', 'Build a Bear', 'Candy', 'Christmas', 'Classics', 'College', 'Comedians', 'Comic Covers', 'Comics', 'Conan', 'Custom', 'Deluxe', 'Deluxe Moments', 'Die-Cast', 'Digital', 'Disney', 'Directors', 'Drag Queens', 'Fantastic Beasts', 'Fashion', 'Foodies', 'Football', 'Freddy Funko', 'Fantastik Plastik', 'Lance', 'Game of Thrones', 'Games', 'Game Covers', 'Golf', 'GPK', 'Halo', 'Harry Potter', 'Heroes', 'Hockey', 'Holidays', 'House of the Dragons', 'Icons', 'League of Legends', 'Magic: The Gathering', 'Marines', 'Marvel', 'Magazine Covers', 'Minis', 'MLB', 'Moments', 'Monsters', 'Movie Posters', 'Movies', 'Muppets', 'Myths', 'My Little Pony', 'NASCAR', 'Navy', 'NBA Mascots', 'NFL', 'Pets', 'Pusheen', 'Racing', 'Retro Toys', 'Rides', 'Rocks', 'Royals', 'Sanrio', 'Sci-Fi', 'Sesame Street', 'SNL', 'South Park', 'Special Edition', 'Sports', 'Sports Legends', 'Stan Lee', 'Star Wars', 'Television', 'Tennis', 'The Vote', 'Town', 'Town Christmas', 'Trading Cards', 'Trains', 'Trolls', 'UFC', 'Uglydoll', 'Valiant', 'Vans', 'VHS Covers', 'Wreck-It Ralph', 'Wrestling', 'WWE', 'WWE Covers', 'Zodiac'
@@ -286,7 +286,7 @@ const Dashboard = () => {
                   Add Item
                 </Button>
                 <Button
-                  onClick={handleExport}
+                  onClick={() => navigate('/export')}
                   variant="outline"
                   className={`border-gray-600 text-blue-900 hover:bg-gray-700 hover:text-white dark:text-gray-200 w-full sm:w-auto ${isMobile ? 'h-12 text-base' : ''}`}
                 >
@@ -365,33 +365,33 @@ const Dashboard = () => {
               {sidebarVisible ? <ChevronLeft className="w-5 h-5" /> : <ChevronRight className="w-5 h-5" />}
             </button>
             <Card className="bg-gray-800/50 border-gray-700 cursor-pointer hover:bg-gray-800/70 transition-colors" onClick={() => setActiveSection("analytics")}> 
-              <CardContent className="p-6 text-center">
-                <BarChart3 className="w-8 h-8 text-orange-500 mx-auto mb-3" />
-                <div className="text-2xl font-bold text-white">${totalValue.toFixed(2)}</div>
-                <div className="text-gray-400">Collection Value</div>
-              </CardContent>
-            </Card>
+                <CardContent className="p-6 text-center">
+                  <BarChart3 className="w-8 h-8 text-orange-500 mx-auto mb-3" />
+                  <div className="text-2xl font-bold text-white">${totalValue.toFixed(2)}</div>
+                  <div className="text-gray-400">Collection Value</div>
+                </CardContent>
+              </Card>
             <Card className="bg-gray-800/50 border-gray-700 cursor-pointer hover:bg-gray-800/70 transition-colors" onClick={() => setActiveSection("items-owned")}> 
-              <CardContent className="p-6 text-center">
-                <Zap className="w-8 h-8 text-orange-500 mx-auto mb-3" />
-                <div className="text-2xl font-bold text-white">{ownedCount}</div>
-                <div className="text-gray-400">Items Owned</div>
-              </CardContent>
-            </Card>
+                <CardContent className="p-6 text-center">
+                  <Zap className="w-8 h-8 text-orange-500 mx-auto mb-3" />
+                  <div className="text-2xl font-bold text-white">{ownedCount}</div>
+                  <div className="text-gray-400">Items Owned</div>
+                </CardContent>
+              </Card>
             <Card className="bg-gray-800/50 border-gray-700 cursor-pointer hover:bg-gray-800/70 transition-colors" onClick={() => setActiveSection("wishlist")}> 
-              <CardContent className="p-6 text-center">
-                <Heart className="w-8 h-8 text-orange-500 mx-auto mb-3" />
-                <div className="text-2xl font-bold text-white">{wishlistCount}</div>
-                <div className="text-gray-400">Wishlist Items</div>
-              </CardContent>
-            </Card>
+                <CardContent className="p-6 text-center">
+                  <Heart className="w-8 h-8 text-orange-500 mx-auto mb-3" />
+                  <div className="text-2xl font-bold text-white">{wishlistCount}</div>
+                  <div className="text-gray-400">Wishlist Items</div>
+                </CardContent>
+              </Card>
             <Card className="bg-gray-800/50 border-gray-700 cursor-pointer hover:bg-gray-800/70 transition-colors" onClick={() => setActiveSection("series-owned")}> 
-              <CardContent className="p-6 text-center">
-                <Users className="w-8 h-8 text-orange-500 mx-auto mb-3" />
-                <div className="text-2xl font-bold text-white">{uniqueSeries}</div>
-                <div className="text-gray-400">Series Collected</div>
-              </CardContent>
-            </Card>
+                <CardContent className="p-6 text-center">
+                  <Users className="w-8 h-8 text-orange-500 mx-auto mb-3" />
+                  <div className="text-2xl font-bold text-white">{uniqueSeries}</div>
+                  <div className="text-gray-400">Series Collected</div>
+                </CardContent>
+              </Card>
           </aside>
           {/* Main dashboard content */}
           <main ref={mainRef} className="flex-1 pt-20 px-4 md:px-8">
@@ -419,45 +419,67 @@ const Dashboard = () => {
               </h2>
               {/* Filters and sort dropdowns */}
               <div className={`flex items-center gap-2 w-full ${isMobile ? 'flex-col space-y-2' : 'md:w-auto'}`}>
-                {/* Filters - stack on mobile */}
-                <div className={`flex items-center gap-2 ${isMobile ? 'w-full flex-wrap' : ''}`}>
-                  {['category','fandom','genre','edition','character','series'].map(key => (
-                    <DropdownMenu key={key}>
-                      <DropdownMenuTrigger asChild>
-                        <Button variant="outline" className={`flex items-center gap-1 ${isMobile ? 'flex-1 min-w-[100px]' : ''}`}>
-                          {key.charAt(0).toUpperCase() + key.slice(1)}
-                          <Filter className="w-4 h-4" />
+                {/* Compact Filters Dropdown */}
+                <DropdownMenu>
+                  <DropdownMenuTrigger asChild>
+                    <Button variant="outline" className="flex items-center gap-2 min-w-[120px]">
+                      <Filter className="w-4 h-4" />
+                      Filters
+                      {Object.values(filters).some(f => Array.isArray(f) && f.length > 0) && (
+                        <Badge className="bg-orange-500 text-white text-xs ml-1 px-1.5 py-0.5">
+                          {Object.values(filters).reduce((acc, f) => acc + (Array.isArray(f) ? f.length : 0), 0)}
+                        </Badge>
+                      )}
+                    </Button>
+                  </DropdownMenuTrigger>
+                  <DropdownMenuContent className="w-80 max-h-96 overflow-y-auto">
+                    <div className="p-2 space-y-3">
+                      {['category','fandom','genre','edition','character','series'].map(key => (
+                        <div key={key} className="space-y-2">
+                          <h4 className="font-medium text-sm text-white capitalize">{key}</h4>
+                          <div className="grid grid-cols-2 gap-1 max-h-24 overflow-y-auto">
+                            {FILTERS[key].slice(0, 8).map(opt => (
+                              <label key={opt} className="flex items-center space-x-2 text-sm cursor-pointer hover:bg-gray-700 rounded p-1">
+                                <input
+                                  type="checkbox"
+                                  checked={filters[key]?.includes(opt)}
+                                  onChange={() => {
+                                    setFilters(f => {
+                                      const arr = (Array.isArray(f[key]) ? f[key] : []).includes(opt) ? f[key].filter(x => x !== opt) : [...f[key], opt];
+                                      return { ...f, [key]: arr };
+                                    });
+                                  }}
+                                  className="w-3 h-3 text-orange-500 bg-gray-700 border-gray-600 rounded focus:ring-orange-500"
+                                />
+                                <span className="text-[#232837] truncate">{opt}</span>
+                              </label>
+                            ))}
+                            {FILTERS[key].length > 8 && (
+                              <span className="text-xs text-gray-400 col-span-2">+{FILTERS[key].length - 8} more...</span>
+                            )}
+                          </div>
+                        </div>
+                      ))}
+                      <div className="border-t border-gray-600 pt-2">
+                        <Button
+                          onClick={() => setFilters({ category: [], fandom: [], genre: [], edition: [], character: [], series: [], vaulted: 'All', year: '' })}
+                          variant="ghost"
+                          size="sm"
+                          className="w-full text-orange-400 hover:text-orange-300"
+                        >
+                          Clear All Filters
                         </Button>
-                      </DropdownMenuTrigger>
-                      <DropdownMenuContent className="w-64 max-h-72 overflow-y-auto">
-                        {FILTERS[key].map(opt => (
-                          <DropdownMenuCheckboxItem
-                            key={opt}
-                            checked={filters[key]?.includes(opt)}
-                            onCheckedChange={() => {
-                              setFilters(f => {
-                                const arr = (Array.isArray(f[key]) ? f[key] : []).includes(opt) ? f[key].filter(x => x !== opt) : [...f[key], opt];
-                                return { ...f, [key]: arr };
-                              });
-                            }}
-                          >
-                            {opt}
-                          </DropdownMenuCheckboxItem>
-                        ))}
-                      </DropdownMenuContent>
-                    </DropdownMenu>
-                  ))}
-                </div>
+            </div>
+          </div>
+                  </DropdownMenuContent>
+                </DropdownMenu>
                 
                 {/* Sort dropdown */}
                 <DropdownMenu>
                   <DropdownMenuTrigger asChild>
-                    <Button variant="outline" className={`flex items-center gap-1 ${isMobile ? 'w-full' : ''}`}>
+                    <Button variant="outline" className="flex items-center gap-2 min-w-[100px]">
+                      <ArrowUpDown className="w-4 h-4" />
                       Sort
-                      {(() => {
-                        const Icon = SORT_OPTIONS.find(opt => opt.value === sort)?.icon;
-                        return Icon ? <Icon className="w-4 h-4 ml-1" /> : null;
-                      })()}
                     </Button>
                   </DropdownMenuTrigger>
                   <DropdownMenuContent>
@@ -469,10 +491,20 @@ const Dashboard = () => {
                   </DropdownMenuContent>
                 </DropdownMenu>
                 
+                {/* Export button */}
+                <Button
+                  onClick={() => window.open('/export', '_blank')}
+                  variant="outline"
+                  className="flex items-center gap-2 min-w-[100px] border-green-600 text-green-400 hover:bg-green-600 hover:text-white"
+                >
+                  <Download className="w-4 h-4" />
+                  Export
+                </Button>
+                
                 {/* Search bar */}
                 <div className={`relative ${isMobile ? 'w-full' : 'flex-1 md:w-80'}`}>
-                  <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400 w-4 h-4" />
-                  <Input
+                      <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400 w-4 h-4" />
+                      <Input
                     placeholder={
                       activeSection === 'recently-added' ? 'Search recently added...' :
                       activeSection === 'items-owned' ? 'Search owned items...' :
@@ -480,13 +512,13 @@ const Dashboard = () => {
                       activeSection === 'wishlist' ? 'Search wishlist...' :
                       'Search...'
                     }
-                    value={searchQuery}
-                    onChange={(e) => setSearchQuery(e.target.value)}
+                        value={searchQuery}
+                        onChange={(e) => setSearchQuery(e.target.value)}
                     className={`pl-10 bg-gray-800 border-gray-700 text-white placeholder-gray-400 ${isMobile ? 'h-12' : ''}`}
-                  />
+                      />
+                    </div>
+                  </div>
                 </div>
-              </div>
-            </div>
             {activeSection === 'recently-added' && (
               userCollection.length === 0 ? (
                 <AnimatedFallback icon={Zap} message="No items found! Time to add some Pops to your collection." />
@@ -550,8 +582,8 @@ const Dashboard = () => {
                             src={firstPop?.image_url || "/lovable-uploads/b7333c96-5576-426d-af76-6a6a97e8a1ea.png"}
                             alt={firstPop?.name || series}
                             className="w-full h-full object-contain"
-                          />
-                        </div>
+                      />
+                    </div>
                         <div className="flex-1 min-w-0">
                           <div className="font-semibold text-white text-lg truncate">{series}</div>
                           <Badge className="bg-orange-500/20 text-orange-300 border-orange-500/30 text-xs mt-1">{count} owned</Badge>
@@ -587,8 +619,8 @@ const Dashboard = () => {
                       <div>
                         <h3 className="text-xl font-bold text-white">Export Your Data</h3>
                         <p className="text-gray-400">Download your collection, wishlist, and custom lists</p>
-                      </div>
-                    </div>
+                              </div>
+                            </div>
                     
                     <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
                       <Card className="bg-gray-700/50 border-gray-600">
@@ -649,15 +681,15 @@ const Dashboard = () => {
                           >
                             Download CSV
                           </Button>
-                        </CardContent>
-                      </Card>
+                          </CardContent>
+                        </Card>
 
                       <Card className="bg-gray-700/50 border-gray-600">
                         <CardContent className="p-4">
                           <div className="flex items-center gap-3 mb-3">
                             <Heart className="w-5 h-5 text-orange-500" />
                             <h4 className="font-semibold text-white">Wishlist Export</h4>
-                          </div>
+                </div>
                           <p className="text-sm text-gray-400 mb-4">
                             Export your wishlist in CSV format for easy sharing
                           </p>
@@ -718,34 +750,30 @@ const Dashboard = () => {
                       <div className="text-center p-4 bg-gray-700/50 rounded-lg">
                         <div className="text-2xl font-bold text-blue-500">{uniqueSeries}</div>
                         <div className="text-sm text-gray-400">Unique Series</div>
-                      </div>
-                      <div className="text-center p-4 bg-gray-700/50 rounded-lg">
-                        <div className="text-2xl font-bold text-purple-500">{wishlistCount}</div>
-                        <div className="text-sm text-gray-400">Wishlist Items</div>
-                      </div>
-                    </div>
+                  </div>
+                </div>
                   </CardContent>
                 </Card>
               </div>
             )}
           </main>
         </div>
-      </div>
+          </div>
       <MobileBottomNav />
 
-      {/* Dialogs */}
-      <EnhancedAddItemDialog 
-        open={isAddDialogOpen} 
-        onOpenChange={setIsAddDialogOpen} 
-      />
-      
-      {selectedItem && (
-        <ItemDetailsDialog 
-          item={selectedItem}
-          open={!!selectedItem}
-          onOpenChange={() => setSelectedItem(null)}
+        {/* Dialogs */}
+        <EnhancedAddItemDialog 
+          open={isAddDialogOpen} 
+          onOpenChange={setIsAddDialogOpen} 
         />
-      )}
+        
+        {selectedItem && (
+          <ItemDetailsDialog 
+            item={selectedItem}
+            open={!!selectedItem}
+            onOpenChange={() => setSelectedItem(null)}
+          />
+        )}
 
       <Dialog open={bulkActionsOpen} onOpenChange={setBulkActionsOpen}>
         <DialogContent className="max-w-2xl bg-gray-900 border-gray-700 text-white">
@@ -974,7 +1002,7 @@ const Dashboard = () => {
         </DialogContent>
       </Dialog>
 
-      <Footer />
+        <Footer />
     </>
   );
 };

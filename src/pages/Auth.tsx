@@ -35,13 +35,22 @@ const Auth = () => {
   useEffect(() => {
     const params = new URLSearchParams(location.search);
     const planParam = params.get('plan');
+    const signinParam = params.get('signin');
+    
+    // If signin parameter is present, default to login mode
+    if (signinParam === 'true') {
+      setIsSignUp(false);
+    }
+    // If coming from get started or direct, default to sign up
+    else if (planParam === 'pro' || planParam === 'free' || location.pathname === '/auth' && !params.get('signin')) {
+      setIsSignUp(true);
+    }
     if (planParam === 'pro' || planParam === 'free') {
       setPlan(planParam);
-      setIsSignUp(true);
     } else {
       setPlan(null);
     }
-  }, [location.search]);
+  }, [location.search, location.pathname]);
 
   // Redirect if already authenticated
   useEffect(() => {
@@ -58,15 +67,6 @@ const Auth = () => {
       setConfirmed(true);
     }
   }, [location.search]);
-
-  useEffect(() => {
-    const params = new URLSearchParams(location.search);
-    const planParam = params.get('plan');
-    // If coming from get started or direct, default to sign up
-    if (planParam === 'pro' || planParam === 'free' || location.pathname === '/auth' && !params.get('signin')) {
-      setIsSignUp(true);
-    }
-  }, [location.search, location.pathname]);
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();

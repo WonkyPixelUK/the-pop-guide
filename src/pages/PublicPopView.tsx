@@ -39,7 +39,7 @@ const PublicPopView = () => {
               <div className="text-sm text-gray-400 mb-2">Release Year: {pop.release_year || '—'}</div>
               <div className="text-sm text-gray-400 mb-2">Vaulted: {pop.is_vaulted ? 'Yes' : 'No'}</div>
               <div className="text-lg font-semibold text-orange-400 mb-4">
-                {pop.estimated_value !== null && pop.estimated_value !== undefined ? `£${pop.estimated_value}` : 'Pending'}
+                {pop.estimated_value !== null && pop.estimated_value !== undefined ? `£${pop.estimated_value.toFixed(2)}` : 'Pending'}
               </div>
               {pop.description && <div className="text-gray-300 mb-2 text-base">{pop.description}</div>}
               {/* Stickers, exclusives, etc. can be added here if available */}
