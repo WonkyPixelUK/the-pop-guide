@@ -5,7 +5,6 @@ import { Badge } from "@/components/ui/badge";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { TrendingUp, TrendingDown, BarChart3, LineChart, Calendar, DollarSign, Percent, Clock } from "lucide-react";
-import { LineChart as RechartsLineChart, Line, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer, AreaChart, Area, ComposedChart, Bar, Legend } from 'recharts';
 
 interface PricePoint {
   date: string;
@@ -192,7 +191,7 @@ const PriceHistory = ({ funkoPopId, funkoPop, className }: PriceHistoryProps) =>
     );
   }
 
-  if (!priceData) {
+  if (!priceData || !enhancedChartData || enhancedChartData.length === 0) {
     return (
       <Card className={`bg-gray-800/50 border-gray-700 ${className}`}>
         <CardContent className="p-6 text-center">
@@ -281,103 +280,67 @@ const PriceHistory = ({ funkoPopId, funkoPop, className }: PriceHistoryProps) =>
 
             {/* Price Chart */}
             <div className="h-80">
-              <ResponsiveContainer width="100%" height="100%">
-                {viewType === 'line' ? (
-                  <LineChart data={enhancedChartData}>
-                    <CartesianGrid strokeDasharray="3 3" stroke="#374151" />
-                    <XAxis 
-                      dataKey="formattedDate" 
-                      stroke="#9CA3AF"
-                      tick={{ fontSize: 12 }}
-                    />
-                    <YAxis 
-                      stroke="#9CA3AF"
-                      tick={{ fontSize: 12 }}
-                      tickFormatter={(value) => `$${value}`}
-                    />
-                    <Tooltip 
-                      contentStyle={{ 
-                        backgroundColor: '#1F2937', 
-                        border: '1px solid #374151',
-                        borderRadius: '8px',
-                        color: '#F3F4F6'
-                      }}
-                      formatter={(value: number, name: string) => {
-                        if (name === 'price') return [`$${value.toFixed(2)}`, 'Price'];
-                        if (name === 'ma7') return [`$${value.toFixed(2)}`, '7d MA'];
-                        if (name === 'ma30') return [`$${value.toFixed(2)}`, '30d MA'];
-                        return [value, name];
-                      }}
-                      labelFormatter={(label) => `Date: ${label}`}
-                    />
-                    <Legend />
-                    <Line 
-                      type="monotone" 
-                      dataKey="price" 
-                      stroke="#f97316" 
-                      strokeWidth={3}
-                      dot={{ fill: '#f97316', strokeWidth: 2, r: 4 }}
-                      activeDot={{ r: 6, stroke: '#f97316', strokeWidth: 2 }}
-                    />
-                    {enhancedChartData.length > 7 && (
-                      <Line 
-                        type="monotone" 
-                        dataKey="ma7" 
-                        stroke="#10b981" 
-                        strokeWidth={2}
-                        strokeDasharray="5 5"
-                        dot={false}
-                      />
-                    )}
-                    {enhancedChartData.length > 30 && (
-                      <Line 
-                        type="monotone" 
-                        dataKey="ma30" 
-                        stroke="#3b82f6" 
-                        strokeWidth={2}
-                        strokeDasharray="10 5"
-                        dot={false}
-                      />
-                    )}
-                  </LineChart>
-                ) : (
-                  <AreaChart data={enhancedChartData}>
-                    <defs>
-                      <linearGradient id="priceGradient" x1="0" y1="0" x2="0" y2="1">
-                        <stop offset="5%" stopColor="#f97316" stopOpacity={0.8}/>
-                        <stop offset="95%" stopColor="#f97316" stopOpacity={0.1}/>
-                      </linearGradient>
-                    </defs>
-                    <CartesianGrid strokeDasharray="3 3" stroke="#374151" />
-                    <XAxis 
-                      dataKey="formattedDate" 
-                      stroke="#9CA3AF"
-                      tick={{ fontSize: 12 }}
-                    />
-                    <YAxis 
-                      stroke="#9CA3AF"
-                      tick={{ fontSize: 12 }}
-                      tickFormatter={(value) => `$${value}`}
-                    />
-                    <Tooltip 
-                      contentStyle={{ 
-                        backgroundColor: '#1F2937', 
-                        border: '1px solid #374151',
-                        borderRadius: '8px',
-                        color: '#F3F4F6'
-                      }}
-                      formatter={(value: number) => [`$${value.toFixed(2)}`, 'Price']}
-                    />
-                    <Area 
-                      type="monotone" 
-                      dataKey="price" 
-                      stroke="#f97316" 
-                      strokeWidth={3}
-                      fill="url(#priceGradient)"
-                    />
-                  </AreaChart>
-                )}
-              </ResponsiveContainer>
+              {enhancedChartData && enhancedChartData.length > 0 ? (
+                <div className="h-full bg-gray-800 rounded-lg p-4 border border-gray-600">
+                  <div className="text-center text-white mb-4">
+                    <h3 className="text-lg font-semibold">Price Chart</h3>
+                    <p className="text-gray-400 text-sm">Showing {enhancedChartData.length} data points over {timeRange}</p>
+                  </div>
+                  
+                  {/* Simple CSS-based chart */}
+                  <div className="relative h-48 bg-gray-700 rounded border border-gray-500 overflow-hidden">
+                    <div className="absolute inset-0 flex items-end justify-between px-2 pb-2">
+                      {enhancedChartData.slice(-20).map((point, index) => {
+                        const maxPrice = Math.max(...enhancedChartData.map(p => p.price));
+                        const minPrice = Math.min(...enhancedChartData.map(p => p.price));
+                        const height = ((point.price - minPrice) / (maxPrice - minPrice)) * 160 + 20;
+                        
+                        return (
+                          <div
+                            key={index}
+                            className="bg-orange-500 rounded-t transition-all duration-300 hover:bg-orange-400 cursor-pointer relative group"
+                            style={{
+                              height: `${height}px`,
+                              width: `${Math.max(100 / Math.min(enhancedChartData.length, 20) - 1, 4)}%`,
+                            }}
+                            title={`${point.formattedDate}: $${point.price.toFixed(2)}`}
+                          >
+                            <div className="absolute -top-8 left-1/2 transform -translate-x-1/2 bg-gray-900 text-white text-xs px-2 py-1 rounded opacity-0 group-hover:opacity-100 transition-opacity whitespace-nowrap z-10">
+                              ${point.price.toFixed(2)}
+                            </div>
+                          </div>
+                        );
+                      })}
+                    </div>
+                    
+                    {/* Y-axis labels */}
+                    <div className="absolute left-0 top-0 h-full flex flex-col justify-between py-2 text-xs text-gray-400">
+                      <span>${Math.max(...enhancedChartData.map(p => p.price)).toFixed(0)}</span>
+                      <span>${(Math.max(...enhancedChartData.map(p => p.price)) / 2).toFixed(0)}</span>
+                      <span>${Math.min(...enhancedChartData.map(p => p.price)).toFixed(0)}</span>
+                    </div>
+                  </div>
+                  
+                  {/* Chart legend */}
+                  <div className="mt-4 flex justify-center">
+                    <div className="flex items-center gap-4 text-sm">
+                      <div className="flex items-center gap-2">
+                        <div className="w-3 h-3 bg-orange-500 rounded"></div>
+                        <span className="text-gray-300">Price</span>
+                      </div>
+                      <span className="text-gray-400">•</span>
+                      <span className="text-gray-400">Hover for details</span>
+                    </div>
+                  </div>
+                </div>
+              ) : (
+                <div className="h-full flex items-center justify-center text-gray-400">
+                  <div className="text-center">
+                    <BarChart3 className="w-16 h-16 mx-auto mb-4 opacity-50" />
+                    <p>No chart data available</p>
+                  </div>
+                </div>
+              )}
             </div>
 
             {/* Chart Controls */}
@@ -555,37 +518,46 @@ const PriceHistory = ({ funkoPopId, funkoPop, className }: PriceHistoryProps) =>
                 <CardTitle className="text-white text-lg">Raw Price Data</CardTitle>
               </CardHeader>
               <CardContent>
-                <div className="overflow-x-auto">
-                  <table className="w-full">
-                    <thead>
-                      <tr className="border-b border-gray-600">
-                        <th className="text-left text-gray-300 p-2">Date</th>
-                        <th className="text-left text-gray-300 p-2">Price</th>
-                        <th className="text-left text-gray-300 p-2">Source</th>
-                        <th className="text-left text-gray-300 p-2">Condition</th>
-                        <th className="text-left text-gray-300 p-2">Volume</th>
-                      </tr>
-                    </thead>
-                    <tbody>
-                      {enhancedChartData.slice(-20).reverse().map((point, index) => (
-                        <tr key={index} className="border-b border-gray-700/50">
-                          <td className="text-gray-300 p-2 text-sm">{point.date}</td>
-                          <td className="text-orange-400 p-2 font-medium">${point.price.toFixed(2)}</td>
-                          <td className="text-gray-300 p-2 text-sm">{point.source}</td>
-                          <td className="text-gray-300 p-2 text-sm">
-                            <Badge variant="outline" className="text-xs border-gray-600 text-gray-300">
-                              {point.condition}
-                            </Badge>
-                          </td>
-                          <td className="text-gray-400 p-2 text-sm">{point.volume}</td>
-                        </tr>
-                      ))}
-                    </tbody>
-                  </table>
-                </div>
-                <div className="text-xs text-gray-400 mt-4">
-                  Showing last 20 data points • {priceData.history.length} total points available
-                </div>
+                {enhancedChartData && enhancedChartData.length > 0 ? (
+                  <>
+                    <div className="overflow-x-auto">
+                      <table className="w-full">
+                        <thead>
+                          <tr className="border-b border-gray-600">
+                            <th className="text-left text-gray-300 p-2">Date</th>
+                            <th className="text-left text-gray-300 p-2">Price</th>
+                            <th className="text-left text-gray-300 p-2">Source</th>
+                            <th className="text-left text-gray-300 p-2">Condition</th>
+                            <th className="text-left text-gray-300 p-2">Volume</th>
+                          </tr>
+                        </thead>
+                        <tbody>
+                          {enhancedChartData.slice(-20).reverse().map((point, index) => (
+                            <tr key={index} className="border-b border-gray-700/50">
+                              <td className="text-gray-300 p-2 text-sm">{point.date}</td>
+                              <td className="text-orange-400 p-2 font-medium">${point.price.toFixed(2)}</td>
+                              <td className="text-gray-300 p-2 text-sm">{point.source}</td>
+                              <td className="text-gray-300 p-2 text-sm">
+                                <Badge variant="outline" className="text-xs border-gray-600 text-gray-300">
+                                  {point.condition}
+                                </Badge>
+                              </td>
+                              <td className="text-gray-400 p-2 text-sm">{point.volume}</td>
+                            </tr>
+                          ))}
+                        </tbody>
+                      </table>
+                    </div>
+                    <div className="text-xs text-gray-400 mt-4">
+                      Showing last 20 data points • {priceData.history.length} total points available
+                    </div>
+                  </>
+                ) : (
+                  <div className="text-center py-8 text-gray-400">
+                    <BarChart3 className="w-16 h-16 mx-auto mb-4 opacity-50" />
+                    <p>No raw data available</p>
+                  </div>
+                )}
               </CardContent>
             </Card>
           </TabsContent>

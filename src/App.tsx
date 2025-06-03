@@ -58,6 +58,8 @@ import GrailGalaxyWorld from "@/pages/GrailGalaxyWorld";
 import RetailerDirectory from "@/pages/RetailerDirectory";
 import Export from "@/pages/Export";
 import PricingDashboard from "@/pages/PricingDashboard";
+import BugTracker from "./pages/BugTracker";
+import DatabaseSetup from "./pages/DatabaseSetup";
 
 const queryClient = new QueryClient();
 
@@ -86,6 +88,8 @@ const App = () => (
             <Route path="/lists/:listId" element={<PublicListView />} />
             <Route path="/browse-lists" element={<BrowseLists />} />
             <Route path="/help" element={<Help />} />
+            <Route path="/bug-tracker" element={<BugTracker />} />
+            <Route path="/database-setup" element={<DatabaseSetup />} />
             <Route path="/ios" element={<Ios />} />
             <Route path="/android" element={<Android />} />
             <Route path="/api" element={<Api />} />

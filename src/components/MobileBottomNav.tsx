@@ -21,6 +21,7 @@ const supportLinks = [
   { to: '/system-status', label: 'Service Status' },
   { to: '/faq', label: 'FAQ' },
   { to: '/log-ticket', label: 'Log a ticket' },
+  { to: '/bug-tracker', label: 'Bug Tracker' },
   { to: '/howitworks', label: 'How it works' },
   { to: '/api', label: 'API' },
 ];
