@@ -10,6 +10,8 @@ interface SearchInputProps {
   onFilterPress?: () => void;
   hasFilters?: boolean;
   onClear?: () => void;
+  onSubmitEditing?: () => void;
+  autoFocus?: boolean;
 }
 
 export const SearchInput: React.FC<SearchInputProps> = ({
@@ -19,6 +21,8 @@ export const SearchInput: React.FC<SearchInputProps> = ({
   onFilterPress,
   hasFilters = false,
   onClear,
+  onSubmitEditing,
+  autoFocus,
 }) => {
   return (
     <View style={styles.container}>
@@ -36,6 +40,8 @@ export const SearchInput: React.FC<SearchInputProps> = ({
           placeholder={placeholder}
           placeholderTextColor={theme.colors.inputPlaceholder}
           returnKeyType="search"
+          onSubmitEditing={onSubmitEditing}
+          autoFocus={autoFocus}
         />
         {value.length > 0 && (
           <TouchableOpacity onPress={onClear} style={styles.clearButton}>

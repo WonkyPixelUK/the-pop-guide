@@ -32,15 +32,19 @@ import { MessagesScreen } from './src/screens/MessagesScreen';
 import { SettingsScreen } from './src/screens/SettingsScreen';
 import { CreateListScreen } from './src/screens/CreateListScreen';
 import { EditProfileScreen } from './src/screens/EditProfileScreen';
+import { PaymentScreen } from './src/screens/PaymentScreen';
+import { SubscriptionScreen } from './src/screens/SubscriptionScreen';
 
 const Tab = createBottomTabNavigator();
 const Stack = createStackNavigator();
 const AuthStack = createStackNavigator();
+const RootStack = createStackNavigator();
 
 const AuthNavigator = () => (
   <AuthStack.Navigator screenOptions={{ headerShown: false }}>
     <AuthStack.Screen name="Login" component={LoginScreen} />
     <AuthStack.Screen name="Register" component={RegisterScreen} />
+    <AuthStack.Screen name="Payment" component={PaymentScreen} />
   </AuthStack.Navigator>
 );
 
@@ -78,6 +82,8 @@ const ProfileStack = () => (
     <Stack.Screen name="Messages" component={MessagesScreen} />
     <Stack.Screen name="Settings" component={SettingsScreen} />
     <Stack.Screen name="Analytics" component={AnalyticsScreen} />
+    <Stack.Screen name="Payment" component={PaymentScreen} />
+    <Stack.Screen name="Subscription" component={SubscriptionScreen} />
   </Stack.Navigator>
 );
 
@@ -161,6 +167,21 @@ const AppNavigator = () => {
   return user ? <MainTabNavigator /> : <AuthNavigator />;
 };
 
+const RootNavigator = () => {
+  const { user } = useAuth();
+  
+  return (
+    <RootStack.Navigator mode="modal" screenOptions={{ headerShown: false }}>
+      <RootStack.Screen 
+        name="Main" 
+        component={user ? MainTabNavigator : AuthNavigator} 
+      />
+      <RootStack.Screen name="Payment" component={PaymentScreen} />
+      <RootStack.Screen name="Subscription" component={SubscriptionScreen} />
+    </RootStack.Navigator>
+  );
+};
+
 export default function App() {
   return (
     <AuthProvider>
@@ -177,7 +198,7 @@ export default function App() {
           },
         }}
       >
-        <AppNavigator />
+        <RootNavigator />
       </NavigationContainer>
     </AuthProvider>
   );

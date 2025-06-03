@@ -28,10 +28,16 @@ export const RegisterScreen = () => {
   const [loading, setLoading] = useState(false);
   const [showPassword, setShowPassword] = useState(false);
   const [showConfirmPassword, setShowConfirmPassword] = useState(false);
+  const [acceptedWarning, setAcceptedWarning] = useState(false);
 
   const handleRegister = async () => {
     if (!email || !password || !firstName || !lastName) {
       Alert.alert('Error', 'Please fill in all fields');
+      return;
+    }
+
+    if (!acceptedWarning) {
+      Alert.alert('Error', 'Please confirm you understand the development status');
       return;
     }
 
@@ -47,8 +53,14 @@ export const RegisterScreen = () => {
 
     setLoading(true);
     try {
-      await signUp(email, password, { firstName, lastName });
-      Alert.alert('Success', 'Account created successfully! Please check your email to verify your account.');
+      await signUp(email, password);
+
+      Alert.alert('Success', 'Account created successfully! Please complete your subscription to access all features.', [
+        {
+          text: 'Start Subscription',
+          onPress: () => (navigation as any).navigate('Payment')
+        }
+      ]);
     } catch (error: any) {
       Alert.alert('Registration Failed', error.message);
     } finally {
@@ -173,6 +185,42 @@ export const RegisterScreen = () => {
               </View>
             </View>
 
+            {/* Development Warning */}
+            <Card style={styles.warningCard}>
+              <View style={styles.warningHeader}>
+                <Ionicons name="warning" size={24} color={theme.colors.warning} />
+                <Text style={styles.warningTitle}>Development Notice</Text>
+              </View>
+              
+              <Text style={styles.warningText}>
+                POP Guide is currently in active development. Please be aware:
+              </Text>
+              
+              <View style={styles.warningPoints}>
+                <Text style={styles.warningPoint}>• We have 70,000+ UK Funko records and growing daily</Text>
+                <Text style={styles.warningPoint}>• Complete global data coverage is still being added</Text>
+                <Text style={styles.warningPoint}>• You may encounter occasional bugs or missing features</Text>
+                <Text style={styles.warningPoint}>• Data accuracy is improving as we expand our database</Text>
+              </View>
+              
+              <TouchableOpacity 
+                style={styles.checkboxContainer}
+                onPress={() => setAcceptedWarning(!acceptedWarning)}
+              >
+                <View style={[
+                  styles.checkbox, 
+                  acceptedWarning && styles.checkboxChecked
+                ]}>
+                  {acceptedWarning && (
+                    <Ionicons name="checkmark" size={16} color={theme.colors.textOnPrimary} />
+                  )}
+                </View>
+                <Text style={styles.checkboxText}>
+                  I understand this is a development version and accept there may be incomplete data and occasional issues
+                </Text>
+              </TouchableOpacity>
+            </Card>
+
             <Button
               title="Create Account"
               onPress={handleRegister}
@@ -287,5 +335,54 @@ const styles = StyleSheet.create({
     color: theme.colors.primary,
     fontSize: 14,
     fontWeight: '600',
+  },
+  warningCard: {
+    padding: theme.spacing.xl,
+    marginBottom: theme.spacing.lg,
+  },
+  warningHeader: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    marginBottom: theme.spacing.md,
+  },
+  warningTitle: {
+    color: theme.colors.text,
+    fontSize: 20,
+    fontWeight: 'bold',
+    marginLeft: theme.spacing.sm,
+  },
+  warningText: {
+    color: theme.colors.textSecondary,
+    fontSize: 14,
+    marginBottom: theme.spacing.md,
+  },
+  warningPoints: {
+    marginBottom: theme.spacing.md,
+  },
+  warningPoint: {
+    color: theme.colors.textSecondary,
+    fontSize: 14,
+    marginBottom: theme.spacing.sm,
+  },
+  checkboxContainer: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    marginBottom: theme.spacing.md,
+  },
+  checkbox: {
+    width: 20,
+    height: 20,
+    borderWidth: 1,
+    borderColor: theme.colors.textMuted,
+    borderRadius: theme.borderRadius.sm,
+    marginRight: theme.spacing.sm,
+  },
+  checkboxChecked: {
+    backgroundColor: theme.colors.primary,
+    borderColor: theme.colors.primary,
+  },
+  checkboxText: {
+    color: theme.colors.text,
+    fontSize: 14,
   },
 }); 

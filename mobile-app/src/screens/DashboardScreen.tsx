@@ -36,7 +36,7 @@ export const DashboardScreen = () => {
     totalValue: 0,
     recentlyAdded: 0,
   });
-  const [recentFunkos, setRecentFunkos] = useState([]);
+  const [recentFunkos, setRecentFunkos] = useState<any[]>([]);
   const [loading, setLoading] = useState(true);
   const [refreshing, setRefreshing] = useState(false);
 

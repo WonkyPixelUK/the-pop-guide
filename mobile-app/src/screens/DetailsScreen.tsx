@@ -77,14 +77,14 @@ export const DetailsScreen = () => {
       <View style={styles.buttonContainer}>
         <Button
           mode="contained"
-          onPress={() => navigation.navigate('Scanner')}
+          onPress={() => (navigation as any).navigate('Scanner')}
           style={styles.button}
         >
           Scan Another
         </Button>
         <Button
           mode="outlined"
-          onPress={() => navigation.navigate('Collection')}
+          onPress={() => (navigation as any).navigate('Collection')}
           style={styles.button}
         >
           Back to Collection

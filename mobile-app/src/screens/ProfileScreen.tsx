@@ -2,9 +2,11 @@ import React from 'react';
 import { StyleSheet, View, Alert } from 'react-native';
 import { Card, Text, Button, Avatar, Divider } from 'react-native-paper';
 import { useAuth } from '../contexts/AuthContext';
+import { useNavigation } from '@react-navigation/native';
 
 export const ProfileScreen = () => {
   const { user, signOut } = useAuth();
+  const navigation = useNavigation();
 
   const handleSignOut = () => {
     Alert.alert(
@@ -77,6 +79,15 @@ export const ProfileScreen = () => {
             buttonColor="#e46c1b"
           >
             Edit Profile
+          </Button>
+
+          <Button
+            mode="contained"
+            onPress={() => (navigation as any).navigate('Subscription')}
+            style={styles.actionButton}
+            buttonColor="#e46c1b"
+          >
+            Manage Subscription
           </Button>
 
           <Button

@@ -279,11 +279,10 @@ export const FunkoDetailScreen = () => {
       <Header 
         title={funko.name} 
         showBack 
-        rightComponent={
-          <TouchableOpacity onPress={shareFunko}>
-            <Ionicons name="share-outline" size={24} color={theme.colors.text} />
-          </TouchableOpacity>
-        }
+        rightAction={{
+          icon: "share-outline",
+          onPress: shareFunko
+        }}
       />
       
       <ScrollView style={styles.content} showsVerticalScrollIndicator={false}>
@@ -492,6 +491,10 @@ export const FunkoDetailScreen = () => {
               size="small"
               style={styles.editButton}
               icon="create-outline"
+              onPress={() => {
+                // TODO: Navigate to edit collection info screen
+                console.log('Edit collection info pressed');
+              }}
             />
           </Card>
         )}

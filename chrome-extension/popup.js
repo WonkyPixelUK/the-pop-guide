@@ -47,9 +47,9 @@ class PopGuideExtension {
     const registerLink = document.getElementById('register-link');
     
     // Main functionality
-    const captureBtn = document.getElementById('capture-btn');
+const captureBtn = document.getElementById('capture-btn');
     const manualEntryBtn = document.getElementById('manual-entry-btn');
-    const detailsForm = document.getElementById('details-form');
+const detailsForm = document.getElementById('details-form');
     
     // List management
     const showCreateListBtn = document.getElementById('show-create-list');
@@ -400,11 +400,11 @@ class PopGuideExtension {
         this.showStatus('✅ Found match in database!', 'success');
         
         // Auto-fill the form
-        const nameInput = document.getElementById('name-input');
-        const genreInput = document.getElementById('genre-input');
-        const priceInput = document.getElementById('price-input');
-        const eanInput = document.getElementById('ean-input');
-        
+const nameInput = document.getElementById('name-input');
+const genreInput = document.getElementById('genre-input');
+const priceInput = document.getElementById('price-input');
+const eanInput = document.getElementById('ean-input');
+
         if (nameInput) nameInput.value = matchedPop.name;
         if (genreInput) genreInput.value = matchedPop.series || matchedPop.fandom || '';
         if (priceInput) priceInput.value = matchedPop.estimated_value ? `£${matchedPop.estimated_value}` : '';
@@ -915,7 +915,7 @@ class PopGuideExtension {
   }
 
   async handleSubmit(e) {
-    e.preventDefault();
+  e.preventDefault();
     
     if (!this.selectedList || !this.selectedListType) {
       this.showStatus('Please select a list first', 'error');

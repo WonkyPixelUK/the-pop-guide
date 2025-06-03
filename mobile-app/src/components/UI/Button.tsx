@@ -25,8 +25,8 @@ export const Button: React.FC<ButtonProps> = ({
   textStyle,
   icon,
 }) => {
-  const getButtonStyle = () => {
-    const baseStyle = [styles.button, styles[`${size}Button`]];
+  const getButtonStyle = (): ViewStyle[] => {
+    const baseStyle: ViewStyle[] = [styles.button, styles[`${size}Button` as keyof typeof styles] as ViewStyle];
     
     switch (variant) {
       case 'primary':
@@ -50,8 +50,8 @@ export const Button: React.FC<ButtonProps> = ({
     return baseStyle;
   };
 
-  const getTextStyle = () => {
-    const baseStyle = [styles.text, styles[`${size}Text`]];
+  const getTextStyle = (): TextStyle[] => {
+    const baseStyle: TextStyle[] = [styles.text, styles[`${size}Text` as keyof typeof styles] as TextStyle];
     
     switch (variant) {
       case 'primary':

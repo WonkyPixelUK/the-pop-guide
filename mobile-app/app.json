@@ -1,6 +1,6 @@
 {
   "expo": {
-    "name": "Pop Universe",
+    "name": "POP Guide",
     "slug": "pop-universe-mobile",
     "version": "1.0.0",
     "orientation": "portrait",
@@ -16,7 +16,7 @@
     ],
     "ios": {
       "supportsTablet": true,
-      "bundleIdentifier": "com.popuniverse.app",
+      "bundleIdentifier": "com.popguide.app",
       "infoPlist": {
         "NSCameraUsageDescription": "Allow The Pop Guide to access camera to scan Funko barcodes.",
         "NSMicrophoneUsageDescription": "Allow $(PRODUCT_NAME) to access your microphone",
@@ -28,7 +28,7 @@
         "foregroundImage": "./assets/adaptive-icon.png",
         "backgroundColor": "#ffffff"
       },
-      "package": "com.popuniverse.app",
+      "package": "com.popguide.app",
       "permissions": [
         "android.permission.CAMERA"
       ]
@@ -36,7 +36,8 @@
     "web": {
       "bundler": "metro",
       "output": "single",
-      "lang": "en"
+      "lang": "en",
+      "favicon": "./assets/favicon.png"
     },
     "plugins": [
       [
