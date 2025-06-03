@@ -74,7 +74,7 @@ const Navigation = () => {
 
   const handleQuickAdd = async (pop: any) => {
     if (!user) return;
-    await addToCollection.mutateAsync({ funkoPopId: pop.id, userId: user.id });
+    await addToCollection.mutateAsync(pop.id);
     setAddedId(pop.id);
     setTimeout(() => setAddedId(null), 1200);
   };

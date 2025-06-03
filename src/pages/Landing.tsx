@@ -1,6 +1,6 @@
 import { Button } from "@/components/ui/button";
 import { Card, CardContent } from "@/components/ui/card";
-import { BarChart3, Users, Zap, Star, Shield, TrendingUp, Smartphone, Globe, Monitor, Check, Puzzle, Rocket, CheckCircle } from "lucide-react";
+import { BarChart3, Users, Zap, Star, Shield, TrendingUp, Smartphone, Globe, Monitor, Check, Puzzle, Rocket, CheckCircle, Search, Sparkles } from "lucide-react";
 import { Link } from "react-router-dom";
 import SEO from '@/components/SEO';
 import { useState } from 'react';
@@ -45,8 +45,119 @@ const Landing = () => {
             </h1>
             <p className="text-xl text-gray-300 mb-8 max-w-3xl mx-auto">
               Track, value, and showcase your Funko Pop collection with real-time market data, 
-              comprehensive management tools, and a community of passionate collectors.
+              comprehensive management tools, and a community of passionate collectors. 
+              <span className="text-orange-400 font-semibold"> Start your free 3-day trial</span> and discover 
+              why thousands of collectors trust PopGuide to manage their collections.
             </p>
+
+            {/* Navigation Options - Integrated into Hero */}
+            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-5 gap-6 max-w-6xl mx-auto mb-8">
+              {/* Browse Database */}
+              <Link to="/directory-all">
+                <Card className="group bg-gradient-to-br from-orange-500 to-orange-600 border-0 transition-all duration-500 hover:scale-110 hover:shadow-2xl hover:shadow-orange-500/40 cursor-pointer h-full transform hover:-translate-y-3">
+                  <CardContent className="p-6 text-center h-full flex flex-col">
+                    <div className="relative mb-4">
+                      <div className="w-16 h-16 bg-white/20 backdrop-blur-sm rounded-2xl mx-auto flex items-center justify-center group-hover:rotate-12 transition-transform duration-500">
+                        <Search className="w-8 h-8 text-white group-hover:scale-125 transition-transform duration-300" />
+                      </div>
+                      <div className="absolute -top-2 -right-2 w-6 h-6 bg-yellow-400 rounded-full animate-bounce opacity-0 group-hover:opacity-100 transition-opacity duration-300"></div>
+                    </div>
+                    <h3 className="text-lg font-bold text-white mb-2 group-hover:text-yellow-100 transition-colors duration-300">Browse Database</h3>
+                    <p className="text-orange-100 text-sm flex-grow">
+                      Explore our massive collection with advanced search
+                    </p>
+                    <div className="mt-4 opacity-0 group-hover:opacity-100 transition-all duration-500 transform translate-y-2 group-hover:translate-y-0">
+                      <span className="text-yellow-200 text-sm font-semibold">Discover Now →</span>
+                    </div>
+                  </CardContent>
+                </Card>
+              </Link>
+
+              {/* Live Pricing */}
+              <Link to="/pricing">
+                <Card className="group bg-gradient-to-br from-blue-500 to-blue-600 border-0 transition-all duration-500 hover:scale-110 hover:shadow-2xl hover:shadow-blue-500/40 cursor-pointer h-full transform hover:-translate-y-3">
+                  <CardContent className="p-6 text-center h-full flex flex-col">
+                    <div className="relative mb-4">
+                      <div className="w-16 h-16 bg-white/20 backdrop-blur-sm rounded-2xl mx-auto flex items-center justify-center group-hover:rotate-12 transition-transform duration-500">
+                        <BarChart3 className="w-8 h-8 text-white group-hover:scale-125 transition-transform duration-300" />
+                      </div>
+                      <div className="absolute -top-2 -right-2 w-6 h-6 bg-green-400 rounded-full animate-pulse opacity-0 group-hover:opacity-100 transition-opacity duration-300"></div>
+                    </div>
+                    <h3 className="text-lg font-bold text-white mb-2 group-hover:text-green-100 transition-colors duration-300">Live Pricing</h3>
+                    <p className="text-blue-100 text-sm flex-grow">
+                      Real-time market values and price trends
+                    </p>
+                    <div className="mt-4 opacity-0 group-hover:opacity-100 transition-all duration-500 transform translate-y-2 group-hover:translate-y-0">
+                      <span className="text-green-200 text-sm font-semibold">Check Values →</span>
+                    </div>
+                  </CardContent>
+                </Card>
+              </Link>
+
+              {/* New Releases */}
+              <Link to="/new-releases">
+                <Card className="group bg-gradient-to-br from-pink-500 to-red-500 border-0 transition-all duration-500 hover:scale-110 hover:shadow-2xl hover:shadow-pink-500/40 cursor-pointer h-full transform hover:-translate-y-3">
+                  <CardContent className="p-6 text-center h-full flex flex-col">
+                    <div className="relative mb-4">
+                      <div className="w-16 h-16 bg-white/20 backdrop-blur-sm rounded-2xl mx-auto flex items-center justify-center group-hover:rotate-12 transition-transform duration-500">
+                        <Sparkles className="w-8 h-8 text-white group-hover:scale-125 transition-transform duration-300 animate-pulse" />
+                      </div>
+                      <div className="absolute -top-2 -right-2 w-6 h-6 bg-yellow-400 rounded-full animate-spin opacity-0 group-hover:opacity-100 transition-opacity duration-300"></div>
+                    </div>
+                    <h3 className="text-lg font-bold text-white mb-2 group-hover:text-yellow-100 transition-colors duration-300">New Releases</h3>
+                    <p className="text-pink-100 text-sm flex-grow">
+                      Latest Funko Pop releases and announcements
+                    </p>
+                    <div className="mt-4 opacity-0 group-hover:opacity-100 transition-all duration-500 transform translate-y-2 group-hover:translate-y-0">
+                      <span className="text-yellow-200 text-sm font-semibold">See Latest →</span>
+                    </div>
+                  </CardContent>
+                </Card>
+              </Link>
+
+              {/* Coming Soon */}
+              <Link to="/coming-soon">
+                <Card className="group bg-gradient-to-br from-purple-500 to-indigo-600 border-0 transition-all duration-500 hover:scale-110 hover:shadow-2xl hover:shadow-purple-500/40 cursor-pointer h-full transform hover:-translate-y-3">
+                  <CardContent className="p-6 text-center h-full flex flex-col">
+                    <div className="relative mb-4">
+                      <div className="w-16 h-16 bg-white/20 backdrop-blur-sm rounded-2xl mx-auto flex items-center justify-center group-hover:rotate-12 transition-transform duration-500">
+                        <Rocket className="w-8 h-8 text-white group-hover:scale-125 transition-transform duration-300" />
+                      </div>
+                      <div className="absolute -top-2 -right-2 w-6 h-6 bg-orange-400 rounded-full animate-bounce opacity-0 group-hover:opacity-100 transition-opacity duration-300"></div>
+                    </div>
+                    <h3 className="text-lg font-bold text-white mb-2 group-hover:text-orange-100 transition-colors duration-300">Coming Soon</h3>
+                    <p className="text-purple-100 text-sm flex-grow">
+                      Preview upcoming releases and wishlist items
+                    </p>
+                    <div className="mt-4 opacity-0 group-hover:opacity-100 transition-all duration-500 transform translate-y-2 group-hover:translate-y-0">
+                      <span className="text-orange-200 text-sm font-semibold">Preview Soon →</span>
+                    </div>
+                  </CardContent>
+                </Card>
+              </Link>
+
+              {/* Funko Exclusives */}
+              <Link to="/funko-exclusives">
+                <Card className="group bg-gradient-to-br from-yellow-500 to-orange-500 border-0 transition-all duration-500 hover:scale-110 hover:shadow-2xl hover:shadow-yellow-500/40 cursor-pointer h-full transform hover:-translate-y-3">
+                  <CardContent className="p-6 text-center h-full flex flex-col">
+                    <div className="relative mb-4">
+                      <div className="w-16 h-16 bg-white/20 backdrop-blur-sm rounded-2xl mx-auto flex items-center justify-center group-hover:rotate-12 transition-transform duration-500">
+                        <Star className="w-8 h-8 text-white group-hover:scale-125 transition-transform duration-300 animate-pulse" />
+                      </div>
+                      <div className="absolute -top-2 -right-2 w-6 h-6 bg-red-400 rounded-full animate-ping opacity-0 group-hover:opacity-100 transition-opacity duration-300"></div>
+                    </div>
+                    <h3 className="text-lg font-bold text-white mb-2 group-hover:text-red-100 transition-colors duration-300">Funko Exclusives</h3>
+                    <p className="text-yellow-100 text-sm flex-grow">
+                      Hunt rare exclusives and limited editions
+                    </p>
+                    <div className="mt-4 opacity-0 group-hover:opacity-100 transition-all duration-500 transform translate-y-2 group-hover:translate-y-0">
+                      <span className="text-red-200 text-sm font-semibold">Find Exclusives →</span>
+                    </div>
+                  </CardContent>
+                </Card>
+              </Link>
+            </div>
+
             <div className="flex flex-col sm:flex-row gap-4 justify-center">
               <Link to="/get-started">
                 <Button size="lg" className="bg-orange-500 hover:bg-orange-600 text-white px-8 py-3">
@@ -56,6 +167,7 @@ const Landing = () => {
             </div>
           </div>
         </section>
+
         {/* Demo Modal */}
         <Dialog open={demoOpen} onOpenChange={setDemoOpen}>
           <DialogContent className="max-w-2xl w-full bg-gray-900 border border-gray-700">

@@ -26,6 +26,7 @@ const PAGE_SIZE = 24;
 
 // Move static filter options outside component to prevent recreation
 const STATIC_FILTERS = {
+  status: ['All', 'Coming Soon', 'New Releases', 'Funko Exclusive', 'Pre-Order', 'In Stock', 'Sold Out'],
   category: [
     'Pop!', 'Bitty Pop!', 'Mini Figures', 'Vinyl Soda', 'Loungefly', 'REWIND', 'Pop! Pins', 'Toys and Plushies', 'Clothing', 'Funko Gear', 'Funko Games'
   ],
@@ -38,7 +39,7 @@ const STATIC_FILTERS = {
   edition: [
     'New Releases', 'Exclusives', 'Convention Style', 'Character Cosplay', 'Rainbow Brights', 'Retro Rewind', 'Theme Park Favourites', 'Disney Princesses', 'All The Sparkles', 'Back in Stock', 'BLACK LIGHT', 'BRONZE', 'BTS X MINIONS', 'CHASE', 'CONVENTION', 'DIAMON COLLECTION', 'DIAMOND COLLECTION', 'EASTER', 'FACET COLLECTION', 'FLOCKED', 'GLITTER', 'GLOW IN THE DARK', 'HOLIDAY', 'HYPERSPACE HEROES', 'LIGHTS AND SOUND', 'MEME', 'METALLIC', 'PEARLESCENT', 'PRIDE', 'RETRO COMIC', 'RETRO SERIES', 'SCOOPS AHOY', 'SOFT COLOUR', "VALENTINE'S"
   ],
-  vaulted: ['All', 'Vaulted', 'Available'],
+  vaulted: ['All', 'Vaulted', 'Available']
 };
 
 const DirectoryAll = () => {
@@ -48,7 +49,7 @@ const DirectoryAll = () => {
   const [filterOpen, setFilterOpen] = useState(false);
   const [searchTerm, setSearchTerm] = useState('');
   const [filters, setFilters] = useState({
-    category: [], fandom: [], genre: [], edition: [], vaulted: 'All', year: ''
+    category: [], fandom: [], genre: [], edition: [], status: [], vaulted: 'All', year: ''
   });
   const [ownedConfirmed, setOwnedConfirmed] = useState(false);
   const [addingToCollection, setAddingToCollection] = useState(false);
@@ -114,7 +115,40 @@ const DirectoryAll = () => {
       const matchesVaulted = filters.vaulted === 'All' || (filters.vaulted === 'Vaulted' ? pop.is_vaulted : !pop.is_vaulted);
       const matchesYear = !filters.year || new Date(pop.created_at).getFullYear().toString() === filters.year;
       
-      return matchesSearch && matchesCategory && matchesFandom && matchesGenre && matchesEdition && matchesVaulted && matchesYear;
+      // Status filtering logic
+      let matchesStatus = true;
+      if (filters.status.length > 0) {
+        matchesStatus = filters.status.some(status => {
+          switch (status) {
+            case 'Coming Soon':
+              return pop.status === 'Coming Soon' || (pop.data_sources && pop.data_sources.includes('coming-soon'));
+            case 'New Releases':
+              // Consider items from new-releases data source or recently released
+              const releaseDate = new Date(pop.created_at);
+              const threeMonthsAgo = new Date();
+              threeMonthsAgo.setMonth(threeMonthsAgo.getMonth() - 3);
+              return (pop.data_sources && pop.data_sources.includes('new-releases')) || 
+                     (releaseDate >= threeMonthsAgo && !pop.is_vaulted);
+            case 'Funko Exclusive':
+              return pop.edition && pop.edition.toLowerCase().includes('exclusive') ||
+                     pop.fandom && pop.fandom.toLowerCase().includes('funko') ||
+                     pop.category && pop.category.toLowerCase().includes('exclusive');
+            case 'Pre-Order':
+              return pop.status === 'Pre-Order' || 
+                     pop.edition && pop.edition.toLowerCase().includes('pre-order');
+            case 'In Stock':
+              return !pop.is_vaulted && pop.status !== 'Sold Out' && pop.status !== 'Coming Soon';
+            case 'Sold Out':
+              return pop.is_vaulted || pop.status === 'Sold Out';
+            case 'All':
+              return true;
+            default:
+              return false;
+          }
+        });
+      }
+      
+      return matchesSearch && matchesCategory && matchesFandom && matchesGenre && matchesEdition && matchesVaulted && matchesYear && matchesStatus;
     });
   }, [allPops, searchTerm, filters]);
 
@@ -645,6 +679,24 @@ const DirectoryAll = () => {
                     <span className="text-gray-400 font-bold text-sm ml-2">
                       ({key === 'edition' && opt === 'New Releases' 
                         ? allPops.filter(pop => pop.data_sources && pop.data_sources.includes('new-releases')).length 
+                        : key === 'status' 
+                        ? (() => {
+                            switch (opt) {
+                              case 'All': return allPops.length;
+                              case 'Coming Soon': return allPops.filter(pop => pop.status === 'Coming Soon' || (pop.data_sources && pop.data_sources.includes('coming-soon'))).length;
+                              case 'New Releases': return allPops.filter(pop => {
+                                const releaseDate = new Date(pop.created_at);
+                                const threeMonthsAgo = new Date();
+                                threeMonthsAgo.setMonth(threeMonthsAgo.getMonth() - 3);
+                                return (pop.data_sources && pop.data_sources.includes('new-releases')) || (releaseDate >= threeMonthsAgo && !pop.is_vaulted);
+                              }).length;
+                              case 'Funko Exclusive': return allPops.filter(pop => pop.edition && pop.edition.toLowerCase().includes('exclusive') || pop.fandom && pop.fandom.toLowerCase().includes('funko') || pop.category && pop.category.toLowerCase().includes('exclusive')).length;
+                              case 'Pre-Order': return allPops.filter(pop => pop.status === 'Pre-Order' || pop.edition && pop.edition.toLowerCase().includes('pre-order')).length;
+                              case 'In Stock': return allPops.filter(pop => !pop.is_vaulted && pop.status !== 'Sold Out' && pop.status !== 'Coming Soon').length;
+                              case 'Sold Out': return allPops.filter(pop => pop.is_vaulted || pop.status === 'Sold Out').length;
+                              default: return 0;
+                            }
+                          })()
                         : allPops.filter(pop => pop[key] === opt).length})
                     </span>
                   </div>
