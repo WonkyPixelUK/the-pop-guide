@@ -196,6 +196,11 @@ const Navigation = () => {
                     <Sparkles className="w-5 h-5 text-orange-400 group-hover:scale-110 transition-transform" /> New Releases
                   </Link>
                 </DropdownMenu.Item>
+                <DropdownMenu.Item>
+                  <Link to="/coming-soon" className="flex items-center gap-3 px-4 py-3 text-base font-medium text-white rounded-lg transition group hover:bg-gray-800/80 hover:border-l-4 hover:border-orange-500">
+                    <Star className="w-5 h-5 text-orange-400 group-hover:scale-110 transition-transform" /> Coming Soon
+                  </Link>
+                </DropdownMenu.Item>
               </DropdownMenu.Items>
             </DropdownMenu>
             
@@ -246,11 +251,6 @@ const Navigation = () => {
                 <DropdownMenu.Item>
                   <Link to="/deals" className="flex items-center gap-3 px-4 py-3 text-base font-medium text-white rounded-lg transition group hover:bg-gray-800/80 hover:border-l-4 hover:border-orange-500">
                     <DollarSign className="w-5 h-5 text-orange-400 group-hover:scale-110 transition-transform" /> Latest Deals
-                  </Link>
-                </DropdownMenu.Item>
-                <DropdownMenu.Item>
-                  <Link to="/coming-soon" className="flex items-center gap-3 px-4 py-3 text-base font-medium text-white rounded-lg transition group hover:bg-gray-800/80 hover:border-l-4 hover:border-orange-500">
-                    <Star className="w-5 h-5 text-orange-400 group-hover:scale-110 transition-transform" /> Coming Soon
                   </Link>
                 </DropdownMenu.Item>
                 <DropdownMenu.Item>

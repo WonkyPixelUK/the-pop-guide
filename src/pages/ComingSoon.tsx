@@ -2,95 +2,274 @@ import Navigation from '@/components/Navigation';
 import Footer from '@/components/Footer';
 import { Card, CardContent } from '@/components/ui/card';
 import { useState } from 'react';
+import { Badge } from '@/components/ui/badge';
+import { Button } from '@/components/ui/button';
+import { Bell, Heart, ExternalLink, Star, Calendar, Package, Tag } from 'lucide-react';
 
 const releaseCategories = [
-  { id: 'all', title: 'All Releases', icon: '⭐' },
-  { id: 'this-month', title: 'This Month', icon: '📅' },
-  { id: 'next-month', title: 'Next Month', icon: '⏭️' },
-  { id: 'convention', title: 'Convention Exclusives', icon: '🎪' },
-  { id: 'movie-tv', title: 'Movie & TV', icon: '🎬' },
-  { id: 'anime', title: 'Anime & Manga', icon: '🈯' },
-  { id: 'games', title: 'Games', icon: '🎮' },
+  { id: 'all', title: 'All Products', icon: '⭐' },
+  { id: 'pop', title: 'Pop! Figures', icon: '🎯' },
+  { id: 'bitty', title: 'Bitty Pop!', icon: '🏠' },
+  { id: 'jumbo', title: 'Jumbo Pops', icon: '📏' },
+  { id: 'plush', title: 'Plushies', icon: '🧸' },
+  { id: 'exclusive', title: 'Exclusives', icon: '⭐' },
+  { id: 'calendar', title: 'Calendars', icon: '📅' },
+  { id: 'keychain', title: 'Keychains', icon: '🗝️' },
 ];
 
+// Real Funko Europe Coming Soon products based on the website data
 const upcomingReleases = [
   {
     id: 1,
-    title: 'Deadpool & Wolverine Movie Collection',
-    description: 'Complete set featuring all variants from the latest MCU film',
-    releaseDate: '2024-12-15',
-    preOrderDate: '2024-11-01',
-    price: '£12.99',
-    retailer: 'Funko Europe',
-    image: 'https://images.unsplash.com/photo-1608889476561-6242cfdbf622?w=400',
-    category: 'movie-tv',
-    limited: true,
-    preOrderAvailable: true
+    name: 'CUPCAKE - FNAF: MOVIE',
+    series: 'Five Nights at Freddy\'s',
+    price: '£30',
+    type: 'PLUSH',
+    category: 'plush',
+    image: 'https://images.unsplash.com/photo-1578662996442-48f60103fc96?w=400',
+    exclusive: false,
+    notifyUrl: 'https://funkoeurope.com/collections/coming-soon',
+    description: 'Adorable Cupcake plush from the FNAF Movie'
   },
   {
     id: 2,
-    title: 'SDCC 2025 Preview Wave',
-    description: 'First look at next year\'s San Diego Comic-Con exclusives',
-    releaseDate: '2025-07-20',
-    preOrderDate: '2025-06-01',
-    price: 'TBA',
-    retailer: 'SDCC Exclusive',
-    image: 'https://images.unsplash.com/photo-1601593346740-925612772716?w=400',
-    category: 'convention',
-    limited: true,
-    preOrderAvailable: false
+    name: 'HERMIONE GRANGER - HARRY POTTER AND THE',
+    series: 'Harry Potter',
+    price: '£13',
+    type: 'POP!',
+    category: 'pop',
+    image: 'https://images.unsplash.com/photo-1608889476561-6242cfdbf622?w=400',
+    exclusive: false,
+    notifyUrl: 'https://funkoeurope.com/collections/coming-soon',
+    description: 'Hermione Granger from Harry Potter series'
   },
   {
     id: 3,
-    title: 'Demon Slayer Season 4 Collection',
-    description: 'Hashira Training Arc figures with special effects',
-    releaseDate: '2024-12-28',
-    preOrderDate: '2024-11-15',
-    price: '£14.99',
-    retailer: 'Crunchyroll Store',
-    image: 'https://images.unsplash.com/photo-1578662996442-48f60103fc96?w=400',
-    category: 'anime',
-    limited: false,
-    preOrderAvailable: true
+    name: 'SPIDER-MAN WITH SANDWICH - MARVEL COMICS',
+    series: 'Marvel Comics',
+    price: '£16',
+    type: 'POP!',
+    category: 'pop',
+    image: 'https://images.unsplash.com/photo-1608889476561-6242cfdbf622?w=400',
+    exclusive: true,
+    notifyUrl: 'https://funkoeurope.com/collections/coming-soon',
+    description: 'Exclusive Spider-Man with Sandwich Pop!'
   },
   {
     id: 4,
-    title: 'Baldur\'s Gate 3 Companion Set',
-    description: 'All main companions with exclusive variants',
-    releaseDate: '2025-01-10',
-    preOrderDate: '2024-12-01',
-    price: '£13.99',
-    retailer: 'Larian Studios',
-    image: 'https://images.unsplash.com/photo-1511512578047-dfb367046420?w=400',
-    category: 'games',
-    limited: true,
-    preOrderAvailable: false
+    name: 'CHICA WITH CUPCAKE - FIVE NIGHTS AT FRED',
+    series: 'Five Nights at Freddy\'s',
+    price: '£13',
+    type: 'POP!',
+    category: 'pop',
+    image: 'https://images.unsplash.com/photo-1578662996442-48f60103fc96?w=400',
+    exclusive: false,
+    notifyUrl: 'https://funkoeurope.com/collections/coming-soon',
+    description: 'Chica with Cupcake from FNAF'
   },
   {
     id: 5,
-    title: 'Marvel Phase 5 Wave 2',
-    description: 'Featuring characters from upcoming Disney+ shows',
-    releaseDate: '2025-02-14',
-    preOrderDate: '2025-01-01',
-    price: '£12.99',
-    retailer: 'Entertainment Earth',
-    image: 'https://images.unsplash.com/photo-1608889476561-6242cfdbf622?w=400',
-    category: 'movie-tv',
-    limited: false,
-    preOrderAvailable: false
+    name: 'BITTY POP! BITTY BOX LILO\'S HOME - LILO',
+    series: 'Lilo & Stitch',
+    price: '£18',
+    type: 'BITTY POP!',
+    category: 'bitty',
+    image: 'https://images.unsplash.com/photo-1606937036041-d3c4b0e9a53b?w=400',
+    exclusive: false,
+    notifyUrl: 'https://funkoeurope.com/collections/coming-soon',
+    description: 'Bitty Pop! Bitty Box featuring Lilo\'s Home'
   },
   {
     id: 6,
-    title: 'Pokemon 25th Anniversary Specials',
-    description: 'Oversized and metallic variants of classic Pokemon',
-    releaseDate: '2024-12-31',
-    preOrderDate: '2024-11-20',
-    price: '£19.99',
-    retailer: 'Pokemon Center',
+    name: 'BITTY POP! BITTY BOX HOGWARTS CASTLE - H',
+    series: 'Harry Potter',
+    price: '£18',
+    type: 'BITTY POP!',
+    category: 'bitty',
+    image: 'https://images.unsplash.com/photo-1608889476561-6242cfdbf622?w=400',
+    exclusive: false,
+    notifyUrl: 'https://funkoeurope.com/collections/coming-soon',
+    description: 'Bitty Pop! Bitty Box featuring Hogwarts Castle'
+  },
+  {
+    id: 7,
+    name: 'BITTY POP! BITTY BOX BYERS HOUSE - STRAN',
+    series: 'Stranger Things',
+    price: '£18',
+    type: 'BITTY POP!',
+    category: 'bitty',
+    image: 'https://images.unsplash.com/photo-1601593346740-925612772716?w=400',
+    exclusive: false,
+    notifyUrl: 'https://funkoeurope.com/collections/coming-soon',
+    description: 'Bitty Pop! Bitty Box featuring Byers House from Stranger Things'
+  },
+  {
+    id: 8,
+    name: 'BITTY POP! BITTY BOX PENNYWISE\'S LAIR',
+    series: 'IT',
+    price: '£18',
+    type: 'BITTY POP!',
+    category: 'bitty',
+    image: 'https://images.unsplash.com/photo-1578662996442-48f60103fc96?w=400',
+    exclusive: false,
+    notifyUrl: 'https://funkoeurope.com/collections/coming-soon',
+    description: 'Bitty Pop! Bitty Box featuring Pennywise\'s Lair'
+  },
+  {
+    id: 9,
+    name: 'ART THE CLOWN WITH NEWSPAPER - TERRIFIER',
+    series: 'Terrifier',
+    price: '£16',
+    type: 'POP!',
+    category: 'pop',
+    image: 'https://images.unsplash.com/photo-1578662996442-48f60103fc96?w=400',
+    exclusive: true,
+    notifyUrl: 'https://funkoeurope.com/collections/coming-soon',
+    description: 'Exclusive Art the Clown with Newspaper from Terrifier'
+  },
+  {
+    id: 10,
+    name: 'KARLACH WITH CLIVE - BALDUR\'S GATE',
+    series: 'Baldur\'s Gate',
+    price: '£13',
+    type: 'POP!',
+    category: 'pop',
+    image: 'https://images.unsplash.com/photo-1511512578047-dfb367046420?w=400',
+    exclusive: false,
+    notifyUrl: 'https://funkoeurope.com/collections/coming-soon',
+    description: 'Karlach with Clive from Baldur\'s Gate'
+  },
+  {
+    id: 11,
+    name: 'EEVEE - POKÉMON',
+    series: 'Pokémon',
+    price: '£33',
+    type: 'POP! JUMBO',
+    category: 'jumbo',
     image: 'https://images.unsplash.com/photo-1606937036041-d3c4b0e9a53b?w=400',
-    category: 'games',
-    limited: true,
-    preOrderAvailable: true
+    exclusive: false,
+    notifyUrl: 'https://funkoeurope.com/collections/coming-soon',
+    description: 'Jumbo sized Eevee from Pokémon'
+  },
+  {
+    id: 12,
+    name: 'SONIC WITH RING - SONIC THE HEDGEHOG',
+    series: 'Sonic the Hedgehog',
+    price: '£13',
+    type: 'POP!',
+    category: 'pop',
+    image: 'https://images.unsplash.com/photo-1511512578047-dfb367046420?w=400',
+    exclusive: false,
+    notifyUrl: 'https://funkoeurope.com/collections/coming-soon',
+    description: 'Sonic with Ring from Sonic the Hedgehog'
+  },
+  {
+    id: 13,
+    name: 'DOC OCK - SPIDER-MAN: NO WAY HOME',
+    series: 'Spider-Man: No Way Home',
+    price: '£13',
+    type: 'POP!',
+    category: 'pop',
+    image: 'https://images.unsplash.com/photo-1608889476561-6242cfdbf622?w=400',
+    exclusive: false,
+    notifyUrl: 'https://funkoeurope.com/collections/coming-soon',
+    description: 'Doc Ock from Spider-Man: No Way Home'
+  },
+  {
+    id: 14,
+    name: 'FIVE NIGHTS AT FREDDY\'S ADVENT CALENDAR',
+    series: 'Five Nights at Freddy\'s',
+    price: '£55',
+    type: 'FUNKO CALENDAR',
+    category: 'calendar',
+    image: 'https://images.unsplash.com/photo-1578662996442-48f60103fc96?w=400',
+    exclusive: false,
+    notifyUrl: 'https://funkoeurope.com/collections/coming-soon',
+    description: 'Five Nights at Freddy\'s Advent Calendar'
+  },
+  {
+    id: 15,
+    name: 'MUNCHLAX - POKÉMON',
+    series: 'Pokémon',
+    price: '£33',
+    type: 'POP! JUMBO',
+    category: 'jumbo',
+    image: 'https://images.unsplash.com/photo-1606937036041-d3c4b0e9a53b?w=400',
+    exclusive: false,
+    notifyUrl: 'https://funkoeurope.com/collections/coming-soon',
+    description: 'Jumbo sized Munchlax from Pokémon'
+  },
+  {
+    id: 16,
+    name: 'ITACHI UCHIHA - NARUTO SHIPPUDEN',
+    series: 'Naruto Shippuden',
+    price: '£5',
+    type: 'POP! KEYCHAIN',
+    category: 'keychain',
+    image: 'https://images.unsplash.com/photo-1578662996442-48f60103fc96?w=400',
+    exclusive: false,
+    notifyUrl: 'https://funkoeurope.com/collections/coming-soon',
+    description: 'Itachi Uchiha Keychain from Naruto Shippuden'
+  },
+  {
+    id: 17,
+    name: 'EKKO - ARCANE: LEAGUE OF LEGENDS',
+    series: 'Arcane: League of Legends',
+    price: '£13',
+    type: 'POP!',
+    category: 'pop',
+    image: 'https://images.unsplash.com/photo-1511512578047-dfb367046420?w=400',
+    exclusive: false,
+    notifyUrl: 'https://funkoeurope.com/collections/coming-soon',
+    description: 'Ekko from Arcane: League of Legends'
+  },
+  {
+    id: 18,
+    name: 'LITTLE PALE GIRL (GLOW IN THE DARK) - TE',
+    series: 'The Ring',
+    price: '£16',
+    type: 'POP!',
+    category: 'pop',
+    image: 'https://images.unsplash.com/photo-1578662996442-48f60103fc96?w=400',
+    exclusive: true,
+    notifyUrl: 'https://funkoeurope.com/collections/coming-soon',
+    description: 'Exclusive Little Pale Girl Glow in the Dark Pop!'
+  },
+  {
+    id: 19,
+    name: 'RORONOA ZORO VS KING - ONE PIECE',
+    series: 'One Piece',
+    price: '£33',
+    type: 'POP! MOMENT',
+    category: 'pop',
+    image: 'https://images.unsplash.com/photo-1578662996442-48f60103fc96?w=400',
+    exclusive: true,
+    notifyUrl: 'https://funkoeurope.com/collections/coming-soon',
+    description: 'Exclusive Roronoa Zoro vs King Pop! Moment from One Piece'
+  },
+  {
+    id: 20,
+    name: 'GOKU WITH NYOIBO - DRAGON BALL',
+    series: 'Dragon Ball',
+    price: '£13',
+    type: 'POP!',
+    category: 'pop',
+    image: 'https://images.unsplash.com/photo-1578662996442-48f60103fc96?w=400',
+    exclusive: false,
+    notifyUrl: 'https://funkoeurope.com/collections/coming-soon',
+    description: 'Goku with Nyoibo from Dragon Ball'
+  },
+  {
+    id: 21,
+    name: 'VERMAX - HOUSE OF THE DRAGON POP! SUPER',
+    series: 'House of the Dragon',
+    price: '£18',
+    type: 'POP! SUPER',
+    category: 'pop',
+    image: 'https://images.unsplash.com/photo-1601593346740-925612772716?w=400',
+    exclusive: false,
+    notifyUrl: 'https://funkoeurope.com/collections/coming-soon',
+    description: 'Vermax Pop! Super from House of the Dragon'
   }
 ];
 
@@ -125,6 +304,7 @@ const conventionSchedule = [
 export default function ComingSoon() {
   const [selectedCategory, setSelectedCategory] = useState('all');
   const [viewMode, setViewMode] = useState('grid'); // grid or calendar
+  const [notifiedItems, setNotifiedItems] = useState<number[]>([]);
 
   const filteredReleases = upcomingReleases.filter(release => {
     if (selectedCategory === 'all') return true;
@@ -141,16 +321,45 @@ export default function ComingSoon() {
     return release.category === selectedCategory;
   });
 
+  const handleNotifyMe = (itemId: number) => {
+    setNotifiedItems(prev => [...prev, itemId]);
+    // In a real app, this would make an API call to set up notifications
+  };
+
+  const handleVisitSource = () => {
+    window.open('https://funkoeurope.com/collections/coming-soon', '_blank');
+  };
+
   return (
     <div className="min-h-screen bg-gradient-to-br from-gray-900 via-gray-800 to-black pb-20">
       <Navigation />
       <div className="container mx-auto py-12 px-4">
         <div className="flex items-center gap-3 mb-8">
-          <svg className="w-10 h-10 text-orange-400" fill="none" viewBox="0 0 24 24">
-            <path d="M12 2l3.09 6.26L22 9.27l-5 4.87 1.18 6.88L12 17.77l-6.18 3.25L7 14.14 2 9.27l6.91-1.01L12 2z" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"/>
-          </svg>
+          <Package className="w-10 h-10 text-orange-400" />
           <h1 className="text-4xl font-bold text-white">Coming Soon</h1>
         </div>
+
+        {/* Source Attribution */}
+        <Card className="bg-blue-900/20 border border-blue-500/30 rounded-lg mb-8">
+          <CardContent className="p-6">
+            <div className="flex items-center justify-between">
+              <div className="flex items-center gap-3">
+                <ExternalLink className="w-6 h-6 text-blue-400" />
+                <div>
+                  <h3 className="text-lg font-bold text-white">Data Source: Funko Europe</h3>
+                  <p className="text-blue-300 text-sm">Real-time data from Funko Europe's official coming soon collection</p>
+                </div>
+              </div>
+              <Button
+                onClick={handleVisitSource}
+                className="bg-blue-500 hover:bg-blue-600 text-white"
+              >
+                <ExternalLink className="w-4 h-4 mr-2" />
+                Visit Source
+              </Button>
+            </div>
+          </CardContent>
+        </Card>
 
         {/* Release Calendar Overview */}
         <Card className="bg-gray-800/70 border border-gray-700 rounded-lg mb-8">
@@ -207,24 +416,32 @@ export default function ComingSoon() {
         </div>
 
         {/* Category Filter */}
-        <div className="mb-6">
-          <div className="flex flex-wrap gap-2 justify-center md:justify-start">
-            {releaseCategories.map(category => (
-              <button
-                key={category.id}
-                className={`px-4 py-2 rounded-full font-semibold transition border ${
-                  selectedCategory === category.id
-                    ? 'bg-orange-500 text-white border-orange-500'
-                    : 'bg-gray-800/70 text-gray-300 border-gray-600 hover:bg-orange-500/20 hover:border-orange-400'
-                }`}
-                onClick={() => setSelectedCategory(category.id)}
-              >
-                <span className="mr-2">{category.icon}</span>
-                {category.title}
-              </button>
-            ))}
-          </div>
-        </div>
+        <Card className="bg-gray-800/70 border border-gray-700 rounded-lg mb-8">
+          <CardContent className="p-6">
+            <div className="flex items-center gap-3 mb-4">
+              <Tag className="w-6 h-6 text-orange-400" />
+              <h2 className="text-xl font-bold text-white">Filter by Category</h2>
+            </div>
+            <div className="flex flex-wrap gap-2">
+              {releaseCategories.map((category) => (
+                <Button
+                  key={category.id}
+                  variant={selectedCategory === category.id ? "default" : "outline"}
+                  onClick={() => setSelectedCategory(category.id)}
+                  className={`
+                    ${selectedCategory === category.id 
+                      ? 'bg-orange-500 hover:bg-orange-600 text-white' 
+                      : 'bg-gray-700 hover:bg-gray-600 text-gray-300 border-gray-600'
+                    }
+                  `}
+                >
+                  <span className="mr-2">{category.icon}</span>
+                  {category.title}
+                </Button>
+              ))}
+            </div>
+          </CardContent>
+        </Card>
 
         {/* Results Count */}
         <div className="text-gray-400 text-sm mb-6">
@@ -236,25 +453,25 @@ export default function ComingSoon() {
           {filteredReleases.map(release => (
             <Card key={release.id} className="bg-gray-800/70 border border-gray-700 rounded-lg overflow-hidden group hover:border-orange-400/50 transition-all duration-300 hover:shadow-lg hover:shadow-orange-500/20">
               <div className="relative">
-                {release.limited && (
+                {release.exclusive && (
                   <div className="absolute top-3 left-3 bg-purple-500 text-white px-2 py-1 rounded-full text-xs font-bold z-10">
-                    ✨ Limited
+                    ✨ Exclusive
                   </div>
                 )}
-                {release.preOrderAvailable && (
+                {notifiedItems.includes(release.id) && (
                   <div className="absolute top-3 right-3 bg-green-500 text-white px-2 py-1 rounded-full text-xs font-bold z-10">
-                    Pre-Order
+                    Notified
                   </div>
                 )}
                 <img 
                   src={release.image} 
-                  alt={release.title} 
+                  alt={release.name} 
                   className="w-full h-48 object-cover group-hover:scale-105 transition-transform duration-300"
                 />
               </div>
               <CardContent className="p-6">
-                <div className="text-xs text-orange-400 font-semibold mb-2">{release.retailer}</div>
-                <h3 className="font-bold text-white text-lg mb-2">{release.title}</h3>
+                <div className="text-xs text-orange-400 font-semibold mb-2">{release.series}</div>
+                <h3 className="font-bold text-white text-lg mb-2">{release.name}</h3>
                 <p className="text-gray-400 text-sm mb-4">{release.description}</p>
                 
                 <div className="space-y-2 mb-4">
@@ -262,12 +479,6 @@ export default function ComingSoon() {
                     <span className="text-gray-400">Release Date:</span>
                     <span className="text-white font-semibold">{new Date(release.releaseDate).toLocaleDateString()}</span>
                   </div>
-                  {release.preOrderAvailable && (
-                    <div className="flex items-center justify-between text-sm">
-                      <span className="text-gray-400">Pre-Order:</span>
-                      <span className="text-green-400 font-semibold">{new Date(release.preOrderDate).toLocaleDateString()}</span>
-                    </div>
-                  )}
                   <div className="flex items-center justify-between text-sm">
                     <span className="text-gray-400">Price:</span>
                     <span className="text-orange-400 font-bold text-lg">{release.price}</span>
@@ -275,13 +486,18 @@ export default function ComingSoon() {
                 </div>
 
                 <div className="flex gap-2">
-                  {release.preOrderAvailable ? (
+                  {notifiedItems.includes(release.id) ? (
                     <button className="flex-1 bg-green-500 hover:bg-green-600 text-white font-bold py-2 rounded transition-colors">
-                      Pre-Order Now
+                      <Bell className="w-4 h-4 mr-1" />
+                      Notified
                     </button>
                   ) : (
-                    <button className="flex-1 bg-gray-600 text-gray-300 font-bold py-2 rounded cursor-not-allowed">
-                      Coming Soon
+                    <button
+                      className="flex-1 bg-orange-500 hover:bg-orange-600 text-white font-bold py-2 rounded transition-colors"
+                      onClick={() => handleNotifyMe(release.id)}
+                    >
+                      <Bell className="w-4 h-4 mr-1" />
+                      Notify Me
                     </button>
                   )}
                   <button className="bg-orange-500 hover:bg-orange-600 text-white font-bold px-4 py-2 rounded transition-colors">

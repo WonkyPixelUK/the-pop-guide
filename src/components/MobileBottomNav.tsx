@@ -1,10 +1,10 @@
 import { Link, useLocation } from 'react-router-dom';
-import { Home, List, Grid, BookOpen, Folder, Users, HelpCircle, Store, Users as CommunityIcon, Clock, Castle } from 'lucide-react';
+import { Home, List, Grid, BookOpen, Folder, Users, HelpCircle, Store, Users as CommunityIcon, Clock, Castle, Database } from 'lucide-react';
 import { useAuth } from '@/hooks/useAuth';
 import { useState } from 'react';
 
 const navItems = [
-  { to: '/directory-all', label: 'Browse Database', icon: Home },
+  { label: 'Database', icon: Database, modal: 'database' },
   { to: '/features', label: 'Features', icon: BookOpen },
   { to: '/pricing', label: 'Pricing', icon: Folder },
   { to: '/browse-lists', label: 'Lists', icon: List },
@@ -15,6 +15,13 @@ const navItems = [
   { label: 'Community', icon: CommunityIcon, modal: 'community' },
   { label: 'Support', icon: HelpCircle, modal: 'support' },
   { label: 'Retailers', icon: Store, modal: 'retailers' },
+];
+
+const databaseLinks = [
+  { to: '/directory-all', label: 'Browse Database' },
+  { to: '/pricing-dashboard', label: 'Live Pricing' },
+  { to: '/new-releases', label: 'New Releases' },
+  { to: '/coming-soon', label: 'Coming Soon' },
 ];
 
 const supportLinks = [
@@ -35,14 +42,13 @@ const communityLinks = [
   { to: '/members', label: 'Members' },
   { to: '/shoppers-advice', label: 'Shoppers Advice' },
   { to: '/deals', label: 'Latest Deals' },
-  { to: '/coming-soon', label: 'Coming Soon' },
   { to: '/browse-lists', label: 'Lists' },
 ];
 
 const MobileBottomNav = () => {
   const location = useLocation();
   const { user } = useAuth();
-  const [modal, setModal] = useState<null | 'community' | 'support' | 'retailers' | 'tools'>(null);
+  const [modal, setModal] = useState<null | 'database' | 'community' | 'support' | 'retailers' | 'tools'>(null);
   
   return (
     <>
@@ -55,7 +61,7 @@ const MobileBottomNav = () => {
                   <button
                     className={`flex flex-col items-center justify-center px-3 py-1 rounded transition-colors text-[#232837] hover:text-orange-500 focus:outline-none`}
                     aria-label={label}
-                    onClick={() => setModal((modalType || 'tools') as 'community' | 'support' | 'retailers' | 'tools')}
+                    onClick={() => setModal((modalType || 'tools') as 'database' | 'community' | 'support' | 'retailers' | 'tools')}
                   >
                     <Icon className="w-6 h-6 mb-0.5" />
                     <span className="text-xs font-medium">{label}</span>
@@ -97,14 +103,17 @@ const MobileBottomNav = () => {
           <div className="bg-white w-full rounded-t-lg p-6 pb-10 max-w-md mx-auto" onClick={e => e.stopPropagation()}>
             <div className="flex justify-between items-center mb-4">
               <span className="font-semibold text-lg text-[#232837]">
-                {modal === 'community' ? 'Community' : 
+                {modal === 'database' ? 'Database' :
+                 modal === 'community' ? 'Community' : 
                  modal === 'support' ? 'Support' : 
                  modal === 'retailers' ? 'Retailers' : 'Tools'}
               </span>
               <button onClick={() => setModal(null)} className="text-gray-500 text-2xl leading-none">&times;</button>
             </div>
             <ul className="space-y-4">
-              {(modal === 'community'
+              {(modal === 'database'
+                ? databaseLinks
+                : modal === 'community'
                 ? communityLinks
                 : modal === 'support'
                 ? supportLinks
@@ -118,7 +127,6 @@ const MobileBottomNav = () => {
                     className="flex items-center gap-3 text-[#232837] text-base font-medium hover:text-orange-500"
                     onClick={() => setModal(null)}
                   >
-                    {link.icon && <link.icon className="w-5 h-5" />}
                     {link.label}
                   </Link>
                 </li>
