@@ -22,6 +22,7 @@ const databaseLinks = [
   { to: '/pricing-dashboard', label: 'Live Pricing' },
   { to: '/new-releases', label: 'New Releases' },
   { to: '/coming-soon', label: 'Coming Soon' },
+  { to: '/funko-exclusives', label: 'Funko Exclusives' },
 ];
 
 const supportLinks = [

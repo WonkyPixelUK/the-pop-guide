@@ -60,6 +60,7 @@ import Export from "@/pages/Export";
 import PricingDashboard from "@/pages/PricingDashboard";
 import BugTracker from "./pages/BugTracker";
 import DatabaseSetup from "./pages/DatabaseSetup";
+import FunkoExclusives from "./pages/FunkoExclusives";
 
 const queryClient = new QueryClient();
 
@@ -119,6 +120,7 @@ const App = () => (
             <Route path="/auth/declined" element={<AuthDeclined />} />
             <Route path="/shoppers-advice" element={<ShoppersAdvice />} />
             <Route path="/coming-soon" element={<ComingSoon />} />
+            <Route path="/funko-exclusives" element={<FunkoExclusives />} />
             <Route path="/deals" element={<LatestDeals />} />
             <Route path="/time-machine" element={<TimeMachine />} />
             <Route path="/grail-galaxy" element={<GrailGalaxyLanding />} />

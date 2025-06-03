@@ -201,6 +201,11 @@ const Navigation = () => {
                     <Star className="w-5 h-5 text-orange-400 group-hover:scale-110 transition-transform" /> Coming Soon
                   </Link>
                 </DropdownMenu.Item>
+                <DropdownMenu.Item>
+                  <Link to="/funko-exclusives" className="flex items-center gap-3 px-4 py-3 text-base font-medium text-white rounded-lg transition group hover:bg-gray-800/80 hover:border-l-4 hover:border-orange-500">
+                    <Sparkles className="w-5 h-5 text-orange-400 group-hover:scale-110 transition-transform" /> Funko Exclusives
+                  </Link>
+                </DropdownMenu.Item>
               </DropdownMenu.Items>
             </DropdownMenu>
             
