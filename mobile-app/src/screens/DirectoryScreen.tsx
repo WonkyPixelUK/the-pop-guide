@@ -36,6 +36,18 @@ interface FunkoPop {
   is_chase: boolean;
   rarity?: string;
   release_date?: string;
+  upc?: string;
+  upc_a?: string;
+  ean_13?: string;
+  amazon_asin?: string;
+  country_of_registration?: string;
+  brand?: string;
+  model_number?: string;
+  size?: string;
+  color?: string;
+  weight?: string;
+  product_dimensions?: string;
+  description?: string;
 }
 
 interface FilterState {
@@ -118,7 +130,19 @@ export const DirectoryScreen = () => {
         funko.name.toLowerCase().includes(query) ||
         funko.series.toLowerCase().includes(query) ||
         funko.number?.toLowerCase().includes(query) ||
-        funko.variant?.toLowerCase().includes(query)
+        funko.variant?.toLowerCase().includes(query) ||
+        funko.upc?.toLowerCase().includes(query) ||
+        funko.upc_a?.toLowerCase().includes(query) ||
+        funko.ean_13?.toLowerCase().includes(query) ||
+        funko.amazon_asin?.toLowerCase().includes(query) ||
+        funko.country_of_registration?.toLowerCase().includes(query) ||
+        funko.brand?.toLowerCase().includes(query) ||
+        funko.model_number?.toLowerCase().includes(query) ||
+        funko.size?.toLowerCase().includes(query) ||
+        funko.color?.toLowerCase().includes(query) ||
+        funko.weight?.toLowerCase().includes(query) ||
+        funko.product_dimensions?.toLowerCase().includes(query) ||
+        funko.description?.toLowerCase().includes(query)
       );
     }
 

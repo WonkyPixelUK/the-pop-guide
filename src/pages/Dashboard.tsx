@@ -193,6 +193,26 @@ const Dashboard = () => {
 
   // Filtering logic for dashboard tabs
   const filteredItems = userCollection.filter(item => {
+    // Enhanced search functionality across all fields
+    const matchesSearch = !searchQuery || 
+      item.funko_pops?.name.toLowerCase().includes(searchQuery.toLowerCase()) ||
+      item.funko_pops?.series.toLowerCase().includes(searchQuery.toLowerCase()) ||
+      (item.funko_pops?.number && item.funko_pops.number.toLowerCase().includes(searchQuery.toLowerCase())) ||
+      (item.funko_pops?.fandom && item.funko_pops.fandom.toLowerCase().includes(searchQuery.toLowerCase())) ||
+      (item.funko_pops?.upc && item.funko_pops.upc.toLowerCase().includes(searchQuery.toLowerCase())) ||
+      (item.funko_pops?.upc_a && item.funko_pops.upc_a.toLowerCase().includes(searchQuery.toLowerCase())) ||
+      (item.funko_pops?.ean_13 && item.funko_pops.ean_13.toLowerCase().includes(searchQuery.toLowerCase())) ||
+      (item.funko_pops?.amazon_asin && item.funko_pops.amazon_asin.toLowerCase().includes(searchQuery.toLowerCase())) ||
+      (item.funko_pops?.country_of_registration && item.funko_pops.country_of_registration.toLowerCase().includes(searchQuery.toLowerCase())) ||
+      (item.funko_pops?.brand && item.funko_pops.brand.toLowerCase().includes(searchQuery.toLowerCase())) ||
+      (item.funko_pops?.model_number && item.funko_pops.model_number.toLowerCase().includes(searchQuery.toLowerCase())) ||
+      (item.funko_pops?.size && item.funko_pops.size.toLowerCase().includes(searchQuery.toLowerCase())) ||
+      (item.funko_pops?.color && item.funko_pops.color.toLowerCase().includes(searchQuery.toLowerCase())) ||
+      (item.funko_pops?.weight && item.funko_pops.weight.toLowerCase().includes(searchQuery.toLowerCase())) ||
+      (item.funko_pops?.product_dimensions && item.funko_pops.product_dimensions.toLowerCase().includes(searchQuery.toLowerCase())) ||
+      (item.funko_pops?.variant && item.funko_pops.variant.toLowerCase().includes(searchQuery.toLowerCase())) ||
+      (item.funko_pops?.description && item.funko_pops.description.toLowerCase().includes(searchQuery.toLowerCase()));
+    
     // Apply all filters
     const matchesCategory = !filters.category.length || filters.category.includes(item.funko_pops?.category);
     const matchesFandom = !filters.fandom.length || filters.fandom.includes(item.funko_pops?.fandom);
@@ -202,7 +222,7 @@ const Dashboard = () => {
     const matchesYear = !filters.year || String(item.funko_pops?.release_year) === filters.year;
     const matchesCharacter = !filters.character.length || filters.character.includes(item.funko_pops?.name);
     const matchesSeries = !filters.series.length || filters.series.includes(item.funko_pops?.series);
-    return matchesCategory && matchesFandom && matchesGenre && matchesEdition && matchesVaulted && matchesYear && matchesCharacter && matchesSeries;
+    return matchesSearch && matchesCategory && matchesFandom && matchesGenre && matchesEdition && matchesVaulted && matchesYear && matchesCharacter && matchesSeries;
   });
 
   // Sorting logic

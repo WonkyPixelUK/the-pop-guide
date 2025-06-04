@@ -92,12 +92,25 @@ const DirectoryAll = () => {
   // Memoize filtered pops
   const filteredPops = useMemo(() => {
     return allPops.filter(pop => {
-      // Search functionality
+      // Enhanced search functionality - search across all identification and product fields
       const matchesSearch = !searchTerm || 
         pop.name.toLowerCase().includes(searchTerm.toLowerCase()) ||
         pop.series.toLowerCase().includes(searchTerm.toLowerCase()) ||
         (pop.number && pop.number.toLowerCase().includes(searchTerm.toLowerCase())) ||
-        (pop.fandom && pop.fandom.toLowerCase().includes(searchTerm.toLowerCase()));
+        (pop.fandom && pop.fandom.toLowerCase().includes(searchTerm.toLowerCase())) ||
+        (pop.upc && pop.upc.toLowerCase().includes(searchTerm.toLowerCase())) ||
+        (pop.upc_a && pop.upc_a.toLowerCase().includes(searchTerm.toLowerCase())) ||
+        (pop.ean_13 && pop.ean_13.toLowerCase().includes(searchTerm.toLowerCase())) ||
+        (pop.amazon_asin && pop.amazon_asin.toLowerCase().includes(searchTerm.toLowerCase())) ||
+        (pop.country_of_registration && pop.country_of_registration.toLowerCase().includes(searchTerm.toLowerCase())) ||
+        (pop.brand && pop.brand.toLowerCase().includes(searchTerm.toLowerCase())) ||
+        (pop.model_number && pop.model_number.toLowerCase().includes(searchTerm.toLowerCase())) ||
+        (pop.size && pop.size.toLowerCase().includes(searchTerm.toLowerCase())) ||
+        (pop.color && pop.color.toLowerCase().includes(searchTerm.toLowerCase())) ||
+        (pop.weight && pop.weight.toLowerCase().includes(searchTerm.toLowerCase())) ||
+        (pop.product_dimensions && pop.product_dimensions.toLowerCase().includes(searchTerm.toLowerCase())) ||
+        (pop.variant && pop.variant.toLowerCase().includes(searchTerm.toLowerCase())) ||
+        (pop.description && pop.description.toLowerCase().includes(searchTerm.toLowerCase()));
       
       // Existing filters
       const matchesCategory = !filters.category.length || (Array.isArray(filters.category) ? filters.category : []).includes(pop.category);
