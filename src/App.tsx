@@ -61,6 +61,8 @@ import PricingDashboard from "@/pages/PricingDashboard";
 import BugTracker from "./pages/BugTracker";
 import DatabaseSetup from "./pages/DatabaseSetup";
 import FunkoExclusives from "./pages/FunkoExclusives";
+import SystemErrorReport from "./pages/SystemErrorReport";
+import TestEnhancedCollection from "./pages/TestEnhancedCollection";
 
 const queryClient = new QueryClient();
 
@@ -128,6 +130,8 @@ const App = () => (
             <Route path="/retailers" element={<RetailerDirectory />} />
             <Route path="/export" element={<Export />} />
             <Route path="/pricing-dashboard" element={<PricingDashboard />} />
+            <Route path="/system-error-report" element={<SystemErrorReport />} />
+            <Route path="/test-enhanced-collection" element={<TestEnhancedCollection />} />
             <Route path="/" element={<Navigate to="/dashboard" replace />} />
 
             {/* ADD ALL CUSTOM ROUTES ABOVE THE CATCH-ALL "*" ROUTE */}

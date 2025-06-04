@@ -27,19 +27,7 @@ interface WishlistItem {
   id: string;
   max_price?: number;
   created_at: string;
-  funko_pop: {
-    id: string;
-    name: string;
-    series: string;
-    number: string;
-    variant?: string;
-    image_url?: string;
-    estimated_value?: number;
-    is_exclusive: boolean;
-    is_vaulted: boolean;
-    is_chase: boolean;
-    rarity?: string;
-  };
+  funko_pop: any;
 }
 
 interface WishlistStats {
@@ -50,10 +38,10 @@ interface WishlistStats {
 }
 
 export const WishlistScreen = () => {
-  const navigation = useNavigation();
   const { user } = useAuth();
-  const [wishlistItems, setWishlistItems] = useState<WishlistItem[]>([]);
-  const [filteredItems, setFilteredItems] = useState<WishlistItem[]>([]);
+  const navigation = useNavigation();
+  const [wishlistItems, setWishlistItems] = useState<any[]>([]);
+  const [filteredItems, setFilteredItems] = useState<any[]>([]);
   const [loading, setLoading] = useState(true);
   const [refreshing, setRefreshing] = useState(false);
   const [searchQuery, setSearchQuery] = useState('');
@@ -67,42 +55,37 @@ export const WishlistScreen = () => {
     mostExpensive: null,
   });
 
-  const loadWishlist = async () => {
-    try {
-      if (!user) return;
+  useEffect(() => {
+    if (user) {
+      fetchWishlist();
+    }
+  }, [user]);
 
+  const fetchWishlist = async () => {
+    try {
+      setLoading(true);
       const { data, error } = await supabase
-        .from('wishlists')
+        .from('user_wishlists')
         .select(`
-          id,
-          max_price,
-          created_at,
-          funko_pop:funko_pop_id (
-            id,
-            name,
-            series,
-            number,
-            variant,
-            image_url,
-            estimated_value,
-            is_exclusive,
-            is_vaulted,
-            is_chase,
-            rarity
+          *,
+          funko_pops (
+            id, name, series, number, variant, image_url, estimated_value,
+            is_exclusive, is_vaulted, is_chase, rarity
           )
         `)
-        .eq('user_id', user.id)
-        .order('created_at', { ascending: false });
+        .eq('user_id', user?.id);
 
       if (error) throw error;
-
-      const items = data?.filter(item => item.funko_pop) || [];
-      setWishlistItems(items);
-      setFilteredItems(items);
-      calculateStats(items);
+      
+      if (data) {
+        setWishlistItems(data);
+        setFilteredItems(data);
+        calculateStats(data);
+      }
     } catch (error) {
-      console.error('Error loading wishlist:', error);
-      Alert.alert('Error', 'Failed to load wishlist');
+      console.error('Error fetching wishlist:', error);
+      setWishlistItems([]);
+      setFilteredItems([]);
     } finally {
       setLoading(false);
       setRefreshing(false);
@@ -126,10 +109,6 @@ export const WishlistScreen = () => {
       mostExpensive,
     });
   };
-
-  useEffect(() => {
-    loadWishlist();
-  }, [user]);
 
   useEffect(() => {
     applyFiltersAndSort();
@@ -185,7 +164,7 @@ export const WishlistScreen = () => {
 
   const onRefresh = () => {
     setRefreshing(true);
-    loadWishlist();
+    fetchWishlist();
   };
 
   const handleFunkoPress = (item: WishlistItem) => {

@@ -286,23 +286,49 @@ export const SearchScreen = () => {
   const renderEmptyState = () => {
     if (!hasSearched) {
       return (
-        <View style={styles.emptyState}>
-          <Ionicons name="search-outline" size={64} color={theme.colors.textMuted} />
-          <Text style={styles.emptyTitle}>Search for Funkos</Text>
-          <Text style={styles.emptySubtitle}>
-            Enter a name, series, or number to find Funko Pops
+        <View style={styles.emptyContainer}>
+          <Ionicons name="search" size={64} color={theme.colors.textMuted} />
+          <Text style={styles.emptyTitle}>Search Funko Pops</Text>
+          <Text style={styles.emptyText}>
+            Search our database of 70,000+ Funko Pops and growing daily
           </Text>
         </View>
       );
     }
 
     return (
-      <View style={styles.emptyState}>
-        <Ionicons name="sad-outline" size={64} color={theme.colors.textMuted} />
-        <Text style={styles.emptyTitle}>No results found</Text>
-        <Text style={styles.emptySubtitle}>
-          Try adjusting your search terms or filters
+      <View style={styles.emptyContainer}>
+        <Ionicons name="help-circle-outline" size={64} color={theme.colors.textMuted} />
+        <Text style={styles.emptyTitle}>No Results Found</Text>
+        <Text style={styles.emptyText}>
+          We couldn't find any Funko Pops matching "{searchQuery}"
         </Text>
+        
+        {searchQuery.length > 0 && (
+          <View style={styles.addNewContainer}>
+            <Text style={styles.addNewTitle}>Can't find your Funko?</Text>
+            <Text style={styles.addNewDescription}>
+              Help us expand our database by adding missing Funko Pops. We'll automatically scrape pricing data!
+            </Text>
+            <Button
+              title="Add New Funko Pop"
+              onPress={() => (navigation as any).navigate('AddFunko', { searchQuery })}
+              style={styles.addNewButton}
+              icon="add-circle"
+            />
+          </View>
+        )}
+        
+        <Button
+          title="Try Different Search"
+          variant="outline"
+          onPress={() => {
+            setSearchQuery('');
+            setSearchResults([]);
+            setHasSearched(false);
+          }}
+          style={styles.retryButton}
+        />
       </View>
     );
   };
@@ -635,7 +661,7 @@ const styles = StyleSheet.create({
     fontSize: 14,
     fontWeight: '500',
   },
-  emptyState: {
+  emptyContainer: {
     flex: 1,
     alignItems: 'center',
     justifyContent: 'center',
@@ -649,10 +675,33 @@ const styles = StyleSheet.create({
     marginBottom: theme.spacing.sm,
     textAlign: 'center',
   },
-  emptySubtitle: {
+  emptyText: {
     fontSize: 16,
     color: theme.colors.textMuted,
     textAlign: 'center',
     lineHeight: 24,
+  },
+  addNewContainer: {
+    marginTop: theme.spacing.md,
+    padding: theme.spacing.md,
+    backgroundColor: theme.colors.surface,
+    borderRadius: theme.borderRadius.md,
+  },
+  addNewTitle: {
+    fontSize: 18,
+    fontWeight: '600',
+    color: theme.colors.text,
+    marginBottom: theme.spacing.sm,
+  },
+  addNewDescription: {
+    fontSize: 16,
+    color: theme.colors.textMuted,
+    marginBottom: theme.spacing.md,
+  },
+  addNewButton: {
+    minWidth: '100%',
+  },
+  retryButton: {
+    minWidth: '100%',
   },
 }); 

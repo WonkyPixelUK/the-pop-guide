@@ -15,6 +15,7 @@ import { useToast } from '@/hooks/use-toast';
 import { useAuth } from '@/hooks/useAuth';
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger } from '@/components/ui/dialog';
 import TrophyAvatar from '@/components/TrophyAvatar';
+import ImageUpload from '@/components/ImageUpload';
 
 function ProfileEditor({ section }: { section?: string }) {
   const { profile, loading, createProfile, updateProfile } = usePublicProfile();
@@ -65,7 +66,6 @@ function ProfileEditor({ section }: { section?: string }) {
   const [usernameError, setUsernameError] = useState("");
   const [selectedListIds, setSelectedListIds] = useState<string[]>(profile?.profile_list_ids || []);
   const { toast } = useToast();
-  const [uploading, setUploading] = useState(false);
   const [newEmail, setNewEmail] = useState('');
   const [currentPassword, setCurrentPassword] = useState('');
   const [newPassword, setNewPassword] = useState('');
@@ -202,7 +202,7 @@ function ProfileEditor({ section }: { section?: string }) {
       setUsernameError('');
       return true;
     }
-    const { data } = await updateProfile.mutateAsync.supabase
+    const { data } = await supabase
       .from('public_profiles')
       .select('id')
       .eq('username', username)
@@ -281,45 +281,6 @@ function ProfileEditor({ section }: { section?: string }) {
     } catch (e: any) {
       toast({ title: `Failed to connect ${provider}`, description: e.message, variant: 'destructive' });
     }
-  };
-
-  const handleAvatarUpload = async (e: React.ChangeEvent<HTMLInputElement>) => {
-    if (!user) return;
-    const file = e.target.files?.[0];
-    if (!file) return;
-    setUploading(true);
-    
-    try {
-      // Generate unique filename
-      const fileExt = file.name.split('.').pop();
-      const fileName = `user-profiles/${user.id}-${Date.now()}.${fileExt}`;
-      
-      // Upload to Bunny CDN
-      const response = await fetch(`https://storage.bunnycdn.com/popguide-storage/${fileName}`, {
-        method: 'PUT',
-        headers: {
-          'AccessKey': process.env.REACT_APP_BUNNY_CDN_API_KEY || '',
-          'Content-Type': 'application/octet-stream',
-        },
-        body: file
-      });
-      
-      if (!response.ok) {
-        throw new Error(`Upload failed: ${response.status}`);
-      }
-      
-      // Generate CDN URL
-      const fileUrl = `https://popguide-cdn.b-cdn.net/${fileName}`;
-      
-      setFormData(prev => ({ ...prev, avatar_url: fileUrl }));
-      // Auto-save profile with new avatar_url
-      await updateProfile({ ...formData, avatar_url: fileUrl });
-      toast({ title: 'Profile picture updated!', variant: 'default' });
-    } catch (error) {
-      console.error('Upload error:', error);
-      toast({ title: 'Upload failed', description: 'Please try again', variant: 'destructive' });
-    }
-    setUploading(false);
   };
 
   const handleEmailChange = async () => {
@@ -450,24 +411,20 @@ function ProfileEditor({ section }: { section?: string }) {
               
               <div className="flex items-center gap-4 mb-6">
                 <TrophyAvatar avatarUrl={formData.avatar_url} displayName={formData.display_name} userStatus={userStatus} />
-                <div>
-                  <label htmlFor="avatar_upload" className="cursor-pointer">
-                    <Button 
-                      type="button" 
-                      disabled={uploading}
-                      className="bg-orange-500 hover:bg-orange-600 text-white"
-                      onClick={() => document.getElementById('avatar_upload')?.click()}
-                    >
-                      {uploading ? 'Uploading...' : 'Change Photo'}
-                    </Button>
-                  </label>
-                  <input
-                    id="avatar_upload"
-                    type="file"
-                    accept="image/*"
-                    onChange={handleAvatarUpload}
-                    className="hidden"
+                <div className="flex-1">
+                  <ImageUpload
+                    bucket="profile-images"
+                    onUploadComplete={(url) => {
+                      setFormData(prev => ({ ...prev, avatar_url: url }));
+                      updateProfile({ ...formData, avatar_url: url });
+                    }}
+                    currentImageUrl={formData.avatar_url}
+                    label="Profile Picture"
+                    width="w-32"
+                    height="h-32"
+                    className="mb-2"
                   />
+                  <p className="text-xs text-gray-400">Click to upload a new profile picture</p>
                 </div>
               </div>
 

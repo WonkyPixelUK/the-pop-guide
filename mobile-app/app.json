@@ -1,7 +1,7 @@
 {
   "expo": {
     "name": "POP Guide",
-    "slug": "pop-universe-mobile",
+    "slug": "pop-guide-mobile",
     "version": "1.0.0",
     "orientation": "portrait",
     "icon": "./assets/icon.png",
@@ -16,12 +16,7 @@
     ],
     "ios": {
       "supportsTablet": true,
-      "bundleIdentifier": "com.popguide.app",
-      "infoPlist": {
-        "NSCameraUsageDescription": "Allow The Pop Guide to access camera to scan Funko barcodes.",
-        "NSMicrophoneUsageDescription": "Allow $(PRODUCT_NAME) to access your microphone",
-        "ITSAppUsesNonExemptEncryption": false
-      }
+      "bundleIdentifier": "com.popguide.app"
     },
     "android": {
       "adaptiveIcon": {
@@ -30,29 +25,32 @@
       },
       "package": "com.popguide.app",
       "permissions": [
-        "android.permission.CAMERA"
+        "android.permission.CAMERA",
+        "android.permission.RECORD_AUDIO"
       ]
     },
     "web": {
-      "bundler": "metro",
-      "output": "single",
-      "lang": "en",
       "favicon": "./assets/favicon.png"
     },
     "plugins": [
       [
+        "expo-camera",
+        {
+          "cameraPermission": "Allow POP Guide to access your camera to scan barcodes."
+        }
+      ],
+      [
         "expo-barcode-scanner",
         {
-          "cameraPermission": "Allow The Pop Guide to access camera to scan Funko barcodes."
+          "cameraPermission": "Allow POP Guide to access your camera to scan barcodes."
         }
       ]
     ],
+    "sdkVersion": "51.0.0",
     "extra": {
       "eas": {
-        "projectId": "96b4c91b-e31c-4ad4-9465-6040099cd0c9"
+        "projectId": "b321a512-3b2d-4d8c-bcd8-7ea158dca57c"
       }
-    },
-    "sdkVersion": "53.0.0",
-    "owner": "popguide"
+    }
   }
 }

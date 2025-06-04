@@ -23,6 +23,7 @@ const databaseLinks = [
   { to: '/new-releases', label: 'New Releases' },
   { to: '/coming-soon', label: 'Coming Soon' },
   { to: '/funko-exclusives', label: 'Funko Exclusives' },
+  { to: '/test-enhanced-collection', label: 'Enhanced Collection' },
 ];
 
 const supportLinks = [
@@ -30,6 +31,7 @@ const supportLinks = [
   { to: '/faq', label: 'FAQ' },
   { to: '/log-ticket', label: 'Log a ticket' },
   { to: '/bug-tracker', label: 'Bug Tracker' },
+  { to: '/roadmap', label: 'Roadmap & Changelog' },
   { to: '/howitworks', label: 'How it works' },
   { to: '/api', label: 'API' },
 ];
