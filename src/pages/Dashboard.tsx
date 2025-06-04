@@ -629,7 +629,15 @@ const Dashboard = () => {
                             <div className="flex-1 min-w-0">
                               <div className="font-semibold text-white text-lg truncate">{pop.name}</div>
                               <div className="text-sm text-gray-400">{pop.series} {pop.number ? `#${pop.number}` : ''}</div>
-                              <div className="text-sm text-orange-400 font-bold">{formatCurrency(pop.estimated_value || 0, currency)}</div>
+                              <div className="text-sm text-orange-400 font-bold">
+                                {item.purchase_price ? (
+                                  <>
+                                    {formatCurrency(item.purchase_price, currency)} <span className="text-xs text-gray-400">(Your Price)</span>
+                                  </>
+                                ) : (
+                                  formatCurrency(pop.estimated_value || 0, currency)
+                                )}
+                              </div>
                             </div>
                             <div className="flex items-center text-gray-400 text-sm">
                               <ChevronUp className="w-4 h-4 mr-1" />
@@ -693,8 +701,8 @@ const Dashboard = () => {
                                       name: pop.name,
                                       series: pop.series,
                                       number: pop.number,
-                                      image_url: pop.image_url,
-                                      estimated_value: pop.estimated_value
+                                      image_url: getPrimaryImageUrl(pop),
+                                      estimated_value: item.purchase_price || pop.estimated_value
                                     }}
                                   />
                                 </div>
@@ -726,8 +734,8 @@ const Dashboard = () => {
                           onClick={() => handleExpandPop(pop)}
                         >
                           <div className="w-full aspect-square bg-gray-700 rounded-lg mb-2 flex items-center justify-center overflow-hidden">
-                            {pop.image_url ? (
-                              <img src={pop.image_url} alt={pop.name} className="w-full h-full object-contain" />
+                            {getPrimaryImageUrl(pop) ? (
+                              <img src={getPrimaryImageUrl(pop)} alt={pop.name} className="w-full h-full object-contain" />
                             ) : (
                               <User className="w-16 h-16 text-orange-400 animate-pulse" />
                             )}
@@ -750,7 +758,15 @@ const Dashboard = () => {
                           
                           <div className="font-semibold text-white text-center text-base mb-1 truncate w-full">{pop.name}</div>
                           <div className="text-xs text-gray-400 mb-1">{pop.series} {pop.number ? `#${pop.number}` : ''}</div>
-                          <div className="text-xs text-orange-400 font-bold mb-2">{formatCurrency(pop.estimated_value || 0, currency)}</div>
+                          <div className="text-xs text-orange-400 font-bold mb-2">
+                            {item.purchase_price ? (
+                              <>
+                                {formatCurrency(item.purchase_price, currency)} <span className="text-gray-400">(Your Price)</span>
+                              </>
+                            ) : (
+                              formatCurrency(pop.estimated_value || 0, currency)
+                            )}
+                          </div>
                           <div className="text-xs text-gray-400 mb-2">Condition: {item.condition || 'Mint'}</div>
                           
                           <Button 
@@ -800,7 +816,15 @@ const Dashboard = () => {
                             <div className="flex-1 min-w-0">
                               <div className="font-semibold text-white text-lg truncate">{pop.name}</div>
                               <div className="text-sm text-gray-400">{pop.series} {pop.number ? `#${pop.number}` : ''}</div>
-                              <div className="text-sm text-orange-400 font-bold">{formatCurrency(pop.estimated_value || 0, currency)}</div>
+                              <div className="text-sm text-orange-400 font-bold">
+                                {item.purchase_price ? (
+                                  <>
+                                    {formatCurrency(item.purchase_price, currency)} <span className="text-xs text-gray-400">(Your Price)</span>
+                                  </>
+                                ) : (
+                                  formatCurrency(pop.estimated_value || 0, currency)
+                                )}
+                              </div>
                             </div>
                             <div className="flex items-center text-gray-400 text-sm">
                               <ChevronUp className="w-4 h-4 mr-1" />
@@ -831,11 +855,16 @@ const Dashboard = () => {
                                   <div className="bg-gray-700 p-4 rounded-lg border border-gray-600">
                                     <div className="text-sm text-gray-400 mb-1 flex items-center">
                                       <span className="mr-2">💎</span>
-                                      Value
+                                      {item.purchase_price ? 'Your Purchase Price' : 'Estimated Value'}
                                     </div>
                                     <div className="font-semibold text-white text-lg">
-                                      {formatCurrency(pop.estimated_value || 0, currency)}
+                                      {item.purchase_price ? formatCurrency(item.purchase_price, currency) : formatCurrency(pop.estimated_value || 0, currency)}
                                     </div>
+                                    {item.purchase_price && (
+                                      <div className="text-xs text-blue-400 mt-1">
+                                        Market pricing updates within 5 working days
+                                      </div>
+                                    )}
                                   </div>
                                   
                                   <div className="bg-gray-700 p-4 rounded-lg border border-gray-600">
@@ -864,8 +893,8 @@ const Dashboard = () => {
                                       name: pop.name,
                                       series: pop.series,
                                       number: pop.number,
-                                      image_url: pop.image_url,
-                                      estimated_value: pop.estimated_value
+                                      image_url: getPrimaryImageUrl(pop),
+                                      estimated_value: item.purchase_price || pop.estimated_value
                                     }}
                                   />
                                 </div>
@@ -897,8 +926,8 @@ const Dashboard = () => {
                           onClick={() => handleExpandPop(pop)}
                         >
                           <div className="w-full aspect-square bg-gray-700 rounded-lg mb-2 flex items-center justify-center overflow-hidden">
-                            {pop.image_url ? (
-                              <img src={pop.image_url} alt={pop.name} className="w-full h-full object-contain" />
+                            {getPrimaryImageUrl(pop) ? (
+                              <img src={getPrimaryImageUrl(pop)} alt={pop.name} className="w-full h-full object-contain" />
                             ) : (
                               <User className="w-16 h-16 text-orange-400 animate-pulse" />
                             )}
@@ -921,7 +950,15 @@ const Dashboard = () => {
                           
                           <div className="font-semibold text-white text-center text-base mb-1 truncate w-full">{pop.name}</div>
                           <div className="text-xs text-gray-400 mb-1">{pop.series} {pop.number ? `#${pop.number}` : ''}</div>
-                          <div className="text-xs text-orange-400 font-bold mb-2">{formatCurrency(pop.estimated_value || 0, currency)}</div>
+                          <div className="text-xs text-orange-400 font-bold mb-2">
+                            {item.purchase_price ? (
+                              <>
+                                {formatCurrency(item.purchase_price, currency)} <span className="text-gray-400">(Your Price)</span>
+                              </>
+                            ) : (
+                              formatCurrency(pop.estimated_value || 0, currency)
+                            )}
+                          </div>
                           <div className="text-xs text-gray-400 mb-2">Condition: {item.condition || 'Mint'}</div>
                           
                           <Button 
@@ -1193,7 +1230,15 @@ const Dashboard = () => {
                               <div className="flex-1 min-w-0">
                                 <div className="font-semibold text-white text-lg truncate">{pop.name}</div>
                                 <div className="text-sm text-gray-400">{pop.series} {pop.number ? `#${pop.number}` : ''}</div>
-                                <div className="text-sm text-orange-400 font-bold">{formatCurrency(pop.estimated_value || 0, currency)}</div>
+                                <div className="text-sm text-orange-400 font-bold">
+                                  {item.purchase_price ? (
+                                    <>
+                                      {formatCurrency(item.purchase_price, currency)} <span className="text-xs text-gray-400">(Your Price)</span>
+                                    </>
+                                  ) : (
+                                    formatCurrency(pop.estimated_value || 0, currency)
+                                  )}
+                                </div>
                               </div>
                               <div className="flex items-center text-gray-400 text-sm">
                                 <ChevronUp className="w-4 h-4 mr-1" />
@@ -1257,8 +1302,8 @@ const Dashboard = () => {
                                         name: pop.name,
                                         series: pop.series,
                                         number: pop.number,
-                                        image_url: pop.image_url,
-                                        estimated_value: pop.estimated_value
+                                        image_url: getPrimaryImageUrl(pop),
+                                        estimated_value: item.purchase_price || pop.estimated_value
                                       }}
                                     />
                                   </div>
@@ -1314,8 +1359,16 @@ const Dashboard = () => {
                             
                             <div className="font-semibold text-white text-center text-base mb-1 truncate w-full">{pop.name}</div>
                             <div className="text-xs text-gray-400 mb-1">{pop.series} {pop.number ? `#${pop.number}` : ''}</div>
-                            <div className="text-xs text-orange-400 font-bold mb-2">{formatCurrency(pop.estimated_value || 0, currency)}</div>
-                            <div className="text-xs text-green-400 mb-2">✨ New Release</div>
+                            <div className="text-xs text-orange-400 font-bold mb-2">
+                              {item.purchase_price ? (
+                                <>
+                                  {formatCurrency(item.purchase_price, currency)} <span className="text-gray-400">(Your Price)</span>
+                                </>
+                              ) : (
+                                formatCurrency(pop.estimated_value || 0, currency)
+                              )}
+                            </div>
+                            <div className="text-xs text-gray-400 mb-2">Condition: {item.condition || 'Mint'}</div>
                             
                             <Button 
                               variant="default"
