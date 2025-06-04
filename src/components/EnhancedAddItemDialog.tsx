@@ -64,43 +64,46 @@ const EnhancedAddItemDialog = ({ open, onOpenChange }: EnhancedAddItemDialogProp
   const rewardProgress = useRewardProgress();
   const { trackSubmission, isUpdating } = useSubmissionTracker();
 
-  // Manual entry state - Basic Info
+  // Manual entry state
   const [manualName, setManualName] = useState("");
   const [manualSeries, setManualSeries] = useState("");
   const [manualNumber, setManualNumber] = useState("");
   const [manualRarity, setManualRarity] = useState("");
   const [manualCondition, setManualCondition] = useState("Mint");
   const [manualPrice, setManualPrice] = useState("");
-
-  // Manual entry state - Extended Info
+  
+  // Extended fields
   const [manualUpcA, setManualUpcA] = useState("");
   const [manualEan13, setManualEan13] = useState("");
-  const [manualAsin, setManualAsin] = useState("");
+  const [manualAmazonAsin, setManualAmazonAsin] = useState("");
   const [manualCountry, setManualCountry] = useState("");
   const [manualBrand, setManualBrand] = useState("Funko");
-  const [manualModel, setManualModel] = useState("");
-  const [manualSize, setManualSize] = useState("Standard (3.75\")");
+  const [manualModelNumber, setManualModelNumber] = useState("");
+  const [manualSize, setManualSize] = useState("");
   const [manualColor, setManualColor] = useState("");
   const [manualWeight, setManualWeight] = useState("");
   const [manualDimensions, setManualDimensions] = useState("");
   
-  // Manual entry state - Database Fields
+  // Database classification fields
   const [manualStatus, setManualStatus] = useState("In Stock");
   const [manualCategory, setManualCategory] = useState("Pop!");
   const [manualFandom, setManualFandom] = useState("");
   const [manualGenre, setManualGenre] = useState("");
   const [manualEdition, setManualEdition] = useState("");
   const [manualVariant, setManualVariant] = useState("");
-  const [manualDescription, setManualDescription] = useState("");
-  const [manualExclusive, setManualExclusive] = useState(false);
+  
+  // Collection details
+  const [manualIsExclusive, setManualIsExclusive] = useState(false);
   const [manualVaulted, setManualVaulted] = useState(false);
-  const [manualChase, setManualChase] = useState(false);
-
+  const [manualDescription, setManualDescription] = useState("");
+  const [manualNotes, setManualNotes] = useState("");
+  
+  // Loading states
   const [manualLoading, setManualLoading] = useState(false);
   const [manualError, setManualError] = useState("");
 
-  // Image upload state
-  const [funkoImageUrl, setFunkoImageUrl] = useState<string>("");
+  // Image upload state - now handling multiple images
+  const [funkoImageUrls, setFunkoImageUrls] = useState<string[]>([]);
 
   // Helper to normalize strings for search (case-insensitive, ignore punctuation)
   function normalize(str: string) {
@@ -171,11 +174,11 @@ const EnhancedAddItemDialog = ({ open, onOpenChange }: EnhancedAddItemDialogProp
     setManualPrice("");
     setManualUpcA("");
     setManualEan13("");
-    setManualAsin("");
+    setManualAmazonAsin("");
     setManualCountry("");
     setManualBrand("Funko");
-    setManualModel("");
-    setManualSize("Standard (3.75\")");
+    setManualModelNumber("");
+    setManualSize("");
     setManualColor("");
     setManualWeight("");
     setManualDimensions("");
@@ -186,11 +189,11 @@ const EnhancedAddItemDialog = ({ open, onOpenChange }: EnhancedAddItemDialogProp
     setManualEdition("");
     setManualVariant("");
     setManualDescription("");
-    setManualExclusive(false);
+    setManualIsExclusive(false);
     setManualVaulted(false);
-    setManualChase(false);
+    setManualNotes("");
     // Reset image upload state
-    setFunkoImageUrl("");
+    setFunkoImageUrls([]);
   };
 
   const handleManualAdd = async () => {
@@ -220,17 +223,16 @@ const EnhancedAddItemDialog = ({ open, onOpenChange }: EnhancedAddItemDialogProp
           fandom: manualFandom || null,
           genre: manualGenre || null,
           edition: manualEdition || null,
-          is_exclusive: manualExclusive,
+          is_exclusive: manualIsExclusive,
           is_vaulted: manualVaulted,
-          is_chase: manualChase,
-          image_url: funkoImageUrl, // Add the uploaded image URL
+          image_urls: funkoImageUrls, // Add the uploaded image URLs
           // Extended fields
           upc_a: manualUpcA || null,
           ean_13: manualEan13 || null,
-          amazon_asin: manualAsin || null,
+          amazon_asin: manualAmazonAsin || null,
           country_of_registration: manualCountry || null,
           brand: manualBrand || 'Funko',
-          model_number: manualModel || null,
+          model_number: manualModelNumber || null,
           size: manualSize || null,
           color: manualColor || null,
           weight: manualWeight || null,
@@ -253,7 +255,7 @@ const EnhancedAddItemDialog = ({ open, onOpenChange }: EnhancedAddItemDialogProp
           condition: manualCondition,
           purchase_price: manualPrice ? parseFloat(manualPrice) : null,
           purchase_date: new Date().toISOString(),
-          personal_notes: `Manually added via enhanced form`,
+          personal_notes: manualNotes || `Manually added via enhanced form`,
           acquisition_method: 'manual_entry',
           created_at: new Date().toISOString(),
           updated_at: new Date().toISOString()
@@ -448,12 +450,12 @@ const EnhancedAddItemDialog = ({ open, onOpenChange }: EnhancedAddItemDialogProp
               
               {/* Image Upload Section */}
               <div className="space-y-2">
-                <Label htmlFor="imageUpload">Funko Pop Image</Label>
+                <Label htmlFor="imageUpload">Funko Pop Images</Label>
                 <div className="mt-2">
                   <ImageUpload
                     bucket="funko-images"
-                    onUploadComplete={(url) => setFunkoImageUrl(url)}
-                    currentImageUrl={funkoImageUrl}
+                    onUploadComplete={(urls) => setFunkoImageUrls(urls)}
+                    currentImageUrls={funkoImageUrls}
                     label=""
                     height="h-40"
                   />
@@ -529,22 +531,22 @@ const EnhancedAddItemDialog = ({ open, onOpenChange }: EnhancedAddItemDialogProp
                   />
                 </div>
                 <div className="space-y-2">
-                  <Label htmlFor="manualAsin">Amazon ASIN</Label>
+                  <Label htmlFor="manualAmazonAsin">Amazon ASIN</Label>
                   <Input
-                    id="manualAsin"
+                    id="manualAmazonAsin"
                     placeholder="e.g., B08N5WRWNW"
-                    value={manualAsin}
-                    onChange={(e) => setManualAsin(e.target.value)}
+                    value={manualAmazonAsin}
+                    onChange={(e) => setManualAmazonAsin(e.target.value)}
                     className="bg-gray-800 border-gray-700"
                   />
                 </div>
                 <div className="space-y-2">
-                  <Label htmlFor="manualModel">Model #</Label>
+                  <Label htmlFor="manualModelNumber">Model #</Label>
                   <Input
-                    id="manualModel"
+                    id="manualModelNumber"
                     placeholder="e.g., FUN12345"
-                    value={manualModel}
-                    onChange={(e) => setManualModel(e.target.value)}
+                    value={manualModelNumber}
+                    onChange={(e) => setManualModelNumber(e.target.value)}
                     className="bg-gray-800 border-gray-700"
                   />
                 </div>
@@ -749,8 +751,8 @@ const EnhancedAddItemDialog = ({ open, onOpenChange }: EnhancedAddItemDialogProp
                 <label className="flex items-center space-x-2">
                   <input
                     type="checkbox"
-                    checked={manualExclusive}
-                    onChange={(e) => setManualExclusive(e.target.checked)}
+                    checked={manualIsExclusive}
+                    onChange={(e) => setManualIsExclusive(e.target.checked)}
                     className="w-4 h-4 text-orange-500 bg-gray-800 border-gray-600 rounded focus:ring-orange-500"
                   />
                   <span className="text-white">Exclusive</span>
@@ -764,15 +766,6 @@ const EnhancedAddItemDialog = ({ open, onOpenChange }: EnhancedAddItemDialogProp
                   />
                   <span className="text-white">Vaulted</span>
                 </label>
-                <label className="flex items-center space-x-2">
-                  <input
-                    type="checkbox"
-                    checked={manualChase}
-                    onChange={(e) => setManualChase(e.target.checked)}
-                    className="w-4 h-4 text-orange-500 bg-gray-800 border-gray-600 rounded focus:ring-orange-500"
-                  />
-                  <span className="text-white">Chase</span>
-                </label>
               </div>
             </div>
 
@@ -781,11 +774,21 @@ const EnhancedAddItemDialog = ({ open, onOpenChange }: EnhancedAddItemDialogProp
               <Label htmlFor="manualDescription">Description</Label>
               <Textarea
                 id="manualDescription"
-                placeholder="Additional details about this Funko Pop..."
+                placeholder="Enter a detailed description of this Funko Pop..."
                 value={manualDescription}
                 onChange={(e) => setManualDescription(e.target.value)}
-                className="bg-gray-800 border-gray-700"
-                rows={3}
+                className="bg-gray-800 border-gray-700 text-white min-h-[100px]"
+              />
+            </div>
+            
+            <div className="space-y-2">
+              <Label htmlFor="manualNotes">Personal Notes</Label>
+              <Textarea
+                id="manualNotes"
+                placeholder="Add your personal notes about this item..."
+                value={manualNotes}
+                onChange={(e) => setManualNotes(e.target.value)}
+                className="bg-gray-800 border-gray-700 text-white min-h-[80px]"
               />
             </div>
 

@@ -14,6 +14,9 @@ ALTER TABLE funko_pops ADD COLUMN IF NOT EXISTS weight TEXT;
 ALTER TABLE funko_pops ADD COLUMN IF NOT EXISTS product_dimensions TEXT;
 ALTER TABLE funko_pops ADD COLUMN IF NOT EXISTS last_scanned TIMESTAMP WITH TIME ZONE;
 
+-- Add support for multiple images
+ALTER TABLE funko_pops ADD COLUMN IF NOT EXISTS image_urls JSONB DEFAULT '[]';
+
 -- Step 2: Add database classification fields if they don't exist
 ALTER TABLE funko_pops ADD COLUMN IF NOT EXISTS status TEXT DEFAULT 'In Stock';
 ALTER TABLE funko_pops ADD COLUMN IF NOT EXISTS category TEXT DEFAULT 'Pop!';
@@ -130,4 +133,7 @@ GRANT SELECT, INSERT, UPDATE ON contributor_stats TO authenticated;
 -- VALUES ('Test Pop', 'Test Series', '001', 'Funko', 'In Stock', 'Pop!', '123456789012', 'B08TEST123')
 -- ON CONFLICT DO NOTHING;
 
--- All done! Your database is now ready for enhanced Funko Pop collections with image upload support. 
+-- All done! Your database is now ready for enhanced Funko Pop collections with image upload support.
+
+-- TEMPORARY - DISABLE RLS FOR TESTING ONLY
+ALTER TABLE storage.objects DISABLE ROW LEVEL SECURITY; 

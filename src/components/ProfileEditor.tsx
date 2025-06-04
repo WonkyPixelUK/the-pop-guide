@@ -414,17 +414,20 @@ function ProfileEditor({ section }: { section?: string }) {
                 <div className="flex-1">
                   <ImageUpload
                     bucket="profile-images"
-                    onUploadComplete={(url) => {
+                    onUploadComplete={(urls) => {
+                      const url = urls[0] || '';
                       setFormData(prev => ({ ...prev, avatar_url: url }));
                       updateProfile({ ...formData, avatar_url: url });
                     }}
-                    currentImageUrl={formData.avatar_url}
+                    currentImageUrls={formData.avatar_url ? [formData.avatar_url] : []}
                     label="Profile Picture"
                     width="w-32"
                     height="h-32"
                     className="mb-2"
+                    multiple={false}
+                    maxImages={1}
                   />
-                  <p className="text-xs text-gray-400">Click to upload a new profile picture</p>
+                  <p className="text-xs text-gray-400 mt-1">JPG, PNG or GIF up to 5MB</p>
                 </div>
               </div>
 
