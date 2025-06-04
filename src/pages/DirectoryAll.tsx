@@ -1,5 +1,5 @@
 import { useState, useEffect, useRef, useMemo } from 'react';
-import { useFunkoPops } from '@/hooks/useFunkoPops';
+import { useFunkoPops, useUserCollection } from '@/hooks/useFunkoPops';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
@@ -21,6 +21,8 @@ import { useCustomLists } from "@/hooks/useCustomLists";
 import { useToast } from '@/hooks/use-toast';
 import { useNavigate } from 'react-router-dom';
 import PriceHistory from '@/components/PriceHistory';
+import { useCurrency } from '@/contexts/CurrencyContext';
+import { formatCurrency } from '@/utils/formatCurrency';
 
 const PAGE_SIZE = 24;
 
@@ -66,6 +68,8 @@ const DirectoryAll = () => {
   const { lists, addItemToList, createList } = useCustomLists();
   const { toast } = useToast();
   const navigate = useNavigate();
+  const { data: userCollection = [] } = useUserCollection(user?.id);
+  const { currency } = useCurrency();
 
   // Always scroll to top on mount to prevent jump-to-bottom bug
   useEffect(() => {
@@ -375,6 +379,12 @@ const DirectoryAll = () => {
     return badges;
   };
 
+  // Helper function to get user's purchase price for owned items
+  const getUserPurchasePrice = (popId) => {
+    const userItem = userCollection.find(item => item.funko_pop_id === popId);
+    return userItem?.purchase_price || null;
+  };
+
   // Card rendering
   const renderCard = (pop, index) => {
     const isWishlisted = wishlist.some((w) => w.funko_pop_id === pop.id);
@@ -419,7 +429,15 @@ const DirectoryAll = () => {
       <div className="text-xs text-gray-400 mb-1">{pop.genre}</div>
       <div className="text-xs text-gray-400 mb-1">{pop.edition}</div>
       <div className="text-xs text-gray-400 mb-1">{pop.created_at ? new Date(pop.created_at).getFullYear() : '—'}{pop.is_vaulted ? ' • Vaulted' : ''}</div>
-          <div className="text-xs text-orange-400 font-bold mb-2">{typeof pop.estimated_value === 'number' ? `£${pop.estimated_value.toFixed(2)}` : 'Pending'}</div>
+      <div className="text-xs text-orange-400 font-bold mb-2">
+        {getUserPurchasePrice(pop.id) ? (
+          <>
+            {formatCurrency(getUserPurchasePrice(pop.id), currency)} <span className="text-gray-400">(Your Price)</span>
+          </>
+        ) : (
+          typeof pop.estimated_value === 'number' ? formatCurrency(pop.estimated_value, currency) : 'Pending'
+        )}
+      </div>
       {pop.description && <div className="text-xs text-gray-300 mb-2 line-clamp-3">{pop.description}</div>}
           
           <div className="flex items-center text-gray-400 text-xs mt-auto">
@@ -435,8 +453,8 @@ const DirectoryAll = () => {
               {/* Left Side - Large Image and Buttons */}
               <div className="lg:w-96 lg:flex-shrink-0">
                 <div className="aspect-square bg-gray-700 rounded-lg border border-gray-600 overflow-hidden mb-6">
-                  {pop.image_url ? (
-                    <img src={pop.image_url} alt={pop.name} className="w-full h-full object-contain" />
+                  {getPrimaryImageUrl(pop) ? (
+                    <img src={getPrimaryImageUrl(pop)} alt={pop.name} className="w-full h-full object-contain" />
                   ) : (
                     <div className="w-full h-full flex flex-col items-center justify-center text-gray-400">
                       <div className="text-6xl mb-4">📦</div>
@@ -554,11 +572,16 @@ const DirectoryAll = () => {
                   <div className="bg-gray-700 p-4 rounded-lg border border-gray-600">
                     <div className="text-sm text-gray-400 mb-1 flex items-center">
                       <span className="mr-2">💎</span>
-                      Value
+                      {getUserPurchasePrice(pop.id) ? 'Your Purchase Price' : 'Estimated Value'}
                     </div>
                     <div className="font-semibold text-white text-lg">
-                      {pop.estimated_value ? `£${pop.estimated_value.toFixed(2)}` : '—'}
+                      {getUserPurchasePrice(pop.id) ? formatCurrency(getUserPurchasePrice(pop.id), currency) : (pop.estimated_value ? formatCurrency(pop.estimated_value, currency) : '—')}
                     </div>
+                    {getUserPurchasePrice(pop.id) && (
+                      <div className="text-xs text-blue-400 mt-1">
+                        Market pricing updates within 5 working days
+                      </div>
+                    )}
                   </div>
                   
                   <div className="bg-gray-700 p-4 rounded-lg border border-gray-600">
@@ -723,8 +746,8 @@ const DirectoryAll = () => {
                       name: pop.name,
                       series: pop.series,
                       number: pop.number,
-                      image_url: pop.image_url,
-                      estimated_value: pop.estimated_value
+                      image_url: getPrimaryImageUrl(pop),
+                      estimated_value: getUserPurchasePrice(pop.id) || pop.estimated_value
                     }}
                   />
                 </div>
@@ -1042,11 +1065,16 @@ const DirectoryAll = () => {
                                 <div className="bg-gray-700 p-4 rounded-lg border border-gray-600">
                                   <div className="text-sm text-gray-400 mb-1 flex items-center">
                                     <span className="mr-2">💎</span>
-                                    Value
+                                    {getUserPurchasePrice(pop.id) ? 'Your Purchase Price' : 'Estimated Value'}
                                   </div>
                                   <div className="font-semibold text-white text-lg">
-                                    {pop.estimated_value ? `£${pop.estimated_value.toFixed(2)}` : '—'}
+                                    {getUserPurchasePrice(pop.id) ? formatCurrency(getUserPurchasePrice(pop.id), currency) : (pop.estimated_value ? formatCurrency(pop.estimated_value, currency) : '—')}
                                   </div>
+                                  {getUserPurchasePrice(pop.id) && (
+                                    <div className="text-xs text-blue-400 mt-1">
+                                      Market pricing updates within 5 working days
+                                    </div>
+                                  )}
                                 </div>
                                 
                                 <div className="bg-gray-700 p-4 rounded-lg border border-gray-600">
@@ -1213,8 +1241,8 @@ const DirectoryAll = () => {
                                 name: pop.name,
                                 series: pop.series,
                                 number: pop.number,
-                                image_url: pop.image_url,
-                                estimated_value: pop.estimated_value
+                                image_url: getPrimaryImageUrl(pop),
+                                estimated_value: getUserPurchasePrice(pop.id) || pop.estimated_value
                               }}
                             />
                           </div>
@@ -1273,7 +1301,15 @@ const DirectoryAll = () => {
                         <div className="text-xs text-gray-400 mb-1">{pop.genre}</div>
                         <div className="text-xs text-gray-400 mb-1">{pop.edition}</div>
                         <div className="text-xs text-gray-400 mb-1">{pop.created_at ? new Date(pop.created_at).getFullYear() : '—'}{pop.is_vaulted ? ' • Vaulted' : ''}</div>
-                        <div className="text-xs text-orange-400 font-bold mb-2">{typeof pop.estimated_value === 'number' ? `£${pop.estimated_value.toFixed(2)}` : 'Pending'}</div>
+                        <div className="text-xs text-orange-400 font-bold mb-2">
+                          {getUserPurchasePrice(pop.id) ? (
+                            <>
+                              {formatCurrency(getUserPurchasePrice(pop.id), currency)} <span className="text-gray-400">(Your Price)</span>
+                            </>
+                          ) : (
+                            typeof pop.estimated_value === 'number' ? formatCurrency(pop.estimated_value, currency) : 'Pending'
+                          )}
+                        </div>
                         {pop.description && <div className="text-xs text-gray-300 mb-2 line-clamp-3">{pop.description}</div>}
                         
                         <Button 
