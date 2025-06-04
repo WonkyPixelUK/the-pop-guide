@@ -14,6 +14,7 @@ interface Funko {
   number: string;
   variant?: string;
   image_url?: string;
+  image_urls?: string[];
   release_date?: string;
   category?: string;
   rarity?: string;
@@ -58,6 +59,16 @@ export const FunkoCard: React.FC<FunkoCardProps> = ({
   wishlistItem,
 }) => {
   const isGridLayout = layout === 'grid';
+  
+  // Helper function to get the primary image URL (handles both old and new storage methods)
+  const getPrimaryImageUrl = (pop: Funko) => {
+    // If there are user-uploaded images in image_urls array, use the first one
+    if (pop.image_urls && Array.isArray(pop.image_urls) && pop.image_urls.length > 0) {
+      return pop.image_urls[0];
+    }
+    // Fall back to the original scraped/imported image_url
+    return pop.image_url;
+  };
   
   const renderRarityBadge = () => {
     if (!funko.rarity) return null;
@@ -155,8 +166,8 @@ export const FunkoCard: React.FC<FunkoCardProps> = ({
       <TouchableOpacity onPress={onPress} style={[styles.gridCard, { width: cardWidth }]}>
         <Card style={styles.cardContainer}>
           <View style={styles.imageContainer}>
-            {funko.image_url ? (
-              <Image source={{ uri: funko.image_url }} style={styles.image} />
+            {getPrimaryImageUrl(funko) ? (
+              <Image source={{ uri: getPrimaryImageUrl(funko) }} style={styles.image} />
             ) : (
               <View style={styles.placeholderImage}>
                 <Ionicons name="image-outline" size={32} color={theme.colors.textMuted} />
@@ -198,8 +209,8 @@ export const FunkoCard: React.FC<FunkoCardProps> = ({
       <Card style={styles.listCard}>
         <View style={styles.listContent}>
           <View style={styles.listImageContainer}>
-            {funko.image_url ? (
-              <Image source={{ uri: funko.image_url }} style={styles.listImage} />
+            {getPrimaryImageUrl(funko) ? (
+              <Image source={{ uri: getPrimaryImageUrl(funko) }} style={styles.listImage} />
             ) : (
               <View style={styles.listPlaceholderImage}>
                 <Ionicons name="image-outline" size={24} color={theme.colors.textMuted} />

@@ -78,6 +78,16 @@ const Dashboard = () => {
   const { currency } = useCurrency();
   const mainRef = useRef<HTMLDivElement>(null);
 
+  // Helper function to get the primary image URL (handles both old and new storage methods)
+  const getPrimaryImageUrl = (pop) => {
+    // If there are user-uploaded images in image_urls array, use the first one
+    if (pop.image_urls && Array.isArray(pop.image_urls) && pop.image_urls.length > 0) {
+      return pop.image_urls[0];
+    }
+    // Fall back to the original scraped/imported image_url
+    return pop.image_url;
+  };
+
   // Redirect if not authenticated
   useEffect(() => {
     if (!authLoading && !user) {
@@ -610,8 +620,8 @@ const Dashboard = () => {
                             onClick={() => handleExpandPop(pop)}
                           >
                             <div className="w-20 h-20 bg-gray-700 rounded-lg flex items-center justify-center overflow-hidden mr-4 flex-shrink-0">
-                              {pop.image_url ? (
-                                <img src={pop.image_url} alt={pop.name} className="w-full h-full object-contain" />
+                              {getPrimaryImageUrl(pop) ? (
+                                <img src={getPrimaryImageUrl(pop)} alt={pop.name} className="w-full h-full object-contain" />
                               ) : (
                                 <User className="w-8 h-8 text-orange-400" />
                               )}
@@ -633,8 +643,8 @@ const Dashboard = () => {
                               {/* Left Side - Large Image */}
                               <div className="lg:w-96 lg:flex-shrink-0">
                                 <div className="aspect-square bg-gray-700 rounded-lg border border-gray-600 overflow-hidden mb-6">
-                                  {pop.image_url ? (
-                                    <img src={pop.image_url} alt={pop.name} className="w-full h-full object-contain" />
+                                  {getPrimaryImageUrl(pop) ? (
+                                    <img src={getPrimaryImageUrl(pop)} alt={pop.name} className="w-full h-full object-contain" />
                                   ) : (
                                     <div className="w-full h-full flex flex-col items-center justify-center text-gray-400">
                                       <div className="text-6xl mb-4">📦</div>
@@ -781,8 +791,8 @@ const Dashboard = () => {
                             onClick={() => handleExpandPop(pop)}
                           >
                             <div className="w-20 h-20 bg-gray-700 rounded-lg flex items-center justify-center overflow-hidden mr-4 flex-shrink-0">
-                              {pop.image_url ? (
-                                <img src={pop.image_url} alt={pop.name} className="w-full h-full object-contain" />
+                              {getPrimaryImageUrl(pop) ? (
+                                <img src={getPrimaryImageUrl(pop)} alt={pop.name} className="w-full h-full object-contain" />
                               ) : (
                                 <User className="w-8 h-8 text-orange-400" />
                               )}
@@ -804,8 +814,8 @@ const Dashboard = () => {
                               {/* Left Side - Large Image */}
                               <div className="lg:w-96 lg:flex-shrink-0">
                                 <div className="aspect-square bg-gray-700 rounded-lg border border-gray-600 overflow-hidden mb-6">
-                                  {pop.image_url ? (
-                                    <img src={pop.image_url} alt={pop.name} className="w-full h-full object-contain" />
+                                  {getPrimaryImageUrl(pop) ? (
+                                    <img src={getPrimaryImageUrl(pop)} alt={pop.name} className="w-full h-full object-contain" />
                                   ) : (
                                     <div className="w-full h-full flex flex-col items-center justify-center text-gray-400">
                                       <div className="text-6xl mb-4">📦</div>
@@ -1174,8 +1184,8 @@ const Dashboard = () => {
                               onClick={() => handleExpandPop(pop)}
                             >
                               <div className="w-20 h-20 bg-gray-700 rounded-lg flex items-center justify-center overflow-hidden mr-4 flex-shrink-0">
-                                {pop.image_url ? (
-                                  <img src={pop.image_url} alt={pop.name} className="w-full h-full object-contain" />
+                                {getPrimaryImageUrl(pop) ? (
+                                  <img src={getPrimaryImageUrl(pop)} alt={pop.name} className="w-full h-full object-contain" />
                                 ) : (
                                   <User className="w-8 h-8 text-orange-400" />
                                 )}
@@ -1197,8 +1207,8 @@ const Dashboard = () => {
                                 {/* Left Side - Large Image */}
                                 <div className="lg:w-96 lg:flex-shrink-0">
                                   <div className="aspect-square bg-gray-700 rounded-lg border border-gray-600 overflow-hidden mb-6">
-                                    {pop.image_url ? (
-                                      <img src={pop.image_url} alt={pop.name} className="w-full h-full object-contain" />
+                                    {getPrimaryImageUrl(pop) ? (
+                                      <img src={getPrimaryImageUrl(pop)} alt={pop.name} className="w-full h-full object-contain" />
                                     ) : (
                                       <div className="w-full h-full flex flex-col items-center justify-center text-gray-400">
                                         <div className="text-6xl mb-4">📦</div>
@@ -1280,8 +1290,8 @@ const Dashboard = () => {
                             onClick={() => handleExpandPop(pop)}
                           >
                             <div className="w-full aspect-square bg-gray-700 rounded-lg mb-2 flex items-center justify-center overflow-hidden">
-                              {pop.image_url ? (
-                                <img src={pop.image_url} alt={pop.name} className="w-full h-full object-contain" />
+                              {getPrimaryImageUrl(pop) ? (
+                                <img src={getPrimaryImageUrl(pop)} alt={pop.name} className="w-full h-full object-contain" />
                               ) : (
                                 <User className="w-16 h-16 text-orange-400 animate-pulse" />
                               )}

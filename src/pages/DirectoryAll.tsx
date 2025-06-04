@@ -311,6 +311,16 @@ const DirectoryAll = () => {
     });
   };
 
+  // Helper function to get the primary image URL (handles both old and new storage methods)
+  const getPrimaryImageUrl = (pop) => {
+    // If there are user-uploaded images in image_urls array, use the first one
+    if (pop.image_urls && Array.isArray(pop.image_urls) && pop.image_urls.length > 0) {
+      return pop.image_urls[0];
+    }
+    // Fall back to the original scraped/imported image_url
+    return pop.image_url;
+  };
+
   // Helper function to determine product status badges
   const getProductBadges = (pop) => {
     const badges = [];
@@ -379,8 +389,8 @@ const DirectoryAll = () => {
           onClick={() => handleExpandPop(pop)}
         >
       <div className="w-full aspect-square bg-gray-700 rounded-lg mb-2 flex items-center justify-center overflow-hidden">
-        {pop.image_url ? (
-          <img src={pop.image_url} alt={pop.name} className="w-full h-full object-contain" />
+        {getPrimaryImageUrl(pop) ? (
+          <img src={getPrimaryImageUrl(pop)} alt={pop.name} className="w-full h-full object-contain" />
         ) : (
           <User className="w-16 h-16 text-orange-400 animate-pulse" />
         )}
@@ -602,6 +612,81 @@ const DirectoryAll = () => {
                   </div>
                 </div>
 
+                {/* Product Details - New Fields in Compact Format */}
+                {(pop.upc || pop.upc_a || pop.ean_13 || pop.amazon_asin || pop.country_of_registration || pop.brand || pop.model_number || pop.size || pop.color || pop.weight || pop.product_dimensions) && (
+                  <div className="bg-gray-700/50 p-4 rounded-lg border border-gray-600 mb-6">
+                    <h4 className="font-semibold mb-3 text-white text-lg">Product Details</h4>
+                    <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-3 text-sm">
+                      {pop.upc && (
+                        <div className="flex flex-col">
+                          <span className="text-gray-400 text-xs mb-1">UPC</span>
+                          <span className="text-white font-medium">{pop.upc}</span>
+                        </div>
+                      )}
+                      {pop.upc_a && (
+                        <div className="flex flex-col">
+                          <span className="text-gray-400 text-xs mb-1">UPC-A</span>
+                          <span className="text-white font-medium">{pop.upc_a}</span>
+                        </div>
+                      )}
+                      {pop.ean_13 && (
+                        <div className="flex flex-col">
+                          <span className="text-gray-400 text-xs mb-1">EAN-13</span>
+                          <span className="text-white font-medium">{pop.ean_13}</span>
+                        </div>
+                      )}
+                      {pop.amazon_asin && (
+                        <div className="flex flex-col">
+                          <span className="text-gray-400 text-xs mb-1">Amazon ASIN</span>
+                          <span className="text-white font-medium">{pop.amazon_asin}</span>
+                        </div>
+                      )}
+                      {pop.country_of_registration && (
+                        <div className="flex flex-col">
+                          <span className="text-gray-400 text-xs mb-1">Country</span>
+                          <span className="text-white font-medium">{pop.country_of_registration}</span>
+                        </div>
+                      )}
+                      {pop.brand && (
+                        <div className="flex flex-col">
+                          <span className="text-gray-400 text-xs mb-1">Brand</span>
+                          <span className="text-white font-medium">{pop.brand}</span>
+                        </div>
+                      )}
+                      {pop.model_number && (
+                        <div className="flex flex-col">
+                          <span className="text-gray-400 text-xs mb-1">Model #</span>
+                          <span className="text-white font-medium">{pop.model_number}</span>
+                        </div>
+                      )}
+                      {pop.size && (
+                        <div className="flex flex-col">
+                          <span className="text-gray-400 text-xs mb-1">Size</span>
+                          <span className="text-white font-medium">{pop.size}</span>
+                        </div>
+                      )}
+                      {pop.color && (
+                        <div className="flex flex-col">
+                          <span className="text-gray-400 text-xs mb-1">Color</span>
+                          <span className="text-white font-medium">{pop.color}</span>
+                        </div>
+                      )}
+                      {pop.weight && (
+                        <div className="flex flex-col">
+                          <span className="text-gray-400 text-xs mb-1">Weight</span>
+                          <span className="text-white font-medium">{pop.weight}</span>
+                        </div>
+                      )}
+                      {pop.product_dimensions && (
+                        <div className="flex flex-col">
+                          <span className="text-gray-400 text-xs mb-1">Dimensions</span>
+                          <span className="text-white font-medium">{pop.product_dimensions}</span>
+                        </div>
+                      )}
+                    </div>
+                  </div>
+                )}
+
                 {/* Additional Details */}
                 {(pop.variant || pop.is_exclusive || pop.is_chase) && (
                   <div className="bg-gray-700 p-4 rounded-lg border border-gray-600 mb-6">
@@ -815,8 +900,8 @@ const DirectoryAll = () => {
                           onClick={() => handleExpandPop(pop)}
                         >
                           <div className="w-20 h-20 bg-gray-700 rounded-lg flex items-center justify-center overflow-hidden mr-4 flex-shrink-0">
-                            {pop.image_url ? (
-                              <img src={pop.image_url} alt={pop.name} className="w-full h-full object-contain" />
+                            {getPrimaryImageUrl(pop) ? (
+                              <img src={getPrimaryImageUrl(pop)} alt={pop.name} className="w-full h-full object-contain" />
                             ) : (
                               <User className="w-8 h-8 text-orange-400" />
                             )}
@@ -838,8 +923,8 @@ const DirectoryAll = () => {
                             {/* Left Side - Large Image and Buttons */}
                             <div className="lg:w-96 lg:flex-shrink-0">
                               <div className="aspect-square bg-gray-700 rounded-lg border border-gray-600 overflow-hidden mb-6">
-                                {pop.image_url ? (
-                                  <img src={pop.image_url} alt={pop.name} className="w-full h-full object-contain" />
+                                {getPrimaryImageUrl(pop) ? (
+                                  <img src={getPrimaryImageUrl(pop)} alt={pop.name} className="w-full h-full object-contain" />
                                 ) : (
                                   <div className="w-full h-full flex flex-col items-center justify-center text-gray-400">
                                     <div className="text-6xl mb-4">📦</div>
@@ -1015,27 +1100,75 @@ const DirectoryAll = () => {
                                 </div>
                               </div>
 
-                              {/* Additional Details */}
-                              {(pop.variant || pop.is_exclusive || pop.is_chase) && (
-                                <div className="bg-gray-700 p-4 rounded-lg border border-gray-600 mb-6">
-                                  <h4 className="font-semibold mb-3 text-white text-lg">Additional Details</h4>
-                                  <div className="space-y-2 text-sm">
-                                    {pop.variant && (
-                                      <div className="flex justify-between">
-                                        <span className="text-gray-400">Variant:</span>
-                                        <span className="text-white">{pop.variant}</span>
+                              {/* Product Details - New Fields in Compact Format */}
+                              {(pop.upc || pop.upc_a || pop.ean_13 || pop.amazon_asin || pop.country_of_registration || pop.brand || pop.model_number || pop.size || pop.color || pop.weight || pop.product_dimensions) && (
+                                <div className="bg-gray-700/50 p-4 rounded-lg border border-gray-600 mb-6">
+                                  <h4 className="font-semibold mb-3 text-white text-lg">Product Details</h4>
+                                  <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-3 text-sm">
+                                    {pop.upc && (
+                                      <div className="flex flex-col">
+                                        <span className="text-gray-400 text-xs mb-1">UPC</span>
+                                        <span className="text-white font-medium">{pop.upc}</span>
                                       </div>
                                     )}
-                                    {pop.is_exclusive && (
-                                      <div className="flex justify-between">
-                                        <span className="text-gray-400">Exclusive to:</span>
-                                        <span className="text-white">{pop.exclusive_to || 'Yes'}</span>
+                                    {pop.upc_a && (
+                                      <div className="flex flex-col">
+                                        <span className="text-gray-400 text-xs mb-1">UPC-A</span>
+                                        <span className="text-white font-medium">{pop.upc_a}</span>
                                       </div>
                                     )}
-                                    {pop.is_chase && (
-                                      <div className="flex justify-between">
-                                        <span className="text-gray-400">Chase:</span>
-                                        <span className="text-yellow-400">Yes</span>
+                                    {pop.ean_13 && (
+                                      <div className="flex flex-col">
+                                        <span className="text-gray-400 text-xs mb-1">EAN-13</span>
+                                        <span className="text-white font-medium">{pop.ean_13}</span>
+                                      </div>
+                                    )}
+                                    {pop.amazon_asin && (
+                                      <div className="flex flex-col">
+                                        <span className="text-gray-400 text-xs mb-1">Amazon ASIN</span>
+                                        <span className="text-white font-medium">{pop.amazon_asin}</span>
+                                      </div>
+                                    )}
+                                    {pop.country_of_registration && (
+                                      <div className="flex flex-col">
+                                        <span className="text-gray-400 text-xs mb-1">Country</span>
+                                        <span className="text-white font-medium">{pop.country_of_registration}</span>
+                                      </div>
+                                    )}
+                                    {pop.brand && (
+                                      <div className="flex flex-col">
+                                        <span className="text-gray-400 text-xs mb-1">Brand</span>
+                                        <span className="text-white font-medium">{pop.brand}</span>
+                                      </div>
+                                    )}
+                                    {pop.model_number && (
+                                      <div className="flex flex-col">
+                                        <span className="text-gray-400 text-xs mb-1">Model #</span>
+                                        <span className="text-white font-medium">{pop.model_number}</span>
+                                      </div>
+                                    )}
+                                    {pop.size && (
+                                      <div className="flex flex-col">
+                                        <span className="text-gray-400 text-xs mb-1">Size</span>
+                                        <span className="text-white font-medium">{pop.size}</span>
+                                      </div>
+                                    )}
+                                    {pop.color && (
+                                      <div className="flex flex-col">
+                                        <span className="text-gray-400 text-xs mb-1">Color</span>
+                                        <span className="text-white font-medium">{pop.color}</span>
+                                      </div>
+                                    )}
+                                    {pop.weight && (
+                                      <div className="flex flex-col">
+                                        <span className="text-gray-400 text-xs mb-1">Weight</span>
+                                        <span className="text-white font-medium">{pop.weight}</span>
+                                      </div>
+                                    )}
+                                    {pop.product_dimensions && (
+                                      <div className="flex flex-col">
+                                        <span className="text-gray-400 text-xs mb-1">Dimensions</span>
+                                        <span className="text-white font-medium">{pop.product_dimensions}</span>
                                       </div>
                                     )}
                                   </div>
@@ -1044,8 +1177,35 @@ const DirectoryAll = () => {
                             </div>
                           </div>
 
-                          {/* Price History - Full Width Bottom Section */}
-                          <div className="border-t border-gray-600 pt-6 mt-6">
+                          {/* Additional Details */}
+                          {(pop.variant || pop.is_exclusive || pop.is_chase) && (
+                            <div className="bg-gray-700 p-4 rounded-lg border border-gray-600 mb-6">
+                              <h4 className="font-semibold mb-3 text-white text-lg">Additional Details</h4>
+                              <div className="space-y-2 text-sm">
+                                {pop.variant && (
+                                  <div className="flex justify-between">
+                                    <span className="text-gray-400">Variant:</span>
+                                    <span className="text-white">{pop.variant}</span>
+                                  </div>
+                                )}
+                                {pop.is_exclusive && (
+                                  <div className="flex justify-between">
+                                    <span className="text-gray-400">Exclusive to:</span>
+                                    <span className="text-white">{pop.exclusive_to || 'Yes'}</span>
+                                  </div>
+                                )}
+                                {pop.is_chase && (
+                                  <div className="flex justify-between">
+                                    <span className="text-gray-400">Chase:</span>
+                                    <span className="text-yellow-400">Yes</span>
+                                  </div>
+                                )}
+                              </div>
+                            </div>
+                          )}
+
+                          {/* Price History */}
+                          <div className="border-t border-gray-600 pt-6">
                             <PriceHistory 
                               funkoPopId={pop.id} 
                               funkoPop={{
@@ -1083,8 +1243,8 @@ const DirectoryAll = () => {
                         onClick={() => handleExpandPop(pop)}
                       >
                         <div className="w-full aspect-square bg-gray-700 rounded-lg mb-2 flex items-center justify-center overflow-hidden">
-                          {pop.image_url ? (
-                            <img src={pop.image_url} alt={pop.name} className="w-full h-full object-contain" />
+                          {getPrimaryImageUrl(pop) ? (
+                            <img src={getPrimaryImageUrl(pop)} alt={pop.name} className="w-full h-full object-contain" />
                           ) : (
                             <User className="w-16 h-16 text-orange-400 animate-pulse" />
                           )}

@@ -48,6 +48,7 @@ interface FunkoPop {
   weight?: string;
   product_dimensions?: string;
   description?: string;
+  image_urls?: string[];
 }
 
 interface FilterState {
@@ -83,6 +84,16 @@ export const DirectoryScreen = () => {
 
   const [availableSeries, setAvailableSeries] = useState<string[]>([]);
   const [availableRarities, setAvailableRarities] = useState<string[]>([]);
+
+  // Helper function to get the primary image URL (handles both old and new storage methods)
+  const getPrimaryImageUrl = (pop: FunkoPop) => {
+    // If there are user-uploaded images in image_urls array, use the first one
+    if (pop.image_urls && Array.isArray(pop.image_urls) && pop.image_urls.length > 0) {
+      return pop.image_urls[0];
+    }
+    // Fall back to the original scraped/imported image_url
+    return pop.image_url;
+  };
 
   const loadFunkos = async () => {
     try {
