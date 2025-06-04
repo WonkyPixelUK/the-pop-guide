@@ -53,10 +53,10 @@ CREATE INDEX IF NOT EXISTS idx_funko_pops_is_exclusive_category ON funko_pops(is
 
 -- Step 6: Update existing funko_pops to have default values for new required fields
 UPDATE funko_pops SET 
-  brand = 'Funko' WHERE brand IS NULL,
-  status = 'In Stock' WHERE status IS NULL,
-  category = 'Pop!' WHERE category IS NULL,
-  last_scanned = NOW() WHERE last_scanned IS NULL;
+  brand = COALESCE(brand, 'Funko'),
+  status = COALESCE(status, 'In Stock'),
+  category = COALESCE(category, 'Pop!'),
+  last_scanned = COALESCE(last_scanned, NOW());
 
 -- Step 7: Create contributor_stats table if it doesn't exist
 CREATE TABLE IF NOT EXISTS contributor_stats (
@@ -137,5 +137,5 @@ GRANT SELECT, INSERT, UPDATE ON contributor_stats TO authenticated;
 
 -- All done! Your database is now ready for enhanced Funko Pop collections with image upload support.
 
--- TEMPORARY - DISABLE RLS FOR TESTING ONLY
-ALTER TABLE storage.objects DISABLE ROW LEVEL SECURITY; 
+-- Note: If you need to configure storage bucket policies, do this through the Supabase Dashboard
+-- under Storage -> Policies, not through SQL commands. 
