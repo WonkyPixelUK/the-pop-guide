@@ -2,6 +2,7 @@
 -- Copy and paste this entire script into your Supabase SQL Editor
 
 -- Step 1: Add extended fields to funko_pops table
+ALTER TABLE funko_pops ADD COLUMN IF NOT EXISTS upc TEXT;
 ALTER TABLE funko_pops ADD COLUMN IF NOT EXISTS upc_a TEXT;
 ALTER TABLE funko_pops ADD COLUMN IF NOT EXISTS ean_13 TEXT;
 ALTER TABLE funko_pops ADD COLUMN IF NOT EXISTS amazon_asin TEXT;
@@ -32,6 +33,7 @@ ALTER TABLE user_collections ADD COLUMN IF NOT EXISTS last_value_change DECIMAL(
 ALTER TABLE user_collections ADD COLUMN IF NOT EXISTS acquisition_method TEXT DEFAULT 'manual_entry';
 
 -- Step 4: Create indexes for better query performance
+CREATE INDEX IF NOT EXISTS idx_funko_pops_upc ON funko_pops(upc);
 CREATE INDEX IF NOT EXISTS idx_funko_pops_upc_a ON funko_pops(upc_a);
 CREATE INDEX IF NOT EXISTS idx_funko_pops_ean_13 ON funko_pops(ean_13);
 CREATE INDEX IF NOT EXISTS idx_funko_pops_amazon_asin ON funko_pops(amazon_asin);

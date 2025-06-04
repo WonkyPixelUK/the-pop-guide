@@ -73,6 +73,7 @@ const EnhancedAddItemDialog = ({ open, onOpenChange }: EnhancedAddItemDialogProp
   const [manualPrice, setManualPrice] = useState("");
   
   // Extended fields
+  const [manualUpc, setManualUpc] = useState("");
   const [manualUpcA, setManualUpcA] = useState("");
   const [manualEan13, setManualEan13] = useState("");
   const [manualAmazonAsin, setManualAmazonAsin] = useState("");
@@ -172,6 +173,7 @@ const EnhancedAddItemDialog = ({ open, onOpenChange }: EnhancedAddItemDialogProp
     setManualRarity("");
     setManualCondition("Mint");
     setManualPrice("");
+    setManualUpc("");
     setManualUpcA("");
     setManualEan13("");
     setManualAmazonAsin("");
@@ -227,6 +229,7 @@ const EnhancedAddItemDialog = ({ open, onOpenChange }: EnhancedAddItemDialogProp
           is_vaulted: manualVaulted,
           image_urls: funkoImageUrls, // Add the uploaded image URLs
           // Extended fields
+          upc: manualUpc || null,
           upc_a: manualUpcA || null,
           ean_13: manualEan13 || null,
           amazon_asin: manualAmazonAsin || null,
@@ -511,6 +514,16 @@ const EnhancedAddItemDialog = ({ open, onOpenChange }: EnhancedAddItemDialogProp
               <h4 className="text-lg font-semibold text-white border-b border-gray-700 pb-2">Identification Codes</h4>
               <div className="grid grid-cols-2 gap-4">
                 <div className="space-y-2">
+                  <Label htmlFor="manualUpc">UPC</Label>
+                  <Input
+                    id="manualUpc"
+                    placeholder="e.g., 123456789012"
+                    value={manualUpc}
+                    onChange={(e) => setManualUpc(e.target.value)}
+                    className="bg-gray-800 border-gray-700"
+                  />
+                </div>
+                <div className="space-y-2">
                   <Label htmlFor="manualUpcA">UPC-A</Label>
                   <Input
                     id="manualUpcA"
@@ -537,16 +550,6 @@ const EnhancedAddItemDialog = ({ open, onOpenChange }: EnhancedAddItemDialogProp
                     placeholder="e.g., B08N5WRWNW"
                     value={manualAmazonAsin}
                     onChange={(e) => setManualAmazonAsin(e.target.value)}
-                    className="bg-gray-800 border-gray-700"
-                  />
-                </div>
-                <div className="space-y-2">
-                  <Label htmlFor="manualModelNumber">Model #</Label>
-                  <Input
-                    id="manualModelNumber"
-                    placeholder="e.g., FUN12345"
-                    value={manualModelNumber}
-                    onChange={(e) => setManualModelNumber(e.target.value)}
                     className="bg-gray-800 border-gray-700"
                   />
                 </div>
@@ -582,6 +585,16 @@ const EnhancedAddItemDialog = ({ open, onOpenChange }: EnhancedAddItemDialogProp
                       ))}
                     </SelectContent>
                   </Select>
+                </div>
+                <div className="space-y-2">
+                  <Label htmlFor="manualModelNumber">Model #</Label>
+                  <Input
+                    id="manualModelNumber"
+                    placeholder="e.g., FUN12345"
+                    value={manualModelNumber}
+                    onChange={(e) => setManualModelNumber(e.target.value)}
+                    className="bg-gray-800 border-gray-700"
+                  />
                 </div>
                 <div className="space-y-2">
                   <Label htmlFor="manualSize">Size</Label>
