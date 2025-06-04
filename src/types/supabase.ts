@@ -44,7 +44,7 @@ export type Bug = {
     user_agent?: string;
     url?: string;
     user_type?: 'free' | 'pro';
-    additional_info?: Record<string, any>;
+    additional_info?: Record<string, unknown>;
   };
   reproduction_steps?: string;
   expected_behavior?: string;

@@ -43,10 +43,6 @@ interface VirtualEvent {
   host_user_id: string;
 }
 
-interface UserLand extends VirtualLand {
-  // Removed profiles join - no longer needed
-}
-
 const GrailGalaxyWorld = () => {
   const { user } = useAuth();
   const { toast } = useToast();
@@ -60,7 +56,7 @@ const GrailGalaxyWorld = () => {
   
   // User data
   const [popCoins, setPopCoins] = useState(100);
-  const [userLands, setUserLands] = useState<UserLand[]>([]);
+  const [userLands, setUserLands] = useState<VirtualLand[]>([]);
   const [allLands, setAllLands] = useState<VirtualLand[]>([]);
   const [upcomingEvents, setUpcomingEvents] = useState<VirtualEvent[]>([]);
   
@@ -193,7 +189,7 @@ const GrailGalaxyWorld = () => {
         .eq('user_id', user.id);
 
       if (userLandsError) throw userLandsError;
-      setUserLands(userLandsData as UserLand[] || []);
+      setUserLands(userLandsData as VirtualLand[] || []);
 
       // Load all lands for visualization
       const { data: allLandsData, error: allLandsError } = await supabase

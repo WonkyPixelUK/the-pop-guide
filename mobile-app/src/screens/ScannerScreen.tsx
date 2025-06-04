@@ -114,7 +114,7 @@ export const ScannerScreen = () => {
     if (!granted) {
       Alert.alert(
         'Camera Permission Required',
-        'PopGuide needs camera access to scan Funko Pop barcodes and help you quickly add items to your collection. Please enable camera permissions in your device settings.',
+        'PopGuide needs camera access to scan Funko Pop barcodes. Please enable camera permissions in your device settings.',
         [{ text: 'OK' }]
       );
     }

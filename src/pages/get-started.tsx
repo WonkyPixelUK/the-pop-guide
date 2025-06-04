@@ -111,7 +111,7 @@ const GetStarted = () => {
       <img 
         src="https://Maintainhq-pull-zone.b-cdn.net/02_the_pop_guide/pop-guide-logo-trans-white.svg" 
         alt="PopGuide Logo" 
-        className="mb-8 w-24 h-24 mx-auto"
+        className="mb-8 w-48 h-48 mx-auto"
       />
       
       <h1 className="text-3xl font-bold mb-4 text-center">Get started with your 3-day free trial</h1>

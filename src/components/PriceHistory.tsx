@@ -5,6 +5,8 @@ import { Badge } from "@/components/ui/badge";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { TrendingUp, TrendingDown, BarChart3, LineChart, Calendar, DollarSign, Percent, Clock } from "lucide-react";
+import { useCurrency } from '@/contexts/CurrencyContext';
+import { formatCurrency } from '@/utils/formatCurrency';
 
 interface PricePoint {
   date: string;
@@ -41,6 +43,7 @@ interface PriceHistoryProps {
 }
 
 const PriceHistory = ({ funkoPopId, funkoPop, className }: PriceHistoryProps) => {
+  const { currency } = useCurrency();
   const [timeRange, setTimeRange] = useState('30d');
   const [viewType, setViewType] = useState('line');
   const [dataSource, setDataSource] = useState('all');
@@ -122,7 +125,7 @@ const PriceHistory = ({ funkoPopId, funkoPop, className }: PriceHistoryProps) =>
         ma7: 0, // Moving average placeholder
         ma30: 0
       }));
-  }, [priceData, dataSource]);
+  }, [priceData, dataSource, viewType]);
 
   // Calculate moving averages
   const enhancedChartData = useMemo(() => {
@@ -145,7 +148,7 @@ const PriceHistory = ({ funkoPopId, funkoPop, className }: PriceHistoryProps) =>
         ma30: Number(ma30.toFixed(2))
       };
     });
-  }, [chartData]);
+  }, [chartData, viewType]);
 
   const priceStats = useMemo(() => {
     if (!priceData) return [];
@@ -258,7 +261,7 @@ const PriceHistory = ({ funkoPopId, funkoPop, className }: PriceHistoryProps) =>
               <Card className="bg-gray-700/50 border-gray-600">
                 <CardContent className="p-4 text-center">
                   <div className="text-2xl font-bold text-orange-500">
-                    ${priceData.current_price.toFixed(2)}
+                    {formatCurrency(priceData.current_price, currency)}
                   </div>
                   <div className="text-xs text-gray-400">Current Price</div>
                 </CardContent>
@@ -287,9 +290,43 @@ const PriceHistory = ({ funkoPopId, funkoPop, className }: PriceHistoryProps) =>
                     <p className="text-gray-400 text-sm">Showing {enhancedChartData.length} data points over {timeRange}</p>
                   </div>
                   
-                  {/* Simple CSS-based chart */}
+                  {/* Enhanced chart with connecting lines */}
                   <div className="relative h-48 bg-gray-700 rounded border border-gray-500 overflow-hidden">
-                    <div className="absolute inset-0 flex items-end justify-between px-2 pb-2">
+                    {/* Connecting lines for line chart */}
+                    {viewType === 'line' && (
+                      <svg 
+                        className="absolute inset-0 w-full h-full" 
+                        viewBox="0 0 400 192"
+                        preserveAspectRatio="none"
+                        style={{ zIndex: 1 }}
+                      >
+                        <polyline
+                          points={enhancedChartData.slice(-20).map((point, index, array) => {
+                            const maxPrice = Math.max(...enhancedChartData.map(p => p.price));
+                            const minPrice = Math.min(...enhancedChartData.map(p => p.price));
+                            const height = ((point.price - minPrice) / (maxPrice - minPrice)) * 160 + 20;
+                            
+                            // Calculate positions within the SVG viewBox (0 0 400 192)
+                            const chartWidth = 400;
+                            const chartHeight = 192;
+                            const padding = 40;
+                            
+                            const x = padding + (index / Math.max(array.length - 1, 1)) * (chartWidth - padding * 2);
+                            const y = chartHeight - height;
+                            
+                            return `${x},${y}`;
+                          }).join(' ')}
+                          fill="none"
+                          stroke="#f97316"
+                          strokeWidth="2"
+                          strokeLinejoin="round"
+                          strokeLinecap="round"
+                          vectorEffect="non-scaling-stroke"
+                        />
+                      </svg>
+                    )}
+                    
+                    <div className="absolute inset-0 flex items-end justify-between px-8 pb-2" style={{ zIndex: 2 }}>
                       {enhancedChartData.slice(-20).map((point, index) => {
                         const maxPrice = Math.max(...enhancedChartData.map(p => p.price));
                         const minPrice = Math.min(...enhancedChartData.map(p => p.price));
@@ -298,26 +335,32 @@ const PriceHistory = ({ funkoPopId, funkoPop, className }: PriceHistoryProps) =>
                         return (
                           <div
                             key={index}
-                            className="bg-orange-500 rounded-t transition-all duration-300 hover:bg-orange-400 cursor-pointer relative group"
+                            className={`${
+                              viewType === 'area' 
+                                ? 'bg-orange-500 hover:bg-orange-400 rounded-t' 
+                                : 'bg-orange-500 hover:bg-orange-400 rounded-full border-2 border-gray-700'
+                            } transition-all duration-300 cursor-pointer relative group`}
                             style={{
-                              height: `${height}px`,
-                              width: `${Math.max(100 / Math.min(enhancedChartData.length, 20) - 1, 4)}%`,
+                              height: viewType === 'line' ? '8px' : `${height}px`,
+                              width: viewType === 'line' ? '8px' : `${Math.max(100 / Math.min(enhancedChartData.length, 20) - 1, 4)}%`,
+                              marginTop: viewType === 'line' ? `${160 - height + 20}px` : '0',
                             }}
-                            title={`${point.formattedDate}: $${point.price.toFixed(2)}`}
+                            title={`${point.formattedDate}: ${formatCurrency(point.price, currency)}`}
                           >
-                            <div className="absolute -top-8 left-1/2 transform -translate-x-1/2 bg-gray-900 text-white text-xs px-2 py-1 rounded opacity-0 group-hover:opacity-100 transition-opacity whitespace-nowrap z-10">
-                              ${point.price.toFixed(2)}
+                            <div className="absolute -top-10 left-1/2 transform -translate-x-1/2 bg-gray-900 text-white text-xs px-2 py-1 rounded opacity-0 group-hover:opacity-100 transition-opacity whitespace-nowrap z-10 border border-gray-600 shadow-lg">
+                              <div className="font-medium">{formatCurrency(point.price, currency)}</div>
+                              <div className="text-gray-400 text-xs">{point.formattedDate}</div>
                             </div>
                           </div>
                         );
                       })}
                     </div>
                     
-                    {/* Y-axis labels */}
-                    <div className="absolute left-0 top-0 h-full flex flex-col justify-between py-2 text-xs text-gray-400">
-                      <span>${Math.max(...enhancedChartData.map(p => p.price)).toFixed(0)}</span>
-                      <span>${(Math.max(...enhancedChartData.map(p => p.price)) / 2).toFixed(0)}</span>
-                      <span>${Math.min(...enhancedChartData.map(p => p.price)).toFixed(0)}</span>
+                    {/* Y-axis labels with better positioning and contrast */}
+                    <div className="absolute left-1 top-0 h-full flex flex-col justify-between py-2 text-xs text-gray-300 bg-gray-700/80 px-1 rounded-r">
+                      <span className="bg-gray-800 px-1 rounded text-white text-xs font-medium">{formatCurrency(Math.max(...enhancedChartData.map(p => p.price)), currency)}</span>
+                      <span className="bg-gray-800 px-1 rounded text-white text-xs font-medium">{formatCurrency(Math.max(...enhancedChartData.map(p => p.price)) / 2, currency)}</span>
+                      <span className="bg-gray-800 px-1 rounded text-white text-xs font-medium">{formatCurrency(Math.min(...enhancedChartData.map(p => p.price)), currency)}</span>
                     </div>
                   </div>
                   
@@ -325,8 +368,8 @@ const PriceHistory = ({ funkoPopId, funkoPop, className }: PriceHistoryProps) =>
                   <div className="mt-4 flex justify-center">
                     <div className="flex items-center gap-4 text-sm">
                       <div className="flex items-center gap-2">
-                        <div className="w-3 h-3 bg-orange-500 rounded"></div>
-                        <span className="text-gray-300">Price</span>
+                        <div className={`${viewType === 'line' ? 'w-4 h-0.5' : 'w-3 h-3'} bg-orange-500 ${viewType === 'area' ? 'rounded' : ''}`}></div>
+                        <span className="text-gray-300">Price ({viewType === 'line' ? 'Line' : 'Area'} View)</span>
                       </div>
                       <span className="text-gray-400">•</span>
                       <span className="text-gray-400">Hover for details</span>
@@ -343,30 +386,34 @@ const PriceHistory = ({ funkoPopId, funkoPop, className }: PriceHistoryProps) =>
               )}
             </div>
 
-            {/* Chart Controls */}
+            {/* Redesigned Chart Controls */}
             <div className="flex justify-between items-center">
-              <div className="flex gap-2">
-                <Button
-                  size="sm"
-                  variant={viewType === 'line' ? 'default' : 'outline'}
+              <div className="flex bg-gray-800 rounded-lg p-1 border border-gray-600">
+                <button
                   onClick={() => setViewType('line')}
-                  className={viewType === 'line' ? 'bg-orange-500' : 'border-gray-600 text-gray-300'}
+                  className={`flex items-center gap-2 px-4 py-2 rounded-md text-sm font-medium transition-all duration-200 ${
+                    viewType === 'line'
+                      ? 'bg-orange-500 text-white shadow-lg transform scale-105'
+                      : 'text-gray-300 hover:text-white hover:bg-gray-700'
+                  }`}
                 >
-                  <LineChart className="w-4 h-4 mr-1" />
-                  Line
-                </Button>
-                <Button
-                  size="sm"
-                  variant={viewType === 'area' ? 'default' : 'outline'}
+                  <LineChart className="w-4 h-4" />
+                  Line Chart
+                </button>
+                <button
                   onClick={() => setViewType('area')}
-                  className={viewType === 'area' ? 'bg-orange-500' : 'border-gray-600 text-gray-300'}
+                  className={`flex items-center gap-2 px-4 py-2 rounded-md text-sm font-medium transition-all duration-200 ${
+                    viewType === 'area'
+                      ? 'bg-orange-500 text-white shadow-lg transform scale-105'
+                      : 'text-gray-300 hover:text-white hover:bg-gray-700'
+                  }`}
                 >
-                  <BarChart3 className="w-4 h-4 mr-1" />
-                  Area
-                </Button>
+                  <BarChart3 className="w-4 h-4" />
+                  Area Chart
+                </button>
               </div>
-              <div className="text-xs text-gray-400">
-                Last updated: {new Date().toLocaleString()}
+              <div className="text-xs text-gray-400 bg-gray-800 px-3 py-2 rounded-lg border border-gray-600">
+                <span className="text-gray-500">Last updated:</span> {new Date().toLocaleString()}
               </div>
             </div>
           </TabsContent>
@@ -379,7 +426,7 @@ const PriceHistory = ({ funkoPopId, funkoPop, className }: PriceHistoryProps) =>
                   <div className="flex items-center justify-between">
                     <div>
                       <div className="text-lg font-bold text-green-400">
-                        ${priceData.highest_price.toFixed(2)}
+                        {formatCurrency(priceData.highest_price, currency)}
                       </div>
                       <div className="text-xs text-gray-400">All-Time High</div>
                     </div>
@@ -393,7 +440,7 @@ const PriceHistory = ({ funkoPopId, funkoPop, className }: PriceHistoryProps) =>
                   <div className="flex items-center justify-between">
                     <div>
                       <div className="text-lg font-bold text-red-400">
-                        ${priceData.lowest_price.toFixed(2)}
+                        {formatCurrency(priceData.lowest_price, currency)}
                       </div>
                       <div className="text-xs text-gray-400">All-Time Low</div>
                     </div>
@@ -407,7 +454,7 @@ const PriceHistory = ({ funkoPopId, funkoPop, className }: PriceHistoryProps) =>
                   <div className="flex items-center justify-between">
                     <div>
                       <div className="text-lg font-bold text-blue-400">
-                        ${priceData.average_price.toFixed(2)}
+                        {formatCurrency(priceData.average_price, currency)}
                       </div>
                       <div className="text-xs text-gray-400">Average Price</div>
                     </div>
@@ -456,7 +503,7 @@ const PriceHistory = ({ funkoPopId, funkoPop, className }: PriceHistoryProps) =>
                           <span className="text-gray-300">{count} data points</span>
                         </div>
                         <div className="text-orange-400 font-medium">
-                          ${avgPrice.toFixed(2)} avg
+                          {formatCurrency(avgPrice, currency)} avg
                         </div>
                       </div>
                     );
@@ -499,7 +546,7 @@ const PriceHistory = ({ funkoPopId, funkoPop, className }: PriceHistoryProps) =>
                   <div className="p-4 bg-purple-500/10 border border-purple-500/20 rounded-lg">
                     <h4 className="text-purple-300 font-medium mb-2">Value Assessment</h4>
                     <p className="text-gray-300 text-sm">
-                      Current price is {priceData.current_price > priceData.average_price ? 'above' : 'below'} the historical average of ${priceData.average_price.toFixed(2)}. 
+                      Current price is {priceData.current_price > priceData.average_price ? 'above' : 'below'} the historical average of {formatCurrency(priceData.average_price, currency)}. 
                       {priceData.current_price > priceData.average_price * 1.2 ? 
                         ' Consider waiting for a dip before buying.' :
                         priceData.current_price < priceData.average_price * 0.8 ?
@@ -535,7 +582,7 @@ const PriceHistory = ({ funkoPopId, funkoPop, className }: PriceHistoryProps) =>
                           {enhancedChartData.slice(-20).reverse().map((point, index) => (
                             <tr key={index} className="border-b border-gray-700/50">
                               <td className="text-gray-300 p-2 text-sm">{point.date}</td>
-                              <td className="text-orange-400 p-2 font-medium">${point.price.toFixed(2)}</td>
+                              <td className="text-orange-400 p-2 font-medium">{formatCurrency(point.price, currency)}</td>
                               <td className="text-gray-300 p-2 text-sm">{point.source}</td>
                               <td className="text-gray-300 p-2 text-sm">
                                 <Badge variant="outline" className="text-xs border-gray-600 text-gray-300">

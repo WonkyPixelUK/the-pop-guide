@@ -19,7 +19,7 @@ import { useWishlist } from "@/hooks/useWishlist";
 import { useAddToCollection } from "@/hooks/useFunkoPops";
 import { useCustomLists } from "@/hooks/useCustomLists";
 import { useToast } from '@/hooks/use-toast';
-import { useNavigate } from 'react-router-dom';
+import { useNavigate, Link } from 'react-router-dom';
 import PriceHistory from '@/components/PriceHistory';
 import { useCurrency } from '@/contexts/CurrencyContext';
 import { formatCurrency } from '@/utils/formatCurrency';
@@ -386,378 +386,329 @@ const DirectoryAll = () => {
   };
 
   // Card rendering
-  const renderCard = (pop, index) => {
-    const isWishlisted = wishlist.some((w) => w.funko_pop_id === pop.id);
-    const isOwned = pop.owned || ownedConfirmed;
-    const isExpanded = expandedPop?.id === pop.id;
-    const badges = getProductBadges(pop);
-
-    return (
-      <div key={pop.id}>
-        <Card 
-          className="bg-gray-800/70 border border-gray-700 rounded-lg p-3 flex flex-col items-center hover:shadow-lg transition cursor-pointer" 
-          onClick={() => handleExpandPop(pop)}
-        >
-      <div className="w-full aspect-square bg-gray-700 rounded-lg mb-2 flex items-center justify-center overflow-hidden">
-        {getPrimaryImageUrl(pop) ? (
-          <img src={getPrimaryImageUrl(pop)} alt={pop.name} className="w-full h-full object-contain" />
-        ) : (
-          <User className="w-16 h-16 text-orange-400 animate-pulse" />
-        )}
-      </div>
-      
-      {/* Product Badges */}
-      {badges.length > 0 && (
-        <div className="flex flex-wrap gap-1 mb-2 w-full justify-center">
-          {badges.slice(0, 2).map((badge, idx) => {
-            const IconComponent = badge.icon;
-            return (
-              <Badge key={idx} className={`text-xs ${badge.className}`}>
-                <IconComponent className="w-3 h-3 mr-1" />
-                {badge.text}
-              </Badge>
-            );
-          })}
-        </div>
-      )}
-      
-      <div className="font-semibold text-white text-center text-base mb-1 truncate w-full">{pop.name}</div>
-      <div className="text-xs text-gray-400 mb-1">Character: {pop.name}</div>
-      <div className="text-xs text-gray-400 mb-1">Series: {pop.series}</div>
-      <div className="text-xs text-gray-400 mb-1">{pop.series} {pop.number ? `#${pop.number}` : ''}</div>
-      <div className="text-xs text-gray-400 mb-1">{pop.fandom}</div>
-      <div className="text-xs text-gray-400 mb-1">{pop.genre}</div>
-      <div className="text-xs text-gray-400 mb-1">{pop.edition}</div>
-      <div className="text-xs text-gray-400 mb-1">{pop.created_at ? new Date(pop.created_at).getFullYear() : '—'}{pop.is_vaulted ? ' • Vaulted' : ''}</div>
-      <div className="text-xs text-orange-400 font-bold mb-2">
-        {getUserPurchasePrice(pop.id) ? (
-          <>
-            {formatCurrency(getUserPurchasePrice(pop.id), currency)} <span className="text-gray-400">(Your Price)</span>
-          </>
-        ) : (
-          typeof pop.estimated_value === 'number' ? formatCurrency(pop.estimated_value, currency) : 'Pending'
-        )}
-      </div>
-      {pop.description && <div className="text-xs text-gray-300 mb-2 line-clamp-3">{pop.description}</div>}
-          
-          <div className="flex items-center text-gray-400 text-xs mt-auto">
-            {isExpanded ? <ChevronUp className="w-4 h-4" /> : <ChevronDown className="w-4 h-4" />}
-            <span className="ml-1">{isExpanded ? 'Hide Details' : 'Show Details'}</span>
-          </div>
-        </Card>
-
-        {/* Expanded Details */}
-        {isExpanded && (
-          <Card className="bg-gray-800 border border-gray-700 rounded-lg p-6 mt-4 mb-6">
-            <div className="flex flex-col lg:flex-row gap-8">
-              {/* Left Side - Large Image and Buttons */}
-              <div className="lg:w-96 lg:flex-shrink-0">
-                <div className="aspect-square bg-gray-700 rounded-lg border border-gray-600 overflow-hidden mb-6">
-                  {getPrimaryImageUrl(pop) ? (
-                    <img src={getPrimaryImageUrl(pop)} alt={pop.name} className="w-full h-full object-contain" />
-                  ) : (
-                    <div className="w-full h-full flex flex-col items-center justify-center text-gray-400">
-                      <div className="text-6xl mb-4">📦</div>
-                      <div className="text-lg">No Image Available</div>
-                    </div>
-                  )}
-                </div>
-                
-                {/* Action Buttons */}
-                <div className="space-y-3">
-                  <Button
-                    variant={pop.owned || ownedConfirmed ? 'default' : 'outline'}
-                    className={
-                      pop.owned || ownedConfirmed
-                        ? ownedConfirmed 
-                          ? 'bg-green-600 text-white hover:bg-green-700 animate-pulse w-full h-12 text-base' 
-                          : 'bg-green-600 text-white hover:bg-green-700 w-full h-12 text-base'
-                        : addingToCollection 
-                        ? 'border-orange-600 bg-orange-50 text-orange-600 hover:bg-orange-100 w-full h-12 text-base' 
-                        : 'border-gray-600 hover:bg-gray-600 w-full h-12 text-base'
-                    }
-                    onClick={(e) => {
-                      e.stopPropagation();
-                      handleAddToCollection(pop);
-                    }}
-                    disabled={pop.owned || ownedConfirmed || addingToCollection}
-                  >
-                    {addingToCollection ? (
-                      <>
-                        <Loader2 className="w-4 h-4 mr-2 animate-spin" />
-                        Adding...
-                      </>
-                    ) : (pop.owned || ownedConfirmed) ? (
-                      <>
-                        <CheckCircle className="w-4 h-4 mr-2" />
-                        {ownedConfirmed ? 'Added!' : 'Owned'}
-                      </>
-                    ) : (
-                      <>
-                        <Plus className="w-4 h-4 mr-2" />
-                        Own this Pop
-                      </>
-                    )}
-                  </Button>
-                  
-                  <Button 
-                    variant={wishlist.some((w) => w.funko_pop_id === pop.id) ? 'default' : 'outline'}
-                    className={`w-full h-12 text-base ${wishlist.some((w) => w.funko_pop_id === pop.id) ? 'bg-red-600 hover:bg-red-700' : 'border-red-600 text-red-400 hover:bg-red-600'}`}
-                    onClick={(e) => {
-                      e.stopPropagation();
-                      handleWishlist(pop);
-                    }}
-                  >
-                    <Heart className={`w-4 h-4 mr-2 ${wishlist.some((w) => w.funko_pop_id === pop.id) ? 'fill-current' : ''}`} />
-                    {wishlist.some((w) => w.funko_pop_id === pop.id) ? 'Remove from Wishlist' : 'Add to Wishlist'}
-                  </Button>
-
-                  <Button 
-                    variant="outline" 
-                    className="border-purple-600 text-purple-400 hover:bg-purple-600 w-full h-12 text-base"
-                    onClick={(e) => {
-                      e.stopPropagation();
-                      handleAddToList(pop);
-                    }}
-                  >
-                    <List className="w-4 h-4 mr-2" />
-                    Add to List
-                  </Button>
-                  
-                  <Button 
-                    variant="outline" 
-                    className="border-blue-600 text-blue-400 hover:bg-blue-600 w-full h-12 text-base"
-                    onClick={(e) => {
-                      e.stopPropagation();
-                      handleShare(pop);
-                    }}
-                  >
-                    <Share2 className="w-4 h-4 mr-2" />
-                    Share
-                  </Button>
-                </div>
+  const renderCard = (pop, index) => (
+    <Card className="bg-gray-800 border border-gray-700 rounded-lg p-6 mt-4 mb-6">
+      <div className="flex flex-col lg:flex-row gap-8">
+        {/* Left Side - Large Image and Buttons */}
+        <div className="lg:w-96 lg:flex-shrink-0">
+          <div className="aspect-square bg-gray-700 rounded-lg border border-gray-600 overflow-hidden mb-6">
+            {getPrimaryImageUrl(pop) ? (
+              <img src={getPrimaryImageUrl(pop)} alt={pop.name} className="w-full h-full object-contain" />
+            ) : (
+              <div className="w-full h-full flex flex-col items-center justify-center text-gray-400">
+                <div className="text-6xl mb-4">📦</div>
+                <div className="text-lg">No Image Available</div>
               </div>
+            )}
+          </div>
+          
+          {/* Action Buttons */}
+          <div className="grid grid-cols-2 gap-2">
+            <Button
+              variant={pop.owned || ownedConfirmed ? 'default' : 'outline'}
+              className={
+                pop.owned || ownedConfirmed
+                  ? ownedConfirmed 
+                    ? 'bg-gradient-to-r from-green-500 to-green-600 text-white hover:from-green-600 hover:to-green-700 hover:text-white shadow-md shadow-green-500/20 border-0 h-9 text-sm font-medium transition-all duration-200 hover:shadow-lg' 
+                    : 'bg-gradient-to-r from-green-500 to-green-600 text-white hover:from-green-600 hover:to-green-700 hover:text-white shadow-md shadow-green-500/20 border-0 h-9 text-sm font-medium'
+                  : addingToCollection 
+                  ? 'bg-gradient-to-r from-orange-500 to-orange-600 text-white hover:text-white shadow-md shadow-orange-500/20 border-0 h-9 text-sm font-medium' 
+                  : 'bg-gradient-to-r from-orange-500 to-orange-600 hover:from-orange-600 hover:to-orange-700 text-white hover:text-white shadow-md shadow-orange-500/20 border-0 h-9 text-sm font-medium transition-all duration-200 hover:shadow-lg'
+              }
+              onClick={(e) => {
+                e.stopPropagation();
+                handleAddToCollection(pop);
+              }}
+              disabled={pop.owned || ownedConfirmed || addingToCollection}
+            >
+              {addingToCollection ? (
+                <>
+                  <Loader2 className="w-4 h-4 mr-1.5 animate-spin" />
+                  Adding...
+                </>
+              ) : (pop.owned || ownedConfirmed) ? (
+                <>
+                  <CheckCircle className="w-4 h-4 mr-1.5" />
+                  {ownedConfirmed ? 'Added!' : 'Owned'}
+                </>
+              ) : (
+                <>
+                  <Plus className="w-4 h-4 mr-1.5" />
+                  Own this Pop
+                </>
+              )}
+            </Button>
+            
+            <Button 
+              variant="outline"
+              className={`h-9 text-sm font-medium transition-all duration-200 ${
+                wishlist.some((w) => w.funko_pop_id === pop.id) 
+                  ? 'bg-gradient-to-r from-red-500 to-red-600 hover:from-red-600 hover:to-red-700 text-white shadow-md shadow-red-500/20 border-0 hover:shadow-lg' 
+                  : 'border border-red-500/50 text-red-400 hover:bg-red-500 hover:text-white hover:border-red-500 hover:shadow-md hover:shadow-red-500/20 bg-red-500/5'
+              }`}
+              onClick={(e) => {
+                e.stopPropagation();
+                handleWishlist(pop);
+              }}
+            >
+              <Heart className={`w-4 h-4 mr-1.5 ${wishlist.some((w) => w.funko_pop_id === pop.id) ? 'fill-current' : ''}`} />
+              {wishlist.some((w) => w.funko_pop_id === pop.id) ? 'Remove from Wishlist' : 'Add to Wishlist'}
+            </Button>
 
-              {/* Right Side - Details */}
-              <div className="flex-1 min-w-0">
-                <h3 className="text-2xl font-bold text-white mb-6">{pop.name}</h3>
-                <p className="text-gray-400 text-lg mb-6">{pop.series}</p>
-                
-                {/* Basic Info Cards */}
-                <div className="grid grid-cols-2 md:grid-cols-3 gap-4 mb-6">
-                  <div className="bg-gray-700 p-4 rounded-lg border border-gray-600">
-                    <div className="text-sm text-gray-400 mb-1 flex items-center">
-                      <span className="mr-2">
-                        {pop.category === 'Bitty Pop!' ? '🧸' : 
-                         pop.category === 'Vinyl Soda' ? '🥤' : 
-                         pop.category === 'Loungefly' ? '🎒' :
-                         pop.category === 'Mini Figures' ? '🔗' :
-                         pop.category === 'REWIND' ? '📼' :
-                         pop.category === 'Pop! Pins' ? '📌' :
-                         '📦'}
-                      </span>
-                      Category
-                    </div>
-                    <div className="font-semibold text-white text-lg">{pop.category || 'Pop!'}</div>
-                  </div>
-                  
-                  <div className="bg-gray-700 p-4 rounded-lg border border-gray-600">
-                    <div className="text-sm text-gray-400 mb-1 flex items-center">
-                      <span className="mr-2">📈</span>
-                      Number
-                    </div>
-                    <div className="font-semibold text-white text-lg">{pop.number || '—'}</div>
-                  </div>
-                  
-                  <div className="bg-gray-700 p-4 rounded-lg border border-gray-600">
-                    <div className="text-sm text-gray-400 mb-1 flex items-center">
-                      <span className="mr-2">💎</span>
-                      {getUserPurchasePrice(pop.id) ? 'Your Purchase Price' : 'Estimated Value'}
-                    </div>
-                    <div className="font-semibold text-white text-lg">
-                      {getUserPurchasePrice(pop.id) ? formatCurrency(getUserPurchasePrice(pop.id), currency) : (pop.estimated_value ? formatCurrency(pop.estimated_value, currency) : '—')}
-                    </div>
-                    {getUserPurchasePrice(pop.id) && (
-                      <div className="text-xs text-blue-400 mt-1">
-                        Market pricing updates within 5 working days
-                      </div>
-                    )}
-                  </div>
-                  
-                  <div className="bg-gray-700 p-4 rounded-lg border border-gray-600">
-                    <div className="text-sm text-gray-400 mb-1 flex items-center">
-                      <span className="mr-2">🎬</span>
-                      Fandom
-                    </div>
-                    <div className="font-semibold text-white text-lg">{pop.fandom || pop.series || '—'}</div>
-                  </div>
-                  
-                  <div className="bg-gray-700 p-4 rounded-lg border border-gray-600">
-                    <div className="text-sm text-gray-400 mb-1 flex items-center">
-                      <span className="mr-2">🎭</span>
-                      Genre
-                    </div>
-                    <div className="font-semibold text-white text-lg">{pop.genre || '—'}</div>
-                  </div>
-                  
-                  <div className="bg-gray-700 p-4 rounded-lg border border-gray-600">
-                    <div className="text-sm text-gray-400 mb-1 flex items-center">
-                      <span className="mr-2">🏷️</span>
-                      Edition
-                    </div>
-                    <div className="font-semibold text-white text-lg">{pop.edition || (pop.is_exclusive ? pop.exclusive_to || 'Exclusive' : '—')}</div>
-                  </div>
-                  
-                  <div className="bg-gray-700 p-4 rounded-lg border border-gray-600">
-                    <div className="text-sm text-gray-400 mb-1 flex items-center">
-                      <span className="mr-2">🗓️</span>
-                      Release Year
-                    </div>
-                    <div className="font-semibold text-white text-lg">{pop.created_at ? new Date(pop.created_at).getFullYear() : '—'}</div>
-                  </div>
-                  
-                  <div className="bg-gray-700 p-4 rounded-lg border border-gray-600">
-                    <div className="text-sm text-gray-400 mb-1 flex items-center">
-                      <span className="mr-2">🔒</span>
-                      Vaulted
-                    </div>
-                    <div className="font-semibold text-white text-lg">{pop.is_vaulted ? 'Yes' : 'No'}</div>
-                  </div>
-                  
-                  <div className="bg-gray-700 p-4 rounded-lg border border-gray-600">
-                    <div className="text-sm text-gray-400 mb-1 flex items-center">
-                      <span className="mr-2">👤</span>
-                      Owned
-                    </div>
-                    <div className={`font-semibold text-lg ${(pop.owned || ownedConfirmed) ? 'text-green-400' : 'text-white'}`}>
-                      {(pop.owned || ownedConfirmed) ? (ownedConfirmed ? '✅ Yes (Just Added!)' : '✅ Yes') : 'No'}
-                    </div>
-                  </div>
+            <Button 
+              variant="outline" 
+              className="border border-purple-500/50 text-purple-400 hover:bg-purple-500 hover:text-white hover:border-purple-500 hover:shadow-md hover:shadow-purple-500/20 h-9 text-sm font-medium transition-all duration-200 bg-purple-500/5"
+              onClick={(e) => {
+                e.stopPropagation();
+                handleAddToList(pop);
+              }}
+            >
+              <List className="w-4 h-4 mr-1.5" />
+              Add to List
+            </Button>
+            
+            <Button 
+              variant="outline" 
+              className="border border-blue-500/50 text-blue-400 hover:bg-blue-500 hover:text-white hover:border-blue-500 hover:shadow-md hover:shadow-blue-500/20 h-9 text-sm font-medium transition-all duration-200 bg-blue-500/5"
+              onClick={(e) => {
+                e.stopPropagation();
+                handleShare(pop);
+              }}
+            >
+              <Share2 className="w-4 h-4 mr-1.5" />
+              Share
+            </Button>
+
+            {/* View Full Details Button - spans both columns */}
+            <Button 
+              asChild
+              className="bg-gradient-to-r from-orange-500 to-orange-600 hover:from-orange-600 hover:to-orange-700 text-white col-span-2 h-9 text-sm font-medium transition-all duration-200 hover:shadow-lg hover:shadow-orange-500/20 border-0"
+            >
+              <Link to={`/pop/${pop.id}`} className="flex items-center justify-center">
+                <Search className="w-4 h-4 mr-1.5" />
+                View Full Details
+              </Link>
+            </Button>
+          </div>
+        </div>
+
+        {/* Right Side - Details */}
+        <div className="flex-1 min-w-0">
+          <h3 className="text-2xl font-bold text-white mb-6">{pop.name}</h3>
+          <p className="text-gray-400 text-lg mb-6">{pop.series}</p>
+          
+          {/* Basic Info Cards */}
+          <div className="grid grid-cols-2 md:grid-cols-3 gap-4 mb-6">
+            <div className="bg-gray-700 p-4 rounded-lg border border-gray-600">
+              <div className="text-sm text-gray-400 mb-1 flex items-center">
+                <span className="mr-2">
+                  {pop.category === 'Bitty Pop!' ? '🧸' : 
+                   pop.category === 'Vinyl Soda' ? '🥤' : 
+                   pop.category === 'Loungefly' ? '🎒' :
+                   pop.category === 'Mini Figures' ? '🔗' :
+                   pop.category === 'REWIND' ? '📼' :
+                   pop.category === 'Pop! Pins' ? '📌' :
+                   '📦'}
+                </span>
+                Category
+              </div>
+              <div className="font-semibold text-white text-lg">{pop.category || 'Pop!'}</div>
+            </div>
+            
+            <div className="bg-gray-700 p-4 rounded-lg border border-gray-600">
+              <div className="text-sm text-gray-400 mb-1 flex items-center">
+                <span className="mr-2">📈</span>
+                Number
+              </div>
+              <div className="font-semibold text-white text-lg">{pop.number || '—'}</div>
+            </div>
+            
+            <div className="bg-gray-700 p-4 rounded-lg border border-gray-600">
+              <div className="text-sm text-gray-400 mb-1 flex items-center">
+                <span className="mr-2">💎</span>
+                {getUserPurchasePrice(pop.id) ? 'Your Purchase Price' : 'Estimated Value'}
+              </div>
+              <div className="font-semibold text-white text-lg">
+                {getUserPurchasePrice(pop.id) ? formatCurrency(getUserPurchasePrice(pop.id), currency) : (pop.estimated_value ? formatCurrency(pop.estimated_value, currency) : '—')}
+              </div>
+              {getUserPurchasePrice(pop.id) && (
+                <div className="text-xs text-blue-400 mt-1">
+                  Market pricing updates within 5 working days
                 </div>
-
-                {/* Product Details - New Fields in Compact Format */}
-                {(pop.upc || pop.upc_a || pop.ean_13 || pop.amazon_asin || pop.country_of_registration || pop.brand || pop.model_number || pop.size || pop.color || pop.weight || pop.product_dimensions) && (
-                  <div className="bg-gray-700/50 p-4 rounded-lg border border-gray-600 mb-6">
-                    <h4 className="font-semibold mb-3 text-white text-lg">Product Details</h4>
-                    <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-3 text-sm">
-                      {pop.upc && (
-                        <div className="flex flex-col">
-                          <span className="text-gray-400 text-xs mb-1">UPC</span>
-                          <span className="text-white font-medium">{pop.upc}</span>
-                        </div>
-                      )}
-                      {pop.upc_a && (
-                        <div className="flex flex-col">
-                          <span className="text-gray-400 text-xs mb-1">UPC-A</span>
-                          <span className="text-white font-medium">{pop.upc_a}</span>
-                        </div>
-                      )}
-                      {pop.ean_13 && (
-                        <div className="flex flex-col">
-                          <span className="text-gray-400 text-xs mb-1">EAN-13</span>
-                          <span className="text-white font-medium">{pop.ean_13}</span>
-                        </div>
-                      )}
-                      {pop.amazon_asin && (
-                        <div className="flex flex-col">
-                          <span className="text-gray-400 text-xs mb-1">Amazon ASIN</span>
-                          <span className="text-white font-medium">{pop.amazon_asin}</span>
-                        </div>
-                      )}
-                      {pop.country_of_registration && (
-                        <div className="flex flex-col">
-                          <span className="text-gray-400 text-xs mb-1">Country</span>
-                          <span className="text-white font-medium">{pop.country_of_registration}</span>
-                        </div>
-                      )}
-                      {pop.brand && (
-                        <div className="flex flex-col">
-                          <span className="text-gray-400 text-xs mb-1">Brand</span>
-                          <span className="text-white font-medium">{pop.brand}</span>
-                        </div>
-                      )}
-                      {pop.model_number && (
-                        <div className="flex flex-col">
-                          <span className="text-gray-400 text-xs mb-1">Model #</span>
-                          <span className="text-white font-medium">{pop.model_number}</span>
-                        </div>
-                      )}
-                      {pop.size && (
-                        <div className="flex flex-col">
-                          <span className="text-gray-400 text-xs mb-1">Size</span>
-                          <span className="text-white font-medium">{pop.size}</span>
-                        </div>
-                      )}
-                      {pop.color && (
-                        <div className="flex flex-col">
-                          <span className="text-gray-400 text-xs mb-1">Color</span>
-                          <span className="text-white font-medium">{pop.color}</span>
-                        </div>
-                      )}
-                      {pop.weight && (
-                        <div className="flex flex-col">
-                          <span className="text-gray-400 text-xs mb-1">Weight</span>
-                          <span className="text-white font-medium">{pop.weight}</span>
-                        </div>
-                      )}
-                      {pop.product_dimensions && (
-                        <div className="flex flex-col">
-                          <span className="text-gray-400 text-xs mb-1">Dimensions</span>
-                          <span className="text-white font-medium">{pop.product_dimensions}</span>
-                        </div>
-                      )}
-                    </div>
-                  </div>
-                )}
-
-                {/* Additional Details */}
-                {(pop.variant || pop.is_exclusive || pop.is_chase) && (
-                  <div className="bg-gray-700 p-4 rounded-lg border border-gray-600 mb-6">
-                    <h4 className="font-semibold mb-3 text-white text-lg">Additional Details</h4>
-                    <div className="space-y-2 text-sm">
-                      {pop.variant && (
-                        <div className="flex justify-between">
-                          <span className="text-gray-400">Variant:</span>
-                          <span className="text-white">{pop.variant}</span>
-                        </div>
-                      )}
-                      {pop.is_exclusive && (
-                        <div className="flex justify-between">
-                          <span className="text-gray-400">Exclusive to:</span>
-                          <span className="text-white">{pop.exclusive_to || 'Yes'}</span>
-                        </div>
-                      )}
-                      {pop.is_chase && (
-                        <div className="flex justify-between">
-                          <span className="text-gray-400">Chase:</span>
-                          <span className="text-yellow-400">Yes</span>
-                        </div>
-                      )}
-                    </div>
-                  </div>
-                )}
-
-                {/* Price History */}
-                <div className="border-t border-gray-600 pt-6">
-                  <PriceHistory 
-                    funkoPopId={pop.id} 
-                    funkoPop={{
-                      id: pop.id,
-                      name: pop.name,
-                      series: pop.series,
-                      number: pop.number,
-                      image_url: getPrimaryImageUrl(pop),
-                      estimated_value: getUserPurchasePrice(pop.id) || pop.estimated_value
-                    }}
-                  />
-                </div>
+              )}
+            </div>
+            
+            <div className="bg-gray-700 p-4 rounded-lg border border-gray-600">
+              <div className="text-sm text-gray-400 mb-1 flex items-center">
+                <span className="mr-2">🎬</span>
+                Fandom
+              </div>
+              <div className="font-semibold text-white text-lg">{pop.fandom || pop.series || '—'}</div>
+            </div>
+            
+            <div className="bg-gray-700 p-4 rounded-lg border border-gray-600">
+              <div className="text-sm text-gray-400 mb-1 flex items-center">
+                <span className="mr-2">🎭</span>
+                Genre
+              </div>
+              <div className="font-semibold text-white text-lg">{pop.genre || '—'}</div>
+            </div>
+            
+            <div className="bg-gray-700 p-4 rounded-lg border border-gray-600">
+              <div className="text-sm text-gray-400 mb-1 flex items-center">
+                <span className="mr-2">🏷️</span>
+                Edition
+              </div>
+              <div className="font-semibold text-white text-lg">{pop.edition || (pop.is_exclusive ? pop.exclusive_to || 'Exclusive' : '—')}</div>
+            </div>
+            
+            <div className="bg-gray-700 p-4 rounded-lg border border-gray-600">
+              <div className="text-sm text-gray-400 mb-1 flex items-center">
+                <span className="mr-2">🗓️</span>
+                Release Year
+              </div>
+              <div className="font-semibold text-white text-lg">{pop.created_at ? new Date(pop.created_at).getFullYear() : '—'}</div>
+            </div>
+            
+            <div className="bg-gray-700 p-4 rounded-lg border border-gray-600">
+              <div className="text-sm text-gray-400 mb-1 flex items-center">
+                <span className="mr-2">🔒</span>
+                Vaulted
+              </div>
+              <div className="font-semibold text-white text-lg">{pop.is_vaulted ? 'Yes' : 'No'}</div>
+            </div>
+            
+            <div className="bg-gray-700 p-4 rounded-lg border border-gray-600">
+              <div className="text-sm text-gray-400 mb-1 flex items-center">
+                <span className="mr-2">👤</span>
+                Owned
+              </div>
+              <div className={`font-semibold text-lg ${(pop.owned || ownedConfirmed) ? 'text-green-400' : 'text-white'}`}>
+                {(pop.owned || ownedConfirmed) ? (ownedConfirmed ? '✅ Yes (Just Added!)' : '✅ Yes') : 'No'}
               </div>
             </div>
-    </Card>
-        )}
+          </div>
+
+          {/* Product Details - New Fields in Compact Format */}
+          {(pop.upc || pop.upc_a || pop.ean_13 || pop.amazon_asin || pop.country_of_registration || pop.brand || pop.model_number || pop.size || pop.color || pop.weight || pop.product_dimensions) && (
+            <div className="bg-gray-700/50 p-4 rounded-lg border border-gray-600 mb-6">
+              <h4 className="font-semibold mb-3 text-white text-lg">Product Details</h4>
+              <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-3 text-sm">
+                {pop.upc && (
+                  <div className="flex flex-col">
+                    <span className="text-gray-400 text-xs mb-1">UPC</span>
+                    <span className="text-white font-medium">{pop.upc}</span>
+                  </div>
+                )}
+                {pop.upc_a && (
+                  <div className="flex flex-col">
+                    <span className="text-gray-400 text-xs mb-1">UPC-A</span>
+                    <span className="text-white font-medium">{pop.upc_a}</span>
+                  </div>
+                )}
+                {pop.ean_13 && (
+                  <div className="flex flex-col">
+                    <span className="text-gray-400 text-xs mb-1">EAN-13</span>
+                    <span className="text-white font-medium">{pop.ean_13}</span>
+                  </div>
+                )}
+                {pop.amazon_asin && (
+                  <div className="flex flex-col">
+                    <span className="text-gray-400 text-xs mb-1">Amazon ASIN</span>
+                    <span className="text-white font-medium">{pop.amazon_asin}</span>
+                  </div>
+                )}
+                {pop.country_of_registration && (
+                  <div className="flex flex-col">
+                    <span className="text-gray-400 text-xs mb-1">Country</span>
+                    <span className="text-white font-medium">{pop.country_of_registration}</span>
+                  </div>
+                )}
+                {pop.brand && (
+                  <div className="flex flex-col">
+                    <span className="text-gray-400 text-xs mb-1">Brand</span>
+                    <span className="text-white font-medium">{pop.brand}</span>
+                  </div>
+                )}
+                {pop.model_number && (
+                  <div className="flex flex-col">
+                    <span className="text-gray-400 text-xs mb-1">Model #</span>
+                    <span className="text-white font-medium">{pop.model_number}</span>
+                  </div>
+                )}
+                {pop.size && (
+                  <div className="flex flex-col">
+                    <span className="text-gray-400 text-xs mb-1">Size</span>
+                    <span className="text-white font-medium">{pop.size}</span>
+                  </div>
+                )}
+                {pop.color && (
+                  <div className="flex flex-col">
+                    <span className="text-gray-400 text-xs mb-1">Color</span>
+                    <span className="text-white font-medium">{pop.color}</span>
+                  </div>
+                )}
+                {pop.weight && (
+                  <div className="flex flex-col">
+                    <span className="text-gray-400 text-xs mb-1">Weight</span>
+                    <span className="text-white font-medium">{pop.weight}</span>
+                  </div>
+                )}
+                {pop.product_dimensions && (
+                  <div className="flex flex-col">
+                    <span className="text-gray-400 text-xs mb-1">Dimensions</span>
+                    <span className="text-white font-medium">{pop.product_dimensions}</span>
+                  </div>
+                )}
+              </div>
+            </div>
+          )}
+
+          {/* Additional Details */}
+          {(pop.variant || pop.is_exclusive || pop.is_chase) && (
+            <div className="bg-gray-700 p-4 rounded-lg border border-gray-600 mb-6">
+              <h4 className="font-semibold mb-3 text-white text-lg">Additional Details</h4>
+              <div className="space-y-2 text-sm">
+                {pop.variant && (
+                  <div className="flex justify-between">
+                    <span className="text-gray-400">Variant:</span>
+                    <span className="text-white">{pop.variant}</span>
+                  </div>
+                )}
+                {pop.is_exclusive && (
+                  <div className="flex justify-between">
+                    <span className="text-gray-400">Exclusive to:</span>
+                    <span className="text-white">{pop.exclusive_to || 'Yes'}</span>
+                  </div>
+                )}
+                {pop.is_chase && (
+                  <div className="flex justify-between">
+                    <span className="text-gray-400">Chase:</span>
+                    <span className="text-yellow-400">Yes</span>
+                  </div>
+                )}
+              </div>
+            </div>
+          )}
+
+          {/* Price History */}
+          <div className="border-t border-gray-600 pt-6">
+            <PriceHistory 
+              funkoPopId={pop.id} 
+              funkoPop={{
+                id: pop.id,
+                name: pop.name,
+                series: pop.series,
+                number: pop.number,
+                image_url: getPrimaryImageUrl(pop),
+                estimated_value: getUserPurchasePrice(pop.id) || pop.estimated_value
+              }}
+            />
+          </div>
+        </div>
       </div>
+    </Card>
   );
-  };
 
   // Filter UI
   const renderFilterSection = () => (
@@ -910,6 +861,7 @@ const DirectoryAll = () => {
               <div className="text-gray-300">Loading...</div>
             ) : (
               <div className="space-y-6">
+                {/* Expanded items rendered first */}
                 {filteredPops.slice(0, visibleCount).map((pop, index) => {
                   const isExpanded = expandedPop?.id === pop.id;
                   
@@ -941,322 +893,17 @@ const DirectoryAll = () => {
                         </Card>
 
                         {/* Full width expanded details */}
-                        <Card className="bg-gray-800 border border-gray-700 rounded-lg p-6 mb-8">
-                          <div className="flex flex-col lg:flex-row gap-8">
-                            {/* Left Side - Large Image and Buttons */}
-                            <div className="lg:w-96 lg:flex-shrink-0">
-                              <div className="aspect-square bg-gray-700 rounded-lg border border-gray-600 overflow-hidden mb-6">
-                                {getPrimaryImageUrl(pop) ? (
-                                  <img src={getPrimaryImageUrl(pop)} alt={pop.name} className="w-full h-full object-contain" />
-                                ) : (
-                                  <div className="w-full h-full flex flex-col items-center justify-center text-gray-400">
-                                    <div className="text-6xl mb-4">📦</div>
-                                    <div className="text-lg">No Image Available</div>
-                                  </div>
-                                )}
-                              </div>
-                              
-                              {/* Action Buttons */}
-                              <div className="space-y-3">
-                                <Button
-                                  variant={pop.owned || ownedConfirmed ? 'default' : 'outline'}
-                                  className={
-                                    pop.owned || ownedConfirmed
-                                      ? ownedConfirmed 
-                                        ? 'bg-green-600 text-white hover:bg-green-700 animate-pulse w-full h-12 text-base' 
-                                        : 'bg-green-600 text-white hover:bg-green-700 w-full h-12 text-base'
-                                      : addingToCollection 
-                                      ? 'border-orange-600 bg-orange-50 text-orange-600 hover:bg-orange-100 w-full h-12 text-base' 
-                                      : 'border-gray-600 hover:bg-gray-600 w-full h-12 text-base'
-                                  }
-                                  onClick={(e) => {
-                                    e.stopPropagation();
-                                    handleAddToCollection(pop);
-                                  }}
-                                  disabled={pop.owned || ownedConfirmed || addingToCollection}
-                                >
-                                  {addingToCollection ? (
-                                    <>
-                                      <Loader2 className="w-4 h-4 mr-2 animate-spin" />
-                                      Adding...
-                                    </>
-                                  ) : (pop.owned || ownedConfirmed) ? (
-                                    <>
-                                      <CheckCircle className="w-4 h-4 mr-2" />
-                                      {ownedConfirmed ? 'Added!' : 'Owned'}
-                                    </>
-                                  ) : (
-                                    <>
-                                      <Plus className="w-4 h-4 mr-2" />
-                                      Own this Pop
-                                    </>
-                                  )}
-                                </Button>
-                                
-                                <Button 
-                                  variant={wishlist.some((w) => w.funko_pop_id === pop.id) ? 'default' : 'outline'}
-                                  className={`w-full h-12 text-base ${wishlist.some((w) => w.funko_pop_id === pop.id) ? 'bg-red-600 hover:bg-red-700' : 'border-red-600 text-red-400 hover:bg-red-600'}`}
-                                  onClick={(e) => {
-                                    e.stopPropagation();
-                                    handleWishlist(pop);
-                                  }}
-                                >
-                                  <Heart className={`w-4 h-4 mr-2 ${wishlist.some((w) => w.funko_pop_id === pop.id) ? 'fill-current' : ''}`} />
-                                  {wishlist.some((w) => w.funko_pop_id === pop.id) ? 'Remove from Wishlist' : 'Add to Wishlist'}
-                                </Button>
-
-                                <Button 
-                                  variant="outline" 
-                                  className="border-purple-600 text-purple-400 hover:bg-purple-600 w-full h-12 text-base"
-                                  onClick={(e) => {
-                                    e.stopPropagation();
-                                    handleAddToList(pop);
-                                  }}
-                                >
-                                  <List className="w-4 h-4 mr-2" />
-                                  Add to List
-                                </Button>
-                                
-                                <Button 
-                                  variant="outline" 
-                                  className="border-blue-600 text-blue-400 hover:bg-blue-600 w-full h-12 text-base"
-                                  onClick={(e) => {
-                                    e.stopPropagation();
-                                    handleShare(pop);
-                                  }}
-                                >
-                                  <Share2 className="w-4 h-4 mr-2" />
-                                  Share
-                                </Button>
-                              </div>
-                            </div>
-
-                            {/* Right Side - Details */}
-                            <div className="flex-1 min-w-0">
-                              <h3 className="text-2xl font-bold text-white mb-6">{pop.name}</h3>
-                              <p className="text-gray-400 text-lg mb-6">{pop.series}</p>
-                              
-                              {/* Basic Info Cards */}
-                              <div className="grid grid-cols-2 md:grid-cols-3 gap-4 mb-6">
-                                <div className="bg-gray-700 p-4 rounded-lg border border-gray-600">
-                                  <div className="text-sm text-gray-400 mb-1 flex items-center">
-                                    <span className="mr-2">
-                                      {pop.category === 'Bitty Pop!' ? '🧸' : 
-                                       pop.category === 'Vinyl Soda' ? '🥤' : 
-                                       pop.category === 'Loungefly' ? '🎒' :
-                                       pop.category === 'Mini Figures' ? '🔗' :
-                                       pop.category === 'REWIND' ? '📼' :
-                                       pop.category === 'Pop! Pins' ? '📌' :
-                                       '📦'}
-                                    </span>
-                                    Category
-                                  </div>
-                                  <div className="font-semibold text-white text-lg">{pop.category || 'Pop!'}</div>
-                                </div>
-                                
-                                <div className="bg-gray-700 p-4 rounded-lg border border-gray-600">
-                                  <div className="text-sm text-gray-400 mb-1 flex items-center">
-                                    <span className="mr-2">📈</span>
-                                    Number
-                                  </div>
-                                  <div className="font-semibold text-white text-lg">{pop.number || '—'}</div>
-                                </div>
-                                
-                                <div className="bg-gray-700 p-4 rounded-lg border border-gray-600">
-                                  <div className="text-sm text-gray-400 mb-1 flex items-center">
-                                    <span className="mr-2">💎</span>
-                                    {getUserPurchasePrice(pop.id) ? 'Your Purchase Price' : 'Estimated Value'}
-                                  </div>
-                                  <div className="font-semibold text-white text-lg">
-                                    {getUserPurchasePrice(pop.id) ? formatCurrency(getUserPurchasePrice(pop.id), currency) : (pop.estimated_value ? formatCurrency(pop.estimated_value, currency) : '—')}
-                                  </div>
-                                  {getUserPurchasePrice(pop.id) && (
-                                    <div className="text-xs text-blue-400 mt-1">
-                                      Market pricing updates within 5 working days
-                                    </div>
-                                  )}
-                                </div>
-                                
-                                <div className="bg-gray-700 p-4 rounded-lg border border-gray-600">
-                                  <div className="text-sm text-gray-400 mb-1 flex items-center">
-                                    <span className="mr-2">🎬</span>
-                                    Fandom
-                                  </div>
-                                  <div className="font-semibold text-white text-lg">{pop.fandom || pop.series || '—'}</div>
-                                </div>
-                                
-                                <div className="bg-gray-700 p-4 rounded-lg border border-gray-600">
-                                  <div className="text-sm text-gray-400 mb-1 flex items-center">
-                                    <span className="mr-2">🎭</span>
-                                    Genre
-                                  </div>
-                                  <div className="font-semibold text-white text-lg">{pop.genre || '—'}</div>
-                                </div>
-                                
-                                <div className="bg-gray-700 p-4 rounded-lg border border-gray-600">
-                                  <div className="text-sm text-gray-400 mb-1 flex items-center">
-                                    <span className="mr-2">🏷️</span>
-                                    Edition
-                                  </div>
-                                  <div className="font-semibold text-white text-lg">{pop.edition || (pop.is_exclusive ? pop.exclusive_to || 'Exclusive' : '—')}</div>
-                                </div>
-                                
-                                <div className="bg-gray-700 p-4 rounded-lg border border-gray-600">
-                                  <div className="text-sm text-gray-400 mb-1 flex items-center">
-                                    <span className="mr-2">🗓️</span>
-                                    Release Year
-                                  </div>
-                                  <div className="font-semibold text-white text-lg">{pop.created_at ? new Date(pop.created_at).getFullYear() : '—'}</div>
-                                </div>
-                                
-                                <div className="bg-gray-700 p-4 rounded-lg border border-gray-600">
-                                  <div className="text-sm text-gray-400 mb-1 flex items-center">
-                                    <span className="mr-2">🔒</span>
-                                    Vaulted
-                                  </div>
-                                  <div className="font-semibold text-white text-lg">{pop.is_vaulted ? 'Yes' : 'No'}</div>
-                                </div>
-                                
-                                <div className="bg-gray-700 p-4 rounded-lg border border-gray-600">
-                                  <div className="text-sm text-gray-400 mb-1 flex items-center">
-                                    <span className="mr-2">👤</span>
-                                    Owned
-                                  </div>
-                                  <div className={`font-semibold text-lg ${(pop.owned || ownedConfirmed) ? 'text-green-400' : 'text-white'}`}>
-                                    {(pop.owned || ownedConfirmed) ? (ownedConfirmed ? '✅ Yes (Just Added!)' : '✅ Yes') : 'No'}
-                                  </div>
-                                </div>
-                              </div>
-
-                              {/* Product Details - New Fields in Compact Format */}
-                              {(pop.upc || pop.upc_a || pop.ean_13 || pop.amazon_asin || pop.country_of_registration || pop.brand || pop.model_number || pop.size || pop.color || pop.weight || pop.product_dimensions) && (
-                                <div className="bg-gray-700/50 p-4 rounded-lg border border-gray-600 mb-6">
-                                  <h4 className="font-semibold mb-3 text-white text-lg">Product Details</h4>
-                                  <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-3 text-sm">
-                                    {pop.upc && (
-                                      <div className="flex flex-col">
-                                        <span className="text-gray-400 text-xs mb-1">UPC</span>
-                                        <span className="text-white font-medium">{pop.upc}</span>
-                                      </div>
-                                    )}
-                                    {pop.upc_a && (
-                                      <div className="flex flex-col">
-                                        <span className="text-gray-400 text-xs mb-1">UPC-A</span>
-                                        <span className="text-white font-medium">{pop.upc_a}</span>
-                                      </div>
-                                    )}
-                                    {pop.ean_13 && (
-                                      <div className="flex flex-col">
-                                        <span className="text-gray-400 text-xs mb-1">EAN-13</span>
-                                        <span className="text-white font-medium">{pop.ean_13}</span>
-                                      </div>
-                                    )}
-                                    {pop.amazon_asin && (
-                                      <div className="flex flex-col">
-                                        <span className="text-gray-400 text-xs mb-1">Amazon ASIN</span>
-                                        <span className="text-white font-medium">{pop.amazon_asin}</span>
-                                      </div>
-                                    )}
-                                    {pop.country_of_registration && (
-                                      <div className="flex flex-col">
-                                        <span className="text-gray-400 text-xs mb-1">Country</span>
-                                        <span className="text-white font-medium">{pop.country_of_registration}</span>
-                                      </div>
-                                    )}
-                                    {pop.brand && (
-                                      <div className="flex flex-col">
-                                        <span className="text-gray-400 text-xs mb-1">Brand</span>
-                                        <span className="text-white font-medium">{pop.brand}</span>
-                                      </div>
-                                    )}
-                                    {pop.model_number && (
-                                      <div className="flex flex-col">
-                                        <span className="text-gray-400 text-xs mb-1">Model #</span>
-                                        <span className="text-white font-medium">{pop.model_number}</span>
-                                      </div>
-                                    )}
-                                    {pop.size && (
-                                      <div className="flex flex-col">
-                                        <span className="text-gray-400 text-xs mb-1">Size</span>
-                                        <span className="text-white font-medium">{pop.size}</span>
-                                      </div>
-                                    )}
-                                    {pop.color && (
-                                      <div className="flex flex-col">
-                                        <span className="text-gray-400 text-xs mb-1">Color</span>
-                                        <span className="text-white font-medium">{pop.color}</span>
-                                      </div>
-                                    )}
-                                    {pop.weight && (
-                                      <div className="flex flex-col">
-                                        <span className="text-gray-400 text-xs mb-1">Weight</span>
-                                        <span className="text-white font-medium">{pop.weight}</span>
-                                      </div>
-                                    )}
-                                    {pop.product_dimensions && (
-                                      <div className="flex flex-col">
-                                        <span className="text-gray-400 text-xs mb-1">Dimensions</span>
-                                        <span className="text-white font-medium">{pop.product_dimensions}</span>
-                                      </div>
-                                    )}
-                                  </div>
-                                </div>
-                              )}
-                            </div>
-                          </div>
-
-                          {/* Additional Details */}
-                          {(pop.variant || pop.is_exclusive || pop.is_chase) && (
-                            <div className="bg-gray-700 p-4 rounded-lg border border-gray-600 mb-6">
-                              <h4 className="font-semibold mb-3 text-white text-lg">Additional Details</h4>
-                              <div className="space-y-2 text-sm">
-                                {pop.variant && (
-                                  <div className="flex justify-between">
-                                    <span className="text-gray-400">Variant:</span>
-                                    <span className="text-white">{pop.variant}</span>
-                                  </div>
-                                )}
-                                {pop.is_exclusive && (
-                                  <div className="flex justify-between">
-                                    <span className="text-gray-400">Exclusive to:</span>
-                                    <span className="text-white">{pop.exclusive_to || 'Yes'}</span>
-                                  </div>
-                                )}
-                                {pop.is_chase && (
-                                  <div className="flex justify-between">
-                                    <span className="text-gray-400">Chase:</span>
-                                    <span className="text-yellow-400">Yes</span>
-                                  </div>
-                                )}
-                              </div>
-                            </div>
-                          )}
-
-                          {/* Price History */}
-                          <div className="border-t border-gray-600 pt-6">
-                            <PriceHistory 
-                              funkoPopId={pop.id} 
-                              funkoPop={{
-                                id: pop.id,
-                                name: pop.name,
-                                series: pop.series,
-                                number: pop.number,
-                                image_url: getPrimaryImageUrl(pop),
-                                estimated_value: getUserPurchasePrice(pop.id) || pop.estimated_value
-                              }}
-                            />
-                          </div>
-                        </Card>
+                        {renderCard(pop, index)}
                       </div>
                     );
                   }
                   
-                  // Regular grid item (not expanded)
-                  return null; // We'll render these separately
+                  // Skip non-expanded items here
+                  return null;
                 })}
                 
                 {/* Regular grid for non-expanded items */}
-              <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-4 xl:grid-cols-6 gap-6">
+                <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-4 xl:grid-cols-6 gap-6">
                   {filteredPops.slice(0, visibleCount).map((pop, index) => {
                     const isExpanded = expandedPop?.id === pop.id;
                     const badges = getProductBadges(pop);
@@ -1314,7 +961,7 @@ const DirectoryAll = () => {
                         
                         <Button 
                           variant="default"
-                          className="bg-orange-500 hover:bg-orange-600 text-white w-full mt-auto py-2 px-4 rounded-lg font-semibold transition-all duration-200 hover:shadow-lg hover:shadow-orange-500/25"
+                          className="bg-gradient-to-r from-orange-500 to-orange-600 hover:from-orange-600 hover:to-orange-700 text-white w-full mt-auto py-2 px-4 rounded-lg font-semibold transform transition-all duration-200 hover:scale-105 hover:shadow-lg hover:shadow-orange-500/25 border-0"
                           onClick={(e) => {
                             e.stopPropagation();
                             handleExpandPop(pop);
@@ -1349,7 +996,7 @@ const DirectoryAll = () => {
                   <Button
                     key={list.id}
                     variant="outline"
-                    className="w-full justify-between border-gray-300 dark:border-gray-600 text-gray-900 dark:text-white hover:bg-gray-100 dark:hover:bg-gray-700 hover:border-orange-500 transition-all duration-200 p-4 h-auto bg-white dark:bg-gray-700"
+                    className="w-full justify-between border-2 border-gray-300 dark:border-gray-600 text-gray-900 dark:text-white hover:bg-gradient-to-r hover:from-orange-500 hover:to-orange-600 hover:text-white hover:border-orange-500 transition-all duration-200 p-4 h-auto bg-white dark:bg-gray-700 transform hover:scale-105 hover:shadow-lg hover:shadow-orange-500/25"
                     onClick={() => handleListSelect(list.id)}
                     disabled={addingToListId === list.id}
                   >
@@ -1387,7 +1034,7 @@ const DirectoryAll = () => {
                 <Button
                   onClick={handleCreateList}
                   disabled={!newListName.trim() || creatingList}
-                  className="bg-orange-500 hover:bg-orange-600 text-white flex-shrink-0 px-6"
+                  className="bg-gradient-to-r from-orange-500 to-orange-600 hover:from-orange-600 hover:to-orange-700 text-white flex-shrink-0 px-6 shadow-lg shadow-orange-500/25 border-0 font-semibold transform transition-all duration-200 hover:scale-105"
                 >
                   {creatingList ? (
                     <Loader2 className="w-4 h-4 animate-spin" />
@@ -1408,7 +1055,7 @@ const DirectoryAll = () => {
                   setAddingToListId(null);
                   setNewListName("");
                 }}
-                className="border-gray-300 dark:border-gray-600 text-gray-700 dark:text-gray-400 hover:bg-gray-100 dark:hover:bg-gray-700 hover:text-gray-900 dark:hover:text-white transition-colors px-6"
+                className="border-2 border-gray-400 dark:border-gray-500 text-gray-700 dark:text-gray-400 hover:bg-gray-100 dark:hover:bg-gray-600 hover:text-gray-900 dark:hover:text-white transition-all duration-200 px-6 font-semibold transform hover:scale-105"
               >
                 Cancel
               </Button>

@@ -21,6 +21,21 @@ const PublicListView = () => {
   const { user } = useAuth();
   const [shareDialogOpen, setShareDialogOpen] = useState(false);
 
+  const increaseViews = async () => {
+    if (user && list?.id) {
+      await supabase.from('custom_lists').update({
+        views: (list.views || 0) + 1
+      }).eq('id', list.id);
+    }
+  };
+
+  // Increase view count when component mounts (must be before early returns)
+  useEffect(() => {
+    if (list?.id) {
+      increaseViews();
+    }
+  }, [list?.id, user]);
+
   if (isLoading) {
     return (
       <div className="min-h-screen bg-gradient-to-br from-gray-900 via-gray-800 to-black">
@@ -94,19 +109,6 @@ const PublicListView = () => {
     });
     setShareDialogOpen(false);
   };
-
-  const increaseViews = async () => {
-    if (user && list.id) {
-      await supabase.from('custom_lists').update({
-        views: (list.views || 0) + 1
-      }).eq('id', list.id);
-    }
-  };
-
-  // Increase view count when component mounts
-  useEffect(() => {
-    increaseViews();
-  }, []);
 
   return (
     <div className="min-h-screen bg-gradient-to-br from-gray-900 via-gray-800 to-black">

@@ -397,814 +397,149 @@ serve(async (req: Request) => {
                 </p>
                 <div style="background: linear-gradient(135deg, #fef3cd, #fed7aa); border: 2px solid #f59e0b; padding: 25px; border-radius: 12px; margin: 25px 0; text-align: center;">
                   <div style="font-size: 48px; margin-bottom: 15px;">${data.badge || '🏆'}</div>
-                  <h3 style="color: #92400e; margin: 0 0 10px 0; font-size: 22px;">${data.achievementName}</h3>
+                  <h3 style="color: #92400e; margin: 0 0 10px 0; font-size: 24px;">${data.achievementName}</h3>
                   <p style="color: #92400e; margin: 0; font-size: 16px;">${data.description}</p>
-                  ${data.reward ? `<p style="color: #92400e; margin: 10px 0; font-size: 14px;"><strong>Reward:</strong> ${data.reward}</p>` : ''}
                 </div>
                 <p style="color: #374151; line-height: 1.6; text-align: center;">
-                  Keep collecting to unlock even more achievements and rewards!
+                  Keep up the fantastic work! There are more achievements waiting to be unlocked.
                 </p>
                 ${createButton("View All Achievements", "https://popguide.co.uk/achievements")}
                 <p style="color: #6b7280; font-size: 14px; text-align: center;">
-                  Share your achievement with the PopGuide community!
+                  <a href="https://popguide.co.uk/dashboard" style="color: ${primaryColor};">Check your progress</a>
                 </p>
               `
             )
           };
 
-        case 'rare_pop_notification':
+        // Support Ticket Email Templates
+        case 'support_ticket_created':
           return {
-            subject: "⚡ Rare Alert: ${data.popName} Now Available!",
+            subject: `🎫 Support Ticket Created: ${data.ticketNumber}`,
             html: createEmailTemplate(
-              "⚡ Rare Pop Alert!",
-              "Rare Pop Available! ⚡",
+              `🎫 Support Ticket Created: ${data.ticketNumber}`,
+              "Support Ticket Created 🎫",
               `
-                <h2 style="color: ${darkColor}; margin-bottom: 20px;">Alert, ${data.fullName || 'Collector'}!</h2>
+                <h2 style="color: ${darkColor}; margin-bottom: 20px;">Hi ${data.fullName || 'Collector'},</h2>
                 <p style="color: #374151; line-height: 1.6; margin-bottom: 20px;">
-                  A rare Funko Pop you've been tracking is now available! These don't come around often.
-                </p>
-                <div style="background: linear-gradient(135deg, #fee2e2, #fecaca); border: 2px solid #dc2626; padding: 25px; border-radius: 12px; margin: 25px 0; text-align: center;">
-                  <h3 style="color: #991b1b; margin: 0 0 10px 0; font-size: 20px;">${data.popName}</h3>
-                  <p style="color: #991b1b; margin: 0; font-size: 16px;"><strong>Series:</strong> ${data.series}</p>
-                  <p style="color: #991b1b; margin: 10px 0; font-size: 18px;"><strong>Rarity:</strong> ${data.rarity}</p>
-                  <p style="color: #991b1b; margin: 5px 0; font-size: 16px;"><strong>Current Price:</strong> ${data.price}</p>
-                  ${data.limited ? `<p style="color: #991b1b; margin: 5px 0; font-size: 14px;"><strong>Limited:</strong> ${data.limited}</p>` : ''}
-              </div>
-                <div style="background: #fee2e2; border-left: 4px solid #dc2626; padding: 15px; margin: 20px 0; border-radius: 6px;">
-                  <p style="margin: 0; color: #991b1b; font-size: 14px;">
-                    <strong>⏰ Act fast:</strong> Rare Pops like this typically sell out quickly. Don't miss your chance!
-                  </p>
-            </div>
-                ${createButton("View Rare Pop", `https://popguide.co.uk/pop/${data.popId}`, "#dc2626")}
-                <p style="color: #6b7280; font-size: 14px; text-align: center;">
-                  <a href="https://popguide.co.uk/rare" style="color: ${primaryColor};">Browse more rare Pops</a>
-                </p>
-              `
-            )
-          };
-
-        case 'subscription_renewal':
-          return {
-            subject: "✅ PopGuide Pro Renewed Successfully",
-            html: createEmailTemplate(
-              "✅ PopGuide Pro Renewed Successfully",
-              "Subscription Renewed! ✅",
-              `
-                <h2 style="color: ${darkColor}; margin-bottom: 20px;">Thank you, ${data.fullName || 'Collector'}!</h2>
-                <p style="color: #374151; line-height: 1.6; margin-bottom: 20px;">
-                  Your PopGuide Pro subscription has been successfully renewed. You're all set to continue enjoying all Pro features!
+                  Thank you for contacting PopGuide support! We've received your request and our team will respond as soon as possible.
                 </p>
                 <div style="background: #dcfce7; border-left: 4px solid #16a34a; padding: 20px; margin: 20px 0; border-radius: 6px;">
-                  <h4 style="color: #166534; margin: 0 0 10px 0;">🎯 Renewal Details:</h4>
-                  <p style="margin: 5px 0; color: #166534;"><strong>Plan:</strong> ${data.plan}</p>
-                  <p style="margin: 5px 0; color: #166534;"><strong>Amount:</strong> ${data.amount}</p>
-                  <p style="margin: 5px 0; color: #166534;"><strong>Renewed on:</strong> ${data.renewalDate}</p>
-                  <p style="margin: 5px 0; color: #166534;"><strong>Next renewal:</strong> ${data.nextRenewal}</p>
+                  <h4 style="color: #166534; margin: 0 0 10px 0;">🎫 Ticket Details:</h4>
+                  <p style="margin: 5px 0; color: #166534;"><strong>Ticket Number:</strong> ${data.ticketNumber}</p>
+                  <p style="margin: 5px 0; color: #166534;"><strong>Subject:</strong> ${data.title}</p>
+                  <p style="margin: 5px 0; color: #166534;"><strong>Category:</strong> ${data.category.replace('_', ' ')}</p>
+                  <p style="margin: 5px 0; color: #166534;"><strong>Priority:</strong> ${data.priority || 'Medium'}</p>
+                  <p style="margin: 5px 0; color: #166534;"><strong>Expected Response:</strong> Within 24 hours</p>
                 </div>
                 <p style="color: #374151; line-height: 1.6;">
-                  Your Pro features are active and ready to use. Thank you for your continued support!
+                  You can track the status of your ticket or add additional information by visiting your support dashboard.
                 </p>
-                ${createButton("Access Pro Features", "https://popguide.co.uk/dashboard?pro=true")}
+                ${createButton("View Ticket Status", "https://popguide.co.uk/dashboard?tab=support")}
                 <p style="color: #6b7280; font-size: 14px; text-align: center;">
-                  Questions about your subscription? <a href="https://popguide.co.uk/contact" style="color: ${primaryColor};">Contact our support team</a>
+                  Need urgent help? Email us directly at <a href="mailto:support@popguide.co.uk" style="color: ${primaryColor};">support@popguide.co.uk</a>
                 </p>
               `
             )
           };
 
-      case 'crypto_payment_success':
+        case 'support_ticket_response':
           return {
-            subject: "₿ Crypto Payment Confirmed - PopGuide Pro",
+            subject: `💬 Response to Ticket ${data.ticketNumber}: ${data.title}`,
             html: createEmailTemplate(
-              "₿ Crypto Payment Confirmed",
-              "Crypto Payment Success! ₿",
+              `💬 Response to Ticket ${data.ticketNumber}`,
+              "Support Response 💬",
               `
-                <h2 style="color: ${darkColor}; margin-bottom: 20px;">Payment confirmed, ${data.fullName || 'Collector'}!</h2>
+                <h2 style="color: ${darkColor}; margin-bottom: 20px;">Hi ${data.fullName || 'Collector'},</h2>
                 <p style="color: #374151; line-height: 1.6; margin-bottom: 20px;">
-                  Your cryptocurrency payment for PopGuide Pro has been successfully confirmed on the blockchain.
+                  Our support team has responded to your ticket. Here's the latest update:
+                </p>
+                <div style="background: #f3f4f6; border-left: 4px solid ${primaryColor}; padding: 20px; margin: 20px 0; border-radius: 6px;">
+                  <h4 style="color: ${darkColor}; margin: 0 0 10px 0;">📋 Ticket: ${data.ticketNumber}</h4>
+                  <p style="margin: 5px 0; color: #374151;"><strong>Subject:</strong> ${data.title}</p>
+                  <p style="margin: 5px 0; color: #374151;"><strong>Status:</strong> ${data.status}</p>
+                  <p style="margin: 5px 0; color: #374151;"><strong>Agent:</strong> ${data.agentName || 'PopGuide Support'}</p>
+                </div>
+                <div style="background: #ffffff; border: 1px solid #e5e7eb; padding: 20px; margin: 20px 0; border-radius: 6px;">
+                  <h4 style="color: ${darkColor}; margin: 0 0 15px 0;">💬 Latest Response:</h4>
+                  <div style="color: #374151; line-height: 1.6; white-space: pre-line;">${data.response}</div>
+                </div>
+                <p style="color: #374151; line-height: 1.6;">
+                  ${data.status === 'resolved' ? 
+                    'If this resolves your issue, you can close the ticket. Otherwise, feel free to reply with any questions.' :
+                    'You can reply to this ticket or view the full conversation in your support dashboard.'
+                  }
+                </p>
+                ${createButton("View Full Conversation", `https://popguide.co.uk/dashboard?tab=support&ticket=${data.ticketNumber}`)}
+              `
+            )
+          };
+
+        case 'support_ticket_resolved':
+          return {
+            subject: `✅ Ticket Resolved: ${data.ticketNumber} - ${data.title}`,
+            html: createEmailTemplate(
+              `✅ Ticket Resolved: ${data.ticketNumber}`,
+              "Ticket Resolved ✅",
+              `
+                <h2 style="color: ${darkColor}; margin-bottom: 20px;">Hi ${data.fullName || 'Collector'},</h2>
+                <p style="color: #374151; line-height: 1.6; margin-bottom: 20px;">
+                  Great news! Your support ticket has been resolved by our team.
                 </p>
                 <div style="background: #dcfce7; border-left: 4px solid #16a34a; padding: 20px; margin: 20px 0; border-radius: 6px;">
-                  <h4 style="color: #166534; margin: 0 0 10px 0;">₿ Payment Details:</h4>
-                  <p style="margin: 5px 0; color: #166534;"><strong>Amount:</strong> ${data.cryptoAmount} ${data.currency}</p>
-                  <p style="margin: 5px 0; color: #166534;"><strong>USD Value:</strong> ${data.usdAmount}</p>
-                  <p style="margin: 5px 0; color: #166534;"><strong>Transaction ID:</strong> ${data.txHash}</p>
-                  <p style="margin: 5px 0; color: #166534;"><strong>Confirmations:</strong> ${data.confirmations}</p>
-                  <p style="margin: 5px 0; color: #166534;"><strong>Network:</strong> ${data.network}</p>
-              </div>
-                <p style="color: #374151; line-height: 1.6;">
-                  Your PopGuide Pro subscription is now active. All Pro features are available immediately.
-                </p>
-                ${createButton("View Subscription", "https://popguide.co.uk/profile?tab=subscription")}
-                <p style="color: #6b7280; font-size: 14px; text-align: center;">
-                  <a href="https://popguide.co.uk/payments" style="color: ${primaryColor};">View payment history</a>
-                </p>
-              `
-            )
-          };
-
-        case 'crypto_payment_pending':
-          return {
-            subject: "⏳ Crypto Payment Processing - PopGuide Pro",
-            html: createEmailTemplate(
-              "⏳ Crypto Payment Processing",
-              "Payment Processing ⏳",
-              `
-                <h2 style="color: ${darkColor}; margin-bottom: 20px;">Hi ${data.fullName || 'Collector'},</h2>
-                <p style="color: #374151; line-height: 1.6; margin-bottom: 20px;">
-                  We've received your cryptocurrency payment for PopGuide Pro and it's currently being processed on the blockchain.
-                </p>
-                <div style="background: #fef3cd; border-left: 4px solid #f59e0b; padding: 20px; margin: 20px 0; border-radius: 6px;">
-                  <h4 style="color: #92400e; margin: 0 0 10px 0;">⏳ Processing Details:</h4>
-                  <p style="margin: 5px 0; color: #92400e;"><strong>Amount:</strong> ${data.cryptoAmount} ${data.currency}</p>
-                  <p style="margin: 5px 0; color: #92400e;"><strong>USD Value:</strong> ${data.usdAmount}</p>
-                  <p style="margin: 5px 0; color: #92400e;"><strong>Transaction ID:</strong> ${data.txHash}</p>
-                  <p style="margin: 5px 0; color: #92400e;"><strong>Current Confirmations:</strong> ${data.confirmations}/${data.requiredConfirmations}</p>
-                  <p style="margin: 5px 0; color: #92400e;"><strong>Status:</strong> Pending confirmation</p>
+                  <h4 style="color: #166534; margin: 0 0 10px 0;">✅ Resolution Summary:</h4>
+                  <p style="margin: 5px 0; color: #166534;"><strong>Ticket:</strong> ${data.ticketNumber}</p>
+                  <p style="margin: 5px 0; color: #166534;"><strong>Subject:</strong> ${data.title}</p>
+                  <p style="margin: 5px 0; color: #166534;"><strong>Resolved by:</strong> ${data.agentName || 'PopGuide Support'}</p>
+                  <p style="margin: 5px 0; color: #166534;"><strong>Resolution:</strong> ${data.resolution}</p>
                 </div>
                 <p style="color: #374151; line-height: 1.6;">
-                  Your Pro subscription will be activated automatically once the required confirmations are received. This typically takes ${data.estimatedTime}.
+                  If you're satisfied with the resolution, no further action is needed. The ticket will be automatically closed in 24 hours.
                 </p>
-                <div style="background: #f0f9ff; border-left: 4px solid #0ea5e9; padding: 15px; margin: 20px 0; border-radius: 6px;">
-                  <p style="margin: 0; color: #0c4a6e; font-size: 14px;">
-                    <strong>ℹ️ What's next:</strong> We'll send you a confirmation email once your payment is fully processed. No action needed from you!
-                  </p>
-                </div>
-                ${createButton("Check Payment Status", "https://popguide.co.uk/payments")}
-                <p style="color: #6b7280; font-size: 14px; text-align: center;">
-                  Questions? <a href="https://popguide.co.uk/contact" style="color: ${primaryColor};">Contact our support team</a>
-                </p>
-              `
-            )
-          };
-
-        case 'newsletter':
-          return {
-            subject: "📧 PopGuide Weekly: ${data.subject}",
-            html: createEmailTemplate(
-              "📧 PopGuide Weekly Newsletter",
-              "This Week in Funko! 📧",
-              `
-                <h2 style="color: ${darkColor}; margin-bottom: 20px;">Hi ${data.fullName || 'Collector'},</h2>
-                <p style="color: #374151; line-height: 1.6; margin-bottom: 20px;">
-                  ${data.intro || "Here's your weekly dose of Funko Pop news, trending collections, and community highlights!"}
-                </p>
-                ${data.featuredContent ? `
-                  <div style="background: linear-gradient(135deg, #fff7ed, #fed7aa); border: 2px solid #f97316; padding: 25px; border-radius: 12px; margin: 25px 0;">
-                    <h3 style="color: #ea580c; margin: 0 0 15px 0; font-size: 18px;">🌟 Featured This Week:</h3>
-                    <div style="color: #ea580c;">
-                      ${data.featuredContent}
-                    </div>
-                  </div>
-                ` : ''}
-                ${data.trendingPops ? `
-                  <div style="background: #f0f9ff; border-left: 4px solid #0ea5e9; padding: 20px; margin: 20px 0; border-radius: 6px;">
-                    <h4 style="color: #0c4a6e; margin: 0 0 10px 0;">📈 Trending This Week:</h4>
-                    <div style="color: #0c4a6e;">
-                      ${data.trendingPops}
-                    </div>
-                  </div>
-                ` : ''}
-                ${data.communitySpotlight ? `
-                  <div style="background: #dcfce7; border-left: 4px solid #16a34a; padding: 20px; margin: 20px 0; border-radius: 6px;">
-                    <h4 style="color: #166534; margin: 0 0 10px 0;">👥 Community Spotlight:</h4>
-                    <div style="color: #166534;">
-                      ${data.communitySpotlight}
-              </div>
-            </div>
-                ` : ''}
-                ${createButton("Read Full Newsletter", "https://popguide.co.uk/newsletter")}
-                <p style="color: #6b7280; font-size: 14px; text-align: center;">
-                  <a href="https://popguide.co.uk/newsletter/unsubscribe" style="color: ${primaryColor};">Unsubscribe from newsletter</a> | 
-                  <a href="https://popguide.co.uk/newsletter/preferences" style="color: ${primaryColor};">Update preferences</a>
-                </p>
-              `
-            )
-          };
-
-        case 'special_promotion':
-          return {
-            subject: "🎉 Special Offer: ${data.promoTitle}",
-            html: createEmailTemplate(
-              "🎉 Special Promotion!",
-              "Limited Time Offer! 🎉",
-              `
-                <h2 style="color: ${darkColor}; margin-bottom: 20px;">Exclusive offer for you, ${data.fullName || 'Collector'}!</h2>
-                <p style="color: #374151; line-height: 1.6; margin-bottom: 20px;">
-                  ${data.description || "We have an amazing limited-time offer just for PopGuide collectors!"}
-                </p>
-                <div style="background: linear-gradient(135deg, #fef3cd, #fed7aa); border: 2px solid #f59e0b; padding: 25px; border-radius: 12px; margin: 25px 0; text-align: center;">
-                  <h3 style="color: #92400e; margin: 0 0 15px 0; font-size: 24px;">${data.promoTitle}</h3>
-                  <p style="color: #92400e; margin: 0; font-size: 18px;"><strong>${data.discount}</strong></p>
-                  ${data.promoCode ? `<p style="color: #92400e; margin: 10px 0; font-size: 16px;">Code: <strong>${data.promoCode}</strong></p>` : ''}
-                  ${data.validUntil ? `<p style="color: #92400e; margin: 5px 0; font-size: 14px;">Valid until: ${data.validUntil}</p>` : ''}
-                </div>
-                ${data.highlights ? `
-                  <div style="background: #fee2e2; border-left: 4px solid #dc2626; padding: 20px; margin: 20px 0; border-radius: 6px;">
-                    <h4 style="color: #991b1b; margin: 0 0 10px 0;">🔥 What's Included:</h4>
-                    <ul style="color: #991b1b; margin: 0; padding-left: 20px;">
-                      ${data.highlights.split(',').map(item => `<li>${item.trim()}</li>`).join('')}
-                    </ul>
-                  </div>
-                ` : ''}
-                <div style="background: #fee2e2; border-left: 4px solid #dc2626; padding: 15px; margin: 20px 0; border-radius: 6px;">
-                  <p style="margin: 0; color: #991b1b; font-size: 14px;">
-                    <strong>⏰ Limited time:</strong> This offer expires soon. Don't miss out!
-                  </p>
-              </div>
-                ${createButton("Claim Your Offer", data.promoUrl || "https://popguide.co.uk/promotions", "#dc2626")}
-                <p style="color: #6b7280; font-size: 14px; text-align: center;">
-                  <a href="https://popguide.co.uk/promotions" style="color: ${primaryColor};">View all current offers</a>
-                </p>
-              `
-            )
-          };
-
-        case 'community_spotlight':
-          return {
-            subject: "⭐ Community Spotlight: ${data.collectorName}'s Amazing Collection!",
-            html: createEmailTemplate(
-              "⭐ Community Spotlight",
-              "Featured Collector! ⭐",
-              `
-                <h2 style="color: ${darkColor}; margin-bottom: 20px;">Hi ${data.fullName || 'Collector'},</h2>
-                <p style="color: #374151; line-height: 1.6; margin-bottom: 20px;">
-                  This week we're highlighting an incredible collection from our community member <strong>${data.collectorName}</strong>!
-                </p>
-                <div style="background: linear-gradient(135deg, #fff7ed, #fed7aa); border: 2px solid #f97316; padding: 25px; border-radius: 12px; margin: 25px 0; text-align: center;">
-                  <h3 style="color: #ea580c; margin: 0 0 15px 0; font-size: 20px;">${data.collectorName}'s Collection</h3>
-                  <p style="color: #ea580c; margin: 0; font-size: 16px;"><strong>Total Pops:</strong> ${data.totalPops}</p>
-                  <p style="color: #ea580c; margin: 5px 0; font-size: 16px;"><strong>Collection Value:</strong> ${data.collectionValue}</p>
-                  <p style="color: #ea580c; margin: 5px 0; font-size: 16px;"><strong>Favorite Series:</strong> ${data.favoriteSeries}</p>
-                  ${data.rareFinds ? `<p style="color: #ea580c; margin: 5px 0; font-size: 14px;"><strong>Rare Finds:</strong> ${data.rareFinds}</p>` : ''}
-                </div>
-                ${data.collectorQuote ? `
-                  <div style="background: #f0f9ff; border-left: 4px solid #0ea5e9; padding: 20px; margin: 20px 0; border-radius: 6px;">
-                    <p style="margin: 0; color: #0c4a6e; font-style: italic;">"${data.collectorQuote}"</p>
-                    <p style="margin: 10px 0 0 0; color: #0c4a6e; font-size: 14px; text-align: right;">- ${data.collectorName}</p>
-                  </div>
-                ` : ''}
-                <p style="color: #374151; line-height: 1.6; text-align: center;">
-                  Want to be featured in our community spotlight? Share your collection with us!
-                </p>
-                ${createButton("View Full Collection", `https://popguide.co.uk/collector/${data.collectorId}`)}
                 <div style="text-align: center; margin: 30px 0;">
-                  <a href="https://popguide.co.uk/community" style="background: #16a34a; color: white; padding: 12px 24px; text-decoration: none; border-radius: 8px; display: inline-block; font-weight: 600; margin-right: 10px;">Join Community</a>
-                  <a href="https://popguide.co.uk/share-collection" style="background: #6b7280; color: white; padding: 12px 24px; text-decoration: none; border-radius: 8px; display: inline-block; font-weight: 600;">Share Your Collection</a>
+                  <a href="https://popguide.co.uk/support/feedback?ticket=${data.ticketNumber}&rating=5" style="background: #16a34a; color: white; padding: 12px 24px; text-decoration: none; border-radius: 8px; display: inline-block; font-weight: 600; margin-right: 10px;">👍 Satisfied</a>
+                  <a href="${data.reopenUrl || 'https://popguide.co.uk/dashboard?tab=support'}" style="background: #f59e0b; color: white; padding: 12px 24px; text-decoration: none; border-radius: 8px; display: inline-block; font-weight: 600;">🔄 Reopen Ticket</a>
                 </div>
+                <p style="color: #6b7280; font-size: 14px; text-align: center;">
+                  Your feedback helps us improve our support service.
+                </p>
               `
             )
           };
 
-        case 'beta_feature_invite':
+        case 'feature_request_update':
           return {
-            subject: "🚀 Beta Access: Try ${data.featureName} Early!",
+            subject: `💡 Feature Request Update: ${data.title}`,
             html: createEmailTemplate(
-              "🚀 Beta Feature Access",
-              "Exclusive Beta Access! 🚀",
+              `💡 Feature Request Update: ${data.title}`,
+              "Feature Request Update 💡",
               `
                 <h2 style="color: ${darkColor}; margin-bottom: 20px;">Hi ${data.fullName || 'Collector'},</h2>
                 <p style="color: #374151; line-height: 1.6; margin-bottom: 20px;">
-                  You've been selected for exclusive early access to our newest feature: <strong>${data.featureName}</strong>!
+                  We have an update on your feature request! Here's what's happening:
                 </p>
-                <div style="background: linear-gradient(135deg, #fee2e2, #fecaca); border: 2px solid #dc2626; padding: 25px; border-radius: 12px; margin: 25px 0; text-align: center;">
-                  <h3 style="color: #991b1b; margin: 0 0 15px 0; font-size: 22px;">${data.featureName}</h3>
-                  <p style="color: #991b1b; margin: 0; font-size: 16px;">${data.description}</p>
+                <div style="background: #fef3cd; border-left: 4px solid #f59e0b; padding: 20px; margin: 20px 0; border-radius: 6px;">
+                  <h4 style="color: #92400e; margin: 0 0 10px 0;">💡 Feature Request:</h4>
+                  <p style="margin: 5px 0; color: #92400e;"><strong>Title:</strong> ${data.title}</p>
+                  <p style="margin: 5px 0; color: #92400e;"><strong>Status:</strong> ${data.status.replace('_', ' ').toUpperCase()}</p>
+                  <p style="margin: 5px 0; color: #92400e;"><strong>Votes:</strong> ${data.votes || 0}</p>
+                  ${data.estimatedRelease ? `<p style="margin: 5px 0; color: #92400e;"><strong>Estimated Release:</strong> ${data.estimatedRelease}</p>` : ''}
                 </div>
-                ${data.benefits ? `
-                  <div style="background: #dcfce7; border-left: 4px solid #16a34a; padding: 20px; margin: 20px 0; border-radius: 6px;">
-                    <h4 style="color: #166534; margin: 0 0 10px 0;">✨ What You'll Get:</h4>
-                    <ul style="color: #166534; margin: 0; padding-left: 20px;">
-                      ${data.benefits.split(',').map(benefit => `<li>${benefit.trim()}</li>`).join('')}
-                    </ul>
+                ${data.updateMessage ? `
+                  <div style="background: #ffffff; border: 1px solid #e5e7eb; padding: 20px; margin: 20px 0; border-radius: 6px;">
+                    <h4 style="color: ${darkColor}; margin: 0 0 15px 0;">📝 Update Details:</h4>
+                    <div style="color: #374151; line-height: 1.6; white-space: pre-line;">${data.updateMessage}</div>
                   </div>
                 ` : ''}
-                <div style="background: #fef3cd; border-left: 4px solid #f59e0b; padding: 20px; margin: 20px 0; border-radius: 6px;">
-                  <h4 style="color: #92400e; margin: 0 0 10px 0;">🎯 Why You?</h4>
-                  <p style="margin: 0; color: #92400e;">You were selected based on your ${data.selectionReason || 'active engagement and valuable feedback to our community'}.</p>
-                </div>
-                <p style="color: #374151; line-height: 1.6; text-align: center;">
-                  Ready to be among the first to experience this exciting new feature?
+                <p style="color: #374151; line-height: 1.6;">
+                  ${data.status === 'approved' ? 'Your feature has been approved for development! 🎉' :
+                    data.status === 'in_development' ? 'Development is underway! We\'ll keep you posted on progress.' :
+                    data.status === 'testing' ? 'Your feature is now in testing phase. Release is coming soon!' :
+                    data.status === 'released' ? 'Your feature is now live! Thank you for the suggestion.' :
+                    'Thank you for your patience as we review your suggestion.'}
                 </p>
-                ${createButton("Access Beta Feature", data.betaUrl || "https://popguide.co.uk/beta", "#dc2626")}
+                ${createButton("View Feature Request", `https://popguide.co.uk/features/${data.featureId}`)}
                 <p style="color: #6b7280; font-size: 14px; text-align: center;">
-                  <a href="https://popguide.co.uk/beta/feedback" style="color: ${primaryColor};">Share your feedback</a> | 
-                  <a href="https://popguide.co.uk/beta/info" style="color: ${primaryColor};">Learn about beta program</a>
-                </p>
-              `
-            )
-          };
-
-        case 'friend_request_accepted':
-          return {
-            subject: "🤝 ${data.friendName} accepted your friend request!",
-            html: createEmailTemplate(
-              "🤝 Friend Request Accepted",
-              "New Friend! 🤝",
-              `
-                <h2 style="color: ${darkColor}; margin-bottom: 20px;">Great news, ${data.fullName || 'Collector'}!</h2>
-                <p style="color: #374151; line-height: 1.6; margin-bottom: 20px;">
-                  <strong>${data.friendName}</strong> has accepted your friend request on PopGuide!
-                </p>
-                <div style="background: linear-gradient(135deg, #dcfce7, #bbf7d0); border: 2px solid #16a34a; padding: 25px; border-radius: 12px; margin: 25px 0; text-align: center;">
-                  <h3 style="color: #166534; margin: 0 0 15px 0; font-size: 20px;">${data.friendName}</h3>
-                  ${data.friendStats ? `
-                    <p style="color: #166534; margin: 0; font-size: 16px;"><strong>Collection Size:</strong> ${data.friendStats.totalPops} Pops</p>
-                    <p style="color: #166534; margin: 5px 0; font-size: 16px;"><strong>Collection Value:</strong> ${data.friendStats.collectionValue}</p>
-                    <p style="color: #166534; margin: 5px 0; font-size: 14px;"><strong>Favorite Series:</strong> ${data.friendStats.favoriteSeries}</p>
-                  ` : ''}
-                </div>
-                <div style="background: #f0f9ff; border-left: 4px solid #0ea5e9; padding: 20px; margin: 20px 0; border-radius: 6px;">
-                  <h4 style="color: #0c4a6e; margin: 0 0 10px 0;">🎉 Now you can:</h4>
-                  <ul style="color: #0c4a6e; margin: 0; padding-left: 20px;">
-                    <li>View each other's collections</li>
-                    <li>Compare collections and find duplicates</li>
-                    <li>Get notified of their new additions</li>
-                    <li>Share collecting tips and recommendations</li>
-                  </ul>
-              </div>
-                ${createButton("View Friend's Collection", `https://popguide.co.uk/collector/${data.friendId}`)}
-                <div style="text-align: center; margin: 30px 0;">
-                  <a href="https://popguide.co.uk/friends" style="background: #16a34a; color: white; padding: 12px 24px; text-decoration: none; border-radius: 8px; display: inline-block; font-weight: 600; margin-right: 10px;">View All Friends</a>
-                  <a href="https://popguide.co.uk/compare/${data.friendId}" style="background: #6b7280; color: white; padding: 12px 24px; text-decoration: none; border-radius: 8px; display: inline-block; font-weight: 600;">Compare Collections</a>
-            </div>
-              `
-            )
-          };
-
-        case 'new_follower':
-          return {
-            subject: "👥 ${data.followerName} is now following your collection!",
-            html: createEmailTemplate(
-              "👥 New Follower",
-              "New Follower! 👥",
-              `
-                <h2 style="color: ${darkColor}; margin-bottom: 20px;">Hi ${data.fullName || 'Collector'},</h2>
-                <p style="color: #374151; line-height: 1.6; margin-bottom: 20px;">
-                  <strong>${data.followerName}</strong> is now following your PopGuide collection!
-                </p>
-                <div style="background: linear-gradient(135deg, #fff7ed, #fed7aa); border: 2px solid #f97316; padding: 25px; border-radius: 12px; margin: 25px 0; text-align: center;">
-                  <h3 style="color: #ea580c; margin: 0 0 15px 0; font-size: 20px;">${data.followerName}</h3>
-                  ${data.followerStats ? `
-                    <p style="color: #ea580c; margin: 0; font-size: 16px;"><strong>Collection Size:</strong> ${data.followerStats.totalPops} Pops</p>
-                    <p style="color: #ea580c; margin: 5px 0; font-size: 16px;"><strong>Joined:</strong> ${data.followerStats.joinDate}</p>
-                    <p style="color: #ea580c; margin: 5px 0; font-size: 14px;"><strong>Favorite Series:</strong> ${data.followerStats.favoriteSeries}</p>
-                  ` : ''}
-                </div>
-                <p style="color: #374151; line-height: 1.6; text-align: center;">
-                  They'll be notified when you add new Pops to your collection. Why not check out theirs too?
-                </p>
-                ${createButton("View Their Collection", `https://popguide.co.uk/collector/${data.followerId}`)}
-                <div style="text-align: center; margin: 30px 0;">
-                  <a href="https://popguide.co.uk/followers" style="background: #16a34a; color: white; padding: 12px 24px; text-decoration: none; border-radius: 8px; display: inline-block; font-weight: 600; margin-right: 10px;">View All Followers</a>
-                  <a href="https://popguide.co.uk/follow/${data.followerId}" style="background: #6b7280; color: white; padding: 12px 24px; text-decoration: none; border-radius: 8px; display: inline-block; font-weight: 600;">Follow Back</a>
-              </div>
-              `
-            )
-          };
-
-        case 'feature_announcement':
-          return {
-            subject: "🎉 New Feature: ${data.featureName} is Here!",
-            html: createEmailTemplate(
-              "🎉 New Feature Launch",
-              "Exciting Update! 🎉",
-              `
-                <h2 style="color: ${darkColor}; margin-bottom: 20px;">Hi ${data.fullName || 'Collector'},</h2>
-                <p style="color: #374151; line-height: 1.6; margin-bottom: 20px;">
-                  We're excited to announce a brand new feature that will enhance your PopGuide experience!
-                </p>
-                <div style="background: linear-gradient(135deg, #fee2e2, #fecaca); border: 2px solid #dc2626; padding: 25px; border-radius: 12px; margin: 25px 0; text-align: center;">
-                  <h3 style="color: #991b1b; margin: 0 0 15px 0; font-size: 24px;">${data.featureName}</h3>
-                  <p style="color: #991b1b; margin: 0; font-size: 16px;">${data.description}</p>
-                </div>
-                ${data.keyFeatures ? `
-                  <div style="background: #dcfce7; border-left: 4px solid #16a34a; padding: 20px; margin: 20px 0; border-radius: 6px;">
-                    <h4 style="color: #166534; margin: 0 0 10px 0;">✨ Key Features:</h4>
-                    <ul style="color: #166534; margin: 0; padding-left: 20px;">
-                      ${data.keyFeatures.split(',').map(feature => `<li>${feature.trim()}</li>`).join('')}
-                    </ul>
-              </div>
-                ` : ''}
-                ${data.benefits ? `
-                  <div style="background: #fef3cd; border-left: 4px solid #f59e0b; padding: 20px; margin: 20px 0; border-radius: 6px;">
-                    <h4 style="color: #92400e; margin: 0 0 10px 0;">🎯 How It Helps:</h4>
-                    <p style="margin: 0; color: #92400e;">${data.benefits}</p>
-            </div>
-                ` : ''}
-                <p style="color: #374151; line-height: 1.6; text-align: center;">
-                  The feature is now live and ready for you to explore!
-                </p>
-                ${createButton("Try It Now", data.featureUrl || "https://popguide.co.uk/dashboard", "#dc2626")}
-                <p style="color: #6b7280; font-size: 14px; text-align: center;">
-                  <a href="https://popguide.co.uk/help" style="color: ${primaryColor};">Need help?</a> | 
-                  <a href="https://popguide.co.uk/feedback" style="color: ${primaryColor};">Share feedback</a>
-                </p>
-              `
-            )
-        };
-
-        case 'scraper_success':
-          return {
-            subject: "✅ Bulk Scraper Completed Successfully",
-            html: createEmailTemplate(
-              "✅ Bulk Scraper Completed Successfully",
-              "Scraper Success! ✅",
-              `
-                <h2 style="color: ${darkColor}; margin-bottom: 20px;">Bulk Scraper Completed</h2>
-                <p style="color: #374151; line-height: 1.6; margin-bottom: 20px;">
-                  Great news! The <strong>${data.scraper_type}</strong> has completed successfully.
-                </p>
-                <div style="background: linear-gradient(135deg, #dcfce7, #bbf7d0); border: 2px solid #16a34a; padding: 25px; border-radius: 12px; margin: 25px 0;">
-                  <h3 style="color: #166534; margin: 0 0 15px 0; font-size: 18px;">📊 Scraping Results</h3>
-                  <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 15px; color: #166534;">
-                    <div style="text-align: center; padding: 10px; background: rgba(22, 101, 52, 0.1); border-radius: 6px;">
-                      <div style="font-size: 24px; font-weight: bold; margin-bottom: 5px;">${data.total_processed}</div>
-                      <div style="font-size: 14px;">Items Processed</div>
-                    </div>
-                    <div style="text-align: center; padding: 10px; background: rgba(22, 101, 52, 0.1); border-radius: 6px;">
-                      <div style="font-size: 24px; font-weight: bold; margin-bottom: 5px;">${data.successful_items}</div>
-                      <div style="font-size: 14px;">Successful</div>
-                    </div>
-                    <div style="text-align: center; padding: 10px; background: rgba(22, 101, 52, 0.1); border-radius: 6px;">
-                      <div style="font-size: 24px; font-weight: bold; margin-bottom: 5px;">${data.prices_collected}</div>
-                      <div style="font-size: 14px;">Prices Collected</div>
-                    </div>
-                    <div style="text-align: center; padding: 10px; background: rgba(22, 101, 52, 0.1); border-radius: 6px;">
-                      <div style="font-size: 24px; font-weight: bold; margin-bottom: 5px;">${data.success_rate}%</div>
-                      <div style="font-size: 14px;">Success Rate</div>
-                    </div>
-                  </div>
-                </div>
-                <div style="background: #f0f9ff; border-left: 4px solid #0ea5e9; padding: 20px; margin: 20px 0; border-radius: 6px;">
-                  <p style="margin: 0; color: #0c4a6e; font-size: 14px;">
-                    <strong>⏱️ Duration:</strong> ${data.duration} | 
-                    <strong>📅 Completed:</strong> ${new Date(data.completion_time).toLocaleString()}
-                  </p>
-                  ${data.failed_items > 0 ? `
-                    <p style="margin: 10px 0 0 0; color: #dc2626; font-size: 14px;">
-                      <strong>⚠️ Failed Items:</strong> ${data.failed_items} items couldn't be processed
-                    </p>
-                  ` : ''}
-              </div>
-                ${createButton("View Pricing Dashboard", data.dashboard_url, "#16a34a")}
-                <p style="color: #6b7280; font-size: 14px; text-align: center;">
-                  The updated prices are now available in your PopGuide dashboard.
-                </p>
-              `
-            )
-          };
-
-        case 'scraper_failure':
-          return {
-            subject: "❌ Bulk Scraper Failed",
-            html: createEmailTemplate(
-              "❌ Bulk Scraper Failed",
-              "Scraper Failed ❌",
-              `
-                <h2 style="color: ${darkColor}; margin-bottom: 20px;">Bulk Scraper Failed</h2>
-                <p style="color: #374151; line-height: 1.6; margin-bottom: 20px;">
-                  Unfortunately, the <strong>${data.scraper_type}</strong> encountered an error and could not complete.
-                </p>
-                <div style="background: linear-gradient(135deg, #fee2e2, #fecaca); border: 2px solid #dc2626; padding: 25px; border-radius: 12px; margin: 25px 0;">
-                  <h3 style="color: #991b1b; margin: 0 0 15px 0; font-size: 18px;">🚨 Error Details</h3>
-                  <div style="background: rgba(153, 27, 27, 0.1); padding: 15px; border-radius: 6px; margin: 15px 0;">
-                    <code style="color: #991b1b; font-family: monospace; font-size: 14px; white-space: pre-wrap;">${data.error_message || 'Unknown error occurred'}</code>
-                  </div>
-                  <div style="color: #991b1b;">
-                    <p style="margin: 10px 0;"><strong>⏱️ Failed after:</strong> ${data.duration || 'Unknown'}</p>
-                    <p style="margin: 10px 0;"><strong>📅 Failed at:</strong> ${new Date(data.completion_time).toLocaleString()}</p>
-                  </div>
-                </div>
-                ${data.total_processed > 0 ? `
-                  <div style="background: #fef3cd; border-left: 4px solid #f59e0b; padding: 20px; margin: 20px 0; border-radius: 6px;">
-                    <h4 style="color: #92400e; margin: 0 0 10px 0;">📊 Partial Progress Made:</h4>
-                    <div style="color: #92400e;">
-                      <p style="margin: 5px 0;"><strong>Items Processed:</strong> ${data.total_processed} / ${data.total_processed + data.failed_items}</p>
-                      <p style="margin: 5px 0;"><strong>Successful:</strong> ${data.successful_items}</p>
-                      <p style="margin: 5px 0;"><strong>Prices Collected:</strong> ${data.prices_collected}</p>
-              </div>
-            </div>
-                ` : ''}
-                <div style="background: #f0f9ff; border-left: 4px solid #0ea5e9; padding: 20px; margin: 20px 0; border-radius: 6px;">
-                  <h4 style="color: #0c4a6e; margin: 0 0 10px 0;">🔧 Next Steps:</h4>
-                  <ul style="color: #0c4a6e; margin: 0; padding-left: 20px;">
-                    <li>Check the pricing dashboard for any partial results</li>
-                    <li>Review the error details above</li>
-                    <li>Try running the scraper again after a few minutes</li>
-                    <li>Contact support if the issue persists</li>
-                  </ul>
-                </div>
-                ${createButton("View Pricing Dashboard", data.dashboard_url, "#dc2626")}
-                <p style="color: #6b7280; font-size: 14px; text-align: center;">
-                  Need help? Contact support at <a href="mailto:support@popguide.co.uk" style="color: ${primaryColor};">support@popguide.co.uk</a>
-                </p>
-              `
-            )
-          };
-
-        case 'ociostock_success':
-          return {
-            subject: "🎉 OcioStock Coming Soon Scraper Completed",
-            html: createEmailTemplate(
-              "🎉 OcioStock Scraper Success",
-              "New Releases Found! 🎉",
-              `
-                <h2 style="color: ${darkColor}; margin-bottom: 20px;">OcioStock Scraper Completed</h2>
-                <p style="color: #374151; line-height: 1.6; margin-bottom: 20px;">
-                  Great news! The OcioStock coming soon scraper has discovered <strong>${data.itemsScraped}</strong> new upcoming Funko releases.
-                </p>
-                <div style="background: linear-gradient(135deg, #dcfce7, #bbf7d0); border: 2px solid #16a34a; padding: 25px; border-radius: 12px; margin: 25px 0;">
-                  <h3 style="color: #166534; margin: 0 0 15px 0; font-size: 18px;">🛍️ Wholesale Discovery Results</h3>
-                  <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 15px; color: #166534;">
-                    <div style="text-align: center; padding: 10px; background: rgba(22, 101, 52, 0.1); border-radius: 6px;">
-                      <div style="font-size: 24px; font-weight: bold; margin-bottom: 5px;">${data.itemsScraped}</div>
-                      <div style="font-size: 14px;">Coming Soon Items</div>
-                    </div>
-                    <div style="text-align: center; padding: 10px; background: rgba(22, 101, 52, 0.1); border-radius: 6px;">
-                      <div style="font-size: 24px; font-weight: bold; margin-bottom: 5px;">🇪🇸</div>
-                      <div style="font-size: 14px;">Spain B2B Market</div>
-                    </div>
-                  </div>
-                </div>
-                <div style="background: #fef3cd; border-left: 4px solid #f59e0b; padding: 20px; margin: 20px 0; border-radius: 6px;">
-                  <h4 style="color: #92400e; margin: 0 0 10px 0;">🎯 What This Means:</h4>
-                  <ul style="color: #92400e; margin: 0; padding-left: 20px;">
-                    <li>Early intelligence on upcoming Funko releases</li>
-                    <li>Wholesale pricing information for market analysis</li>
-                    <li>Release date tracking for collection planning</li>
-                    <li>Competitive advantage for retailers and collectors</li>
-                  </ul>
-                </div>
-                <div style="background: #f0f9ff; border-left: 4px solid #0ea5e9; padding: 20px; margin: 20px 0; border-radius: 6px;">
-                  <p style="margin: 0; color: #0c4a6e; font-size: 14px;">
-                    <strong>📅 Scraped:</strong> ${new Date(data.timestamp).toLocaleString()} | 
-                    <strong>🌐 Source:</strong> OcioStock B2B Platform
-                  </p>
-                </div>
-                ${createButton("View Coming Soon Releases", "https://popguide.co.uk/coming-soon", "#16a34a")}
-                <p style="color: #6b7280; font-size: 14px; text-align: center;">
-                  The new releases are now available in your PopGuide coming soon dashboard.
-                </p>
-              `
-            )
-          };
-
-        case 'ociostock_failure':
-          return {
-            subject: "❌ OcioStock Scraper Failed",
-            html: createEmailTemplate(
-              "❌ OcioStock Scraper Failed",
-              "Scraper Error ❌",
-              `
-                <h2 style="color: ${darkColor}; margin-bottom: 20px;">OcioStock Scraper Failed</h2>
-                <p style="color: #374151; line-height: 1.6; margin-bottom: 20px;">
-                  Unfortunately, the OcioStock coming soon scraper encountered an error and could not complete.
-                </p>
-                <div style="background: linear-gradient(135deg, #fee2e2, #fecaca); border: 2px solid #dc2626; padding: 25px; border-radius: 12px; margin: 25px 0;">
-                  <h3 style="color: #991b1b; margin: 0 0 15px 0; font-size: 18px;">🚨 Error Details</h3>
-                  <div style="background: rgba(153, 27, 27, 0.1); padding: 15px; border-radius: 6px; margin: 15px 0;">
-                    <code style="color: #991b1b; font-family: monospace; font-size: 14px; white-space: pre-wrap;">${data.error_message || 'Authentication or scraping error occurred'}</code>
-                  </div>
-                  <div style="color: #991b1b;">
-                    <p style="margin: 10px 0;"><strong>📅 Failed at:</strong> ${new Date(data.timestamp).toLocaleString()}</p>
-                    <p style="margin: 10px 0;"><strong>🌐 Source:</strong> OcioStock B2B Platform</p>
-                  </div>
-                </div>
-                <div style="background: #fef3cd; border-left: 4px solid #f59e0b; padding: 20px; margin: 20px 0; border-radius: 6px;">
-                  <h4 style="color: #92400e; margin: 0 0 10px 0;">🔍 Possible Causes:</h4>
-                  <ul style="color: #92400e; margin: 0; padding-left: 20px;">
-                    <li>Authentication credentials may have expired</li>
-                    <li>OcioStock website structure changes</li>
-                    <li>Network connectivity issues</li>
-                    <li>Rate limiting or anti-bot protection</li>
-                  </ul>
-                </div>
-                <div style="background: #f0f9ff; border-left: 4px solid #0ea5e9; padding: 20px; margin: 20px 0; border-radius: 6px;">
-                  <h4 style="color: #0c4a6e; margin: 0 0 10px 0;">🔧 Next Steps:</h4>
-                  <ul style="color: #0c4a6e; margin: 0; padding-left: 20px;">
-                    <li>Verify OcioStock login credentials are still valid</li>
-                    <li>Check if the website layout has changed</li>
-                    <li>Try running the scraper again after a few minutes</li>
-                    <li>Contact support if authentication issues persist</li>
-                  </ul>
-                </div>
-                ${createButton("View Coming Soon Dashboard", "https://popguide.co.uk/coming-soon", "#dc2626")}
-                <p style="color: #6b7280; font-size: 14px; text-align: center;">
-                  Need help? Contact support at <a href="mailto:support@popguide.co.uk" style="color: ${primaryColor};">support@popguide.co.uk</a>
-                </p>
-              `
-            )
-          };
-
-        case 'funko_europe_scraper_start':
-          return {
-            subject: "🚀 Daily Funko Europe Scraper Started",
-            html: createEmailTemplate(
-              "🚀 Daily Funko Europe Scraper Started",
-              "Scraping in Progress 🚀",
-              `
-                <h2 style="color: ${darkColor}; margin-bottom: 20px;">Daily Funko Europe Scraper Started</h2>
-                <p style="color: #374151; line-height: 1.6; margin-bottom: 20px;">
-                  The daily Funko Europe scraper has been initiated and is now collecting the latest product data from funkoeurope.com.
-                </p>
-                <div style="background: linear-gradient(135deg, #dbeafe, #bfdbfe); border: 2px solid #3b82f6; padding: 25px; border-radius: 12px; margin: 25px 0;">
-                  <h3 style="color: #1e40af; margin: 0 0 15px 0; font-size: 18px;">🔄 Scraping Status</h3>
-                  <div style="color: #1e40af;">
-                    <p style="margin: 10px 0;"><strong>📅 Started:</strong> ${new Date(data.startTime).toLocaleString()}</p>
-                    <p style="margin: 10px 0;"><strong>🎯 Collections:</strong> What's New, Coming Soon</p>
-                    <p style="margin: 10px 0;"><strong>🌐 Source:</strong> funkoeurope.com</p>
-              </div>
-            </div>
-                <div style="background: #f0f9ff; border-left: 4px solid #0ea5e9; padding: 20px; margin: 20px 0; border-radius: 6px;">
-                  <h4 style="color: #0c4a6e; margin: 0 0 10px 0;">📊 What's Being Collected:</h4>
-                  <ul style="color: #0c4a6e; margin: 0; padding-left: 20px;">
-                    <li>Product titles, item numbers, and categories</li>
-                    <li>Pricing information and availability status</li>
-                    <li>Character and license information</li>
-                    <li>Product images and descriptions</li>
-                    <li>Exclusivity and deal information</li>
-                  </ul>
-                </div>
-                <p style="color: #374151; line-height: 1.6; text-align: center;">
-                  You'll receive a completion notification with a full summary once the scraping process is finished.
-                </p>
-                <p style="color: #6b7280; font-size: 14px; text-align: center;">
-                  Expected completion time: 15-30 minutes
-                </p>
-              `
-            )
-          };
-
-        case 'funko_europe_scraper_complete':
-          return {
-            subject: `✅ Funko Europe Scraper Complete - ${data.newProducts} New Products Found!`,
-            html: createEmailTemplate(
-              "✅ Funko Europe Scraper Complete",
-              "Scraping Complete! ✅",
-              `
-                <h2 style="color: ${darkColor}; margin-bottom: 20px;">Daily Funko Europe Scraper Completed</h2>
-                <p style="color: #374151; line-height: 1.6; margin-bottom: 20px;">
-                  Excellent! The daily Funko Europe scraper has successfully completed and discovered exciting new products.
-                </p>
-                <div style="background: linear-gradient(135deg, #dcfce7, #bbf7d0); border: 2px solid #16a34a; padding: 25px; border-radius: 12px; margin: 25px 0;">
-                  <h3 style="color: #166534; margin: 0 0 15px 0; font-size: 18px;">📊 Scraping Results</h3>
-                  <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 15px; color: #166534;">
-                    <div style="text-align: center; padding: 15px; background: rgba(22, 101, 52, 0.1); border-radius: 8px;">
-                      <div style="font-size: 28px; font-weight: bold; margin-bottom: 5px;">${data.newProducts || 0}</div>
-                      <div style="font-size: 14px;">New Products</div>
-                    </div>
-                    <div style="text-align: center; padding: 15px; background: rgba(22, 101, 52, 0.1); border-radius: 8px;">
-                      <div style="font-size: 28px; font-weight: bold; margin-bottom: 5px;">${data.updatedProducts || 0}</div>
-                      <div style="font-size: 14px;">Updated Products</div>
-                    </div>
-                  </div>
-                  <div style="margin-top: 15px; text-align: center;">
-                    <p style="margin: 5px 0; color: #166534;"><strong>⏱️ Duration:</strong> ${data.duration}</p>
-                    <p style="margin: 5px 0; color: #166534;"><strong>📅 Completed:</strong> ${new Date(data.endTime).toLocaleString()}</p>
-                  </div>
-                </div>
-                
-                <div style="background: #fef3cd; border-left: 4px solid #f59e0b; padding: 20px; margin: 20px 0; border-radius: 6px;">
-                  <h4 style="color: #92400e; margin: 0 0 10px 0;">🏪 Collection Breakdown:</h4>
-                  <div style="color: #92400e;">
-                    <p style="margin: 5px 0;"><strong>What's New:</strong> ${data.collections ? data.collections['whats-new'] || 0 : 0} products</p>
-                    <p style="margin: 5px 0;"><strong>Coming Soon:</strong> ${data.collections ? data.collections['coming-soon'] || 0 : 0} products</p>
-                    <p style="margin: 5px 0;"><strong>Total Processed:</strong> ${data.totalScraped || 0} products</p>
-                    <p style="margin: 5px 0;"><strong>Success Rate:</strong> ${data.totalScraped > 0 ? Math.round(((data.newProducts + data.updatedProducts) / data.totalScraped) * 100) : 100}%</p>
-                  </div>
-                </div>
-
-                ${data.errors > 0 ? `
-                  <div style="background: #fee2e2; border-left: 4px solid #dc2626; padding: 20px; margin: 20px 0; border-radius: 6px;">
-                    <h4 style="color: #991b1b; margin: 0 0 10px 0;">⚠️ Processing Notes:</h4>
-                    <p style="margin: 0; color: #991b1b;">${data.errors} product(s) encountered errors during processing but the scraper continued successfully.</p>
-              </div>
-                ` : ''}
-
-                ${createButton("View All Products", "https://popguide.co.uk/funko-europe", "#16a34a")}
-                <p style="color: #6b7280; font-size: 14px; text-align: center;">
-                  New products are now available in your PopGuide dashboard.
-                </p>
-              `
-            )
-          };
-
-        case 'funko_europe_scraper_user_summary':
-          return {
-            subject: "🆕 New Funko Europe Products Discovered!",
-            html: createEmailTemplate(
-              "🆕 New Funko Products Found",
-              "Fresh Finds! 🆕",
-              `
-                <h2 style="color: ${darkColor}; margin-bottom: 20px;">Hi Collector,</h2>
-                <p style="color: #374151; line-height: 1.6; margin-bottom: 20px;">
-                  Great news! We've just finished scanning Funko Europe and discovered <strong>${data.newProducts + data.updatedProducts}</strong> new and updated products that might interest you.
-                </p>
-                
-                <div style="background: linear-gradient(135deg, #fff7ed, #fed7aa); border: 2px solid #f97316; padding: 25px; border-radius: 12px; margin: 25px 0;">
-                  <h3 style="color: #ea580c; margin: 0 0 15px 0; font-size: 18px;">🎯 Daily Discovery Summary</h3>
-                  <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 15px; color: #ea580c;">
-                    <div style="text-align: center; padding: 15px; background: rgba(234, 88, 12, 0.1); border-radius: 8px;">
-                      <div style="font-size: 24px; font-weight: bold; margin-bottom: 5px;">${data.newProducts || 0}</div>
-                      <div style="font-size: 14px;">Brand New</div>
-                    </div>
-                    <div style="text-align: center; padding: 15px; background: rgba(234, 88, 12, 0.1); border-radius: 8px;">
-                      <div style="font-size: 24px; font-weight: bold; margin-bottom: 5px;">${data.updatedProducts || 0}</div>
-                      <div style="font-size: 14px;">Price Updates</div>
-                    </div>
-                  </div>
-                </div>
-
-                <div style="background: #dcfce7; border-left: 4px solid #16a34a; padding: 20px; margin: 20px 0; border-radius: 6px;">
-                  <h4 style="color: #166534; margin: 0 0 10px 0;">🔍 What's New Today:</h4>
-                  <ul style="color: #166534; margin: 0; padding-left: 20px;">
-                    <li>Latest arrivals in the "What's New" collection</li>
-                    <li>Upcoming releases in "Coming Soon"</li>
-                    <li>Price changes and availability updates</li>
-                    <li>Exclusive and limited edition items</li>
-                  </ul>
-                </div>
-
-                <div style="background: #fef3cd; border-left: 4px solid #f59e0b; padding: 20px; margin: 20px 0; border-radius: 6px;">
-                  <h4 style="color: #92400e; margin: 0 0 10px 0;">💡 Pro Tip:</h4>
-                  <p style="margin: 0; color: #92400e;">
-                    Check the "Coming Soon" filter to get early access to upcoming releases before they hit the general market!
-                  </p>
-                </div>
-
-                ${createButton("Browse New Products", "https://popguide.co.uk/funko-europe", "#f97316")}
-
-                <div style="text-align: center; margin: 30px 0;">
-                  <a href="https://popguide.co.uk/funko-europe?collection=whats-new" style="background: #16a34a; color: white; padding: 12px 24px; text-decoration: none; border-radius: 8px; display: inline-block; font-weight: 600; margin-right: 10px;">What's New</a>
-                  <a href="https://popguide.co.uk/funko-europe?collection=coming-soon" style="background: #dc2626; color: white; padding: 12px 24px; text-decoration: none; border-radius: 8px; display: inline-block; font-weight: 600;">Coming Soon</a>
-                </div>
-
-                <p style="color: #6b7280; font-size: 14px; text-align: center;">
-                  This scan was completed at ${new Date(data.endTime).toLocaleString()} in ${data.duration}.<br>
-                  <a href="https://popguide.co.uk/settings" style="color: ${primaryColor};">Manage email preferences</a>
-                </p>
-              `
-            )
-          };
-
-        case 'funko_europe_scraper_error':
-          return {
-            subject: "❌ Funko Europe Scraper Failed",
-            html: createEmailTemplate(
-              "❌ Funko Europe Scraper Failed",
-              "Scraper Error ❌",
-              `
-                <h2 style="color: ${darkColor}; margin-bottom: 20px;">Funko Europe Scraper Failed</h2>
-                <p style="color: #374151; line-height: 1.6; margin-bottom: 20px;">
-                  Unfortunately, the daily Funko Europe scraper encountered an error and could not complete successfully.
-                </p>
-                
-                <div style="background: linear-gradient(135deg, #fee2e2, #fecaca); border: 2px solid #dc2626; padding: 25px; border-radius: 12px; margin: 25px 0;">
-                  <h3 style="color: #991b1b; margin: 0 0 15px 0; font-size: 18px;">🚨 Error Details</h3>
-                  <div style="background: rgba(153, 27, 27, 0.1); padding: 15px; border-radius: 6px; margin: 15px 0;">
-                    <code style="color: #991b1b; font-family: monospace; font-size: 14px; white-space: pre-wrap;">${data.error || 'Unknown error occurred'}</code>
-                  </div>
-                  <div style="color: #991b1b;">
-                    <p style="margin: 10px 0;"><strong>📅 Failed at:</strong> ${new Date().toLocaleString()}</p>
-                    <p style="margin: 10px 0;"><strong>🌐 Source:</strong> funkoeurope.com</p>
-                  </div>
-                </div>
-
-                ${data.results && data.results.totalScraped > 0 ? `
-                  <div style="background: #fef3cd; border-left: 4px solid #f59e0b; padding: 20px; margin: 20px 0; border-radius: 6px;">
-                    <h4 style="color: #92400e; margin: 0 0 10px 0;">📊 Partial Progress Made:</h4>
-                    <div style="color: #92400e;">
-                      <p style="margin: 5px 0;"><strong>Products Processed:</strong> ${data.results.totalScraped}</p>
-                      <p style="margin: 5px 0;"><strong>New Products:</strong> ${data.results.newProducts}</p>
-                      <p style="margin: 5px 0;"><strong>Updated Products:</strong> ${data.results.updatedProducts}</p>
-                      <p style="margin: 5px 0;"><strong>Errors:</strong> ${data.results.errors}</p>
-              </div>
-            </div>
-                ` : ''}
-
-                <div style="background: #fef3cd; border-left: 4px solid #f59e0b; padding: 20px; margin: 20px 0; border-radius: 6px;">
-                  <h4 style="color: #92400e; margin: 0 0 10px 0;">🔍 Possible Causes:</h4>
-                  <ul style="color: #92400e; margin: 0; padding-left: 20px;">
-                    <li>Funko Europe website structure changes</li>
-                    <li>Network connectivity issues</li>
-                    <li>Rate limiting or anti-bot protection</li>
-                    <li>Firecrawl API service issues</li>
-                  </ul>
-                </div>
-
-                <div style="background: #f0f9ff; border-left: 4px solid #0ea5e9; padding: 20px; margin: 20px 0; border-radius: 6px;">
-                  <h4 style="color: #0c4a6e; margin: 0 0 10px 0;">🔧 Next Steps:</h4>
-                  <ul style="color: #0c4a6e; margin: 0; padding-left: 20px;">
-                    <li>The scraper will automatically retry tomorrow</li>
-                    <li>Monitor for website structure changes</li>
-                    <li>Check Firecrawl API status and quotas</li>
-                    <li>Review and update scraping patterns if needed</li>
-                  </ul>
-                </div>
-
-                ${createButton("View Current Products", "https://popguide.co.uk/funko-europe", "#dc2626")}
-                <p style="color: #6b7280; font-size: 14px; text-align: center;">
-                  Need help? Contact support at <a href="mailto:support@popguide.co.uk" style="color: ${primaryColor};">support@popguide.co.uk</a>
+                  Have more ideas? <a href="https://popguide.co.uk/dashboard?tab=support" style="color: ${primaryColor};">Submit a feature request</a>
                 </p>
               `
             )

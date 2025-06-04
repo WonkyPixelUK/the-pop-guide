@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import { View, Text, StyleSheet, Alert, ScrollView, TouchableOpacity } from 'react-native';
+import { View, Text, StyleSheet, Alert, ScrollView, TouchableOpacity, ActivityIndicator } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { useNavigation } from '@react-navigation/native';
 import { Ionicons } from '@expo/vector-icons';
@@ -31,14 +31,93 @@ interface BillingHistory {
   description: string;
 }
 
+interface Plan {
+  id: string;
+  name: string;
+  price: number;
+  interval: 'month' | 'year';
+  features: string[];
+  popular?: boolean;
+  stripePriceId: string;
+}
+
+const plans: Plan[] = [
+  {
+    id: 'free',
+    name: 'Free',
+    price: 0,
+    interval: 'month',
+    stripePriceId: '',
+    features: [
+      'Track up to 100 Funko Pops',
+      'Basic collection management',
+      'Price alerts for owned items',
+      'Community access',
+      'Mobile app access'
+    ]
+  },
+  {
+    id: 'pro_monthly',
+    name: 'Pro',
+    price: 3.99,
+    interval: 'month',
+    stripePriceId: 'price_1OpGuideProMonthly123', // Replace with actual Stripe price ID
+    popular: true,
+    features: [
+      'Unlimited Funko Pop tracking',
+      'Advanced analytics & insights',
+      'Price history tracking & alerts',
+      'Custom categories & lists',
+      'Bulk actions (add/edit/remove)',
+      'CSV import & export',
+      'New releases tracking',
+      'Currency support (£/$/€)',
+      'Social features & friends',
+      'Collection sharing',
+      'Advanced search & filtering',
+      'Priority support',
+      'API access',
+      'AI price predictions',
+      'Wish tracker & drop alerts',
+      'Gamification & achievements',
+      'Personalized recommendations',
+      'Virtual shelf showcase',
+      'Email notifications',
+      'Premium badge system',
+      'Barcode scanning',
+      'Mobile app access',
+      'Dark mode support'
+    ]
+  },
+  {
+    id: 'retailer_yearly',
+    name: 'Retailer',
+    price: 25,
+    interval: 'year',
+    stripePriceId: 'price_1OpGuideRetailerYearly123', // Replace with actual Stripe price ID
+    features: [
+      'Directory listing',
+      'Retailer badge',
+      'Analytics dashboard',
+      'Deal alerts',
+      'Unlimited product listings',
+      'Whatnot show promotion',
+      'Business insights',
+      'Priority listing placement'
+    ]
+  }
+];
+
 export const SubscriptionScreen: React.FC = () => {
   const navigation = useNavigation();
-  const { user } = useAuth();
+  const { user, subscription, refreshSubscription } = useAuth();
   
-  const [subscription, setSubscription] = useState<Subscription | null>(null);
   const [billingHistory, setBillingHistory] = useState<BillingHistory[]>([]);
   const [loading, setLoading] = useState(true);
   const [canceling, setCanceling] = useState(false);
+  const [selectedPlan, setSelectedPlan] = useState<string>('pro_monthly');
+  const [currentSubscription, setCurrentSubscription] = useState<any>(null);
+  const [isLoading, setIsLoading] = useState(false);
 
   useEffect(() => {
     loadSubscriptionData();
@@ -57,7 +136,7 @@ export const SubscriptionScreen: React.FC = () => {
         .limit(1)
         .single();
 
-      setSubscription(subData);
+      setCurrentSubscription(subData);
 
       // Load billing history
       const { data: billingData } = await supabase
@@ -75,103 +154,153 @@ export const SubscriptionScreen: React.FC = () => {
     }
   };
 
+  const handleSubscribe = async (plan: Plan) => {
+    if (!user) {
+      Alert.alert('Sign In Required', 'Please sign in to subscribe');
+      return;
+    }
+
+    if (plan.id === 'free') {
+      Alert.alert('Free Plan', 'You are already on the free plan!');
+      return;
+    }
+
+    setIsLoading(true);
+
+    try {
+      // Create checkout session
+      const { data, error } = await supabase.functions.invoke('create-checkout-session', {
+        body: {
+          priceId: plan.stripePriceId,
+          userId: user.id,
+          userEmail: user.email,
+          successUrl: 'com.popguide.app://payment-success',
+          cancelUrl: 'com.popguide.app://payment-cancel'
+        }
+      });
+
+      if (error) {
+        throw error;
+      }
+
+      if (data?.url) {
+        // In a real app, you'd open this URL in a webview or browser
+        Alert.alert(
+          '🚀 Ready to Subscribe!',
+          `Selected: ${plan.name} - $${plan.price}/${plan.interval}\n\n${plan.id === 'pro_monthly' ? 'Start your 3-day free trial, then ' : ''}$${plan.price}/${plan.interval}\n\nIn a production app, this would open Stripe Checkout.\n\nFor demo purposes, we'll simulate a successful payment.`,
+          [
+            { text: 'Cancel', style: 'cancel' },
+            { 
+              text: 'Simulate Payment', 
+              onPress: () => simulateSuccessfulPayment(plan)
+            }
+          ]
+        );
+      }
+    } catch (error) {
+      console.error('Subscription error:', error);
+      Alert.alert('Subscription Error', 'Unable to start subscription process');
+    } finally {
+      setIsLoading(false);
+    }
+  };
+
+  const simulateSuccessfulPayment = async (plan: Plan) => {
+    try {
+      setIsLoading(true);
+
+      // Simulate creating subscription in database
+      const expiresAt = new Date();
+      if (plan.interval === 'month') {
+        expiresAt.setMonth(expiresAt.getMonth() + 1);
+      } else {
+        expiresAt.setFullYear(expiresAt.getFullYear() + 1);
+      }
+
+      const { error } = await supabase
+        .from('user_subscriptions')
+        .insert({
+          user_id: user!.id,
+          subscription_type: plan.id === 'retailer_yearly' ? 'retailer' : 'pro',
+          stripe_subscription_id: `sim_${Date.now()}`,
+          stripe_customer_id: `cus_${Date.now()}`,
+          status: 'active',
+          current_period_start: new Date().toISOString(),
+          current_period_end: expiresAt.toISOString(),
+          expires_at: expiresAt.toISOString(),
+          plan_name: plan.name,
+          plan_price: plan.price,
+          plan_interval: plan.interval
+        });
+
+      if (error) throw error;
+
+      // Update user profile
+      await supabase
+        .from('user_profiles')
+        .update({ subscription_type: plan.id === 'retailer_yearly' ? 'retailer' : 'pro' })
+        .eq('user_id', user!.id);
+
+      await refreshSubscription();
+      await loadSubscriptionData();
+
+      Alert.alert(
+        '🎉 Welcome to Pro!',
+        `You've successfully subscribed to ${plan.name}!\n\n${plan.id === 'pro_monthly' ? 'Your 3-day free trial has started. ' : ''}Your premium features are now active.`,
+        [{ text: 'Awesome!', onPress: () => navigation.goBack() }]
+      );
+    } catch (error) {
+      console.error('Simulation error:', error);
+      Alert.alert('Error', 'Failed to process subscription');
+    } finally {
+      setIsLoading(false);
+    }
+  };
+
   const handleCancelSubscription = async () => {
     Alert.alert(
       'Cancel Subscription',
-      'Are you sure you want to cancel your POP Guide subscription? You\'ll continue to have access until the end of your current billing period.',
+      'Are you sure you want to cancel your Pro subscription? You will lose access to premium features at the end of your billing period.',
       [
         { text: 'Keep Subscription', style: 'cancel' },
-        {
-          text: 'Cancel Subscription',
+        { 
+          text: 'Cancel Subscription', 
           style: 'destructive',
-          onPress: async () => {
-            setCanceling(true);
-            try {
-              // Call backend to cancel Stripe subscription
-              const response = await fetch(`${process.env.EXPO_PUBLIC_API_URL}/cancel-subscription`, {
-                method: 'POST',
-                headers: {
-                  'Content-Type': 'application/json',
-                  'Authorization': `Bearer ${(await supabase.auth.getSession()).data.session?.access_token}`
-                },
-                body: JSON.stringify({
-                  subscription_id: subscription?.stripe_subscription_id
-                })
-              });
-
-              if (!response.ok) throw new Error('Failed to cancel subscription');
-
-              // Update local subscription status
-              const { error } = await supabase
-                .from('user_subscriptions')
-                .update({ 
-                  cancel_at_period_end: true,
-                  status: 'canceled'
-                })
-                .eq('id', subscription?.id);
-
-              if (error) throw error;
-
-              Alert.alert(
-                'Subscription Canceled',
-                'Your subscription has been canceled. You\'ll continue to have access until the end of your current billing period.',
-                [{ text: 'OK', onPress: () => loadSubscriptionData() }]
-              );
-            } catch (error: any) {
-              Alert.alert('Error', 'Failed to cancel subscription. Please contact support.');
-            } finally {
-              setCanceling(false);
-            }
-          }
+          onPress: confirmCancelSubscription
         }
       ]
     );
   };
 
-  const handleReactivateSubscription = async () => {
-    Alert.alert(
-      'Reactivate Subscription',
-      'Would you like to reactivate your POP Guide subscription?',
-      [
-        { text: 'No', style: 'cancel' },
-        {
-          text: 'Reactivate',
-          onPress: async () => {
-            try {
-              // Call backend to reactivate Stripe subscription
-              const response = await fetch(`${process.env.EXPO_PUBLIC_API_URL}/reactivate-subscription`, {
-                method: 'POST',
-                headers: {
-                  'Content-Type': 'application/json',
-                  'Authorization': `Bearer ${(await supabase.auth.getSession()).data.session?.access_token}`
-                },
-                body: JSON.stringify({
-                  subscription_id: subscription?.stripe_subscription_id
-                })
-              });
+  const confirmCancelSubscription = async () => {
+    try {
+      setIsLoading(true);
 
-              if (!response.ok) throw new Error('Failed to reactivate subscription');
+      // In production, you'd call Stripe API to cancel
+      const { error } = await supabase
+        .from('user_subscriptions')
+        .update({ 
+          status: 'canceled',
+          canceled_at: new Date().toISOString()
+        })
+        .eq('user_id', user!.id)
+        .eq('status', 'active');
 
-              // Update local subscription status
-              const { error } = await supabase
-                .from('user_subscriptions')
-                .update({ 
-                  cancel_at_period_end: false,
-                  status: 'active'
-                })
-                .eq('id', subscription?.id);
+      if (error) throw error;
 
-              if (error) throw error;
+      await refreshSubscription();
+      await loadSubscriptionData();
 
-              Alert.alert('Subscription Reactivated', 'Your subscription is now active again!');
-              loadSubscriptionData();
-            } catch (error: any) {
-              Alert.alert('Error', 'Failed to reactivate subscription. Please contact support.');
-            }
-          }
-        }
-      ]
-    );
+      Alert.alert(
+        'Subscription Canceled',
+        'Your subscription has been canceled. You\'ll continue to have Pro access until the end of your billing period.'
+      );
+    } catch (error) {
+      console.error('Cancellation error:', error);
+      Alert.alert('Error', 'Failed to cancel subscription');
+    } finally {
+      setIsLoading(false);
+    }
   };
 
   const formatDate = (dateString: string) => {
@@ -206,6 +335,56 @@ export const SubscriptionScreen: React.FC = () => {
     }
   };
 
+  const PlanCard = ({ plan }: { plan: Plan }) => (
+    <View style={[styles.planCard, plan.popular && styles.popularPlan]}>
+      {plan.popular && (
+        <View style={styles.popularBadge}>
+          <Text style={styles.popularBadgeText}>MOST POPULAR</Text>
+        </View>
+      )}
+      
+      <View style={styles.planHeader}>
+        <Text style={styles.planName}>{plan.name}</Text>
+        <View style={styles.priceContainer}>
+          <Text style={styles.priceSymbol}>$</Text>
+          <Text style={styles.price}>{plan.price}</Text>
+          <Text style={styles.priceInterval}>/{plan.interval}</Text>
+        </View>
+      </View>
+
+      <View style={styles.featuresContainer}>
+        {plan.features.map((feature, index) => (
+          <View key={index} style={styles.featureRow}>
+            <Ionicons name="checkmark-circle" size={20} color="#007AFF" />
+            <Text style={styles.featureText}>{feature}</Text>
+          </View>
+        ))}
+      </View>
+
+      {plan.id !== 'free' && (
+        <TouchableOpacity
+          style={[
+            styles.subscribeButton,
+            plan.popular && styles.popularButton,
+            subscription === 'pro' && styles.currentPlanButton
+          ]}
+          onPress={() => handleSubscribe(plan)}
+          disabled={isLoading || subscription === 'pro'}
+        >
+          {isLoading ? (
+            <ActivityIndicator color="white" />
+          ) : (
+            <Text style={styles.subscribeButtonText}>
+              {subscription === 'pro' ? 'Current Plan' : 
+               plan.id === 'retailer_yearly' ? 'Become a Retailer' : 
+               'Start 3-Day Pro Trial'}
+            </Text>
+          )}
+        </TouchableOpacity>
+      )}
+    </View>
+  );
+
   if (loading) {
     return (
       <SafeAreaView style={styles.container}>
@@ -217,7 +396,7 @@ export const SubscriptionScreen: React.FC = () => {
     );
   }
 
-  if (!subscription) {
+  if (!currentSubscription) {
     return (
       <SafeAreaView style={styles.container}>
         <Header title="Subscription" showBack />
@@ -241,139 +420,61 @@ export const SubscriptionScreen: React.FC = () => {
     <SafeAreaView style={styles.container}>
       <Header title="Subscription" showBack />
       
-      <ScrollView style={styles.content}>
-        {/* Current Subscription */}
-        <Card style={styles.subscriptionCard}>
-          <View style={styles.subscriptionHeader}>
-            <Text style={styles.subscriptionTitle}>Current Plan</Text>
-            <View style={[styles.statusBadge, { backgroundColor: getStatusColor(subscription.status) + '22' }]}>
-              <Text style={[styles.statusText, { color: getStatusColor(subscription.status) }]}>
-                {getStatusText(subscription.status)}
-              </Text>
-            </View>
+      <ScrollView style={styles.content} showsVerticalScrollIndicator={false}>
+        {/* Current Status */}
+        <View style={styles.statusContainer}>
+          <View style={styles.statusHeader}>
+            <Ionicons 
+              name={subscription === 'pro' ? "star" : "person"} 
+              size={24} 
+              color={subscription === 'pro' ? "#FFD700" : "#86868b"} 
+            />
+            <Text style={styles.statusTitle}>
+              Current Plan: {subscription === 'pro' ? 'Pro' : 'Free'}
+            </Text>
           </View>
-          
-          <Text style={styles.planName}>Monthly Subscription</Text>
-          <Text style={styles.planPrice}>$3.99/month</Text>
-          
-          <View style={styles.subscriptionDetails}>
-            <View style={styles.detailRow}>
-              <Text style={styles.detailLabel}>Current Period</Text>
-              <Text style={styles.detailValue}>
-                {formatDate(subscription.current_period_start)} - {formatDate(subscription.current_period_end)}
-              </Text>
-            </View>
-            
-            <View style={styles.detailRow}>
-              <Text style={styles.detailLabel}>Next Billing Date</Text>
-              <Text style={styles.detailValue}>
-                {subscription.cancel_at_period_end ? 'Subscription ends' : 'Renews'} on {formatDate(subscription.current_period_end)}
-              </Text>
-            </View>
-          </View>
-
-          {subscription.cancel_at_period_end && (
-            <View style={styles.cancelNotice}>
-              <Ionicons name="information-circle" size={20} color={theme.colors.warning} />
-              <Text style={styles.cancelNoticeText}>
-                Your subscription is set to cancel at the end of the current period
-              </Text>
-            </View>
+          {currentSubscription && (
+            <Text style={styles.statusSubtitle}>
+              Renews on {new Date(currentSubscription.current_period_end).toLocaleDateString()}
+            </Text>
           )}
-        </Card>
+        </View>
 
-        {/* Subscription Actions */}
-        <Card style={styles.actionsCard}>
-          <Text style={styles.actionsTitle}>Manage Subscription</Text>
-          
-          {subscription.status === 'active' && !subscription.cancel_at_period_end ? (
-            <Button
-              title="Cancel Subscription"
-              variant="outline"
+        {/* Plans */}
+        <View style={styles.plansContainer}>
+          <Text style={styles.sectionTitle}>Simple, Transparent Pricing</Text>
+          <Text style={styles.sectionSubtitle}>
+            Start free and upgrade as your collection grows. No hidden fees, cancel anytime.
+          </Text>
+
+          {plans.map((plan) => (
+            <PlanCard key={plan.id} plan={plan} />
+          ))}
+        </View>
+
+        {/* Cancel Subscription */}
+        {subscription === 'pro' && currentSubscription && (
+          <View style={styles.cancelContainer}>
+            <TouchableOpacity
+              style={styles.cancelButton}
               onPress={handleCancelSubscription}
-              loading={canceling}
-              style={styles.actionButton}
-              icon="close-circle-outline"
-            />
-          ) : subscription.cancel_at_period_end ? (
-            <Button
-              title="Reactivate Subscription"
-              onPress={handleReactivateSubscription}
-              style={styles.actionButton}
-              icon="refresh"
-            />
-          ) : (
-            <Button
-              title="Update Payment Method"
-              onPress={() => (navigation as any).navigate('Payment')}
-              style={styles.actionButton}
-              icon="card-outline"
-            />
-          )}
-          
-          <Button
-            title="Contact Support"
-            variant="ghost"
-            onPress={() => {
-              Alert.alert('Contact Support', 'Email us at support@popguide.co.uk for assistance');
-            }}
-            style={styles.supportButton}
-            icon="help-circle-outline"
-          />
-        </Card>
-
-        {/* Billing History */}
-        {billingHistory.length > 0 && (
-          <Card style={styles.billingCard}>
-            <Text style={styles.billingTitle}>Billing History</Text>
-            
-            {billingHistory.map((bill, index) => (
-              <View key={bill.id} style={styles.billingItem}>
-                <View style={styles.billingInfo}>
-                  <Text style={styles.billingDescription}>{bill.description}</Text>
-                  <Text style={styles.billingDate}>{formatDate(bill.created_at)}</Text>
-                </View>
-                <View style={styles.billingAmount}>
-                  <Text style={styles.billingPrice}>{formatPrice(bill.amount)}</Text>
-                  <Text style={[
-                    styles.billingStatus,
-                    { color: bill.status === 'paid' ? theme.colors.success : theme.colors.error }
-                  ]}>
-                    {bill.status}
-                  </Text>
-                </View>
-              </View>
-            ))}
-          </Card>
+              disabled={isLoading}
+            >
+              <Text style={styles.cancelButtonText}>Cancel Subscription</Text>
+            </TouchableOpacity>
+            <Text style={styles.cancelNote}>
+              You can cancel anytime. Your access will continue until the end of your billing period.
+            </Text>
+          </View>
         )}
 
-        {/* Features Included */}
-        <Card style={styles.featuresCard}>
-          <Text style={styles.featuresTitle}>What's Included</Text>
-          
-          <View style={styles.featuresList}>
-            <View style={styles.featureItem}>
-              <Ionicons name="checkmark-circle" size={20} color={theme.colors.success} />
-              <Text style={styles.featureText}>Unlimited Funko tracking</Text>
-            </View>
-            <View style={styles.featureItem}>
-              <Ionicons name="checkmark-circle" size={20} color={theme.colors.success} />
-              <Text style={styles.featureText}>Real-time price updates</Text>
-            </View>
-            <View style={styles.featureItem}>
-              <Ionicons name="checkmark-circle" size={20} color={theme.colors.success} />
-              <Text style={styles.featureText}>Collection analytics</Text>
-            </View>
-            <View style={styles.featureItem}>
-              <Ionicons name="checkmark-circle" size={20} color={theme.colors.success} />
-              <Text style={styles.featureText}>Wishlist management</Text>
-            </View>
-            <View style={styles.featureItem}>
-              <Ionicons name="checkmark-circle" size={20} color={theme.colors.success} />
-              <Text style={styles.featureText}>Barcode scanning</Text>
-            </View>
-          </View>
-        </Card>
+        {/* Footer */}
+        <View style={styles.footer}>
+          <Text style={styles.footerText}>
+            All subscriptions are processed securely through Stripe. 
+            Cancel anytime from your account settings.
+          </Text>
+        </View>
       </ScrollView>
     </SafeAreaView>
   );
@@ -419,160 +520,183 @@ const styles = StyleSheet.create({
   startTrialButton: {
     paddingHorizontal: theme.spacing.xl,
   },
-  subscriptionCard: {
-    padding: theme.spacing.xl,
-    marginTop: theme.spacing.md,
-    marginBottom: theme.spacing.md,
+  statusContainer: {
+    backgroundColor: 'white',
+    margin: 20,
+    padding: 20,
+    borderRadius: 16,
+    shadowColor: '#000',
+    shadowOffset: { width: 0, height: 2 },
+    shadowOpacity: 0.1,
+    shadowRadius: 4,
+    elevation: 3,
   },
-  subscriptionHeader: {
+  statusHeader: {
     flexDirection: 'row',
-    justifyContent: 'space-between',
     alignItems: 'center',
-    marginBottom: theme.spacing.md,
+    marginBottom: 8,
   },
-  subscriptionTitle: {
+  statusTitle: {
     fontSize: 18,
     fontWeight: '600',
-    color: theme.colors.text,
+    color: '#1d1d1f',
+    marginLeft: 12,
   },
-  statusBadge: {
-    paddingHorizontal: theme.spacing.sm,
-    paddingVertical: theme.spacing.xs,
-    borderRadius: theme.borderRadius.md,
+  statusSubtitle: {
+    fontSize: 14,
+    color: '#86868b',
+    marginLeft: 36,
   },
-  statusText: {
+  plansContainer: {
+    paddingHorizontal: 20,
+  },
+  sectionTitle: {
+    fontSize: 24,
+    fontWeight: 'bold',
+    color: '#1d1d1f',
+    textAlign: 'center',
+    marginBottom: 8,
+  },
+  sectionSubtitle: {
+    fontSize: 16,
+    color: '#86868b',
+    textAlign: 'center',
+    marginBottom: 24,
+    paddingHorizontal: 20,
+  },
+  planCard: {
+    backgroundColor: 'white',
+    borderRadius: 16,
+    padding: 24,
+    marginBottom: 16,
+    shadowColor: '#000',
+    shadowOffset: { width: 0, height: 2 },
+    shadowOpacity: 0.1,
+    shadowRadius: 4,
+    elevation: 3,
+    position: 'relative',
+  },
+  popularPlan: {
+    borderWidth: 2,
+    borderColor: '#007AFF',
+  },
+  popularBadge: {
+    position: 'absolute',
+    top: -10,
+    left: 20,
+    right: 20,
+    backgroundColor: '#007AFF',
+    paddingVertical: 6,
+    borderRadius: 12,
+    alignItems: 'center',
+  },
+  popularBadgeText: {
+    color: 'white',
     fontSize: 12,
-    fontWeight: '600',
+    fontWeight: '700',
+  },
+  planHeader: {
+    alignItems: 'center',
+    marginBottom: 24,
+    marginTop: 10,
   },
   planName: {
     fontSize: 20,
-    fontWeight: 'bold',
-    color: theme.colors.text,
-    marginBottom: theme.spacing.xs,
-  },
-  planPrice: {
-    fontSize: 28,
-    fontWeight: 'bold',
-    color: theme.colors.primary,
-    marginBottom: theme.spacing.lg,
-  },
-  subscriptionDetails: {
-    borderTopWidth: 1,
-    borderTopColor: theme.colors.border,
-    paddingTop: theme.spacing.md,
-  },
-  detailRow: {
-    flexDirection: 'row',
-    justifyContent: 'space-between',
-    marginBottom: theme.spacing.sm,
-  },
-  detailLabel: {
-    fontSize: 14,
-    color: theme.colors.textMuted,
-  },
-  detailValue: {
-    fontSize: 14,
-    color: theme.colors.text,
-    fontWeight: '500',
-    textAlign: 'right',
-    flex: 1,
-    marginLeft: theme.spacing.md,
-  },
-  cancelNotice: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    marginTop: theme.spacing.md,
-    padding: theme.spacing.md,
-    backgroundColor: theme.colors.warning + '22',
-    borderRadius: theme.borderRadius.md,
-  },
-  cancelNoticeText: {
-    fontSize: 14,
-    color: theme.colors.warning,
-    marginLeft: theme.spacing.sm,
-    flex: 1,
-  },
-  actionsCard: {
-    padding: theme.spacing.lg,
-    marginBottom: theme.spacing.md,
-  },
-  actionsTitle: {
-    fontSize: 18,
     fontWeight: '600',
-    color: theme.colors.text,
-    marginBottom: theme.spacing.md,
+    color: '#1d1d1f',
+    marginBottom: 8,
   },
-  actionButton: {
-    marginBottom: theme.spacing.md,
-  },
-  supportButton: {
-    marginTop: theme.spacing.sm,
-  },
-  billingCard: {
-    padding: theme.spacing.lg,
-    marginBottom: theme.spacing.md,
-  },
-  billingTitle: {
-    fontSize: 18,
-    fontWeight: '600',
-    color: theme.colors.text,
-    marginBottom: theme.spacing.md,
-  },
-  billingItem: {
+  priceContainer: {
     flexDirection: 'row',
-    justifyContent: 'space-between',
-    alignItems: 'center',
-    paddingVertical: theme.spacing.sm,
-    borderBottomWidth: 1,
-    borderBottomColor: theme.colors.border,
+    alignItems: 'baseline',
+    marginBottom: 4,
   },
-  billingInfo: {
-    flex: 1,
-  },
-  billingDescription: {
-    fontSize: 14,
-    color: theme.colors.text,
+  priceSymbol: {
+    fontSize: 20,
+    color: '#1d1d1f',
     fontWeight: '500',
   },
-  billingDate: {
-    fontSize: 12,
-    color: theme.colors.textMuted,
-    marginTop: 2,
+  price: {
+    fontSize: 36,
+    fontWeight: 'bold',
+    color: '#1d1d1f',
   },
-  billingAmount: {
-    alignItems: 'flex-end',
-  },
-  billingPrice: {
+  priceInterval: {
     fontSize: 16,
-    color: theme.colors.text,
-    fontWeight: '600',
+    color: '#86868b',
+    marginLeft: 4,
   },
-  billingStatus: {
-    fontSize: 12,
+  savings: {
+    fontSize: 14,
+    color: '#007AFF',
     fontWeight: '500',
-    marginTop: 2,
   },
-  featuresCard: {
-    padding: theme.spacing.lg,
-    marginBottom: theme.spacing.xl,
+  featuresContainer: {
+    marginBottom: 24,
   },
-  featuresTitle: {
-    fontSize: 18,
-    fontWeight: '600',
-    color: theme.colors.text,
-    marginBottom: theme.spacing.md,
-  },
-  featuresList: {
-    // No additional styles needed
-  },
-  featureItem: {
+  featureRow: {
     flexDirection: 'row',
     alignItems: 'center',
-    marginBottom: theme.spacing.sm,
+    marginBottom: 12,
   },
   featureText: {
+    fontSize: 16,
+    color: '#1d1d1f',
+    marginLeft: 12,
+    flex: 1,
+  },
+  subscribeButton: {
+    backgroundColor: '#007AFF',
+    paddingVertical: 16,
+    borderRadius: 12,
+    alignItems: 'center',
+  },
+  popularButton: {
+    backgroundColor: '#007AFF',
+    shadowColor: '#007AFF',
+    shadowOffset: { width: 0, height: 4 },
+    shadowOpacity: 0.3,
+    shadowRadius: 8,
+    elevation: 6,
+  },
+  currentPlanButton: {
+    backgroundColor: '#86868b',
+  },
+  subscribeButtonText: {
+    color: 'white',
+    fontSize: 16,
+    fontWeight: '600',
+  },
+  cancelContainer: {
+    paddingHorizontal: 20,
+    paddingVertical: 24,
+  },
+  cancelButton: {
+    backgroundColor: '#FF3B30',
+    paddingVertical: 16,
+    borderRadius: 12,
+    alignItems: 'center',
+    marginBottom: 12,
+  },
+  cancelButtonText: {
+    color: 'white',
+    fontSize: 16,
+    fontWeight: '600',
+  },
+  cancelNote: {
     fontSize: 14,
-    color: theme.colors.text,
-    marginLeft: theme.spacing.sm,
+    color: '#86868b',
+    textAlign: 'center',
+    paddingHorizontal: 20,
+  },
+  footer: {
+    paddingHorizontal: 20,
+    paddingVertical: 24,
+  },
+  footerText: {
+    fontSize: 12,
+    color: '#86868b',
+    textAlign: 'center',
+    lineHeight: 16,
   },
 }); 

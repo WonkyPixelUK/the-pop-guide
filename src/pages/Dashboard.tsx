@@ -2,13 +2,14 @@ import React, { useState, useEffect, useRef, Suspense } from 'react';
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Card, CardContent } from "@/components/ui/card";
-import { Search, Plus, BarChart3, Users, Zap, LogOut, Settings, Heart, List, TrendingUp, MessageCircle, ChevronLeft, ChevronRight, Download, Badge, Filter, ArrowDownAZ, ArrowUpAZ, ArrowDownWideNarrow, ArrowUpWideNarrow, ArrowUpDown, ChevronDown, ChevronUp, User, Share2 } from "lucide-react";
+import { Search, Plus, BarChart3, Users, Zap, LogOut, Settings, Heart, List, TrendingUp, MessageCircle, ChevronLeft, ChevronRight, Download, Badge, Filter, ArrowDownAZ, ArrowUpAZ, ArrowDownWideNarrow, ArrowUpWideNarrow, ArrowUpDown, ChevronDown, ChevronUp, User, Share2, HelpCircle } from "lucide-react";
 import CollectionGrid from "@/components/CollectionGrid";
 import WishlistGrid from "@/components/WishlistGrid";
 import CustomListsManager from "@/components/CustomListsManager";
 import CollectionAnalytics from "@/components/CollectionAnalytics";
 import EnhancedAddItemDialog from "@/components/EnhancedAddItemDialog";
 import PriceHistory from "@/components/PriceHistory";
+import SupportCenter from "@/components/SupportCenter";
 import { useAuth } from "@/hooks/useAuth";
 import { useFunkoPops, useUserCollection } from "@/hooks/useFunkoPops";
 import { useWishlist } from "@/hooks/useWishlist";
@@ -413,11 +414,15 @@ const Dashboard = () => {
               {(!isMobile || sidebarVisible) && <span className={isMobile ? 'text-xs' : ''}>Analytics</span>}
             </button>
             {/* Hide less important tabs on mobile */}
-            {(!isMobile || activeSection === 'lists' || activeSection === 'friends' || activeSection === 'messages' || activeSection === 'downloads') && (
+            {(!isMobile || activeSection === 'lists' || activeSection === 'friends' || activeSection === 'messages' || activeSection === 'downloads' || activeSection === 'support') && (
               <>
                 <button onClick={() => setActiveSection('lists')} className={`inline-flex items-center justify-center rounded px-2 py-0.5 text-xs font-medium transition-all focus:outline-none focus:ring-2 focus:ring-orange-500 ${isMobile ? 'h-12 min-w-[80px] flex-col' : 'h-8'} ${activeSection === 'lists' ? 'bg-orange-500 text-white shadow-sm' : 'text-gray-700 hover:bg-gray-200'}`}>
                   <List className={`${isMobile ? 'w-5 h-5 mb-1' : 'w-4 h-4 mr-1'}`} />
                   {(!isMobile || sidebarVisible) && <span className={isMobile ? 'text-xs' : ''}>Lists</span>}
+                </button>
+                <button onClick={() => setActiveSection('support')} className={`inline-flex items-center justify-center rounded px-2 py-0.5 text-xs font-medium transition-all focus:outline-none focus:ring-2 focus:ring-orange-500 ${isMobile ? 'h-12 min-w-[80px] flex-col' : 'h-8'} ${activeSection === 'support' ? 'bg-orange-500 text-white shadow-sm' : 'text-gray-700 hover:bg-gray-200'}`}>
+                  <HelpCircle className={`${isMobile ? 'w-5 h-5 mb-1' : 'w-4 h-4 mr-1'}`} />
+                  {(!isMobile || sidebarVisible) && <span className={isMobile ? 'text-xs' : ''}>Support</span>}
                 </button>
                 <button onClick={() => setActiveSection('downloads')} className={`inline-flex items-center justify-center rounded px-2 py-0.5 text-xs font-medium transition-all focus:outline-none focus:ring-2 focus:ring-orange-500 ${isMobile ? 'h-12 min-w-[80px] flex-col' : 'h-8'} ${activeSection === 'downloads' ? 'bg-orange-500 text-white shadow-sm' : 'text-gray-700 hover:bg-gray-200'}`}>
                   <Download className={`${isMobile ? 'w-5 h-5 mb-1' : 'w-4 h-4 mr-1'}`} />
@@ -471,6 +476,13 @@ const Dashboard = () => {
                   <div className="text-gray-400">Series Collected</div>
                 </CardContent>
               </Card>
+            <Card className="bg-gray-800/50 border-gray-700 cursor-pointer hover:bg-gray-800/70 transition-colors" onClick={() => setActiveSection("support")}> 
+                <CardContent className="p-6 text-center">
+                  <HelpCircle className="w-8 h-8 text-orange-500 mx-auto mb-3" />
+                  <div className="text-2xl font-bold text-white">24h</div>
+                  <div className="text-gray-400">Support Response</div>
+                </CardContent>
+              </Card>
           </aside>
           {/* Main dashboard content */}
           <main ref={mainRef} className="flex-1 pt-20 px-4 md:px-8">
@@ -487,6 +499,7 @@ const Dashboard = () => {
                 {activeSection === 'analytics' && <TrendingUp className="w-7 h-7 text-orange-500" />} 
                 {activeSection === 'messages' && <MessageCircle className="w-7 h-7 text-orange-500" />} 
                 {activeSection === 'downloads' && <Download className="w-7 h-7 text-orange-500" />} 
+                {activeSection === 'support' && <HelpCircle className="w-7 h-7 text-orange-500" />} 
                 {activeSection === 'recently-added' && 'Recently Added'}
                 {activeSection === 'items-owned' && 'Items Owned'}
                 {activeSection === 'series-owned' && 'Series Owned'}
@@ -497,6 +510,7 @@ const Dashboard = () => {
                 {activeSection === 'analytics' && 'Analytics'}
                 {activeSection === 'messages' && 'Messages'}
                 {activeSection === 'downloads' && 'Downloads'}
+                {activeSection === 'support' && 'Support Center'}
               </h2>
               {/* Filters and sort dropdowns */}
               <div className={`flex items-center gap-2 w-full ${isMobile ? 'flex-col space-y-2' : 'md:w-auto'}`}>
@@ -1388,6 +1402,9 @@ const Dashboard = () => {
                   </div>
                 );
               })()
+            )}
+            {activeSection === 'support' && (
+              <SupportCenter />
             )}
           </main>
         </div>

@@ -18,38 +18,11 @@ import { FunkoCard } from '../components/FunkoCard';
 import { Card } from '../components/UI/Card';
 import { Button } from '../components/UI/Button';
 import { theme } from '../styles/theme';
-import { supabase } from '../services/supabase';
+import { getFunkoPops, searchFunkoPops, FunkoPop } from '../services/funko';
+import { testConnection } from '../services/supabase';
 import { useAuth } from '../contexts/AuthContext';
 
 const { width } = Dimensions.get('window');
-
-interface FunkoPop {
-  id: string;
-  name: string;
-  series: string;
-  number: string;
-  variant?: string;
-  image_url?: string;
-  estimated_value?: number;
-  is_exclusive: boolean;
-  is_vaulted: boolean;
-  is_chase: boolean;
-  rarity?: string;
-  release_date?: string;
-  upc?: string;
-  upc_a?: string;
-  ean_13?: string;
-  amazon_asin?: string;
-  country_of_registration?: string;
-  brand?: string;
-  model_number?: string;
-  size?: string;
-  color?: string;
-  weight?: string;
-  product_dimensions?: string;
-  description?: string;
-  image_urls?: string[];
-}
 
 interface FilterState {
   series: string[];
@@ -67,11 +40,18 @@ export const DirectoryScreen = () => {
   const [filteredFunkos, setFilteredFunkos] = useState<FunkoPop[]>([]);
   const [loading, setLoading] = useState(true);
   const [refreshing, setRefreshing] = useState(false);
+  const [loadingMore, setLoadingMore] = useState(false);
   const [searchQuery, setSearchQuery] = useState('');
   const [showFilters, setShowFilters] = useState(false);
   const [viewMode, setViewMode] = useState<'grid' | 'list'>('grid');
   const [sortBy, setSortBy] = useState<'name' | 'value' | 'release_date' | 'series'>('name');
   const [sortOrder, setSortOrder] = useState<'asc' | 'desc'>('asc');
+  
+  // Pagination state
+  const [currentPage, setCurrentPage] = useState(0);
+  const [hasMore, setHasMore] = useState(true);
+  const [totalCount, setTotalCount] = useState(0);
+  const PAGE_SIZE = 50;
   
   const [filters, setFilters] = useState<FilterState>({
     series: [],
@@ -95,41 +75,104 @@ export const DirectoryScreen = () => {
     return pop.image_url;
   };
 
-  const loadFunkos = async () => {
+  // Test connection on mount
+  useEffect(() => {
+    const initializeConnection = async () => {
+      const connected = await testConnection();
+      if (!connected) {
+        Alert.alert(
+          'Connection Error',
+          'Unable to connect to PopGuide database. Please check your internet connection.',
+          [{ text: 'Retry', onPress: loadFunkos }]
+        );
+      } else {
+        loadFunkos();
+      }
+    };
+    initializeConnection();
+  }, []);
+
+  const loadFunkos = async (page = 0, append = false) => {
     try {
-      const { data, error } = await supabase
-        .from('funko_pops')
-        .select('*')
-        .order(sortBy, { ascending: sortOrder === 'asc' })
-        .limit(100);
+      if (!append) {
+        setLoading(true);
+      } else {
+        setLoadingMore(true);
+      }
 
-      if (error) throw error;
+      let data, count, hasMoreData;
 
-      setFunkos(data || []);
-      setFilteredFunkos(data || []);
+      if (searchQuery.trim()) {
+        // Use search function
+        const results = await searchFunkoPops(searchQuery, PAGE_SIZE);
+        data = results;
+        count = results.length;
+        hasMoreData = false; // Search doesn't support pagination yet
+      } else {
+        // Use paginated fetch
+        const results = await getFunkoPops(PAGE_SIZE, page * PAGE_SIZE);
+        data = results.data;
+        count = results.count;
+        hasMoreData = results.hasMore;
+      }
+
+      if (append) {
+        setFunkos(prev => [...prev, ...data]);
+        setFilteredFunkos(prev => [...prev, ...data]);
+      } else {
+        setFunkos(data);
+        setFilteredFunkos(data);
+        setCurrentPage(0);
+      }
+
+      setTotalCount(count);
+      setHasMore(hasMoreData);
 
       // Extract unique series and rarities for filters
       const series = [...new Set(data?.map(f => f.series).filter(Boolean) || [])];
       const rarities = [...new Set(data?.map(f => f.rarity).filter(Boolean) || [])];
       
-      setAvailableSeries(series);
-      setAvailableRarities(rarities);
+      setAvailableSeries(prev => [...new Set([...prev, ...series])]);
+      setAvailableRarities(prev => [...new Set([...prev, ...rarities])]);
+
     } catch (error) {
       console.error('Error loading funkos:', error);
-      Alert.alert('Error', 'Failed to load Funko directory');
+      Alert.alert(
+        'Error', 
+        `Failed to load Funko directory: ${error instanceof Error ? error.message : 'Unknown error'}`
+      );
     } finally {
       setLoading(false);
       setRefreshing(false);
+      setLoadingMore(false);
     }
   };
 
+  // Load more items for pagination
+  const loadMore = () => {
+    if (!loadingMore && hasMore && !searchQuery.trim()) {
+      const nextPage = currentPage + 1;
+      setCurrentPage(nextPage);
+      loadFunkos(nextPage, true);
+    }
+  };
+
+  // Search with debouncing
   useEffect(() => {
-    loadFunkos();
-  }, [sortBy, sortOrder]);
+    const searchTimer = setTimeout(() => {
+      if (searchQuery !== '') {
+        loadFunkos(0, false);
+      } else {
+        loadFunkos(0, false);
+      }
+    }, 500);
+
+    return () => clearTimeout(searchTimer);
+  }, [searchQuery]);
 
   useEffect(() => {
     applyFilters();
-  }, [searchQuery, filters, funkos]);
+  }, [filters, funkos]);
 
   const applyFilters = () => {
     let filtered = [...funkos];

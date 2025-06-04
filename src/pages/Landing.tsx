@@ -1,11 +1,10 @@
 import { Button } from "@/components/ui/button";
 import { Card, CardContent } from "@/components/ui/card";
-import { BarChart3, Users, Zap, Star, Shield, TrendingUp, Smartphone, Globe, Monitor, Check, Puzzle, Rocket, CheckCircle, Search, Sparkles } from "lucide-react";
+import { BarChart3, Users, Zap, Star, Shield, TrendingUp, Smartphone, Globe, Monitor, Check, Puzzle, Rocket, CheckCircle, Search, Sparkles, ChevronDown, ChevronUp, Plus, Heart, List as ListIcon, Share2, Loader2 } from "lucide-react";
 import { Link } from "react-router-dom";
 import SEO from '@/components/SEO';
 import { useState } from 'react';
 import { useFunkoPops } from '@/hooks/useFunkoPops';
-import ItemDetailsDialog from '@/components/ItemDetailsDialog';
 import Navigation from '@/components/Navigation';
 import { Dialog, DialogContent } from '@/components/ui/dialog';
 import MobileBottomNav from '@/components/MobileBottomNav';
@@ -13,6 +12,12 @@ import Footer from '@/components/Footer';
 import OnboardingTour from '@/components/OnboardingTour';
 import { useCurrency } from '@/contexts/CurrencyContext';
 import { formatCurrency } from '@/utils/formatCurrency';
+import { useAuth } from "@/hooks/useAuth";
+import { useWishlist } from "@/hooks/useWishlist";
+import { useAddToCollection } from "@/hooks/useFunkoPops";
+import { useToast } from '@/hooks/use-toast';
+import { useNavigate } from 'react-router-dom';
+import PriceHistory from '@/components/PriceHistory';
 
 const Landing = () => {
   const [email, setEmail] = useState('');
@@ -20,14 +25,131 @@ const Landing = () => {
   const { data: funkoPops = [] } = useFunkoPops();
   const [filter, setFilter] = useState('All');
   const categories = Array.from(new Set(funkoPops.map(pop => pop.series))).filter(Boolean);
-  const [selectedPop, setSelectedPop] = useState(null);
+  const [expandedPop, setExpandedPop] = useState(null);
   const [demoOpen, setDemoOpen] = useState(false);
+  const [addingToCollection, setAddingToCollection] = useState(false);
+  const [ownedConfirmed, setOwnedConfirmed] = useState(false);
   const { currency } = useCurrency();
+  const { user } = useAuth();
+  const { wishlist, addToWishlist, removeFromWishlist } = useWishlist();
+  const addToCollection = useAddToCollection();
+  const { toast } = useToast();
+  const navigate = useNavigate();
 
   const handleSignup = (e) => {
     e.preventDefault();
     // TODO: Implement signup logic (e.g., Supabase, API call)
     setSignupSuccess(true);
+  };
+
+  const requireLogin = () => {
+    if (!user) {
+      navigate('/auth');
+      return true;
+    }
+    return false;
+  };
+
+  const handleExpandPop = (pop) => {
+    setExpandedPop(expandedPop?.id === pop.id ? null : pop);
+  };
+
+  const handleWishlist = (pop) => {
+    if (requireLogin()) return;
+    const isWishlisted = wishlist.some((w) => w.funko_pop_id === pop.id);
+    if (isWishlisted) {
+      removeFromWishlist.mutate(pop.id);
+    } else {
+      addToWishlist.mutate({ funkoPopId: pop.id });
+    }
+  };
+
+  const handleAddToCollection = (pop) => {
+    if (requireLogin()) return;
+    if (pop.owned || addingToCollection) return;
+    
+    setAddingToCollection(true);
+    addToCollection.mutate(pop.id, {
+      onSuccess: () => {
+        setOwnedConfirmed(true);
+        setAddingToCollection(false);
+        toast({ 
+          title: '✅ Added to Collection!', 
+          description: `${pop.name} has been added to your collection.`
+        });
+        setTimeout(() => setOwnedConfirmed(false), 5000);
+      },
+      onError: (error) => {
+        setAddingToCollection(false);
+        if (error.message?.includes('duplicate key') || error.message?.includes('unique constraint')) {
+          toast({
+            title: '✅ Already in Collection',
+            description: `${pop.name} is already in your collection.`
+          });
+          setOwnedConfirmed(true);
+          setTimeout(() => setOwnedConfirmed(false), 5000);
+        } else {
+          toast({
+            title: '❌ Failed to Add',
+            description: error.message || 'Could not add to collection. Please try again.',
+            variant: 'destructive'
+          });
+        }
+      }
+    });
+  };
+
+  const handleShare = (pop) => {
+    const url = `${window.location.origin}/pop/${pop.id}`;
+    navigator.clipboard.writeText(url);
+    toast({ title: 'Link copied!', description: 'Share this Pop with others.' });
+  };
+
+  // Helper function to get the primary image URL (handles both old and new storage methods)
+  const getPrimaryImageUrl = (pop) => {
+    if (pop.image_urls && Array.isArray(pop.image_urls) && pop.image_urls.length > 0) {
+      return pop.image_urls[0];
+    }
+    if (pop.image_url) {
+      return pop.image_url;
+    }
+    return null;
+  };
+
+  // Helper function to render image with CORS handling
+  const renderImage = (pop, className = "w-full h-full object-contain") => {
+    const imageUrl = getPrimaryImageUrl(pop);
+    
+    if (!imageUrl) {
+      return (
+        <div className="flex flex-col items-center justify-center text-gray-400 p-4 h-full">
+          <Users className="w-16 h-16 text-orange-400 animate-pulse mb-2" />
+          <div className="text-xs text-center">No image available</div>
+        </div>
+      );
+    }
+
+    return (
+      <img 
+        src={imageUrl} 
+        alt={pop.name} 
+        className={className}
+        crossOrigin="anonymous"
+        onError={(e) => {
+          e.currentTarget.style.display = 'none';
+          const parent = e.currentTarget.parentElement;
+          if (parent && !parent.querySelector('.image-fallback')) {
+            const fallback = document.createElement('div');
+            fallback.className = 'image-fallback flex flex-col items-center justify-center text-gray-400 p-4 h-full';
+            fallback.innerHTML = `
+              <div class="text-4xl mb-2">📦</div>
+              <div class="text-xs text-center">Image unavailable</div>
+            `;
+            parent.appendChild(fallback);
+          }
+        }}
+      />
+    );
   };
 
   return (
@@ -36,7 +158,7 @@ const Landing = () => {
       <SEO />
       <div className="min-h-screen bg-gradient-to-br from-gray-900 via-gray-800 to-black text-white">
         {/* Use shared Navigation component */}
-        <Navigation className="hidden md:block" />
+        <Navigation />
         {/* Hero Section */}
         <section className="py-20 px-4">
           <div className="container mx-auto text-center">
@@ -278,57 +400,185 @@ const Landing = () => {
             <div className="grid grid-cols-2 md:grid-cols-4 lg:grid-cols-6 gap-6">
               {funkoPops
                 .filter(pop => filter === 'All' || pop.series === filter)
-                .sort((a, b) => new Date(b.created_at) - new Date(a.created_at))
+                .sort((a, b) => new Date(b.created_at).getTime() - new Date(a.created_at).getTime())
                 .slice(0, 24)
-                .map(pop => (
-                  <button
-                    key={pop.id}
-                    className="bg-gray-800/70 border border-gray-700 rounded-lg p-3 flex flex-col items-center hover:shadow-lg transition focus:outline-none focus:ring-2 focus:ring-orange-500"
-                    onClick={() => setSelectedPop({
-                      id: pop.id,
-                      name: pop.name,
-                      series: pop.series,
-                      number: pop.number || '',
-                      image: pop.image_url || '',
-                      image_url: pop.image_url || '',
-                      value: typeof pop.estimated_value === 'number' ? pop.estimated_value : null,
-                      estimated_value: pop.estimated_value,
-                      rarity: pop.rarity || pop.is_chase ? 'Chase' : pop.is_exclusive ? 'Exclusive' : 'Common',
-                      owned: !!pop.owned,
-                      description: pop.description || '',
-                      category: pop.category || 'Pop!',
-                      fandom: pop.fandom,
-                      genre: pop.genre,
-                      edition: pop.edition,
-                      release_year: pop.release_year,
-                      release_date: pop.release_date,
-                      is_vaulted: pop.is_vaulted,
-                      is_exclusive: pop.is_exclusive,
-                      exclusive_to: pop.exclusive_to,
-                      is_chase: pop.is_chase,
-                      variant: pop.variant,
-                    })}
-                    aria-label={`View details for ${pop.name}`}
-                  >
-                    <div className="w-full aspect-square bg-gray-700 rounded-lg mb-2 flex items-center justify-center overflow-hidden">
-                      {pop.image_url ? (
-                        <img src={pop.image_url} alt={pop.name} className="w-full h-full object-contain" />
-                      ) : (
-                        <Users className="w-16 h-16 text-orange-400 animate-pulse" />
-                      )}
-                    </div>
-                    <div className="font-semibold text-white text-center text-base mb-1 truncate w-full">{pop.name}</div>
-                    <div className="text-xs text-gray-400 mb-1">Character: {pop.name}</div>
-                    <div className="text-xs text-gray-400 mb-1">Series: {pop.series}</div>
-                    <div className="text-xs text-gray-400 mb-1">{pop.series} {pop.number ? `#${pop.number}` : ''}</div>
-                    <div className="text-xs text-gray-400 mb-1">{pop.fandom}</div>
-                    <div className="text-xs text-gray-400 mb-1">{pop.genre}</div>
-                    <div className="text-xs text-gray-400 mb-1">{pop.edition}</div>
-                    <div className="text-xs text-gray-400 mb-1">{pop.release_year || '—'}{pop.is_vaulted ? ' • Vaulted' : ''}</div>
-                    <div className="text-xs text-orange-400 font-bold mb-2">{typeof pop.estimated_value === 'number' ? formatCurrency(pop.estimated_value, currency) : 'N/A'}</div>
-                    {pop.description && <div className="text-xs text-gray-300 mb-2 line-clamp-3">{pop.description}</div>}
-                  </button>
-                ))}
+                .map(pop => {
+                  const isExpanded = expandedPop?.id === pop.id;
+                  const isWishlisted = wishlist.some((w) => w.funko_pop_id === pop.id);
+                  const isOwned = false; // Since this is the home page, we don't track ownership here
+                  
+                  if (isExpanded) {
+                    // Show expanded view for this item
+                    return (
+                      <div key={pop.id} className="col-span-full">
+                        <Card className="bg-gray-800 border border-gray-700 rounded-lg p-6 mb-6">
+                          <div className="flex flex-col lg:flex-row gap-8">
+                            {/* Left Side - Large Image and Buttons */}
+                            <div className="lg:w-96 lg:flex-shrink-0">
+                              <div className="aspect-square bg-gray-700 rounded-lg border border-gray-600 overflow-hidden mb-6">
+                                {renderImage(pop)}
+                              </div>
+                              
+                              {/* Action buttons */}
+                              <div className="grid grid-cols-2 gap-2">
+                                <Button
+                                  variant={isOwned ? 'default' : 'outline'}
+                                  className={
+                                    isOwned 
+                                      ? 'bg-green-600 text-white hover:bg-green-700 text-sm h-10 font-medium' 
+                                      : addingToCollection 
+                                      ? 'border-orange-500 bg-orange-500/10 text-orange-500 hover:bg-orange-500/20 text-sm h-10 font-medium' 
+                                      : 'border-orange-500 text-orange-500 hover:bg-orange-500 hover:text-white transition-colors text-sm h-10 font-medium'
+                                  }
+                                  onClick={(e) => {
+                                    e.stopPropagation();
+                                    handleAddToCollection(pop);
+                                  }}
+                                  disabled={isOwned || addingToCollection}
+                                >
+                                  {addingToCollection ? (
+                                    <>
+                                      <Loader2 className="w-4 h-4 mr-1 animate-spin" />
+                                      Adding...
+                                    </>
+                                  ) : isOwned ? (
+                                    <>
+                                      <CheckCircle className="w-4 h-4 mr-1" />
+                                      Owned
+                                    </>
+                                  ) : (
+                                    <>
+                                      <Plus className="w-4 h-4 mr-1" />
+                                      Add
+                                    </>
+                                  )}
+                                </Button>
+                                
+                                <Button 
+                                  variant="outline"
+                                  className={`text-sm h-10 font-medium transition-colors ${
+                                    isWishlisted 
+                                      ? 'bg-red-600 text-white border-red-600 hover:bg-red-700' 
+                                      : 'border-red-500 text-red-500 hover:bg-red-500 hover:text-white'
+                                  }`}
+                                  onClick={(e) => {
+                                    e.stopPropagation();
+                                    handleWishlist(pop);
+                                  }}
+                                >
+                                  <Heart className={`w-4 h-4 mr-1 ${isWishlisted ? 'fill-current' : ''}`} />
+                                  {isWishlisted ? 'Remove' : 'Wishlist'}
+                                </Button>
+
+                                <Button 
+                                  variant="outline" 
+                                  className="border-blue-500 text-blue-500 hover:bg-blue-500 hover:text-white transition-colors text-sm h-10 font-medium"
+                                  onClick={(e) => {
+                                    e.stopPropagation();
+                                    handleShare(pop);
+                                  }}
+                                >
+                                  <Share2 className="w-4 h-4 mr-1" />
+                                  Share
+                                </Button>
+
+                                <Link to={`/pop/${pop.id}`} className="w-full">
+                                  <Button 
+                                    variant="default" 
+                                    className="bg-orange-500 hover:bg-orange-600 text-white transition-colors text-sm h-10 font-medium w-full"
+                                    onClick={(e) => {
+                                      e.stopPropagation();
+                                    }}
+                                  >
+                                    <Search className="w-4 h-4 mr-1" />
+                                    View Full Details
+                                  </Button>
+                                </Link>
+                              </div>
+                            </div>
+
+                            {/* Right Side - Details */}
+                            <div className="flex-1 min-w-0">
+                              <h3 className="text-2xl font-bold text-white mb-6">{pop.name}</h3>
+                              <p className="text-gray-400 text-lg mb-6">{pop.series}</p>
+                              
+                              {/* Basic Info Cards */}
+                              <div className="grid grid-cols-2 md:grid-cols-3 gap-4 mb-6">
+                                <div className="bg-gray-700 p-4 rounded-lg border border-gray-600">
+                                  <div className="text-sm text-gray-400 mb-1">Category</div>
+                                  <div className="font-semibold text-white text-lg">Pop!</div>
+                                </div>
+                                
+                                <div className="bg-gray-700 p-4 rounded-lg border border-gray-600">
+                                  <div className="text-sm text-gray-400 mb-1">Number</div>
+                                  <div className="font-semibold text-white text-lg">{pop.number || '—'}</div>
+                                </div>
+                                
+                                <div className="bg-gray-700 p-4 rounded-lg border border-gray-600">
+                                  <div className="text-sm text-gray-400 mb-1">Estimated Value</div>
+                                  <div className="font-semibold text-white text-lg">
+                                    {typeof pop.estimated_value === 'number' ? formatCurrency(pop.estimated_value, currency) : 'Pending'}
+                                  </div>
+                                </div>
+                                
+                                <div className="bg-gray-700 p-4 rounded-lg border border-gray-600">
+                                  <div className="text-sm text-gray-400 mb-1">Series</div>
+                                  <div className="font-semibold text-white text-lg">{pop.series || '—'}</div>
+                                </div>
+                                
+                                <div className="bg-gray-700 p-4 rounded-lg border border-gray-600">
+                                  <div className="text-sm text-gray-400 mb-1">Release Year</div>
+                                  <div className="font-semibold text-white text-lg">{pop.created_at ? new Date(pop.created_at).getFullYear() : '—'}</div>
+                                </div>
+                                
+                                <div className="bg-gray-700 p-4 rounded-lg border border-gray-600">
+                                  <div className="text-sm text-gray-400 mb-1">Vaulted</div>
+                                  <div className="font-semibold text-white text-lg">{pop.is_vaulted ? 'Yes' : 'No'}</div>
+                                </div>
+                              </div>
+
+                              {/* Collapse Button */}
+                              <Button 
+                                variant="outline" 
+                                onClick={() => handleExpandPop(pop)}
+                                className="border-gray-600 text-gray-400 hover:bg-gray-700 hover:text-white transition-colors w-full"
+                              >
+                                <ChevronUp className="w-4 h-4 mr-2" />
+                                Hide Details
+                              </Button>
+                            </div>
+                          </div>
+                        </Card>
+                      </div>
+                    );
+                  }
+                  
+                  // Regular card view
+                  return (
+                    <button
+                      key={pop.id}
+                      className="bg-gray-800/70 border border-gray-700 rounded-lg p-3 flex flex-col items-center hover:shadow-lg transition focus:outline-none focus:ring-2 focus:ring-orange-500"
+                      onClick={() => handleExpandPop(pop)}
+                      aria-label={`View details for ${pop.name}`}
+                    >
+                      <div className="w-full aspect-square bg-gray-700 rounded-lg mb-2 flex items-center justify-center overflow-hidden">
+                        {renderImage(pop)}
+                      </div>
+                      <div className="font-semibold text-white text-center text-base mb-1 truncate w-full">{pop.name}</div>
+                      <div className="text-xs text-gray-400 mb-1">Character: {pop.name}</div>
+                      <div className="text-xs text-gray-400 mb-1">Series: {pop.series}</div>
+                      <div className="text-xs text-gray-400 mb-1">{pop.series} {pop.number ? `#${pop.number}` : ''}</div>
+                      <div className="text-xs text-gray-400 mb-1">{pop.description?.slice(0, 50) || 'No description'}</div>
+                      <div className="text-xs text-gray-400 mb-1">{pop.created_at ? new Date(pop.created_at).getFullYear() : '—'}{pop.is_vaulted ? ' • Vaulted' : ''}</div>
+                      <div className="text-xs text-orange-400 font-bold mb-2">{typeof pop.estimated_value === 'number' ? formatCurrency(pop.estimated_value, currency) : 'N/A'}</div>
+                      
+                      <div className="flex items-center text-gray-400 text-xs mt-auto">
+                        <ChevronDown className="w-4 h-4" />
+                        <span className="ml-1">View Details</span>
+                      </div>
+                    </button>
+                  );
+                })}
             </div>
             <div className="flex justify-center mt-8">
               <Link to="/directory-all">
@@ -459,14 +709,6 @@ const Landing = () => {
 
         {/* Footer */}
         <Footer />
-
-        {selectedPop && (
-          <ItemDetailsDialog
-            item={selectedPop}
-            open={!!selectedPop}
-            onOpenChange={() => setSelectedPop(null)}
-          />
-        )}
       </div>
       <MobileBottomNav />
     </>

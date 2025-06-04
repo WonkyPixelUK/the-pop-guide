@@ -3,10 +3,11 @@ import * as React from "react"
 // Move type definitions here to break circular dependency
 // These are copied from src/components/ui/toast.tsx
 
-type ToastProps = React.ComponentPropsWithoutRef<any> // fallback for type safety, can be improved
-// If you want to be more precise, you can copy the Toast definition here, but this is enough to break the cycle
+type ToastProps = React.ComponentPropsWithoutRef<"div"> & {
+  variant?: "default" | "destructive" | null | undefined;
+}
 
-type ToastActionElement = React.ReactElement<any>
+type ToastActionElement = React.ReactElement<React.ComponentPropsWithoutRef<"button">>
 
 const TOAST_LIMIT = 1
 const TOAST_REMOVE_DELAY = 1000000

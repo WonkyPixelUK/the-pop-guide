@@ -1210,7 +1210,7 @@ function TransferListDialogContent({ list, user, toast }) {
     setLoading(true);
     try {
       // Look up recipient by username or email
-      let { data: recipient, error: lookupError } = await supabase
+      const { data: recipient, error: lookupError } = await supabase
         .from('public_profiles')
         .select('user_id,username,email')
         .or(`username.eq.${input},email.eq.${input}`)

@@ -478,7 +478,7 @@ const PricingDashboard = () => {
       }
 
       const allResults = [];
-      let totalStats = {
+      const totalStats = {
         new_pops_created: 0,
         existing_pops_updated: 0,
         total_prices_added: 0,

@@ -12,6 +12,7 @@ import { FaTiktok } from 'react-icons/fa';
 import { useCurrency } from '@/contexts/CurrencyContext';
 import { useMutation } from '@tanstack/react-query';
 import { supabase } from '@/integrations/supabase/client';
+import { formatCurrency } from '@/utils/formatCurrency';
 
 const getInitialTheme = () => {
   if (typeof window === 'undefined') return 'system';
@@ -109,14 +110,16 @@ const Navigation = () => {
             {/* Currency Switcher */}
             <div className="ml-3 flex items-center gap-1 bg-gray-200 rounded px-2 py-1">
               <button
-                className={`text-xs font-bold px-2 py-1 rounded ${currency === 'GBP' ? 'bg-orange-500 text-white' : 'text-gray-700'}`}
+                className={`text-xs font-bold px-2 py-1 rounded transition-all ${currency === 'GBP' ? 'bg-orange-500 text-white shadow-md' : 'text-gray-700 hover:bg-gray-300'}`}
                 onClick={() => setCurrency('GBP')}
-                aria-label="Switch to GBP"
+                aria-label="Switch to British Pounds"
+                title="Switch to British Pounds (GBP)"
               >£</button>
               <button
-                className={`text-xs font-bold px-2 py-1 rounded ${currency === 'USD' ? 'bg-orange-500 text-white' : 'text-gray-700'}`}
+                className={`text-xs font-bold px-2 py-1 rounded transition-all ${currency === 'USD' ? 'bg-orange-500 text-white shadow-md' : 'text-gray-700 hover:bg-gray-300'}`}
                 onClick={() => setCurrency('USD')}
-                aria-label="Switch to USD"
+                aria-label="Switch to US Dollars"
+                title="Switch to US Dollars (USD) - Prices converted automatically"
               >$</button>
             </div>
           </div>

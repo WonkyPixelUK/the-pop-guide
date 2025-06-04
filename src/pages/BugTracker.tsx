@@ -167,9 +167,10 @@ const BugTracker = () => {
           return new Date(a.created_at).getTime() - new Date(b.created_at).getTime();
         case 'votes':
           return getVoteCount(b.id) - getVoteCount(a.id);
-        case 'severity':
+        case 'severity': {
           const severityOrder = { critical: 4, high: 3, medium: 2, low: 1 };
           return severityOrder[b.severity] - severityOrder[a.severity];
+        }
         default:
           return 0;
       }

@@ -4,7 +4,7 @@ import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogDescription } f
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { Separator } from "@/components/ui/separator";
-import { Heart, Share2, TrendingUp, Calendar, DollarSign, User, CheckCircle, Plus, Link as LinkIcon, Loader2 } from "lucide-react";
+import { Heart, Share2, TrendingUp, Calendar, DollarSign, User, CheckCircle, Plus, Link as LinkIcon, Loader2, List } from "lucide-react";
 import { useAuth } from "@/hooks/useAuth";
 import { useWishlist } from "@/hooks/useWishlist";
 import { useAddToCollection } from "@/hooks/useFunkoPops";
@@ -58,9 +58,9 @@ const ItemDetailsDialog = ({ item, open, onOpenChange }: ItemDetailsDialogProps)
   const [addingToCollection, setAddingToCollection] = useState(false);
   const { toast } = useToast();
   const navigate = useNavigate();
-  const { data: priceHistory = [], isLoading: priceLoading } = usePriceHistory(item.id);
+  const { data: priceHistory = [], isLoading: priceLoading } = usePriceHistory(String(item.id));
 
-  const isWishlisted = wishlist.some((w: any) => w.funko_pop_id === item.id);
+  const isWishlisted = wishlist.some((w: any) => w.funko_pop_id === String(item.id));
   const isOwned = item.owned || ownedConfirmed;
 
   const requireLogin = () => {
@@ -74,9 +74,9 @@ const ItemDetailsDialog = ({ item, open, onOpenChange }: ItemDetailsDialogProps)
   const handleWishlist = () => {
     if (requireLogin()) return;
     if (isWishlisted) {
-      removeFromWishlist.mutate(item.id);
+      removeFromWishlist.mutate(String(item.id));
     } else {
-      addToWishlist.mutate({ funkoPopId: item.id });
+      addToWishlist.mutate({ funkoPopId: String(item.id) });
     }
   };
 
@@ -85,7 +85,7 @@ const ItemDetailsDialog = ({ item, open, onOpenChange }: ItemDetailsDialogProps)
     if (isOwned || addingToCollection) return;
     
     setAddingToCollection(true);
-    addToCollection.mutate(item.id, {
+    addToCollection.mutate(String(item.id), {
       onSuccess: () => {
         setOwnedConfirmed(true);
         setAddingToCollection(false);
@@ -112,14 +112,14 @@ const ItemDetailsDialog = ({ item, open, onOpenChange }: ItemDetailsDialogProps)
   const handleAddToList = (listId: string) => {
     if (requireLogin()) return;
     setAddingToListId(listId);
-    addItemToList.mutate({ listId, funkoPopId: item.id });
+    addItemToList.mutate({ listId, funkoPopId: String(item.id) });
     setListModalOpen(false);
     setAddingToListId(null);
   };
 
   const handleShare = () => {
     if (requireLogin()) return;
-    const url = `${window.location.origin}/pop/${item.id}`;
+    const url = `${window.location.origin}/pop/${String(item.id)}`;
     navigator.clipboard.writeText(url);
     toast({ title: 'Link copied!', description: 'Share this Pop with others.' });
   };
@@ -185,54 +185,65 @@ const ItemDetailsDialog = ({ item, open, onOpenChange }: ItemDetailsDialogProps)
             </div>
             
             {/* Action Buttons */}
-            <div className="space-y-3">
+            <div className="grid grid-cols-2 gap-2">
               <Button
                 variant={isOwned ? 'default' : 'outline'}
                 className={
                   isOwned 
-                    ? ownedConfirmed 
-                      ? 'bg-green-600 text-white hover:bg-green-700 animate-pulse w-full h-12 text-base' 
-                      : 'bg-green-600 text-white hover:bg-green-700 w-full h-12 text-base'
+                    ? 'bg-green-600 text-white hover:bg-green-700 text-sm h-10 font-medium' 
                     : addingToCollection 
-                    ? 'border-orange-600 bg-orange-50 text-orange-600 hover:bg-orange-100 w-full h-12 text-base' 
-                    : 'border-gray-600 hover:bg-gray-600 w-full h-12 text-base'
+                    ? 'border-orange-500 bg-orange-500/10 text-orange-500 hover:bg-orange-500/20 text-sm h-10 font-medium' 
+                    : 'border-orange-500 text-orange-500 hover:bg-orange-500 hover:text-white transition-colors text-sm h-10 font-medium'
                 }
                 onClick={handleAddToCollection}
                 disabled={isOwned || addingToCollection}
               >
                 {addingToCollection ? (
                   <>
-                    <Loader2 className="w-4 h-4 mr-2 animate-spin" />
+                    <Loader2 className="w-4 h-4 mr-1 animate-spin" />
                     Adding...
                   </>
                 ) : isOwned ? (
                   <>
-                    <CheckCircle className="w-4 h-4 mr-2" />
-                    {ownedConfirmed ? 'Added!' : 'Owned'}
+                    <CheckCircle className="w-4 h-4 mr-1" />
+                    Owned
                   </>
                 ) : (
                   <>
-                    <Plus className="w-4 h-4 mr-2" />
-                    Own this Pop
+                    <Plus className="w-4 h-4 mr-1" />
+                    Add
                   </>
                 )}
               </Button>
               
               <Button 
-                variant={isWishlisted ? 'default' : 'outline'}
-                className={`w-full h-12 text-base ${isWishlisted ? 'bg-red-600 hover:bg-red-700' : 'border-red-600 text-red-400 hover:bg-red-600'}`}
+                variant="outline"
+                className={`text-sm h-10 font-medium transition-colors ${
+                  isWishlisted 
+                    ? 'bg-red-600 text-white border-red-600 hover:bg-red-700' 
+                    : 'border-red-500 text-red-500 hover:bg-red-500 hover:text-white'
+                }`}
                 onClick={handleWishlist}
               >
-                <Heart className={`w-4 h-4 mr-2 ${isWishlisted ? 'fill-current' : ''}`} />
-                {isWishlisted ? 'Remove from Wishlist' : 'Add to Wishlist'}
+                <Heart className={`w-4 h-4 mr-1 ${isWishlisted ? 'fill-current' : ''}`} />
+                {isWishlisted ? 'Remove' : 'Wishlist'}
               </Button>
               
               <Button 
                 variant="outline" 
-                className="border-blue-600 text-blue-400 hover:bg-blue-600 w-full h-12 text-base"
+                className="border-purple-500 text-purple-500 hover:bg-purple-500 hover:text-white transition-colors text-sm h-10 font-medium"
+                onClick={() => handleAddToList('list-id')}
+              >
+                <List className="w-4 h-4 mr-1" />
+                Add to List
+              </Button>
+              
+              <Button 
+                variant="outline" 
+                className="border-blue-500 text-blue-500 hover:bg-blue-500 hover:text-white transition-colors text-sm h-10 font-medium"
                 onClick={handleShare}
               >
-                <Share2 className="w-4 h-4 mr-2" />
+                <Share2 className="w-4 h-4 mr-1" />
                 Share
               </Button>
             </div>
@@ -350,7 +361,7 @@ const ItemDetailsDialog = ({ item, open, onOpenChange }: ItemDetailsDialogProps)
 
         {/* Price History - Full Width */}
         <div className="border-t border-gray-700 pt-6 mt-6">
-          <PriceHistory funkoPopId={item.id} funkoPopName={item.name} />
+          <PriceHistory funkoPopId={String(item.id)} funkoPop={{ ...item, id: String(item.id) }} />
         </div>
       </DialogContent>
     </Dialog>

@@ -35,8 +35,15 @@ interface WishlistItem {
   };
 }
 
+interface UserCollectionItem {
+  id: string;
+  funko_pop_id: string;
+  purchase_price?: number;
+  created_at: string;
+}
+
 interface EnhancedWishlistProps {
-  userCollection: any[];
+  userCollection: UserCollectionItem[];
 }
 
 const EnhancedWishlist = ({ userCollection }: EnhancedWishlistProps) => {
@@ -182,9 +189,10 @@ const EnhancedWishlist = ({ userCollection }: EnhancedWishlistProps) => {
     })
     .sort((a, b) => {
       switch (sortBy) {
-        case 'priority':
+        case 'priority': {
           const priorityOrder = { high: 3, medium: 2, low: 1 };
           return priorityOrder[b.priority] - priorityOrder[a.priority];
+        }
         case 'price_asc':
           return (a.funko_pops?.estimated_value || 0) - (b.funko_pops?.estimated_value || 0);
         case 'price_desc':
@@ -549,7 +557,7 @@ const EnhancedWishlist = ({ userCollection }: EnhancedWishlistProps) => {
                 <label className="text-sm font-medium text-gray-300 mb-2 block">Priority</label>
                 <Select 
                   value={selectedItem.priority} 
-                  onValueChange={(value: any) => updateWishlistItem(selectedItem.id, { priority: value })}
+                  onValueChange={(value: 'low' | 'medium' | 'high') => updateWishlistItem(selectedItem.id, { priority: value })}
                 >
                   <SelectTrigger className="bg-gray-700 border-gray-600 text-white">
                     <SelectValue />
