@@ -2,7 +2,7 @@ import { useState, useEffect } from 'react';
 import { useAuth } from '@/hooks/useAuth';
 import { useNavigate } from 'react-router-dom';
 import { useFunkoPops, useUserCollection } from '@/hooks/useFunkoPops';
-import Navigation from '@/components/Navigation';
+import DashboardHeader from '@/components/DashboardHeader';
 import MobileBottomNav from '@/components/MobileBottomNav';
 import Footer from '@/components/Footer';
 import { Button } from '@/components/ui/button';
@@ -313,7 +313,7 @@ ${exportData.map((item, index) =>
 
   return (
     <div className="min-h-screen bg-gradient-to-br from-gray-900 via-gray-800 to-black">
-      <Navigation />
+      <DashboardHeader showSearch={false} />
       
       {/* Header */}
       <div className="px-6 py-8">
@@ -436,7 +436,7 @@ ${exportData.map((item, index) =>
                               onChange={() => handleFilterChange(filterType, option)}
                               className="w-4 h-4 text-orange-500 bg-gray-700 border-gray-600 rounded focus:ring-orange-500"
                             />
-                            <span className="text-[#232837]">{option}</span>
+                            <span className="text-gray-300">{option}</span>
                           </label>
                         ))}
                       </div>

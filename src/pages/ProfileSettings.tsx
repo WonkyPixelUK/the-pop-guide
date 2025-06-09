@@ -4,7 +4,7 @@ import { useNavigate } from 'react-router-dom';
 import { Button } from '@/components/ui/button';
 import ProfileEditor from '@/components/ProfileEditor';
 import { supabase } from '@/integrations/supabase/client';
-import Navigation from '@/components/Navigation';
+import DashboardHeader from '@/components/DashboardHeader';
 import MobileBottomNav from '@/components/MobileBottomNav';
 import Footer from '@/components/Footer';
 import { User, Link, Gamepad2, List, CreditCard, Key, ChevronLeft, Plus, LogOut, Search, Mail, TrendingUp } from 'lucide-react';
@@ -617,66 +617,13 @@ const ProfileSettings = () => {
 
   return (
     <div className="min-h-screen bg-gradient-to-br from-gray-900 via-gray-800 to-black">
-      <Navigation />
-      
-      {/* Dashboard-style Header */}
-      <header className="bg-gray-900/50 backdrop-blur-sm border-b border-gray-700 sticky top-[116px] z-30">
-        <div className="container mx-auto px-4 py-3">
-          <div className="flex flex-col md:flex-row md:items-center md:justify-between gap-4">
-            {/* Search Bar */}
-            <form onSubmit={handleSearch} className="flex items-center space-x-4 flex-1">
-              <div className="relative flex-1 max-w-md">
-                <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400 w-4 h-4" />
-                <Input
-                  placeholder="Search the database..."
-                  value={searchQuery}
-                  onChange={(e) => setSearchQuery(e.target.value)}
-                  className="pl-10 bg-gray-800/50 border-gray-600 text-white placeholder-gray-400 focus:ring-orange-500 focus:border-orange-500"
-                />
-            </div>
-            </form>
-            
-            {/* Welcome Message & Action Buttons */}
-            <div className="flex items-center gap-4">
-              {/* Welcome Message */}
-              <div className="hidden md:block text-sm text-gray-300">
-                Welcome, <span className="text-orange-400 font-medium">{user?.email}</span>
-              </div>
-              
-              {/* Action Buttons */}
-              <div className="flex items-center gap-2">
-            <Button
-                  onClick={() => setIsAddDialogOpen(true)}
-                  size="sm" 
-                  className="bg-orange-500 hover:bg-orange-600 text-white"
-                >
-                  <Plus className="w-4 h-4 mr-1" />
-                  <span className="hidden sm:inline">Add Item</span>
-                </Button>
-                
-                <Button
-                  onClick={handleExport}
-                  variant="outline" 
-                  size="sm"
-                  className="border-gray-600 text-white hover:bg-gray-700 bg-gray-800"
-                >
-                  <span className="hidden sm:inline">Export Collection</span>
-                  <span className="sm:hidden">Export</span>
-                </Button>
-                
-                <Button 
-                  onClick={handleSignOut}
-                  variant="ghost" 
-                  size="sm"
-                  className="text-gray-400 hover:text-white hover:bg-gray-700"
-                >
-                  <LogOut className="w-4 h-4" />
-                </Button>
-              </div>
-            </div>
-          </div>
-        </div>
-      </header>
+      <DashboardHeader 
+        showSearch={true}
+        searchQuery={searchQuery}
+        onSearchChange={setSearchQuery}
+        searchPlaceholder="Search the database..."
+        onAddItem={() => setIsAddDialogOpen(true)}
+      />
       
       {/* Mobile Back Button */}
       {isMobile && (

@@ -44,7 +44,7 @@ const CustomListsManager = () => {
       setSlugError('Only a-z, 0-9, and hyphens allowed');
       return false;
     }
-    const { data } = await createList.mutateAsync.supabase
+    const { data } = await supabase
       .from('custom_lists')
       .select('id')
       .eq('slug', slug)
@@ -148,12 +148,15 @@ const CustomListsManager = () => {
     return (
       <div className="space-y-4">
         <p>Enter the username or email of the user you want to transfer this list to:</p>
-        <Input placeholder="Username or email" value={input} onChange={e => setInput(e.target.value)} className="text-[#232837]" />
+        <Input placeholder="Username or email" value={input} onChange={e => setInput(e.target.value)} className="bg-gray-800 border-gray-700 text-white" />
         {error && <div className="text-red-500 text-xs">{error}</div>}
         <Button className="bg-orange-500 hover:bg-orange-600 w-full" onClick={handleTransfer} disabled={loading}>{loading ? 'Sending...' : 'Send Transfer Request'}</Button>
       </div>
     );
   };
+
+  console.log('🔍 CustomListsManager - Lists:', lists);
+  console.log('🔍 CustomListsManager - Loading:', isLoading);
 
   if (isLoading) {
     return <div className="text-white">Loading lists...</div>;
@@ -182,7 +185,7 @@ const CustomListsManager = () => {
                   value={newListName}
                   onChange={(e) => setNewListName(e.target.value)}
                   placeholder="e.g., Chase Variants, Marvel Heroes"
-                  className="bg-gray-800 border-gray-700"
+                  className="bg-gray-800 border-gray-700 text-white"
                 />
               </div>
               <div>
@@ -192,16 +195,45 @@ const CustomListsManager = () => {
                   value={newListDescription}
                   onChange={(e) => setNewListDescription(e.target.value)}
                   placeholder="Describe what this list is for..."
-                  className="bg-gray-800 border-gray-700"
+                  className="bg-gray-800 border-gray-700 text-white"
                 />
               </div>
-              <div className="flex items-center space-x-2">
-                <Switch
-                  id="isPublic"
-                  checked={isPublic}
-                  onCheckedChange={setIsPublic}
-                />
-                <Label htmlFor="isPublic">Make this list public</Label>
+              <div className="flex items-center space-x-3">
+                <div className="relative">
+                  <Switch
+                    id="isPublic"
+                    checked={isPublic}
+                    onCheckedChange={(checked) => {
+                      setIsPublic(checked);
+                      if (checked) {
+                        toast({
+                          title: "🌍 Going Public!",
+                          description: "Your list will be visible to the world! Time to show off those grails! 🔥",
+                        });
+                      } else {
+                        toast({
+                          title: "🔒 Back to the Vault",
+                          description: "Your list is now private. Your secrets are safe with us! 🤫",
+                        });
+                      }
+                    }}
+                    className={`${
+                      isPublic 
+                        ? 'data-[state=checked]:bg-green-500 data-[state=checked]:border-green-500' 
+                        : 'data-[state=unchecked]:bg-red-500 data-[state=unchecked]:border-red-500'
+                    } transition-colors duration-200`}
+                  />
+                  <div className={`absolute -top-1 -right-1 w-3 h-3 rounded-full transition-opacity duration-200 ${
+                    isPublic ? 'bg-green-400 opacity-100 animate-pulse' : 'opacity-0'
+                  }`} />
+                </div>
+                <Label htmlFor="isPublic" className="cursor-pointer">
+                  <span className={`transition-colors duration-200 ${
+                    isPublic ? 'text-green-400' : 'text-red-400'
+                  }`}>
+                    {isPublic ? '🌍 Public List' : '🔒 Private List'}
+                  </span>
+                </Label>
               </div>
               <div>
                 <Label htmlFor="customSlug">Custom URL (optional)</Label>
@@ -211,7 +243,7 @@ const CustomListsManager = () => {
                   onChange={e => setCustomSlug(e.target.value.replace(/[^a-z0-9-]/gi, '').toLowerCase())}
                   onBlur={e => customSlug && checkSlugAvailability(e.target.value)}
                   placeholder="e.g. richs-funkos-for-sale-v1"
-                  className="bg-gray-800 border-gray-700"
+                  className="bg-gray-800 border-gray-700 text-white"
                 />
                 {slugError && <span className="text-red-500 text-xs">{slugError}</span>}
               </div>
@@ -238,11 +270,16 @@ const CustomListsManager = () => {
                   <span className="line-clamp-1">{list.name}</span>
                 </div>
                 <div className="flex items-center space-x-2">
-                  {list.is_public ? (
-                    <Eye className="w-4 h-4 text-green-500" />
-                  ) : (
-                    <EyeOff className="w-4 h-4 text-gray-500" />
-                  )}
+                  <div className="relative">
+                    {list.is_public ? (
+                      <>
+                        <Eye className="w-4 h-4 text-green-500" />
+                        <div className="absolute -top-1 -right-1 w-2 h-2 bg-green-400 rounded-full animate-pulse" />
+                      </>
+                    ) : (
+                      <EyeOff className="w-4 h-4 text-red-400" />
+                    )}
+                  </div>
                   <Button
                     variant="ghost"
                     size="sm"
@@ -274,15 +311,19 @@ const CustomListsManager = () => {
                   <span className="text-gray-300 text-sm">
                     {list.list_items?.length || 0} items
                   </span>
-                  <span className="text-gray-300 text-sm">
-                    {list.is_public ? 'Public' : 'Private'}
+                  <span className={`text-sm font-medium ${
+                    list.is_public 
+                      ? 'text-green-400 bg-green-500/10 px-2 py-1 rounded-full' 
+                      : 'text-red-400 bg-red-500/10 px-2 py-1 rounded-full'
+                  }`}>
+                    {list.is_public ? '🌍 Public' : '🔒 Private'}
                   </span>
                 </div>
                 <div className="flex space-x-2">
                   <Button 
                     variant="outline" 
                     size="sm" 
-                    className="border-gray-600 flex-1"
+                    className="border-gray-600 text-white hover:bg-gray-700 hover:text-white flex-1"
                     onClick={() => setManagingListId(list.id)}
                   >
                     <Settings className="w-4 h-4 mr-2" />
@@ -292,10 +333,14 @@ const CustomListsManager = () => {
                     <Button 
                       variant="outline" 
                       size="sm" 
-                      className="border-gray-600"
+                      className="border-gray-600 text-white hover:bg-gray-700 hover:text-white"
                       onClick={() => {
                         const shareUrl = `${window.location.origin}/lists/${list.id}`;
                         navigator.clipboard.writeText(shareUrl);
+                        toast({
+                          title: "Link copied!",
+                          description: "The list link has been copied to your clipboard.",
+                        });
                       }}
                     >
                       Share

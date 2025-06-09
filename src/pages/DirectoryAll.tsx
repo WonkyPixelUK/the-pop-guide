@@ -4,7 +4,7 @@ import { Button } from '@/components/ui/button';
 import { Card, CardContent } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
 import { User, Filter, X, Search, Database, Heart, Share2, Plus, CheckCircle, Loader2, ChevronDown, ChevronUp, List, Sparkles, Calendar, Package, Star } from 'lucide-react';
-import Navigation from '@/components/Navigation';
+import DashboardHeader from '@/components/DashboardHeader';
 import Footer from '@/components/Footer';
 import SEO from '@/components/SEO';
 import {
@@ -345,7 +345,7 @@ const DirectoryAll = () => {
       badges.push({
         text: 'Coming Soon',
         icon: Calendar,
-        className: 'bg-blue-500 hover:bg-blue-600 text-white border-0'
+        className: 'bg-gray-600 hover:bg-gray-700 text-white border-0'
       });
     }
     
@@ -372,7 +372,7 @@ const DirectoryAll = () => {
       badges.push({
         text: 'Funko Europe',
         icon: Package,
-        className: 'bg-blue-600 hover:bg-blue-700 text-blue-100 border-0'
+        className: 'bg-gray-600 hover:bg-gray-700 text-white border-0'
       });
     }
     
@@ -469,7 +469,7 @@ const DirectoryAll = () => {
             
             <Button 
               variant="outline" 
-              className="border border-blue-500/50 text-blue-400 hover:bg-blue-500 hover:text-white hover:border-blue-500 hover:shadow-md hover:shadow-blue-500/20 h-9 text-sm font-medium transition-all duration-200 bg-blue-500/5"
+              className="border border-gray-500/50 text-gray-300 hover:bg-gray-500 hover:text-white hover:border-gray-500 hover:shadow-md hover:shadow-gray-500/20 h-9 text-sm font-medium transition-all duration-200 bg-gray-500/5"
               onClick={(e) => {
                 e.stopPropagation();
                 handleShare(pop);
@@ -532,7 +532,7 @@ const DirectoryAll = () => {
                 {getUserPurchasePrice(pop.id) ? formatCurrency(getUserPurchasePrice(pop.id), currency) : (pop.estimated_value ? formatCurrency(pop.estimated_value, currency) : '—')}
               </div>
               {getUserPurchasePrice(pop.id) && (
-                <div className="text-xs text-blue-400 mt-1">
+                <div className="text-xs text-gray-400 mt-1">
                   Market pricing updates within 5 working days
                 </div>
               )}
@@ -816,24 +816,21 @@ const DirectoryAll = () => {
     <>
       <SEO title="All Funko Pops | PopGuide" description="Browse the entire Funko Pop database with powerful filters and infinite scroll." />
       <div className="min-h-screen bg-gradient-to-br from-gray-900 via-gray-800 to-black text-white flex flex-col">
-        <Navigation />
+        <DashboardHeader 
+          searchQuery={searchTerm}
+          onSearchChange={setSearchTerm}
+          searchPlaceholder="Search entire Funko database..."
+          showSearch={true}
+          searchMode="database"
+        />
         
-        {/* Header with count and search */}
+        {/* Header with count */}
         <div className="container mx-auto px-4 pt-8 pb-4">
           <div className="text-center mb-6">
             <h1 className="text-4xl font-bold mb-2">Browse Database</h1>
             <div className="flex items-center justify-center gap-2 text-xl text-gray-400 mb-4">
               <Database className="w-6 h-6" />
               <span>{allPops.length.toLocaleString()} Funko Pops</span>
-            </div>
-            <div className="max-w-md mx-auto relative">
-              <Search className="absolute left-3 top-3 w-4 h-4 text-gray-400" />
-              <Input
-                placeholder="Search Funko Pops..."
-                value={searchTerm}
-                onChange={(e) => setSearchTerm(e.target.value)}
-                className="pl-10 bg-gray-800 border-gray-700 text-white"
-              />
             </div>
             {searchTerm && (
               <p className="text-sm text-gray-400 mt-2">

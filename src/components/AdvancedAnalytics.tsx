@@ -107,7 +107,7 @@ const AdvancedAnalytics = ({ userCollection, funkoPops, profile, priceHistory = 
   const colors = ['#f97316', '#eab308', '#10b981', '#3b82f6', '#8b5cf6', '#f59e0b', '#ef4444', '#06b6d4'];
 
   return (
-    <div className="space-y-6">
+    <div className="container mx-auto px-4 max-w-7xl space-y-6">
       <div className="flex items-center justify-between">
         <h2 className="text-3xl font-bold text-white">Advanced Analytics</h2>
         <Select value={timeRange} onValueChange={setTimeRange}>

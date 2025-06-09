@@ -137,7 +137,7 @@ const NewReleases = () => {
                 className={`flex items-center gap-2 ${
                   filter === 'all' 
                     ? 'bg-orange-500 hover:bg-orange-600 text-white border-orange-500' 
-                    : 'border-gray-600 text-[#1e3a8a] hover:bg-gray-700 hover:text-white'
+                    : 'border-gray-600 text-blue-400 hover:bg-gray-700 hover:text-white'
                 }`}
               >
                 <Star className="w-4 h-4" />
@@ -149,7 +149,7 @@ const NewReleases = () => {
                 className={`flex items-center gap-2 ${
                   filter === 'funko-europe' 
                     ? 'bg-orange-500 hover:bg-orange-600 text-white border-orange-500' 
-                    : 'border-gray-600 text-[#1e3a8a] hover:bg-gray-700 hover:text-white'
+                    : 'border-gray-600 text-blue-400 hover:bg-gray-700 hover:text-white'
                 }`}
               >
                 <Package className="w-4 h-4" />
@@ -161,7 +161,7 @@ const NewReleases = () => {
                 className={`flex items-center gap-2 ${
                   filter === 'recent-30' 
                     ? 'bg-orange-500 hover:bg-orange-600 text-white border-orange-500' 
-                    : 'border-gray-600 text-[#1e3a8a] hover:bg-gray-700 hover:text-white'
+                    : 'border-gray-600 text-blue-400 hover:bg-gray-700 hover:text-white'
                 }`}
               >
                 <Calendar className="w-4 h-4" />
@@ -173,7 +173,7 @@ const NewReleases = () => {
                 className={`flex items-center gap-2 ${
                   filter === 'recent-7' 
                     ? 'bg-orange-500 hover:bg-orange-600 text-white border-orange-500' 
-                    : 'border-gray-600 text-[#1e3a8a] hover:bg-gray-700 hover:text-white'
+                    : 'border-gray-600 text-blue-400 hover:bg-gray-700 hover:text-white'
                 }`}
               >
                 <Calendar className="w-4 h-4" />

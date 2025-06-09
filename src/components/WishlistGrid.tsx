@@ -50,6 +50,7 @@ const WishlistGrid = ({ items, searchQuery }: WishlistGridProps) => {
         <Card 
           key={item.id}
           className="bg-gray-800/70 border border-gray-700 rounded-lg p-3 flex flex-col items-center hover:shadow-lg transition cursor-pointer hover:border-orange-500/50"
+          onClick={() => console.log('Clicked wishlist item:', item.funko_pops.name)}
         >
           <CardContent className="p-4 w-full">
             <div className="w-full aspect-square bg-gray-700 rounded-lg mb-2 flex items-center justify-center overflow-hidden">
@@ -89,7 +90,7 @@ const WishlistGrid = ({ items, searchQuery }: WishlistGridProps) => {
                 <Button
                   size="sm"
                   variant="outline"
-                  className="flex-1 border-red-500 text-red-500 hover:bg-red-500 hover:text-white"
+                  className="flex-1 border-red-500 text-red-500 hover:bg-red-500 hover:text-white bg-transparent"
                   onClick={() => removeFromWishlist.mutate(item.funko_pops.id)}
                 >
                   <Heart className="w-3 h-3 mr-1" />

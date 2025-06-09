@@ -105,7 +105,7 @@ const BrowseLists = () => {
                   {searchTerm ? "No lists match your search." : "No public lists available yet."}
                 </p>
                 <Link to="/dashboard">
-                  <Button className="bg-white text-[#232837] hover:bg-gray-100 font-semibold shadow-none">
+                  <Button className="bg-orange-500 text-white hover:bg-orange-600 font-semibold shadow-none">
                     Create the First List
                   </Button>
                 </Link>

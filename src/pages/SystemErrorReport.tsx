@@ -2,7 +2,7 @@ import React, { useState } from 'react';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Alert, AlertDescription } from '@/components/ui/alert';
-import Navigation from '@/components/Navigation';
+import DashboardHeader from '@/components/DashboardHeader';
 import Footer from '@/components/Footer';
 import { systemErrorLogger } from '@/utils/systemErrorLogger';
 import { Bug, Upload, CheckCircle, AlertTriangle, Info, Loader } from 'lucide-react';
@@ -80,7 +80,7 @@ const SystemErrorReport = () => {
 
   return (
     <div className="min-h-screen bg-gradient-to-br from-gray-900 via-gray-800 to-black">
-      <Navigation />
+      <DashboardHeader showSearch={false} />
       
       <div className="container mx-auto py-12 px-4">
         <div className="max-w-4xl mx-auto">

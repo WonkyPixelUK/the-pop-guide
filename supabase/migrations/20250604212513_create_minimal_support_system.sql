@@ -94,3 +94,4 @@ GRANT SELECT, INSERT, UPDATE ON support_tickets TO authenticated;
 
 -- Grant permissions for service role (for functions)
 GRANT ALL ON support_tickets TO service_role;
+

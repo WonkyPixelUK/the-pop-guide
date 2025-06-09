@@ -1,0 +1,16 @@
+{
+    "SANDBOX": {
+        "clientId": "YOUR_SANDBOX_CLIENT_ID",
+        "clientSecret": "YOUR_SANDBOX_CLIENT_SECRET",
+        "devid": "YOUR_DEVELOPER_ID",
+        "redirectUri": "http://localhost:8081/api/oauth/callback",
+        "baseUrl": "api.sandbox.ebay.com"
+    },
+    "PRODUCTION": {
+        "clientId": "YOUR_PRODUCTION_CLIENT_ID",
+        "clientSecret": "YOUR_PRODUCTION_CLIENT_SECRET",
+        "devid": "YOUR_DEVELOPER_ID",
+        "redirectUri": "http://localhost:8081/api/oauth/callback",
+        "baseUrl": "api.ebay.com"
+    }
+} 

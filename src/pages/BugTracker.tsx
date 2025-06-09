@@ -3,7 +3,8 @@ import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Alert, AlertDescription } from '@/components/ui/alert';
 import { supabase } from '@/integrations/supabase/client';
-import Navigation from '@/components/Navigation';
+import DashboardHeader from '@/components/DashboardHeader';
+import MobileBottomNav from '@/components/MobileBottomNav';
 import Footer from '@/components/Footer';
 import BugSubmissionForm from '@/components/BugSubmissionForm';
 import { Bug, BugVote, BugSeverity, BugStatus, BugPlatform } from '@/types/supabase';
@@ -179,7 +180,7 @@ const BugTracker = () => {
   if (showSubmissionForm) {
     return (
       <div className="min-h-screen bg-gradient-to-br from-gray-900 via-gray-800 to-black">
-        <Navigation />
+        <DashboardHeader showSearch={false} />
         <div className="container mx-auto py-12 px-4">
           <BugSubmissionForm 
             onSubmissionSuccess={(ref) => {
@@ -201,7 +202,7 @@ const BugTracker = () => {
         description="Report bugs and track issues for PopGuide. Help us improve the platform by reporting problems and voting on bug fixes." 
       />
       <div className="min-h-screen bg-gradient-to-br from-gray-900 via-gray-800 to-black text-white">
-        <Navigation />
+        <DashboardHeader showSearch={false} />
         
         <div className="container mx-auto py-12 px-4">
           {/* Header */}
@@ -452,6 +453,7 @@ const BugTracker = () => {
         </div>
 
         <Footer />
+        <MobileBottomNav />
       </div>
     </>
   );

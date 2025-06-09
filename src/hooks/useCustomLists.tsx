@@ -261,6 +261,85 @@ export const useListById = (listId: string) => {
   return useQuery({
     queryKey: ['list', listId],
     queryFn: async () => {
+      console.log('🔍 Fetching public list with ID:', listId);
+      
+      const { data, error } = await supabase
+        .from('custom_lists')
+        .select(`
+          *,
+          list_items (
+            id,
+            funko_pops (*)
+          ),
+          profiles!custom_lists_user_id_fkey (
+            full_name,
+            username
+          )
+        `)
+        .eq('id', listId)
+        .eq('is_public', true)
+        .single();
+      
+      if (error) {
+        console.log('❌ Error fetching public list with profiles:', error);
+        // Fallback query without profiles join but still public only
+        const { data: fallbackData, error: fallbackError } = await supabase
+          .from('custom_lists')
+          .select(`
+            *,
+            list_items (
+              id,
+              funko_pops (*)
+            )
+          `)
+          .eq('id', listId)
+          .eq('is_public', true)
+          .single();
+        
+        if (fallbackError) {
+          console.log('❌ Fallback query also failed:', fallbackError);
+          throw fallbackError;
+        }
+        console.log('✅ Fallback query succeeded:', fallbackData);
+        return fallbackData;
+      }
+      console.log('✅ Main query succeeded:', data);
+      return data;
+    },
+    enabled: !!listId,
+  });
+};
+
+// Debug hook to check if list exists at all (public or private)
+export const useListExistsById = (listId: string) => {
+  return useQuery({
+    queryKey: ['list-exists', listId],
+    queryFn: async () => {
+      console.log('🔍 Checking if list exists (any visibility):', listId);
+      
+      const { data, error } = await supabase
+        .from('custom_lists')
+        .select('id, name, is_public, user_id')
+        .eq('id', listId)
+        .single();
+      
+      if (error) {
+        console.log('❌ List does not exist:', error);
+        return null;
+      }
+      
+      console.log('✅ List exists:', data);
+      return data;
+    },
+    enabled: !!listId,
+  });
+};
+
+// New hook for viewing any list (useful for dashboard lists section)
+export const useAnyListById = (listId: string) => {
+  return useQuery({
+    queryKey: ['any-list', listId],
+    queryFn: async () => {
       const { data, error } = await supabase
         .from('custom_lists')
         .select(`

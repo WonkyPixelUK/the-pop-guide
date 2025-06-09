@@ -13,7 +13,7 @@ import GamingDashboard from '@/components/GamingDashboard';
 import PremiumBadge from '@/components/PremiumBadge';
 import { useState, useEffect } from 'react';
 import { useCustomLists } from '@/hooks/useCustomLists';
-import Navigation from '@/components/Navigation';
+import DashboardHeader from '@/components/DashboardHeader';
 import { useAuth } from '@/hooks/useAuth';
 import MobileBottomNav from '@/components/MobileBottomNav';
 import Footer from '@/components/Footer';
@@ -479,7 +479,7 @@ const Profile = () => {
 
   return (
     <div className="min-h-screen bg-gradient-to-br from-gray-900 via-gray-800 to-black">
-      <Navigation />
+      <DashboardHeader showSearch={false} />
       
       {/* Hero Section */}
       <div className="relative">

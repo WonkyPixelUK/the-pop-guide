@@ -17,13 +17,20 @@ import {
   TrendingUp,
   Activity,
   Zap,
-  BookOpen
+  BookOpen,
+  Users
 } from 'lucide-react';
-import Navigation from '@/components/Navigation';
+
 import FunkoPopTable from '@/components/FunkoPopTable';
 import StickerEducation from '@/components/StickerEducation';
 import DataImportManager from '@/components/DataImportManager';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
+import { useAuth } from "@/hooks/useAuth";
+import { useNavigate } from "react-router-dom";
+import { supabase } from "@/integrations/supabase/client";
+import DashboardHeader from '@/components/DashboardHeader';
+import MobileBottomNav from '@/components/MobileBottomNav';
+import Footer from '@/components/Footer';
 
 const ScrapingStatus = () => {
   const { data: jobs, isLoading: jobsLoading } = useScrapingJobs();
@@ -80,8 +87,8 @@ const ScrapingStatus = () => {
   }, {} as Record<string, { total: number; completed: number; failed: number }>) || {};
 
   return (
-    <div className="min-h-screen bg-background">
-      <Navigation />
+    <div className="min-h-screen bg-gradient-to-br from-gray-900 via-gray-800 to-black">
+      <DashboardHeader showSearch={false} />
       
       <div className="container mx-auto px-4 py-8">
         <div className="mb-8">
@@ -310,6 +317,9 @@ const ScrapingStatus = () => {
           </TabsContent>
         </Tabs>
       </div>
+      
+      <Footer />
+      <MobileBottomNav />
     </div>
   );
 };

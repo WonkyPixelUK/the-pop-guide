@@ -2,8 +2,7 @@ import { useParams } from "react-router-dom";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
-import { Share2, ArrowLeft, Eye, Calendar } from "lucide-react";
-import { useListById } from "@/hooks/useCustomLists";
+import { Share2, ArrowLeft, Calendar, Lock } from "lucide-react";
 import { useToast } from "@/hooks/use-toast";
 import { Link } from "react-router-dom";
 import MobileBottomNav from '@/components/MobileBottomNav';
@@ -15,51 +14,170 @@ import { supabase } from '@/integrations/supabase/client';
 import CollectionGrid from '@/components/CollectionGrid';
 
 const PublicListView = () => {
-  const { id } = useParams<{ id: string }>();
-  const { data: list, isLoading, error } = useListById(id!);
+  const { listId } = useParams<{ listId: string }>();
   const { toast } = useToast();
   const { user } = useAuth();
   const [shareDialogOpen, setShareDialogOpen] = useState(false);
+  const [list, setList] = useState<any>(null);
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState<string | null>(null);
+  const [debugInfo, setDebugInfo] = useState<any>(null);
 
-  const increaseViews = async () => {
-    if (user && list?.id) {
-      await supabase.from('custom_lists').update({
-        views: (list.views || 0) + 1
-      }).eq('id', list.id);
-    }
-  };
-
-  // Increase view count when component mounts (must be before early returns)
+  // Simplified fetch function with better error handling
   useEffect(() => {
-    if (list?.id) {
-      increaseViews();
-    }
-  }, [list?.id, user]);
+    const fetchList = async () => {
+      if (!listId) {
+        setError("No list ID provided");
+        setLoading(false);
+        return;
+      }
 
-  if (isLoading) {
+      console.log('🔍 PublicListView - Fetching list:', listId);
+      setDebugInfo({ step: 'Starting fetch', listId });
+      
+      try {
+        // Step 1: Simple check if list exists and is public
+        console.log('🔍 Step 1: Checking if list exists and is public...');
+        const { data: basicList, error: basicError } = await supabase
+          .from('custom_lists')
+          .select('id, name, is_public, user_id, created_at, description')
+          .eq('id', listId)
+          .single();
+
+        console.log('Database response:', { basicList, basicError });
+        setDebugInfo(prev => ({ 
+          ...prev, 
+          step1: { 
+            basicList, 
+            basicError,
+            errorCode: basicError?.code,
+            errorMessage: basicError?.message 
+          } 
+        }));
+
+        if (basicError) {
+          console.log('❌ List query failed:', basicError);
+          setError("not_found");
+          setLoading(false);
+          return;
+        }
+
+        if (!basicList) {
+          console.log('❌ No list returned from query');
+          setError("not_found");
+          setLoading(false);
+          return;
+        }
+
+        // Check if list is public
+        if (!basicList.is_public) {
+          console.log('🔒 List exists but is private');
+          setError("private");
+          setList({ name: basicList.name });
+          setLoading(false);
+          return;
+        }
+
+        console.log('✅ List found and is public:', basicList.name);
+
+        // Step 2: Get full list data with items (optional - fallback to basic if this fails)
+        console.log('🔍 Step 2: Fetching full list data with items...');
+        const { data: fullList, error: fullError } = await supabase
+          .from('custom_lists')
+          .select(`
+            *,
+            profiles!custom_lists_user_id_fkey (
+              full_name,
+              username
+            ),
+            list_items (
+              id,
+              funko_pops (
+                id,
+                name,
+                series,
+                number,
+                image_url,
+                estimated_value,
+                is_chase,
+                is_exclusive
+              )
+            )
+          `)
+          .eq('id', listId)
+          .single();
+
+        setDebugInfo(prev => ({ 
+          ...prev, 
+          step2: { 
+            fullList, 
+            fullError,
+            errorCode: fullError?.code,
+            errorMessage: fullError?.message,
+            listItemsCount: fullList?.list_items?.length || 0
+          } 
+        }));
+
+        if (fullError) {
+          console.log('⚠️ Full query failed, using basic data:', fullError);
+          // Use basic data but still show the list
+          setList({
+            ...basicList,
+            list_items: []
+          });
+        } else {
+          console.log('✅ Successfully fetched full list data');
+          setList(fullList);
+        }
+
+      } catch (error) {
+        console.error('❌ Unexpected error fetching list:', error);
+        setError("fetch_error");
+        setDebugInfo(prev => ({ ...prev, unexpectedError: error }));
+      } finally {
+        setLoading(false);
+      }
+    };
+
+    fetchList();
+  }, [listId, user]);
+
+  // Show loading state
+  if (loading) {
     return (
       <div className="min-h-screen bg-gradient-to-br from-gray-900 via-gray-800 to-black">
         <Navigation />
         <div className="flex items-center justify-center min-h-screen">
-          <div className="text-white text-xl">Loading list...</div>
+          <div className="text-center">
+            <div className="text-white text-xl mb-4">Loading list...</div>
+            <div className="text-gray-400 text-sm">List ID: {listId}</div>
+            {debugInfo && (
+              <div className="text-gray-500 text-xs mt-2">
+                Debug: {debugInfo.step}
+              </div>
+            )}
+          </div>
         </div>
         <MobileBottomNav />
       </div>
     );
   }
 
-  if (error || !list) {
+  // Show private list message
+  if (error === "private") {
     return (
       <div className="min-h-screen bg-gradient-to-br from-gray-900 via-gray-800 to-black">
         <Navigation />
         <div className="flex items-center justify-center min-h-screen">
-          <div className="text-center">
-            <h1 className="text-2xl font-bold text-white mb-4">List Not Found</h1>
-            <p className="text-gray-400 mb-6">This list doesn't exist or is no longer available.</p>
+          <div className="text-center max-w-md mx-auto">
+            <Lock className="w-16 h-16 text-gray-500 mx-auto mb-4" />
+            <h1 className="text-2xl font-bold text-white mb-4">Private List</h1>
+            <p className="text-gray-400 mb-2">This list is set to private and can only be viewed by its owner.</p>
+            <p className="text-gray-500 text-sm mb-6">List: "{list?.name}"</p>
             <Link to="/browse-lists">
               <Button className="bg-orange-500 hover:bg-orange-600">
                 <ArrowLeft className="w-4 h-4 mr-2" />
-                Browse Other Lists
+                Browse Public Lists
               </Button>
             </Link>
           </div>
@@ -69,8 +187,39 @@ const PublicListView = () => {
     );
   }
 
+  // Show not found message
+  if (error === "not_found" || error === "fetch_error" || !list) {
+    return (
+      <div className="min-h-screen bg-gradient-to-br from-gray-900 via-gray-800 to-black">
+        <Navigation />
+        <div className="flex items-center justify-center min-h-screen">
+          <div className="text-center max-w-md mx-auto">
+            <h1 className="text-2xl font-bold text-white mb-4">List Not Found</h1>
+            <p className="text-gray-400 mb-2">This list doesn't exist or has been deleted.</p>
+            <p className="text-gray-500 text-sm mb-6">List ID: {listId}</p>
+            <Link to="/browse-lists">
+              <Button className="bg-orange-500 hover:bg-orange-600">
+                <ArrowLeft className="w-4 h-4 mr-2" />
+                Browse Public Lists
+              </Button>
+            </Link>
+            {process.env.NODE_ENV === 'development' && debugInfo && (
+              <details className="mt-4 text-left">
+                <summary className="text-gray-400 cursor-pointer">Debug Info</summary>
+                <pre className="text-xs text-gray-500 mt-2 overflow-auto max-h-40">
+                  {JSON.stringify(debugInfo, null, 2)}
+                </pre>
+              </details>
+            )}
+          </div>
+        </div>
+        <MobileBottomNav />
+      </div>
+    );
+  }
+
   // Transform list items to collection grid format
-  const listItems = list.list_items?.map(item => ({
+  const listItems = list.list_items?.map((item: any) => ({
     id: item.funko_pops?.id,
     name: item.funko_pops?.name,
     series: item.funko_pops?.series,
@@ -81,7 +230,7 @@ const PublicListView = () => {
     owned: false, // This is a list view, not personal collection
   })) || [];
 
-  const totalValue = listItems.reduce((sum, item) => sum + (item.value || 0), 0);
+  const totalValue = listItems.reduce((sum: number, item: any) => sum + (item.value || 0), 0);
   const totalItems = listItems.length;
 
   const handleShare = async () => {
@@ -162,20 +311,14 @@ const PublicListView = () => {
               <div className="flex-1">
                 <div className="flex items-center gap-3 mb-2">
                   <CardTitle className="text-3xl font-bold text-white">{list.name}</CardTitle>
-                  {list.is_public && (
-                    <Badge className="bg-green-600 text-white">
-                      Public
-                    </Badge>
-                  )}
+                  <Badge className="bg-green-600 text-white">
+                    Public
+                  </Badge>
                 </div>
                 {list.description && (
                   <p className="text-gray-300 text-lg mb-4">{list.description}</p>
                 )}
                 <div className="flex flex-wrap items-center gap-4 text-sm text-gray-400">
-                  <div className="flex items-center gap-1">
-                    <Eye className="w-4 h-4" />
-                    <span>{list.views || 0} views</span>
-                  </div>
                   <div className="flex items-center gap-1">
                     <Calendar className="w-4 h-4" />
                     <span>Created {new Date(list.created_at).toLocaleDateString()}</span>
@@ -199,13 +342,13 @@ const PublicListView = () => {
               </div>
               <div className="text-center">
                 <div className="text-3xl font-bold text-blue-500 mb-1">
-                  {new Set(listItems.map(item => item.series)).size}
+                  {new Set(listItems.map((item: any) => item.series)).size}
                 </div>
                 <div className="text-gray-400 text-sm">Series</div>
               </div>
               <div className="text-center">
                 <div className="text-3xl font-bold text-purple-500 mb-1">
-                  {listItems.filter(item => item.rarity === 'Chase' || item.rarity === 'Exclusive').length}
+                  {listItems.filter((item: any) => item.rarity === 'Chase' || item.rarity === 'Exclusive').length}
                 </div>
                 <div className="text-gray-400 text-sm">Rare Items</div>
               </div>
@@ -232,6 +375,20 @@ const PublicListView = () => {
             />
           )}
         </div>
+
+        {/* Development Debug Info */}
+        {process.env.NODE_ENV === 'development' && debugInfo && (
+          <Card className="bg-gray-800/30 border-gray-700 mt-8">
+            <CardHeader>
+              <CardTitle className="text-white text-lg">Debug Information</CardTitle>
+            </CardHeader>
+            <CardContent>
+              <pre className="text-xs text-gray-400 overflow-auto max-h-60">
+                {JSON.stringify(debugInfo, null, 2)}
+              </pre>
+            </CardContent>
+          </Card>
+        )}
       </div>
 
       <MobileBottomNav />

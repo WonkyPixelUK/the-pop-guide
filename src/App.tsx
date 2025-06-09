@@ -63,6 +63,10 @@ import DatabaseSetup from "./pages/DatabaseSetup";
 import FunkoExclusives from "./pages/FunkoExclusives";
 import SystemErrorReport from "./pages/SystemErrorReport";
 import TestEnhancedCollection from "./pages/TestEnhancedCollection";
+import DebugList from './pages/DebugList';
+import SupportCenter from './components/SupportCenter';
+import EbayApiTest from './components/EbayApiTest';
+import EbayPriceAnalyzer from './components/EbayPriceAnalyzer';
 
 const queryClient = new QueryClient();
 
@@ -132,6 +136,12 @@ const App = () => (
             <Route path="/pricing-dashboard" element={<PricingDashboard />} />
             <Route path="/system-error-report" element={<SystemErrorReport />} />
             <Route path="/test-enhanced-collection" element={<TestEnhancedCollection />} />
+            <Route path="/debug-list/:id?" element={<DebugList />} />
+            <Route path="/support" element={<SupportCenter />} />
+            <Route path="/ebay-test" element={<EbayApiTest />} />
+            <Route path="/ebay-analyzer" element={<EbayPriceAnalyzer />} />
+            <Route path="/price-analyzer" element={<EbayPriceAnalyzer />} />
+            <Route path="/auth/ebay/callback" element={<EbayPriceAnalyzer />} />
             <Route path="/" element={<Navigate to="/dashboard" replace />} />
 
             {/* ADD ALL CUSTOM ROUTES ABOVE THE CATCH-ALL "*" ROUTE */}

@@ -77,6 +77,10 @@ const ListManagementDialog = ({ listId, open, onOpenChange }: ListManagementDial
 
   const handleSaveEdit = async () => {
     if (editSlug && !(await checkSlugAvailability(editSlug))) return;
+    
+    const wasPublic = currentList.is_public;
+    const willBePublic = editIsPublic;
+    
     await updateList.mutateAsync({
       listId: currentList.id,
       name: editName,
@@ -84,6 +88,27 @@ const ListManagementDialog = ({ listId, open, onOpenChange }: ListManagementDial
       isPublic: editIsPublic,
       slug: editSlug || null,
     });
+    
+    // Show fun notification for privacy changes
+    if (wasPublic !== willBePublic) {
+      if (willBePublic) {
+        toast({
+          title: "🚀 List is Now Public!",
+          description: "Your collection is live! Time to bask in the glory of your Funko prowess! ✨",
+        });
+      } else {
+        toast({
+          title: "🤫 Back to Stealth Mode",
+          description: "Your list is now private. Your collection secrets are safe! 🕵️‍♂️",
+        });
+      }
+    } else {
+      toast({
+        title: "✅ Settings Updated",
+        description: "Your list settings have been saved successfully!",
+      });
+    }
+    
     setEditMode(false);
   };
 
@@ -303,13 +328,42 @@ const ListManagementDialog = ({ listId, open, onOpenChange }: ListManagementDial
                   />
                   {slugError && <span className="text-red-500 text-xs">{slugError}</span>}
                 </div>
-                <div className="flex items-center space-x-2">
-                  <Switch
-                    id="editIsPublic"
-                    checked={editIsPublic}
-                    onCheckedChange={setEditIsPublic}
-                  />
-                  <Label htmlFor="editIsPublic">Make this list public</Label>
+                <div className="flex items-center space-x-3">
+                  <div className="relative">
+                    <Switch
+                      id="editIsPublic"
+                      checked={editIsPublic}
+                      onCheckedChange={(checked) => {
+                        setEditIsPublic(checked);
+                        if (checked) {
+                          toast({
+                            title: "🎉 List Going Live!",
+                            description: "Your collection is about to go public! Get ready for some serious Funko envy! 😎",
+                          });
+                        } else {
+                          toast({
+                            title: "🔐 Into the Shadows",
+                            description: "Your list is now private. Back to being a mysterious collector! 🥷",
+                          });
+                        }
+                      }}
+                      className={`${
+                        editIsPublic 
+                          ? 'data-[state=checked]:bg-green-500 data-[state=checked]:border-green-500' 
+                          : 'data-[state=unchecked]:bg-red-500 data-[state=unchecked]:border-red-500'
+                      } transition-colors duration-200`}
+                    />
+                    <div className={`absolute -top-1 -right-1 w-3 h-3 rounded-full transition-opacity duration-200 ${
+                      editIsPublic ? 'bg-green-400 opacity-100 animate-pulse' : 'opacity-0'
+                    }`} />
+                  </div>
+                  <Label htmlFor="editIsPublic" className="cursor-pointer">
+                    <span className={`transition-colors duration-200 ${
+                      editIsPublic ? 'text-green-400' : 'text-red-400'
+                    }`}>
+                      {editIsPublic ? '🌍 Public List' : '🔒 Private List'}
+                    </span>
+                  </Label>
                 </div>
               </>
             ) : (
