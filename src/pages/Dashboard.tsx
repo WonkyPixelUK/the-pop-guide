@@ -2,7 +2,7 @@ import React, { useState, useEffect, useRef, Suspense } from 'react';
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Card, CardContent } from "@/components/ui/card";
-import { Search, Plus, BarChart3, Users, Zap, LogOut, Settings, Heart, List, TrendingUp, MessageCircle, ChevronLeft, ChevronRight, Download, Badge, Filter, ArrowDownAZ, ArrowUpAZ, ArrowDownWideNarrow, ArrowUpWideNarrow, ArrowUpDown, ChevronDown, ChevronUp, User, Share2, HelpCircle, Menu, X } from "lucide-react";
+import { Search, Plus, BarChart3, Users, Zap, LogOut, Settings, Heart, List, TrendingUp, MessageCircle, ChevronLeft, ChevronRight, Download, Badge, Filter, ArrowDownAZ, ArrowUpAZ, ArrowDownWideNarrow, ArrowUpWideNarrow, ArrowUpDown, ChevronDown, ChevronUp, User, Share2, HelpCircle, Menu, X, CheckCircle, Loader2 } from "lucide-react";
 import CollectionGrid from "@/components/CollectionGrid";
 import WishlistGrid from "@/components/WishlistGrid";
 import CustomListsManager from "@/components/CustomListsManager";
@@ -11,7 +11,7 @@ import EnhancedAddItemDialog from "@/components/EnhancedAddItemDialog";
 import PriceHistory from "@/components/PriceHistory";
 import SupportCenter from "@/components/SupportCenter";
 import { useAuth } from "@/hooks/useAuth";
-import { useFunkoPops, useUserCollection } from "@/hooks/useFunkoPops";
+import { useFunkoPops, useUserCollection, useAddToCollection } from "@/hooks/useFunkoPops";
 import { useWishlist } from "@/hooks/useWishlist";
 import { useToast } from "@/hooks/use-toast";
 import { useNavigate, Link, useLocation } from "react-router-dom";
@@ -72,11 +72,19 @@ const Dashboard = () => {
     category: [], fandom: [], genre: [], edition: [], vaulted: 'All', year: '', character: [], series: []
   });
   const [sort, setSort] = useState('high-to-low');
+  const [ownedConfirmed, setOwnedConfirmed] = useState(false);
+  const [addingToCollection, setAddingToCollection] = useState(false);
+  const [listModalOpen, setListModalOpen] = useState(false);
+  const [addingToListId, setAddingToListId] = useState(null);
+  const [selectedPopForList, setSelectedPopForList] = useState(null);
+  const [creatingList, setCreatingList] = useState(false);
+  const [newListName, setNewListName] = useState("");
   
   const { user, loading: authLoading, signOut } = useAuth();
   const { data: funkoPops = [], isLoading: funkoLoading } = useFunkoPops();
   const { data: userCollection = [], isLoading: collectionLoading } = useUserCollection(user?.id);
-  const { wishlist, isLoading: wishlistLoading } = useWishlist();
+  const { wishlist, isLoading: wishlistLoading, addToWishlist, removeFromWishlist } = useWishlist();
+  const addToCollection = useAddToCollection();
   const { toast } = useToast();
   const navigate = useNavigate();
   const location = useLocation();
@@ -204,6 +212,99 @@ const Dashboard = () => {
     setBulkSelected(userCollection.map((item) => item.funko_pops?.id).filter(Boolean));
   };
   const handleBulkClear = () => setBulkSelected([]);
+
+  // Action button handlers
+  const handleAddToCollection = (pop) => {
+    if (pop.owned || addingToCollection) return;
+    
+    setAddingToCollection(true);
+    addToCollection.mutate(pop.id, {
+      onSuccess: () => {
+        setOwnedConfirmed(true);
+        setAddingToCollection(false);
+        toast({ 
+          title: '✅ Added to Collection!', 
+          description: `${pop.name} has been added to your collection.`,
+          duration: 3000
+        });
+        setTimeout(() => setOwnedConfirmed(false), 5000);
+      },
+      onError: (error) => {
+        setAddingToCollection(false);
+        if (error.message?.includes('duplicate key') || error.message?.includes('unique constraint')) {
+          toast({
+            title: '✅ Already in Collection',
+            description: `${pop.name} is already in your collection.`,
+            duration: 3000
+          });
+          setOwnedConfirmed(true);
+          setTimeout(() => setOwnedConfirmed(false), 5000);
+        } else {
+          toast({
+            title: '❌ Failed to Add',
+            description: error.message || 'Could not add to collection. Please try again.',
+            variant: 'destructive',
+            duration: 5000
+          });
+        }
+      }
+    });
+  };
+
+  const handleWishlist = (pop) => {
+    const isInWishlist = wishlist.some((w) => w.funko_pop_id === pop.id);
+    if (isInWishlist) {
+      removeFromWishlist.mutate(pop.id, {
+        onSuccess: () => {
+          toast({ title: '💔 Removed from Wishlist', description: `${pop.name} removed from your wishlist.` });
+        }
+      });
+    } else {
+      addToWishlist.mutate(pop.id, {
+        onSuccess: () => {
+          toast({ title: '❤️ Added to Wishlist!', description: `${pop.name} added to your wishlist.` });
+        }
+      });
+    }
+  };
+
+  const handleShare = (pop) => {
+    const url = `${window.location.origin}/pop/${pop.id}`;
+    navigator.clipboard.writeText(url);
+    toast({ title: 'Link copied!', description: 'Share this Pop with others.' });
+  };
+
+  const handleAddToList = (pop) => {
+    setSelectedPopForList(pop);
+    setListModalOpen(true);
+  };
+
+  const handleListSelect = (listId) => {
+    if (!selectedPopForList) return;
+    setAddingToListId(listId);
+    // Note: You'll need to implement addItemToList from useCustomLists hook
+    // addItemToList.mutate({ listId, funkoPopId: selectedPopForList.id }, {
+    //   onSuccess: () => {
+    //     toast({
+    //       title: '✅ Added to List!',
+    //       description: `${selectedPopForList.name} has been added to your list.`,
+    //       duration: 3000
+    //     });
+    //     setListModalOpen(false);
+    //     setSelectedPopForList(null);
+    //     setAddingToListId(null);
+    //   },
+    //   onError: (error) => {
+    //     toast({
+    //       title: '❌ Failed to Add',
+    //       description: error.message || 'Could not add to list. Please try again.',
+    //       variant: 'destructive',
+    //       duration: 5000
+    //     });
+    //     setAddingToListId(null);
+    //   }
+    // });
+  };
 
   // Sidebar toggle button (always visible)
   const SidebarToggleButton = (
@@ -531,6 +632,95 @@ const Dashboard = () => {
                                   </div>
                                 )}
                               </div>
+                              
+                              {/* Action Buttons */}
+                              <div className="grid grid-cols-2 gap-2">
+                                <Button
+                                  variant={pop.owned || ownedConfirmed ? 'default' : 'outline'}
+                                  className={
+                                    pop.owned || ownedConfirmed
+                                      ? ownedConfirmed 
+                                        ? 'bg-gradient-to-r from-green-500 to-green-600 text-white hover:from-green-600 hover:to-green-700 hover:text-white shadow-md shadow-green-500/20 border-0 h-9 text-sm font-medium transition-all duration-200 hover:shadow-lg' 
+                                        : 'bg-gradient-to-r from-green-500 to-green-600 text-white hover:from-green-600 hover:to-green-700 hover:text-white shadow-md shadow-green-500/20 border-0 h-9 text-sm font-medium'
+                                      : addingToCollection 
+                                      ? 'bg-gradient-to-r from-orange-500 to-orange-600 text-white hover:text-white shadow-md shadow-orange-500/20 border-0 h-9 text-sm font-medium' 
+                                      : 'bg-gradient-to-r from-orange-500 to-orange-600 hover:from-orange-600 hover:to-orange-700 text-white hover:text-white shadow-md shadow-orange-500/20 border-0 h-9 text-sm font-medium transition-all duration-200 hover:shadow-lg'
+                                  }
+                                  onClick={(e) => {
+                                    e.stopPropagation();
+                                    handleAddToCollection(pop);
+                                  }}
+                                  disabled={pop.owned || ownedConfirmed || addingToCollection}
+                                >
+                                  {addingToCollection ? (
+                                    <>
+                                      <Loader2 className="w-4 h-4 mr-1.5 animate-spin" />
+                                      Adding...
+                                    </>
+                                  ) : (pop.owned || ownedConfirmed) ? (
+                                    <>
+                                      <CheckCircle className="w-4 h-4 mr-1.5" />
+                                      {ownedConfirmed ? 'Added!' : 'Owned'}
+                                    </>
+                                  ) : (
+                                    <>
+                                      <Plus className="w-4 h-4 mr-1.5" />
+                                      Own this Pop
+                                    </>
+                                  )}
+                                </Button>
+                                
+                                <Button 
+                                  variant="outline"
+                                  className={`h-9 text-sm font-medium transition-all duration-200 ${
+                                    wishlist.some((w) => w.funko_pop_id === pop.id) 
+                                      ? 'bg-gradient-to-r from-red-500 to-red-600 hover:from-red-600 hover:to-red-700 text-white shadow-md shadow-red-500/20 border-0 hover:shadow-lg' 
+                                      : 'border border-red-500/50 text-red-400 hover:bg-red-500 hover:text-white hover:border-red-500 hover:shadow-md hover:shadow-red-500/20 bg-red-500/5'
+                                  }`}
+                                  onClick={(e) => {
+                                    e.stopPropagation();
+                                    handleWishlist(pop);
+                                  }}
+                                >
+                                  <Heart className={`w-4 h-4 mr-1.5 ${wishlist.some((w) => w.funko_pop_id === pop.id) ? 'fill-current' : ''}`} />
+                                  {wishlist.some((w) => w.funko_pop_id === pop.id) ? 'Remove from Wishlist' : 'Add to Wishlist'}
+                                </Button>
+
+                                <Button 
+                                  variant="outline" 
+                                  className="border border-purple-500/50 text-purple-400 hover:bg-purple-500 hover:text-white hover:border-purple-500 hover:shadow-md hover:shadow-purple-500/20 h-9 text-sm font-medium transition-all duration-200 bg-purple-500/5"
+                                  onClick={(e) => {
+                                    e.stopPropagation();
+                                    handleAddToList(pop);
+                                  }}
+                                >
+                                  <List className="w-4 h-4 mr-1.5" />
+                                  Add to List
+                                </Button>
+                                
+                                <Button 
+                                  variant="outline" 
+                                  className="border border-gray-500/50 text-gray-300 hover:bg-gray-500 hover:text-white hover:border-gray-500 hover:shadow-md hover:shadow-gray-500/20 h-9 text-sm font-medium transition-all duration-200 bg-gray-500/5"
+                                  onClick={(e) => {
+                                    e.stopPropagation();
+                                    handleShare(pop);
+                                  }}
+                                >
+                                  <Share2 className="w-4 h-4 mr-1.5" />
+                                  Share
+                                </Button>
+
+                                {/* View Full Details Button - spans both columns */}
+                                <Button 
+                                  asChild
+                                  className="bg-gradient-to-r from-orange-500 to-orange-600 hover:from-orange-600 hover:to-orange-700 text-white col-span-2 h-9 text-sm font-medium transition-all duration-200 hover:shadow-lg hover:shadow-orange-500/20 border-0"
+                                >
+                                  <Link to={`/pop/${pop.id}`} className="flex items-center justify-center">
+                                    <Search className="w-4 h-4 mr-1.5" />
+                                    View Full Details
+                                  </Link>
+                                </Button>
+                              </div>
                             </div>
 
                             {/* Right Side - Details */}
@@ -772,6 +962,95 @@ const Dashboard = () => {
                                     <div className="text-lg">No Image Available</div>
                                   </div>
                                 )}
+                              </div>
+                              
+                              {/* Action Buttons */}
+                              <div className="grid grid-cols-2 gap-2">
+                                <Button
+                                  variant={pop.owned || ownedConfirmed ? 'default' : 'outline'}
+                                  className={
+                                    pop.owned || ownedConfirmed
+                                      ? ownedConfirmed 
+                                        ? 'bg-gradient-to-r from-green-500 to-green-600 text-white hover:from-green-600 hover:to-green-700 hover:text-white shadow-md shadow-green-500/20 border-0 h-9 text-sm font-medium transition-all duration-200 hover:shadow-lg' 
+                                        : 'bg-gradient-to-r from-green-500 to-green-600 text-white hover:from-green-600 hover:to-green-700 hover:text-white shadow-md shadow-green-500/20 border-0 h-9 text-sm font-medium'
+                                      : addingToCollection 
+                                      ? 'bg-gradient-to-r from-orange-500 to-orange-600 text-white hover:text-white shadow-md shadow-orange-500/20 border-0 h-9 text-sm font-medium' 
+                                      : 'bg-gradient-to-r from-orange-500 to-orange-600 hover:from-orange-600 hover:to-orange-700 text-white hover:text-white shadow-md shadow-orange-500/20 border-0 h-9 text-sm font-medium transition-all duration-200 hover:shadow-lg'
+                                  }
+                                  onClick={(e) => {
+                                    e.stopPropagation();
+                                    handleAddToCollection(pop);
+                                  }}
+                                  disabled={pop.owned || ownedConfirmed || addingToCollection}
+                                >
+                                  {addingToCollection ? (
+                                    <>
+                                      <Loader2 className="w-4 h-4 mr-1.5 animate-spin" />
+                                      Adding...
+                                    </>
+                                  ) : (pop.owned || ownedConfirmed) ? (
+                                    <>
+                                      <CheckCircle className="w-4 h-4 mr-1.5" />
+                                      {ownedConfirmed ? 'Added!' : 'Owned'}
+                                    </>
+                                  ) : (
+                                    <>
+                                      <Plus className="w-4 h-4 mr-1.5" />
+                                      Own this Pop
+                                    </>
+                                  )}
+                                </Button>
+                                
+                                <Button 
+                                  variant="outline"
+                                  className={`h-9 text-sm font-medium transition-all duration-200 ${
+                                    wishlist.some((w) => w.funko_pop_id === pop.id) 
+                                      ? 'bg-gradient-to-r from-red-500 to-red-600 hover:from-red-600 hover:to-red-700 text-white shadow-md shadow-red-500/20 border-0 hover:shadow-lg' 
+                                      : 'border border-red-500/50 text-red-400 hover:bg-red-500 hover:text-white hover:border-red-500 hover:shadow-md hover:shadow-red-500/20 bg-red-500/5'
+                                  }`}
+                                  onClick={(e) => {
+                                    e.stopPropagation();
+                                    handleWishlist(pop);
+                                  }}
+                                >
+                                  <Heart className={`w-4 h-4 mr-1.5 ${wishlist.some((w) => w.funko_pop_id === pop.id) ? 'fill-current' : ''}`} />
+                                  {wishlist.some((w) => w.funko_pop_id === pop.id) ? 'Remove from Wishlist' : 'Add to Wishlist'}
+                                </Button>
+
+                                <Button 
+                                  variant="outline" 
+                                  className="border border-purple-500/50 text-purple-400 hover:bg-purple-500 hover:text-white hover:border-purple-500 hover:shadow-md hover:shadow-purple-500/20 h-9 text-sm font-medium transition-all duration-200 bg-purple-500/5"
+                                  onClick={(e) => {
+                                    e.stopPropagation();
+                                    handleAddToList(pop);
+                                  }}
+                                >
+                                  <List className="w-4 h-4 mr-1.5" />
+                                  Add to List
+                                </Button>
+                                
+                                <Button 
+                                  variant="outline" 
+                                  className="border border-gray-500/50 text-gray-300 hover:bg-gray-500 hover:text-white hover:border-gray-500 hover:shadow-md hover:shadow-gray-500/20 h-9 text-sm font-medium transition-all duration-200 bg-gray-500/5"
+                                  onClick={(e) => {
+                                    e.stopPropagation();
+                                    handleShare(pop);
+                                  }}
+                                >
+                                  <Share2 className="w-4 h-4 mr-1.5" />
+                                  Share
+                                </Button>
+
+                                {/* View Full Details Button - spans both columns */}
+                                <Button 
+                                  asChild
+                                  className="bg-gradient-to-r from-orange-500 to-orange-600 hover:from-orange-600 hover:to-orange-700 text-white col-span-2 h-9 text-sm font-medium transition-all duration-200 hover:shadow-lg hover:shadow-orange-500/20 border-0"
+                                >
+                                  <Link to={`/pop/${pop.id}`} className="flex items-center justify-center">
+                                    <Search className="w-4 h-4 mr-1.5" />
+                                    View Full Details
+                                  </Link>
+                                </Button>
                               </div>
                             </div>
 
@@ -1249,6 +1528,95 @@ const Dashboard = () => {
                                       <div className="text-lg">No Image Available</div>
                                     </div>
                                   )}
+                                </div>
+                                
+                                {/* Action Buttons */}
+                                <div className="grid grid-cols-2 gap-2">
+                                  <Button
+                                    variant={pop.owned || ownedConfirmed ? 'default' : 'outline'}
+                                    className={
+                                      pop.owned || ownedConfirmed
+                                        ? ownedConfirmed 
+                                          ? 'bg-gradient-to-r from-green-500 to-green-600 text-white hover:from-green-600 hover:to-green-700 hover:text-white shadow-md shadow-green-500/20 border-0 h-9 text-sm font-medium transition-all duration-200 hover:shadow-lg' 
+                                          : 'bg-gradient-to-r from-green-500 to-green-600 text-white hover:from-green-600 hover:to-green-700 hover:text-white shadow-md shadow-green-500/20 border-0 h-9 text-sm font-medium'
+                                        : addingToCollection 
+                                        ? 'bg-gradient-to-r from-orange-500 to-orange-600 text-white hover:text-white shadow-md shadow-orange-500/20 border-0 h-9 text-sm font-medium' 
+                                        : 'bg-gradient-to-r from-orange-500 to-orange-600 hover:from-orange-600 hover:to-orange-700 text-white hover:text-white shadow-md shadow-orange-500/20 border-0 h-9 text-sm font-medium transition-all duration-200 hover:shadow-lg'
+                                    }
+                                    onClick={(e) => {
+                                      e.stopPropagation();
+                                      handleAddToCollection(pop);
+                                    }}
+                                    disabled={pop.owned || ownedConfirmed || addingToCollection}
+                                  >
+                                    {addingToCollection ? (
+                                      <>
+                                        <Loader2 className="w-4 h-4 mr-1.5 animate-spin" />
+                                        Adding...
+                                      </>
+                                    ) : (pop.owned || ownedConfirmed) ? (
+                                      <>
+                                        <CheckCircle className="w-4 h-4 mr-1.5" />
+                                        {ownedConfirmed ? 'Added!' : 'Owned'}
+                                      </>
+                                    ) : (
+                                      <>
+                                        <Plus className="w-4 h-4 mr-1.5" />
+                                        Own this Pop
+                                      </>
+                                    )}
+                                  </Button>
+                                  
+                                  <Button 
+                                    variant="outline"
+                                    className={`h-9 text-sm font-medium transition-all duration-200 ${
+                                      wishlist.some((w) => w.funko_pop_id === pop.id) 
+                                        ? 'bg-gradient-to-r from-red-500 to-red-600 hover:from-red-600 hover:to-red-700 text-white shadow-md shadow-red-500/20 border-0 hover:shadow-lg' 
+                                        : 'border border-red-500/50 text-red-400 hover:bg-red-500 hover:text-white hover:border-red-500 hover:shadow-md hover:shadow-red-500/20 bg-red-500/5'
+                                    }`}
+                                    onClick={(e) => {
+                                      e.stopPropagation();
+                                      handleWishlist(pop);
+                                    }}
+                                  >
+                                    <Heart className={`w-4 h-4 mr-1.5 ${wishlist.some((w) => w.funko_pop_id === pop.id) ? 'fill-current' : ''}`} />
+                                    {wishlist.some((w) => w.funko_pop_id === pop.id) ? 'Remove from Wishlist' : 'Add to Wishlist'}
+                                  </Button>
+
+                                  <Button 
+                                    variant="outline" 
+                                    className="border border-purple-500/50 text-purple-400 hover:bg-purple-500 hover:text-white hover:border-purple-500 hover:shadow-md hover:shadow-purple-500/20 h-9 text-sm font-medium transition-all duration-200 bg-purple-500/5"
+                                    onClick={(e) => {
+                                      e.stopPropagation();
+                                      handleAddToList(pop);
+                                    }}
+                                  >
+                                    <List className="w-4 h-4 mr-1.5" />
+                                    Add to List
+                                  </Button>
+                                  
+                                  <Button 
+                                    variant="outline" 
+                                    className="border border-gray-500/50 text-gray-300 hover:bg-gray-500 hover:text-white hover:border-gray-500 hover:shadow-md hover:shadow-gray-500/20 h-9 text-sm font-medium transition-all duration-200 bg-gray-500/5"
+                                    onClick={(e) => {
+                                      e.stopPropagation();
+                                      handleShare(pop);
+                                    }}
+                                  >
+                                    <Share2 className="w-4 h-4 mr-1.5" />
+                                    Share
+                                  </Button>
+
+                                  {/* View Full Details Button - spans both columns */}
+                                  <Button 
+                                    asChild
+                                    className="bg-gradient-to-r from-orange-500 to-orange-600 hover:from-orange-600 hover:to-orange-700 text-white col-span-2 h-9 text-sm font-medium transition-all duration-200 hover:shadow-lg hover:shadow-orange-500/20 border-0"
+                                  >
+                                    <Link to={`/pop/${pop.id}`} className="flex items-center justify-center">
+                                      <Search className="w-4 h-4 mr-1.5" />
+                                      View Full Details
+                                    </Link>
+                                  </Button>
                                 </div>
                               </div>
 
