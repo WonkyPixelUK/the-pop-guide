@@ -111,6 +111,28 @@ interface CategoryPrice {
 const PricingDashboard = () => {
   const { user } = useAuth();
   const { toast } = useToast();
+  const navigate = useNavigate();
+
+  // Redirect to auth if not logged in
+  useEffect(() => {
+    if (!user) {
+      navigate('/auth');
+      return;
+    }
+  }, [user, navigate]);
+
+  // Show loading while checking auth
+  if (!user) {
+    return (
+      <div className="min-h-screen bg-gray-900 flex items-center justify-center">
+        <div className="text-center">
+          <Loader2 className="w-8 h-8 animate-spin mx-auto mb-4 text-orange-500" />
+          <p className="text-white">Checking authentication...</p>
+        </div>
+      </div>
+    );
+  }
+
   const [selectedPop, setSelectedPop] = useState<FunkoPop | null>(null);
   const [marketplacePrices, setMarketplacePrices] = useState<MarketplacePrice[]>([]);
   const [priceAlerts, setPriceAlerts] = useState<PriceAlert[]>([]);
@@ -140,17 +162,6 @@ const PricingDashboard = () => {
     batchSize: 50,
     maxItems: 2000
   });
-
-  const navigate = useNavigate();
-
-  // Coming Soon state
-  const [comingSoonReleases, setComingSoonReleases] = useState<any[]>([]);
-  const [isLoadingComingSoon, setIsLoadingComingSoon] = useState(false);
-  const [ocioStockCredentials, setOcioStockCredentials] = useState({
-    username: '',
-    password: ''
-  });
-  const [isScrapingOcioStock, setIsScrapingOcioStock] = useState(false);
 
   const { data: funkoPops } = useFunkoPops();
   const { data: session } = useQuery({

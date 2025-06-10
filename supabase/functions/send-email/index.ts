@@ -12,10 +12,36 @@ interface EmailTemplate {
 }
 
 serve(async (req: Request) => {
+  // Handle CORS preflight requests
+  if (req.method === 'OPTIONS') {
+    return new Response(null, {
+      status: 200,
+      headers: {
+        'Access-Control-Allow-Origin': '*',
+        'Access-Control-Allow-Methods': 'POST, OPTIONS',
+        'Access-Control-Allow-Headers': 'Content-Type, Authorization, apikey, x-client-info, x-supabase-api-version',
+        'Access-Control-Max-Age': '86400',
+      },
+    });
+  }
+
+  // CORS headers for actual requests
+  const corsHeaders = {
+    'Access-Control-Allow-Origin': '*',
+    'Access-Control-Allow-Methods': 'POST, OPTIONS',
+    'Access-Control-Allow-Headers': 'Content-Type, Authorization, apikey, x-client-info, x-supabase-api-version',
+  };
+
   if (req.method !== 'POST') {
     return new Response(
       JSON.stringify({ error: 'Method not allowed' }),
-      { status: 405, headers: { 'Content-Type': 'application/json' } }
+      { 
+        status: 405, 
+        headers: { 
+          'Content-Type': 'application/json',
+          ...corsHeaders
+        } 
+      }
     );
   }
 
@@ -138,6 +164,79 @@ serve(async (req: Request) => {
                 ${createButton("Confirm Email Address", data.confirmationUrl)}
                 <p style="color: #6b7280; font-size: 14px; text-align: center;">
                   If you didn't create an account with PopGuide, you can safely ignore this email.
+                </p>
+              `
+            )
+          };
+
+        case 'reset':
+          return {
+            subject: "🔐 Reset Your PopGuide Password",
+            html: createEmailTemplate(
+              "🔐 Reset Your PopGuide Password",
+              "Password Reset Request 🔐",
+              `
+                <h2 style="color: ${darkColor}; margin-bottom: 20px;">Hi ${data.fullName || 'Collector'},</h2>
+                <p style="color: #374151; line-height: 1.6; margin-bottom: 20px;">
+                  We received a request to reset your PopGuide password. If you made this request, 
+                  click the button below to create a new password.
+                </p>
+                <div style="background: #fef3cd; border-left: 4px solid #f59e0b; padding: 20px; margin: 20px 0; border-radius: 6px;">
+                  <h4 style="color: #92400e; margin: 0 0 10px 0;">🔒 Security Information:</h4>
+                  <p style="margin: 5px 0; color: #92400e;"><strong>Reset requested:</strong> ${data.requestTime || 'Just now'}</p>
+                  <p style="margin: 5px 0; color: #92400e;"><strong>Link expires:</strong> In 1 hour for security</p>
+                  <p style="margin: 5px 0; color: #92400e;"><strong>IP Address:</strong> ${data.ipAddress || 'Not available'}</p>
+                </div>
+                <p style="color: #374151; line-height: 1.6; margin-bottom: 20px;">
+                  Click the button below to reset your password. This link will expire in <strong>1 hour</strong> for security reasons.
+                </p>
+                ${createButton("Reset My Password", data.resetUrl, "#dc2626")}
+                <div style="background: #fee2e2; border-left: 4px solid #dc2626; padding: 15px; margin: 20px 0; border-radius: 6px;">
+                  <p style="margin: 0; color: #991b1b; font-size: 14px;">
+                    <strong>⚠️ Important:</strong> If you didn't request this password reset, please ignore this email and consider changing your password as a precaution. Your account is still secure.
+                  </p>
+                </div>
+                <p style="color: #6b7280; font-size: 14px; text-align: center;">
+                  Need help? Contact our support team at <a href="mailto:support@popguide.co.uk" style="color: ${primaryColor};">support@popguide.co.uk</a>
+                </p>
+              `
+            )
+          };
+
+        case 'magic_login':
+          return {
+            subject: "🪄 Your PopGuide Magic Login Code",
+            html: createEmailTemplate(
+              "🪄 Your PopGuide Magic Login Code",
+              "Magic Login Code 🪄",
+              `
+                <h2 style="color: ${darkColor}; margin-bottom: 20px;">Hi ${data.fullName || 'Collector'},</h2>
+                <p style="color: #374151; line-height: 1.6; margin-bottom: 20px;">
+                  Here's your magic login code for PopGuide. Enter this code to sign in instantly - no password needed!
+                </p>
+                <div style="background: linear-gradient(135deg, #fff7ed, #fed7aa); border: 2px solid #f97316; padding: 30px; border-radius: 12px; margin: 25px 0; text-align: center;">
+                  <h3 style="color: #ea580c; margin: 0 0 15px 0; font-size: 18px;">Your Magic Code:</h3>
+                  <div style="font-size: 48px; font-weight: bold; color: #ea580c; letter-spacing: 8px; font-family: 'Courier New', monospace; margin: 20px 0;">
+                    ${data.magicCode}
+                  </div>
+                  <p style="color: #ea580c; margin: 10px 0 0 0; font-size: 14px;">Expires in ${data.expiresIn}</p>
+                </div>
+                <div style="background: #fef3cd; border-left: 4px solid #f59e0b; padding: 20px; margin: 20px 0; border-radius: 6px;">
+                  <h4 style="color: #92400e; margin: 0 0 10px 0;">🔒 Security Information:</h4>
+                  <p style="margin: 5px 0; color: #92400e;"><strong>Requested:</strong> ${data.requestTime || 'Just now'}</p>
+                  <p style="margin: 5px 0; color: #92400e;"><strong>Valid for:</strong> ${data.expiresIn}</p>
+                  <p style="margin: 5px 0; color: #92400e;"><strong>One-time use:</strong> Code becomes invalid after use</p>
+                </div>
+                <p style="color: #374151; line-height: 1.6; margin-bottom: 20px;">
+                  Simply enter this 6-digit code on the PopGuide login page. If you didn't request this code, you can safely ignore this email.
+                </p>
+                <div style="background: #fee2e2; border-left: 4px solid #dc2626; padding: 15px; margin: 20px 0; border-radius: 6px;">
+                  <p style="margin: 0; color: #991b1b; font-size: 14px;">
+                    <strong>⚠️ Important:</strong> Never share this code with anyone. PopGuide will never ask for your magic code via phone or email.
+                  </p>
+                </div>
+                <p style="color: #6b7280; font-size: 14px; text-align: center;">
+                  Need help? Contact our support team at <a href="mailto:support@popguide.co.uk" style="color: ${primaryColor};">support@popguide.co.uk</a>
                 </p>
               `
             )
@@ -580,14 +679,26 @@ serve(async (req: Request) => {
 
     return new Response(
       JSON.stringify({ success: true, message: 'Email sent successfully via Postmark' }),
-      { status: 200, headers: { 'Content-Type': 'application/json' } }
+      { 
+        status: 200, 
+        headers: { 
+          'Content-Type': 'application/json',
+          ...corsHeaders
+        } 
+      }
     );
 
   } catch (error) {
     console.error('Error sending email:', error);
     return new Response(
       JSON.stringify({ error: error.message }),
-      { status: 500, headers: { 'Content-Type': 'application/json' } }
+      { 
+        status: 500, 
+        headers: { 
+          'Content-Type': 'application/json',
+          ...corsHeaders
+        } 
+      }
     );
   }
 });

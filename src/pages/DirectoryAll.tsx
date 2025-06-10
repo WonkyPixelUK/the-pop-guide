@@ -827,22 +827,22 @@ const DirectoryAll = () => {
           <div key={key} className="mb-4">
             <DropdownMenu>
               <DropdownMenuTrigger asChild>
-                <Button variant="outline" className="w-full justify-between">
+                <Button variant="outline" className="w-full justify-between text-white border-gray-600 hover:bg-gray-700 hover:text-white">
                   {key.charAt(0).toUpperCase() + key.slice(1)}
                   <Filter className="ml-2 w-4 h-4" />
                 </Button>
               </DropdownMenuTrigger>
-              <DropdownMenuContent className="w-64 max-h-72 overflow-y-auto">
+              <DropdownMenuContent className="w-64 max-h-72 overflow-y-auto bg-gray-800 border-gray-700">
                 <div className="p-2">
                   <Input
                     placeholder={`Search ${key}...`}
-                    className="mb-2"
+                    className="mb-2 bg-gray-700 border-gray-600 text-white"
                     onChange={e => setFilters(f => ({ ...f, [`${key}Search`]: e.target.value }))}
                     value={filters[`${key}Search`] || ''}
                   />
                 </div>
                 {options.filter(opt => !filters[`${key}Search`] || opt.toLowerCase().includes(filters[`${key}Search`].toLowerCase())).map(opt => (
-                  <div key={opt} className="flex items-center justify-between px-3 py-2 rounded cursor-pointer transition-colors hover:text-[#e46c1b] hover:bg-gray-800" onClick={() => {
+                  <div key={opt} className="flex items-center justify-between px-3 py-2 rounded cursor-pointer transition-colors text-white hover:text-[#e46c1b] hover:bg-gray-700" onClick={() => {
                     setFilters(f => {
                       const arr = (Array.isArray(f[key]) ? f[key] : []).includes(opt) ? f[key].filter(x => x !== opt) : [...f[key], opt];
                       return { ...f, [key]: arr };
@@ -889,7 +889,7 @@ const DirectoryAll = () => {
               key={opt}
               size="sm"
               variant={filters.vaulted === opt ? 'default' : 'outline'}
-              className={filters.vaulted === opt ? 'bg-orange-500 text-white' : ''}
+              className={filters.vaulted === opt ? 'bg-orange-500 text-white' : 'text-white border-gray-600 hover:bg-gray-700 hover:text-white'}
               onClick={() => setFilters(f => ({ ...f, vaulted: opt }))}
             >
               {opt}

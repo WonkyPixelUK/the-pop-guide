@@ -70,10 +70,7 @@ export function formatCurrency(value: number, currency: Currency, baseCurrency: 
     convertedValue = gbpValue * rates[currency];
   }
   
-  // Debug logging
-  if (process.env.NODE_ENV === 'development') {
-    console.log(`Currency conversion: ${value} ${baseCurrency} -> ${convertedValue.toFixed(2)} ${currency} (rate: ${rates[currency]})`);
-  }
+  // Debug logging removed to reduce console noise
   
   if (currency === 'USD') {
     return `$${convertedValue.toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}`;
@@ -94,20 +91,15 @@ fetchExchangeRates().catch(() => {
   // Silent fail, will use fallback rates
 });
 
-// Export test function for manual testing
+// Export test function for manual testing (console logging removed)
 export async function testCurrencyConversion(): Promise<void> {
-  console.log('🧪 Testing currency conversion...');
-  
   const rates = await fetchExchangeRates();
-  console.log('📊 Current exchange rates:', rates);
-  
   const testAmount = 10;
   const gbpFormatted = formatCurrency(testAmount, 'GBP');
   const usdFormatted = formatCurrency(testAmount, 'USD');
   
-  console.log(`💷 ${testAmount} GBP = ${gbpFormatted}`);
-  console.log(`💵 ${testAmount} GBP = ${usdFormatted}`);
-  console.log(`📈 Exchange rate: 1 GBP = ${rates.USD} USD`);
+  // Test completed silently - use browser dev tools to inspect if needed
+  return;
 }
 
 // Make testCurrencyConversion available globally in development

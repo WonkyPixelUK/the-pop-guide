@@ -506,25 +506,50 @@ const PublicPopView = () => {
                   <div className="text-xl text-gray-300 mb-4">{pop.series} {pop.number ? `#${pop.number}` : ''}</div>
                   
                   {/* Current Price */}
-                  <div className="bg-gray-700/50 rounded-lg p-4 mb-6">
-                    <div className="text-sm text-gray-400 mb-1">Current Estimated Value</div>
-                    <div className="text-3xl font-bold text-orange-400">
-                      {pop.estimated_value !== null && pop.estimated_value !== undefined 
-                        ? formatCurrency(pop.estimated_value, currency) 
-                        : 'Pending'
-                      }
+                  {user ? (
+                    <div className="bg-gray-700/50 rounded-lg p-4 mb-6">
+                      <div className="text-sm text-gray-400 mb-1">Current Estimated Value</div>
+                      <div className="text-3xl font-bold text-orange-400">
+                        {pop.estimated_value !== null && pop.estimated_value !== undefined 
+                          ? formatCurrency(pop.estimated_value, currency) 
+                          : 'Pending'
+                        }
+                      </div>
+                      {(pop.estimated_value === null || pop.estimated_value === undefined) && (
+                        <div className="text-xs text-blue-400 mt-2">
+                          Market pricing updates within 5 working days
+                        </div>
+                      )}
+                      {pop.estimated_value !== null && pop.estimated_value !== undefined && (
+                        <div className="text-xs text-gray-400 mt-2">
+                          {(pop.data_sources && pop.data_sources.length > 0) ? 'Market data' : 'User contributed data'}
+                        </div>
+                      )}
                     </div>
-                    {(pop.estimated_value === null || pop.estimated_value === undefined) && (
-                      <div className="text-xs text-blue-400 mt-2">
-                        Market pricing updates within 5 working days
+                  ) : (
+                    <div className="bg-gray-700/50 rounded-lg p-4 mb-6 text-center">
+                      <div className="text-4xl mb-3">🔒</div>
+                      <div className="text-lg font-semibold text-white mb-2">Premium Pricing Data</div>
+                      <p className="text-gray-400 text-sm mb-4">
+                        Sign in to view detailed pricing information and market value
+                      </p>
+                      <div className="flex gap-2 justify-center">
+                        <Button 
+                          onClick={() => navigate('/auth')} 
+                          className="bg-orange-500 hover:bg-orange-600 text-white"
+                        >
+                          Sign In
+                        </Button>
+                        <Button 
+                          onClick={() => navigate('/auth')} 
+                          variant="outline"
+                          className="border-orange-500 text-orange-400 hover:bg-orange-500 hover:text-white"
+                        >
+                          Join Now
+                        </Button>
                       </div>
-                    )}
-                    {pop.estimated_value !== null && pop.estimated_value !== undefined && (
-                      <div className="text-xs text-gray-400 mt-2">
-                        {(pop.data_sources && pop.data_sources.length > 0) ? 'Market data' : 'User contributed data'}
-                      </div>
-                    )}
-                  </div>
+                    </div>
+                  )}
 
                   {/* Description */}
                   {pop.description && (
@@ -535,65 +560,119 @@ const PublicPopView = () => {
                   )}
 
                   {/* Details Grid */}
-                  <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-                    <div>
-                      <h3 className="text-lg font-semibold text-white mb-3">Details</h3>
-                      <div className="space-y-2 text-sm">
-                        <div className="flex justify-between">
-                          <span className="text-gray-400">Series:</span>
-                          <span className="text-white">{pop.series}</span>
-                        </div>
-                        <div className="flex justify-between">
-                          <span className="text-gray-400">Fandom:</span>
-                          <span className="text-white">{pop.fandom || 'Unknown'}</span>
-                        </div>
-                        <div className="flex justify-between">
-                          <span className="text-gray-400">Genre:</span>
-                          <span className="text-white">{pop.genre || 'Unknown'}</span>
-                        </div>
-                        <div className="flex justify-between">
-                          <span className="text-gray-400">Edition:</span>
-                          <span className="text-white">{pop.edition || 'Standard'}</span>
-                        </div>
-                        {pop.exclusive_to && (
+                  {user ? (
+                    <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+                      <div>
+                        <h3 className="text-lg font-semibold text-white mb-3">Details</h3>
+                        <div className="space-y-2 text-sm">
                           <div className="flex justify-between">
-                            <span className="text-gray-400">Exclusive to:</span>
-                            <span className="text-white">{pop.exclusive_to}</span>
+                            <span className="text-gray-400">Series:</span>
+                            <span className="text-white">{pop.series}</span>
                           </div>
-                        )}
+                          <div className="flex justify-between">
+                            <span className="text-gray-400">Fandom:</span>
+                            <span className="text-white">{pop.fandom || 'Unknown'}</span>
+                          </div>
+                          <div className="flex justify-between">
+                            <span className="text-gray-400">Genre:</span>
+                            <span className="text-white">{pop.genre || 'Unknown'}</span>
+                          </div>
+                          <div className="flex justify-between">
+                            <span className="text-gray-400">Edition:</span>
+                            <span className="text-white">{pop.edition || 'Standard'}</span>
+                          </div>
+                          {pop.exclusive_to && (
+                            <div className="flex justify-between">
+                              <span className="text-gray-400">Exclusive to:</span>
+                              <span className="text-white">{pop.exclusive_to}</span>
+                            </div>
+                          )}
+                        </div>
                       </div>
-                    </div>
 
-                    <div>
-                      <h3 className="text-lg font-semibold text-white mb-3">Rarity & Features</h3>
-                      <div className="space-y-2 text-sm">
-                        <div className="flex justify-between">
-                          <span className="text-gray-400">Chase Variant:</span>
-                          <span className={pop.is_chase ? 'text-yellow-400' : 'text-gray-500'}>
-                            {pop.is_chase ? 'Yes' : 'No'}
-                          </span>
-                        </div>
-                        <div className="flex justify-between">
-                          <span className="text-gray-400">Exclusive:</span>
-                          <span className={pop.is_exclusive ? 'text-purple-400' : 'text-gray-500'}>
-                            {pop.is_exclusive ? 'Yes' : 'No'}
-                          </span>
-                        </div>
-                        <div className="flex justify-between">
-                          <span className="text-gray-400">Vaulted:</span>
-                          <span className={pop.is_vaulted ? 'text-red-400' : 'text-green-400'}>
-                            {pop.is_vaulted ? 'Yes' : 'No'}
-                          </span>
-                        </div>
-                        {pop.variant && (
+                      <div>
+                        <h3 className="text-lg font-semibold text-white mb-3">Rarity & Features</h3>
+                        <div className="space-y-2 text-sm">
                           <div className="flex justify-between">
-                            <span className="text-gray-400">Variant:</span>
-                            <span className="text-white">{pop.variant}</span>
+                            <span className="text-gray-400">Chase Variant:</span>
+                            <span className={pop.is_chase ? 'text-yellow-400' : 'text-gray-500'}>
+                              {pop.is_chase ? 'Yes' : 'No'}
+                            </span>
                           </div>
-                        )}
+                          <div className="flex justify-between">
+                            <span className="text-gray-400">Exclusive:</span>
+                            <span className={pop.is_exclusive ? 'text-purple-400' : 'text-gray-500'}>
+                              {pop.is_exclusive ? 'Yes' : 'No'}
+                            </span>
+                          </div>
+                          <div className="flex justify-between">
+                            <span className="text-gray-400">Vaulted:</span>
+                            <span className={pop.is_vaulted ? 'text-red-400' : 'text-green-400'}>
+                              {pop.is_vaulted ? 'Yes' : 'No'}
+                            </span>
+                          </div>
+                          {pop.variant && (
+                            <div className="flex justify-between">
+                              <span className="text-gray-400">Variant:</span>
+                              <span className="text-white">{pop.variant}</span>
+                            </div>
+                          )}
+                        </div>
                       </div>
                     </div>
-                  </div>
+                  ) : (
+                    <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+                      <div className="bg-gray-700/30 rounded-lg p-4 text-center">
+                        <div className="text-3xl mb-2">🔒</div>
+                        <h3 className="text-lg font-semibold text-white mb-2">Premium Details</h3>
+                        <p className="text-gray-400 text-sm mb-4">
+                          Access detailed product information including series, fandom, genre, and edition details
+                        </p>
+                        <div className="flex gap-2 justify-center">
+                          <Button 
+                            onClick={() => navigate('/auth')} 
+                            size="sm"
+                            className="bg-orange-500 hover:bg-orange-600 text-white"
+                          >
+                            Sign In
+                          </Button>
+                          <Button 
+                            onClick={() => navigate('/auth')} 
+                            size="sm"
+                            variant="outline"
+                            className="border-orange-500 text-orange-400 hover:bg-orange-500 hover:text-white"
+                          >
+                            Join Now
+                          </Button>
+                        </div>
+                      </div>
+
+                      <div className="bg-gray-700/30 rounded-lg p-4 text-center">
+                        <div className="text-3xl mb-2">✨</div>
+                        <h3 className="text-lg font-semibold text-white mb-2">Rarity & Features</h3>
+                        <p className="text-gray-400 text-sm mb-4">
+                          Discover exclusive details like chase variants, exclusivity status, and special features
+                        </p>
+                        <div className="flex gap-2 justify-center">
+                          <Button 
+                            onClick={() => navigate('/auth')} 
+                            size="sm"
+                            className="bg-orange-500 hover:bg-orange-600 text-white"
+                          >
+                            Sign In
+                          </Button>
+                          <Button 
+                            onClick={() => navigate('/auth')} 
+                            size="sm"
+                            variant="outline"
+                            className="border-orange-500 text-orange-400 hover:bg-orange-500 hover:text-white"
+                          >
+                            Join Now
+                          </Button>
+                        </div>
+                      </div>
+                    </div>
+                  )}
                 </CardContent>
               </Card>
 

@@ -55,6 +55,8 @@ import LatestDeals from "./pages/LatestDeals";
 import TimeMachine from "./pages/TimeMachine";
 import GrailGalaxyLanding from "@/pages/GrailGalaxyLanding";
 import GrailGalaxyWorld from "@/pages/GrailGalaxyWorld";
+import TimeMachineFeature from "./pages/features/TimeMachineFeature";
+import GrailGalaxyFeature from "./pages/features/GrailGalaxyFeature";
 import RetailerDirectory from "@/pages/RetailerDirectory";
 import Export from "@/pages/Export";
 import PricingDashboard from "@/pages/PricingDashboard";
@@ -67,23 +69,31 @@ import DebugList from './pages/DebugList';
 import SupportCenter from './components/SupportCenter';
 import EbayApiTest from './components/EbayApiTest';
 import EbayPriceAnalyzer from './components/EbayPriceAnalyzer';
+import LivePricing from "@/pages/LivePricing";
 
 const queryClient = new QueryClient();
 
 const App = () => (
   <QueryClientProvider client={queryClient}>
     <HelmetProvider>
-      <Analytics />
-      <SpeedInsights />
+      <Analytics debug={false} />
+      <SpeedInsights debug={false} />
       <TooltipProvider>
         <Toaster />
         <Sonner />
-        <BrowserRouter>
+        <BrowserRouter
+          future={{
+            v7_startTransition: true,
+            v7_relativeSplatPath: true
+          }}
+        >
           <Routes>
             <Route path="/" element={<Landing />} />
             <Route path="/auth" element={<Auth />} />
             <Route path="/dashboard" element={<Dashboard />} />
             <Route path="/features" element={<Features />} />
+            <Route path="/features/time-machine" element={<TimeMachineFeature />} />
+            <Route path="/features/grail-galaxy" element={<GrailGalaxyFeature />} />
             <Route path="/pricing" element={<Pricing />} />
             <Route path="/pricing-new" element={<PricingNew />} />
             <Route path="/about" element={<About />} />
@@ -142,6 +152,7 @@ const App = () => (
             <Route path="/ebay-analyzer" element={<EbayPriceAnalyzer />} />
             <Route path="/price-analyzer" element={<EbayPriceAnalyzer />} />
             <Route path="/auth/ebay/callback" element={<EbayPriceAnalyzer />} />
+            <Route path="/live-pricing" element={<LivePricing />} />
             <Route path="/" element={<Navigate to="/dashboard" replace />} />
 
             {/* ADD ALL CUSTOM ROUTES ABOVE THE CATCH-ALL "*" ROUTE */}

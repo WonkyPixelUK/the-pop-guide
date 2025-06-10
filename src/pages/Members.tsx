@@ -53,6 +53,11 @@ const Members = () => {
     .slice(0, 10);
 
   const openDm = async (profile) => {
+    if (!user?.id || !profile?.id) {
+      console.error('Cannot open DM: user or profile ID is missing');
+      return;
+    }
+    
     setDmUser(profile);
     setDmOpen(true);
     setDmLoading(true);
@@ -68,7 +73,7 @@ const Members = () => {
 
   const sendDm = async (e) => {
     e.preventDefault();
-    if (!dmInput.trim() || !dmUser) return;
+    if (!dmInput.trim() || !dmUser?.id || !user?.id) return;
     setDmLoading(true);
     try {
       const { error } = await supabase.from('messages').insert({ sender_id: user.id, receiver_id: dmUser.id, content: dmInput.trim() });
@@ -191,7 +196,7 @@ const Members = () => {
                           >
                             <Heart fill={liked[profile.id] ? 'currentColor' : 'none'} className="w-5 h-5" />
                           </Button>
-                          <div className="flex items-center gap-2 text-orange-400">
+                          <div className="flex items-center gap-2 text-white hover:text-orange-400 transition-colors">
                             <Mail className="w-5 h-5" />
                             <button className="text-sm font-medium" onClick={e => { e.preventDefault(); openDm(profile); }}>Direct Message</button>
                           </div>

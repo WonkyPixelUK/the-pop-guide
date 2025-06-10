@@ -166,10 +166,11 @@ const Landing = () => {
               Your <span className="text-orange-500">Ultimate</span> Funko Pop Collection Manager
             </h1>
             <p className="text-xl text-gray-300 mb-8 max-w-3xl mx-auto">
-              Track, value, and showcase your Funko Pop collection with real-time market data, 
-              comprehensive management tools, and a community of passionate collectors. 
-              <span className="text-orange-400 font-semibold"> Start your free 3-day trial</span> and discover 
-              why thousands of collectors trust PopGuide to manage their collections.
+              Stop guessing what your collection is worth. Get instant access to <span className="text-orange-400 font-semibold">live pricing data</span>, 
+              <span className="text-blue-400 font-semibold"> historical price trends</span>, and discover hidden grails you never knew you owned. 
+              While other collectors track Pops in spreadsheets, you'll have <span className="text-green-400 font-semibold">professional-grade analytics</span>, 
+              <span className="text-purple-400 font-semibold"> Time Machine price history</span>, and smart alerts that notify you when your collection appreciates in value.
+              <span className="text-orange-400 font-semibold block mt-4"> Start your free trial today</span> and see why thousands of collectors have upgraded from spreadsheets.
             </p>
 
             {/* Navigation Options - Integrated into Hero */}

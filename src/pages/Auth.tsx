@@ -9,6 +9,7 @@ import { useAuth } from '@/hooks/useAuth';
 import { useWelcomeEmail } from '@/hooks/useWelcomeEmail';
 import { useToast } from '@/hooks/use-toast';
 import { useNavigate, Link, useLocation } from 'react-router-dom';
+import { supabase } from '@/integrations/supabase/client';
 
 const STRIPE_FUNCTION_URL = "https://db.popguide.co.uk/functions/v1/stripe-checkout-public";
 const CRYPTO_FUNCTION_URL = "https://db.popguide.co.uk/functions/v1/crypto-checkout";
@@ -21,7 +22,14 @@ const Auth = () => {
   const [fullName, setFullName] = useState('');
   const [loading, setLoading] = useState(false);
   const [selectedPaymentMethod, setSelectedPaymentMethod] = useState<'traditional' | 'crypto'>('traditional');
-  const { user, signUp, signIn } = useAuth();
+  const [showForgotPassword, setShowForgotPassword] = useState(false);
+  const [resetEmail, setResetEmail] = useState('');
+  const [resetLoading, setResetLoading] = useState(false);
+  const [useMagicLink, setUseMagicLink] = useState(false);
+  const [magicCode, setMagicCode] = useState('');
+  const [magicCodeSent, setMagicCodeSent] = useState(false);
+  const [magicLoading, setMagicLoading] = useState(false);
+  const { user, signUp, signIn, resetPassword } = useAuth();
   const { toast } = useToast();
   const navigate = useNavigate();
   const location = useLocation();
@@ -73,103 +81,247 @@ const Auth = () => {
     setLoading(true);
 
     try {
+      let result;
       if (isSignUp) {
-        // Always create the user first
-        const result = await signUp(email, password, fullName);
-        if (result.error) {
-          toast({ title: 'Error', description: result.error.message, variant: 'destructive' });
-          setLoading(false);
-          return;
-        }
-        // Send welcome email
-        fetch(SEND_EMAIL_ENDPOINT, {
-          method: 'POST',
-          headers: { 'Content-Type': 'application/json' },
-          body: JSON.stringify({ type: 'welcome', to: email, data: { fullName: fullName } })
-        });
-
-        // Route to appropriate checkout based on selected payment method
-        if (plan === 'pro') {
-          const headers: Record<string, string> = { 'Content-Type': 'application/json' };
-          if (result.data?.session?.access_token) {
-            headers['Authorization'] = `Bearer ${result.data.session.access_token}`;
-          }
-
-          let functionUrl: string;
-          let requestBody: any;
-
-          if (selectedPaymentMethod === 'traditional') {
-            functionUrl = STRIPE_FUNCTION_URL;
-            requestBody = { email };
-          } else {
-            functionUrl = CRYPTO_FUNCTION_URL;
-            requestBody = { 
-              user_id: result.data?.user?.id, 
-              email,
-              plan_type: 'pro'
-            };
-          }
-
-          const res = await fetch(functionUrl, {
-            method: 'POST',
-            headers,
-            body: JSON.stringify(requestBody),
-          });
-
-          const data = await res.json();
-          
-          if (data.url || data.checkout_url) {
-            window.location.href = data.url || data.checkout_url;
-          } else {
-            toast({ 
-              title: 'Error', 
-              description: data.error || 'Could not start checkout', 
-              variant: 'destructive' 
-            });
-          }
-        } else {
-          // Free plan - go to dashboard
-          navigate('/dashboard');
-        }
+        result = await signUp(email, password, fullName);
       } else {
-        // Sign in as normal
-        const result = await signIn(email, password);
-        if (result.error) {
-          toast({ title: 'Error', description: result.error.message, variant: 'destructive' });
-        } else {
-          toast({ title: 'Success', description: 'Welcome back!' });
-          // After login, if ?checkout=1 in URL, trigger Stripe checkout
-          const params = new URLSearchParams(location.search);
-          if (params.get('checkout') === '1') {
-            // Send JWT to Edge Function
-            const headers: Record<string, string> = { 'Content-Type': 'application/json' };
-            if (result.data?.session?.access_token) {
-              headers['Authorization'] = `Bearer ${result.data.session.access_token}`;
-            } else if (user && user.access_token) {
-              headers['Authorization'] = `Bearer ${user.access_token}`;
+        // Handle sign in based on selected method
+        if (useMagicLink) {
+          if (!magicCodeSent) {
+            // Send magic code
+            const sent = await sendMagicCode(email);
+            if (sent) {
+              setLoading(false);
+              return; // Wait for user to enter code
             }
-            fetch(STRIPE_FUNCTION_URL, {
-              method: 'POST',
-              headers,
-              body: JSON.stringify({ email }),
-            })
-              .then(res => res.json())
-              .then(data => {
-                if (data.url) {
-                  window.location.href = data.url;
-                } else {
-                  toast({ title: 'Error', description: data.error || 'Could not start checkout', variant: 'destructive' });
-                }
-              });
           } else {
-            navigate('/dashboard');
+            // Verify magic code
+            const verified = await verifyMagicCode(email, magicCode);
+            if (verified) {
+              // Reset form state
+              setEmail('');
+              setMagicCode('');
+              setMagicCodeSent(false);
+              setUseMagicLink(false);
+            }
+            setLoading(false);
+            return;
           }
+        } else {
+          // Traditional password sign in
+          result = await signIn(email, password);
         }
       }
+      
+      if (result && result.error) {
+        toast({
+          title: "Error",
+          description: result.error.message,
+          variant: "destructive",
+        });
+      } else if (result) {
+        toast({
+          title: "Success",
+          description: isSignUp ? "Account created! Please check your email to confirm." : "Welcome back!",
+        });
+        // Clear form
+        setEmail('');
+        setPassword('');
+        setFullName('');
+      }
     } catch (error) {
-      toast({ title: 'Error', description: 'Something went wrong. Please try again.', variant: 'destructive' });
+      toast({
+        title: "Error",
+        description: "Something went wrong. Please try again.",
+        variant: "destructive",
+      });
     } finally {
       setLoading(false);
+    }
+  };
+
+  const handleForgotPassword = async (e: React.FormEvent) => {
+    e.preventDefault();
+    setResetLoading(true);
+
+    try {
+      // Send custom branded email first (always send for security - don't reveal if email exists)
+      const resetUrl = `${window.location.origin}/auth?reset=true`;
+      const requestTime = new Date().toLocaleString();
+
+      const { error: emailError } = await supabase.functions.invoke('send-email', {
+        body: {
+          type: 'reset',
+          to: resetEmail.toLowerCase().trim(),
+          data: {
+            fullName: 'Collector', // Generic name for security
+            resetUrl,
+            requestTime,
+            ipAddress: 'Hidden for privacy'
+          }
+        }
+      });
+
+      // Always also trigger Supabase's built-in reset for the actual functionality
+      const { error: supabaseError } = await resetPassword(resetEmail);
+
+      if (emailError && supabaseError) {
+        // Both failed
+        toast({ title: 'Error', description: 'Failed to send reset email. Please try again.', variant: 'destructive' });
+      } else {
+        // At least one succeeded (preferably our custom email, but Supabase reset provides the actual functionality)
+        toast({ 
+          title: 'Success', 
+          description: 'Password reset email sent. Check your inbox for instructions.',
+        });
+        setShowForgotPassword(false);
+        setResetEmail('');
+      }
+    } catch (error) {
+      console.error('Password reset error:', error);
+      toast({ title: 'Error', description: 'Failed to send reset email. Please try again.', variant: 'destructive' });
+    } finally {
+      setResetLoading(false);
+    }
+  };
+
+  const sendMagicCode = async (emailToSend: string) => {
+    setMagicLoading(true);
+    
+    try {
+      // Generate a 6-digit magic code
+      const code = Math.floor(100000 + Math.random() * 900000).toString();
+      const expiresAt = new Date(Date.now() + 10 * 60 * 1000); // 10 minutes
+      
+      // Temporarily store in session storage (will be replaced with database)
+      sessionStorage.setItem(`magic_code_${emailToSend}`, JSON.stringify({
+        code,
+        expires_at: expiresAt.toISOString(),
+        email: emailToSend.toLowerCase().trim()
+      }));
+
+      // Send magic code email
+      const { error: emailError } = await supabase.functions.invoke('send-email', {
+        body: {
+          type: 'magic_login',
+          to: emailToSend.toLowerCase().trim(),
+          data: {
+            fullName: 'Collector',
+            magicCode: code,
+            expiresIn: '10 minutes',
+            requestTime: new Date().toLocaleString()
+          }
+        }
+      });
+
+      if (emailError) {
+        console.error('Failed to send magic code email:', emailError);
+        sessionStorage.removeItem(`magic_code_${emailToSend}`);
+        toast({ 
+          title: 'Error', 
+          description: 'Failed to send magic code. Please try again.',
+          variant: 'destructive' 
+        });
+        return false;
+      }
+
+      toast({ 
+        title: 'Magic code sent!', 
+        description: 'Check your email for a 6-digit login code.',
+      });
+      
+      setMagicCodeSent(true);
+      return true;
+    } catch (error) {
+      console.error('Magic code error:', error);
+      toast({ 
+        title: 'Error', 
+        description: 'Failed to send magic code. Please try again.',
+        variant: 'destructive' 
+      });
+      return false;
+    } finally {
+      setMagicLoading(false);
+    }
+  };
+
+  const verifyMagicCode = async (email: string, code: string) => {
+    try {
+      // Get stored code from session storage (temporary approach)
+      const storedData = sessionStorage.getItem(`magic_code_${email}`);
+      
+      if (!storedData) {
+        toast({ 
+          title: 'Invalid code', 
+          description: 'No magic code found. Please request a new one.',
+          variant: 'destructive' 
+        });
+        return false;
+      }
+
+      const { code: storedCode, expires_at } = JSON.parse(storedData);
+
+      if (storedCode !== code) {
+        toast({ 
+          title: 'Invalid code', 
+          description: 'The code you entered is incorrect.',
+          variant: 'destructive' 
+        });
+        return false;
+      }
+
+      // Check if code has expired
+      if (new Date(expires_at) < new Date()) {
+        sessionStorage.removeItem(`magic_code_${email}`);
+        toast({ 
+          title: 'Code expired', 
+          description: 'The magic code has expired. Please request a new one.',
+          variant: 'destructive' 
+        });
+        return false;
+      }
+
+      // Remove used code
+      sessionStorage.removeItem(`magic_code_${email}`);
+
+      // Create a magic login session by calling our backend function
+      // This will verify the user exists and create a proper session
+      const { data: authData, error: authError } = await supabase.functions.invoke('magic-auth', {
+        body: {
+          email: email.toLowerCase().trim(),
+          code: code
+        }
+      });
+
+      if (authError || !authData?.success) {
+        console.error('Magic auth error:', authError);
+        toast({ 
+          title: 'Sign in failed', 
+          description: authError?.message || 'Authentication failed. Please try password login.',
+          variant: 'destructive' 
+        });
+        return false;
+      }
+
+      // If we have a session token, set it
+      if (authData.session) {
+        await supabase.auth.setSession(authData.session);
+      }
+
+      toast({ 
+        title: 'Success!', 
+        description: 'You have been signed in successfully.',
+      });
+      
+      return true;
+    } catch (error) {
+      console.error('Magic code verification error:', error);
+      toast({ 
+        title: 'Error', 
+        description: 'Failed to verify code. Please try again.',
+        variant: 'destructive' 
+      });
+      return false;
     }
   };
 
@@ -310,18 +462,101 @@ const Auth = () => {
                     required
                   />
                 </div>
-                <div>
-                  <Label htmlFor="password" className="text-gray-300">Password</Label>
-                  <Input
-                    id="password"
-                    type="password"
-                    value={password}
-                    onChange={(e) => setPassword(e.target.value)}
-                    className="bg-gray-700 border-gray-600 text-white"
-                    required
-                    minLength={6}
-                  />
-                </div>
+
+                {/* Magic Email Toggle for Sign In */}
+                {!isSignUp && (
+                  <div className="space-y-4">
+                    <div className="flex items-center space-x-3">
+                      <button
+                        type="button"
+                        onClick={() => {
+                          setUseMagicLink(!useMagicLink);
+                          setMagicCodeSent(false);
+                          setMagicCode('');
+                        }}
+                        className="flex items-center text-sm text-gray-300 hover:text-orange-400 transition-colors"
+                      >
+                        <div className={`w-4 h-4 rounded border mr-2 flex items-center justify-center ${
+                          useMagicLink ? 'bg-orange-500 border-orange-500' : 'border-gray-500'
+                        }`}>
+                          {useMagicLink && <span className="text-white text-xs">✓</span>}
+                        </div>
+                        Use magic email login (no password needed)
+                      </button>
+                    </div>
+                  </div>
+                )}
+
+                {/* Password field or Magic Code field */}
+                {!isSignUp && useMagicLink ? (
+                  // Magic Code Section
+                  <div className="space-y-4">
+                    {!magicCodeSent ? (
+                      <div className="text-center p-4 bg-gray-800/50 rounded-lg border border-gray-700">
+                        <p className="text-gray-300 text-sm mb-2">
+                          Click "Send Magic Code" to receive a 6-digit code via email
+                        </p>
+                        <p className="text-gray-400 text-xs">
+                          No password required - just enter the code we send you
+                        </p>
+                      </div>
+                    ) : (
+                      <div>
+                        <Label htmlFor="magicCode" className="text-gray-300">Enter 6-digit code</Label>
+                        <Input
+                          id="magicCode"
+                          type="text"
+                          value={magicCode}
+                          onChange={(e) => setMagicCode(e.target.value.replace(/\D/g, '').slice(0, 6))}
+                          className="bg-gray-700 border-gray-600 text-white text-center text-2xl tracking-widest"
+                          placeholder="000000"
+                          maxLength={6}
+                          required
+                        />
+                        <div className="flex justify-between items-center mt-2">
+                          <p className="text-xs text-gray-400">Check your email for the code</p>
+                          <button
+                            type="button"
+                            onClick={() => {
+                              setMagicCodeSent(false);
+                              setMagicCode('');
+                              sendMagicCode(email);
+                            }}
+                            className="text-xs text-orange-400 hover:text-orange-300"
+                            disabled={magicLoading}
+                          >
+                            Resend code
+                          </button>
+                        </div>
+                      </div>
+                    )}
+                  </div>
+                ) : (
+                  // Password field (for signup or traditional login)
+                  <div>
+                    <Label htmlFor="password" className="text-gray-300">Password</Label>
+                    <Input
+                      id="password"
+                      type="password"
+                      value={password}
+                      onChange={(e) => setPassword(e.target.value)}
+                      className="bg-gray-700 border-gray-600 text-white"
+                      required={isSignUp || !useMagicLink}
+                      minLength={6}
+                    />
+                    {!isSignUp && !useMagicLink && (
+                      <div className="text-right mt-2">
+                        <button
+                          type="button"
+                          onClick={() => setShowForgotPassword(true)}
+                          className="text-sm text-gray-400 hover:text-orange-400 transition-colors"
+                        >
+                          Forgot password?
+                        </button>
+                      </div>
+                    )}
+                  </div>
+                )}
                 {isSignUp && plan === 'pro' && (
                   <div className="text-orange-400 text-sm text-center mb-2">
                     You'll be redirected to {selectedPaymentMethod === 'traditional' ? 'Stripe' : 'Coinbase Commerce'} checkout after account creation.
@@ -330,9 +565,17 @@ const Auth = () => {
                 <Button 
                   type="submit" 
                   className="w-full bg-orange-500 hover:bg-orange-600 text-white" 
-                  disabled={loading}
+                  disabled={loading || magicLoading}
                 >
-                  {loading ? 'Loading...' : (isSignUp ? 'Create Account' : 'Sign In')}
+                  {loading || magicLoading ? (
+                    'Loading...'
+                  ) : isSignUp ? (
+                    plan === 'pro' ? 'Create Account & Go Pro' : 'Create Account'
+                  ) : useMagicLink ? (
+                    magicCodeSent ? 'Verify Code & Sign In' : 'Send Magic Code'
+                  ) : (
+                    'Sign In'
+                  )}
                 </Button>
               </form>
               <div className="mt-6 text-center">
@@ -352,6 +595,56 @@ const Auth = () => {
               </div>
             </CardContent>
           </Card>
+
+          {/* Forgot Password Modal */}
+          {showForgotPassword && (
+            <div className="fixed inset-0 bg-black/50 flex items-center justify-center z-50 p-4">
+              <Card className="bg-gray-800 border-gray-700 w-full max-w-md">
+                <CardHeader>
+                  <CardTitle className="text-white text-center">Reset Password</CardTitle>
+                </CardHeader>
+                <CardContent>
+                  <form onSubmit={handleForgotPassword} className="space-y-4">
+                    <div>
+                      <Label htmlFor="resetEmail" className="text-gray-300">Email Address</Label>
+                      <Input
+                        id="resetEmail"
+                        type="email"
+                        value={resetEmail}
+                        onChange={(e) => setResetEmail(e.target.value)}
+                        className="bg-gray-700 border-gray-600 text-white"
+                        placeholder="Enter your email address"
+                        required
+                      />
+                    </div>
+                    <p className="text-sm text-gray-400">
+                      We'll send you a link to reset your password.
+                    </p>
+                    <div className="flex gap-3">
+                      <Button 
+                        type="submit" 
+                        className="flex-1 bg-orange-500 hover:bg-orange-600 text-white" 
+                        disabled={resetLoading}
+                      >
+                        {resetLoading ? 'Sending...' : 'Send Reset Link'}
+                      </Button>
+                      <Button 
+                        type="button" 
+                        variant="outline"
+                        className="flex-1 border-gray-600 text-gray-300 hover:bg-gray-700"
+                        onClick={() => {
+                          setShowForgotPassword(false);
+                          setResetEmail('');
+                        }}
+                      >
+                        Cancel
+                      </Button>
+                    </div>
+                  </form>
+                </CardContent>
+              </Card>
+            </div>
+          )}
         </div>
       </div>
     </div>

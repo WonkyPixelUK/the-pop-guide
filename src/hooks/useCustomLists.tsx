@@ -167,6 +167,23 @@ export const useCustomLists = () => {
 
   const addItemToList = useMutation({
     mutationFn: async ({ listId, funkoPopId }: { listId: string; funkoPopId: string }) => {
+      // Check if item already exists in the list
+      const { data: existingItem, error: checkError } = await supabase
+        .from('list_items')
+        .select('id')
+        .eq('list_id', listId)
+        .eq('funko_pop_id', funkoPopId)
+        .single();
+      
+      if (checkError && checkError.code !== 'PGRST116') {
+        // PGRST116 is "not found" which is what we expect if item doesn't exist
+        throw checkError;
+      }
+      
+      if (existingItem) {
+        throw new Error('This item is already in the selected list');
+      }
+      
       const { data, error } = await supabase
         .from('list_items')
         .insert({

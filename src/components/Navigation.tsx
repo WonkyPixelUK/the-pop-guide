@@ -1,13 +1,13 @@
 import React, { useState, useEffect } from 'react';
 import { Link, useLocation, useNavigate } from 'react-router-dom';
 import { Button } from '@/components/ui/button';
-import { Activity, LogIn, LogOut, Plus, Search, Menu, Home, List, DollarSign, Star, Server, Sun, Moon, Monitor, ChevronDown, Facebook, Users, HelpCircle, Store, Clock, Castle, Zap, Sparkles, Bug } from 'lucide-react';
+import { Activity, LogIn, LogOut, Plus, Search, Menu, Home, List, DollarSign, Star, Server, ChevronDown, Facebook, Users, HelpCircle, Store, Clock, Castle, Zap, Sparkles, Bug } from 'lucide-react';
 import { useAuth } from '@/hooks/useAuth';
 import { useToast } from '@/hooks/use-toast';
 import { CommandDialog, CommandInput, CommandList, CommandItem, CommandEmpty, CommandGroup } from '@/components/ui/command';
 import { useFunkoPops, useUserCollection, useAddToCollection } from '@/hooks/useFunkoPops';
 import { Loader2, Check } from 'lucide-react';
-import { Menu as DropdownMenu, MenuItem } from '@headlessui/react';
+import { Menu as DropdownMenu } from '@headlessui/react';
 import { FaTiktok } from 'react-icons/fa';
 import { useCurrency } from '@/contexts/CurrencyContext';
 import { useMutation } from '@tanstack/react-query';
@@ -15,10 +15,7 @@ import { supabase } from '@/integrations/supabase/client';
 import { formatCurrency } from '@/utils/formatCurrency';
 import { useIsMobile } from '@/hooks/use-mobile';
 
-const getInitialTheme = () => {
-  if (typeof window === 'undefined') return 'system';
-  return localStorage.getItem('theme') || 'system';
-};
+
 
 const Navigation = () => {
   const location = useLocation();
@@ -31,18 +28,7 @@ const Navigation = () => {
   const addToCollection = useAddToCollection();
   const [addedId, setAddedId] = useState<string | null>(null);
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
-  const [theme, setTheme] = useState(getInitialTheme());
   const { currency, setCurrency } = useCurrency();
-
-  useEffect(() => {
-    if (theme === 'system') {
-      document.documentElement.classList.remove('light', 'dark');
-    } else {
-      document.documentElement.classList.remove('light', 'dark');
-      document.documentElement.classList.add(theme);
-    }
-    localStorage.setItem('theme', theme);
-  }, [theme]);
 
   const handleSignOut = async () => {
     const { error } = await signOut();
@@ -135,12 +121,12 @@ const Navigation = () => {
                     <ChevronDown className="w-4 h-4 ml-1 text-gray-500 group-hover:text-orange-500 transition" />
                 </DropdownMenu.Button>
                 <DropdownMenu.Items className="absolute right-0 mt-2 w-40 origin-top-right bg-white border border-gray-200 rounded-md shadow-lg focus:outline-none z-50">
-                  <MenuItem>
+                  <DropdownMenu.Item>
                     {({ active }) => (
                       <Link to="/profile-settings" className={`block px-4 py-2 text-sm ${active ? 'bg-orange-50 text-[#e46c1b]' : 'text-gray-900'}`}>Profile</Link>
                     )}
-                  </MenuItem>
-                  <MenuItem>
+                  </DropdownMenu.Item>
+                  <DropdownMenu.Item>
                     {({ active }) => (
                       <button
                         onClick={handleSignOut}
@@ -149,7 +135,7 @@ const Navigation = () => {
                         Logout
                       </button>
                     )}
-                  </MenuItem>
+                  </DropdownMenu.Item>
                 </DropdownMenu.Items>
               </DropdownMenu>
               </div>
@@ -191,7 +177,7 @@ const Navigation = () => {
                   </Link>
                 </DropdownMenu.Item>
                 <DropdownMenu.Item>
-                  <Link to="/pricing-dashboard" className="flex items-center gap-3 px-4 py-3 text-base font-medium text-white rounded-lg transition group hover:bg-gray-800/80 hover:border-l-4 hover:border-orange-500">
+                  <Link to="/live-pricing" className="flex items-center gap-3 px-4 py-3 text-base font-medium text-white rounded-lg transition group hover:bg-gray-800/80 hover:border-l-4 hover:border-orange-500">
                     <DollarSign className="w-5 h-5 text-orange-400 group-hover:scale-110 transition-transform" /> Live Pricing
                   </Link>
                 </DropdownMenu.Item>
@@ -213,7 +199,29 @@ const Navigation = () => {
               </DropdownMenu.Items>
             </DropdownMenu>
             
-            <Link to="/features" className="text-white hover:text-orange-500 font-normal text-base transition-colors">Features</Link>
+            {/* Features Dropdown */}
+            <DropdownMenu as="div" className="relative inline-block text-left">
+              <DropdownMenu.Button className="flex items-center text-white hover:text-orange-500 font-normal text-base transition-colors">
+                Features <ChevronDown className="ml-1 w-5 h-5 text-[#e46c1b] animate-bounce-y" />
+              </DropdownMenu.Button>
+              <DropdownMenu.Items className="origin-top-right absolute right-0 mt-2 w-64 rounded-xl shadow-2xl bg-[#232837] border border-gray-800 focus:outline-none z-50 p-2">
+                <DropdownMenu.Item>
+                  <Link to="/features" className="flex items-center gap-3 px-4 py-3 text-base font-medium text-white rounded-lg transition group hover:bg-gray-800/80 hover:border-l-4 hover:border-orange-500">
+                    <Star className="w-5 h-5 text-orange-400 group-hover:scale-110 transition-transform" /> All Features
+                  </Link>
+                </DropdownMenu.Item>
+                <DropdownMenu.Item>
+                  <Link to="/features/time-machine" className="flex items-center gap-3 px-4 py-3 text-base font-medium text-white rounded-lg transition group hover:bg-gray-800/80 hover:border-l-4 hover:border-orange-500">
+                    <Clock className="w-5 h-5 text-orange-400 group-hover:scale-110 transition-transform" /> Time Machine
+                  </Link>
+                </DropdownMenu.Item>
+                <DropdownMenu.Item>
+                  <Link to="/features/grail-galaxy" className="flex items-center gap-3 px-4 py-3 text-base font-medium text-white rounded-lg transition group hover:bg-gray-800/80 hover:border-l-4 hover:border-orange-500">
+                    <Castle className="w-5 h-5 text-orange-400 group-hover:scale-110 transition-transform" /> Grail-Galaxy
+                  </Link>
+                </DropdownMenu.Item>
+              </DropdownMenu.Items>
+            </DropdownMenu>
             <Link to="/pricing" className="text-white hover:text-orange-500 font-normal text-base transition-colors">Pricing</Link>
             <Link
               to="/browse-lists"
@@ -222,24 +230,7 @@ const Navigation = () => {
               Lists
             </Link>
             
-            {/* Advanced Features Dropdown */}
-            <DropdownMenu as="div" className="relative inline-block text-left">
-              <DropdownMenu.Button className="flex items-center text-white hover:text-orange-500 font-normal text-base transition-colors">
-                Tools <ChevronDown className="ml-1 w-5 h-5 text-[#e46c1b] animate-bounce-y" />
-              </DropdownMenu.Button>
-              <DropdownMenu.Items className="origin-top-right absolute right-0 mt-2 w-64 rounded-xl shadow-2xl bg-[#232837] border border-gray-800 focus:outline-none z-50 p-2">
-                <DropdownMenu.Item>
-                  <Link to="/time-machine" className="flex items-center gap-3 px-4 py-3 text-base font-medium text-white rounded-lg transition group hover:bg-gray-800/80 hover:border-l-4 hover:border-orange-500">
-                    <Clock className="w-5 h-5 text-orange-400 group-hover:scale-110 transition-transform" /> Time Machine
-                  </Link>
-                </DropdownMenu.Item>
-                <DropdownMenu.Item>
-                  <Link to="/grail-galaxy" className="flex items-center gap-3 px-4 py-3 text-base font-medium text-white rounded-lg transition group hover:bg-gray-800/80 hover:border-l-4 hover:border-orange-500">
-                    <Castle className="w-5 h-5 text-orange-400 group-hover:scale-110 transition-transform" /> Grail-Galaxy
-                  </Link>
-                </DropdownMenu.Item>
-              </DropdownMenu.Items>
-            </DropdownMenu>
+
             
             {/* Community Dropdown */}
             <DropdownMenu as="div" className="relative inline-block text-left">
@@ -330,7 +321,13 @@ const Navigation = () => {
                 </DropdownMenu.Item>
               </DropdownMenu.Items>
             </DropdownMenu>
-            {user && <Link to="/dashboard" className="text-white hover:text-orange-500 font-normal text-base transition-colors">Dashboard</Link>}
+            {/* Dashboard Link (if user logged in) */}
+            {user && (
+              <Link to="/dashboard" className="flex flex-col items-center justify-center py-1 px-2 text-[#232837] hover:text-[#1a1e28] transition-colors flex-shrink-0 min-w-[60px]">
+                <Home className="w-5 h-5 mb-1" />
+                <span className="text-xs font-medium">Dashboard</span>
+              </Link>
+            )}
            
           </nav>
         </div>
@@ -400,59 +397,122 @@ const MobileStickyFooterMenu = () => {
   const isMobile = useIsMobile();
   const location = useLocation();
   const { user } = useAuth();
+  const [activeDropdown, setActiveDropdown] = useState<string | null>(null);
   
   // Don't show on auth pages or if not mobile
   if (!isMobile || location.pathname.startsWith('/auth')) {
     return null;
   }
 
+  const toggleDropdown = (dropdown: string) => {
+    setActiveDropdown(activeDropdown === dropdown ? null : dropdown);
+  };
+
   return (
-    <nav className="md:hidden fixed bottom-0 left-0 right-0 z-50 bg-[#FEF6ED] border-t border-orange-200">
+    <nav className="md:hidden fixed bottom-0 left-0 right-0 z-40 bg-[#FEF6ED] border-t border-orange-200">
       {/* Scroll indicator gradients */}
       <div className="absolute left-0 top-0 bottom-0 w-4 bg-gradient-to-r from-[#FEF6ED] to-transparent pointer-events-none z-10"></div>
       <div className="absolute right-0 top-0 bottom-0 w-4 bg-gradient-to-l from-[#FEF6ED] to-transparent pointer-events-none z-10"></div>
       
       <div className="flex items-center justify-start px-2 py-2 overflow-x-auto gap-1 scrollbar-hide">
         {/* Database Dropdown */}
-        <DropdownMenu as="div" className="relative flex-shrink-0">
-          <DropdownMenu.Button className="flex flex-col items-center justify-center py-1 px-2 text-[#232837] hover:text-[#1a1e28] transition-colors min-w-[60px]">
+        <div className="relative flex-shrink-0">
+          <button 
+            onClick={() => toggleDropdown('database')}
+            className="flex flex-col items-center justify-center py-1 px-2 text-[#232837] hover:text-[#1a1e28] transition-colors min-w-[60px]"
+          >
             <Search className="w-5 h-5 mb-1" />
             <span className="text-xs font-medium">Database</span>
-          </DropdownMenu.Button>
-          <DropdownMenu.Items className="absolute bottom-full mb-2 left-0 w-64 rounded-xl shadow-2xl bg-[#232837] border border-gray-800 focus:outline-none z-50 p-2">
-            <DropdownMenu.Item>
-              <Link to="/directory-all" className="flex items-center gap-3 px-4 py-3 text-base font-medium text-white rounded-lg transition group hover:bg-gray-800/80 hover:border-l-4 hover:border-orange-500">
-                <Search className="w-5 h-5 text-orange-400 group-hover:scale-110 transition-transform" /> Browse Database
-              </Link>
-            </DropdownMenu.Item>
-            <DropdownMenu.Item>
-              <Link to="/pricing-dashboard" className="flex items-center gap-3 px-4 py-3 text-base font-medium text-white rounded-lg transition group hover:bg-gray-800/80 hover:border-l-4 hover:border-orange-500">
-                <DollarSign className="w-5 h-5 text-orange-400 group-hover:scale-110 transition-transform" /> Live Pricing
-              </Link>
-            </DropdownMenu.Item>
-            <DropdownMenu.Item>
-              <Link to="/new-releases" className="flex items-center gap-3 px-4 py-3 text-base font-medium text-white rounded-lg transition group hover:bg-gray-800/80 hover:border-l-4 hover:border-orange-500">
-                <Sparkles className="w-5 h-5 text-orange-400 group-hover:scale-110 transition-transform" /> New Releases
-              </Link>
-            </DropdownMenu.Item>
-            <DropdownMenu.Item>
-              <Link to="/coming-soon" className="flex items-center gap-3 px-4 py-3 text-base font-medium text-white rounded-lg transition group hover:bg-gray-800/80 hover:border-l-4 hover:border-orange-500">
-                <Star className="w-5 h-5 text-orange-400 group-hover:scale-110 transition-transform" /> Coming Soon
-              </Link>
-            </DropdownMenu.Item>
-            <DropdownMenu.Item>
-              <Link to="/funko-exclusives" className="flex items-center gap-3 px-4 py-3 text-base font-medium text-white rounded-lg transition group hover:bg-gray-800/80 hover:border-l-4 hover:border-orange-500">
-                <Sparkles className="w-5 h-5 text-orange-400 group-hover:scale-110 transition-transform" /> Funko Exclusives
-              </Link>
-            </DropdownMenu.Item>
-          </DropdownMenu.Items>
-        </DropdownMenu>
+          </button>
+          {activeDropdown === 'database' && (
+            <>
+              {/* Backdrop to close dropdown */}
+              <div 
+                className="fixed inset-0 z-[9998]" 
+                onClick={() => setActiveDropdown(null)}
+              />
+              <div className="absolute bottom-full mb-2 left-0 w-64 rounded-xl shadow-2xl bg-[#232837] border border-gray-800 z-[9999] p-2">
+                <Link 
+                  to="/directory-all" 
+                  className="flex items-center gap-3 px-4 py-3 text-base font-medium text-white rounded-lg transition group hover:bg-gray-800/80 hover:border-l-4 hover:border-orange-500"
+                  onClick={() => setActiveDropdown(null)}
+                >
+                  <Search className="w-5 h-5 text-orange-400 group-hover:scale-110 transition-transform" /> Browse Database
+                </Link>
+                <Link 
+                  to="/live-pricing" 
+                  className="flex items-center gap-3 px-4 py-3 text-base font-medium text-white rounded-lg transition group hover:bg-gray-800/80 hover:border-l-4 hover:border-orange-500"
+                  onClick={() => setActiveDropdown(null)}
+                >
+                  <DollarSign className="w-5 h-5 text-orange-400 group-hover:scale-110 transition-transform" /> Live Pricing
+                </Link>
+                <Link 
+                  to="/new-releases" 
+                  className="flex items-center gap-3 px-4 py-3 text-base font-medium text-white rounded-lg transition group hover:bg-gray-800/80 hover:border-l-4 hover:border-orange-500"
+                  onClick={() => setActiveDropdown(null)}
+                >
+                  <Sparkles className="w-5 h-5 text-orange-400 group-hover:scale-110 transition-transform" /> New Releases
+                </Link>
+                <Link 
+                  to="/coming-soon" 
+                  className="flex items-center gap-3 px-4 py-3 text-base font-medium text-white rounded-lg transition group hover:bg-gray-800/80 hover:border-l-4 hover:border-orange-500"
+                  onClick={() => setActiveDropdown(null)}
+                >
+                  <Star className="w-5 h-5 text-orange-400 group-hover:scale-110 transition-transform" /> Coming Soon
+                </Link>
+                <Link 
+                  to="/funko-exclusives" 
+                  className="flex items-center gap-3 px-4 py-3 text-base font-medium text-white rounded-lg transition group hover:bg-gray-800/80 hover:border-l-4 hover:border-orange-500"
+                  onClick={() => setActiveDropdown(null)}
+                >
+                  <Sparkles className="w-5 h-5 text-orange-400 group-hover:scale-110 transition-transform" /> Funko Exclusives
+                </Link>
+              </div>
+            </>
+          )}
+        </div>
 
-        {/* Features Direct Link */}
-        <Link to="/features" className="flex flex-col items-center justify-center py-1 px-2 text-[#232837] hover:text-[#1a1e28] transition-colors flex-shrink-0 min-w-[60px]">
-          <Star className="w-5 h-5 mb-1" />
-          <span className="text-xs font-medium">Features</span>
-        </Link>
+        {/* Features Dropdown */}
+        <div className="relative flex-shrink-0">
+          <button 
+            onClick={() => toggleDropdown('features')}
+            className="flex flex-col items-center justify-center py-1 px-2 text-[#232837] hover:text-[#1a1e28] transition-colors min-w-[60px]"
+          >
+            <Star className="w-5 h-5 mb-1" />
+            <span className="text-xs font-medium">Features</span>
+          </button>
+          {activeDropdown === 'features' && (
+            <>
+              <div 
+                className="fixed inset-0 z-[9998]" 
+                onClick={() => setActiveDropdown(null)}
+              />
+              <div className="absolute bottom-full mb-2 left-0 w-64 rounded-xl shadow-2xl bg-[#232837] border border-gray-800 z-[9999] p-2">
+                <Link 
+                  to="/features" 
+                  className="flex items-center gap-3 px-4 py-3 text-base font-medium text-white rounded-lg transition group hover:bg-gray-800/80 hover:border-l-4 hover:border-orange-500"
+                  onClick={() => setActiveDropdown(null)}
+                >
+                  <Star className="w-5 h-5 text-orange-400 group-hover:scale-110 transition-transform" /> All Features
+                </Link>
+                <Link 
+                  to="/features/time-machine" 
+                  className="flex items-center gap-3 px-4 py-3 text-base font-medium text-white rounded-lg transition group hover:bg-gray-800/80 hover:border-l-4 hover:border-orange-500"
+                  onClick={() => setActiveDropdown(null)}
+                >
+                  <Clock className="w-5 h-5 text-orange-400 group-hover:scale-110 transition-transform" /> Time Machine
+                </Link>
+                <Link 
+                  to="/features/grail-galaxy" 
+                  className="flex items-center gap-3 px-4 py-3 text-base font-medium text-white rounded-lg transition group hover:bg-gray-800/80 hover:border-l-4 hover:border-orange-500"
+                  onClick={() => setActiveDropdown(null)}
+                >
+                  <Castle className="w-5 h-5 text-orange-400 group-hover:scale-110 transition-transform" /> Grail-Galaxy
+                </Link>
+              </div>
+            </>
+          )}
+        </div>
 
         {/* Pricing Direct Link */}
         <Link to="/pricing" className="flex flex-col items-center justify-center py-1 px-2 text-[#232837] hover:text-[#1a1e28] transition-colors flex-shrink-0 min-w-[60px]">
@@ -466,120 +526,161 @@ const MobileStickyFooterMenu = () => {
           <span className="text-xs font-medium">Lists</span>
         </Link>
 
-        {/* Tools Dropdown */}
-        <DropdownMenu as="div" className="relative flex-shrink-0">
-          <DropdownMenu.Button className="flex flex-col items-center justify-center py-1 px-2 text-[#232837] hover:text-[#1a1e28] transition-colors min-w-[60px]">
-            <Zap className="w-5 h-5 mb-1" />
-            <span className="text-xs font-medium">Tools</span>
-          </DropdownMenu.Button>
-          <DropdownMenu.Items className="absolute bottom-full mb-2 left-0 w-64 rounded-xl shadow-2xl bg-[#232837] border border-gray-800 focus:outline-none z-50 p-2">
-            <DropdownMenu.Item>
-              <Link to="/time-machine" className="flex items-center gap-3 px-4 py-3 text-base font-medium text-white rounded-lg transition group hover:bg-gray-800/80 hover:border-l-4 hover:border-orange-500">
-                <Clock className="w-5 h-5 text-orange-400 group-hover:scale-110 transition-transform" /> Time Machine
-              </Link>
-            </DropdownMenu.Item>
-            <DropdownMenu.Item>
-              <Link to="/grail-galaxy" className="flex items-center gap-3 px-4 py-3 text-base font-medium text-white rounded-lg transition group hover:bg-gray-800/80 hover:border-l-4 hover:border-orange-500">
-                <Castle className="w-5 h-5 text-orange-400 group-hover:scale-110 transition-transform" /> Grail-Galaxy
-              </Link>
-            </DropdownMenu.Item>
-          </DropdownMenu.Items>
-        </DropdownMenu>
+
 
         {/* Community Dropdown */}
-        <DropdownMenu as="div" className="relative flex-shrink-0">
-          <DropdownMenu.Button className="flex flex-col items-center justify-center py-1 px-2 text-[#232837] hover:text-[#1a1e28] transition-colors min-w-[60px]">
+        <div className="relative flex-shrink-0">
+          <button 
+            onClick={() => toggleDropdown('community')}
+            className="flex flex-col items-center justify-center py-1 px-2 text-[#232837] hover:text-[#1a1e28] transition-colors min-w-[60px]"
+          >
             <Users className="w-5 h-5 mb-1" />
             <span className="text-xs font-medium">Community</span>
-          </DropdownMenu.Button>
-          <DropdownMenu.Items className="absolute bottom-full mb-2 left-0 w-64 rounded-xl shadow-2xl bg-[#232837] border border-gray-800 focus:outline-none z-50 p-2">
-            <DropdownMenu.Item>
-              <Link to="/members" className="flex items-center gap-3 px-4 py-3 text-base font-medium text-white rounded-lg transition group hover:bg-gray-800/80 hover:border-l-4 hover:border-orange-500">
-                <Users className="w-5 h-5 text-orange-400 group-hover:scale-110 transition-transform" /> Members
-              </Link>
-            </DropdownMenu.Item>
-            <DropdownMenu.Item>
-              <Link to="/shoppers-advice" className="flex items-center gap-3 px-4 py-3 text-base font-medium text-white rounded-lg transition group hover:bg-gray-800/80 hover:border-l-4 hover:border-orange-500">
-                <HelpCircle className="w-5 h-5 text-orange-400 group-hover:scale-110 transition-transform" /> Shoppers Advice
-              </Link>
-            </DropdownMenu.Item>
-            <DropdownMenu.Item>
-              <Link to="/deals" className="flex items-center gap-3 px-4 py-3 text-base font-medium text-white rounded-lg transition group hover:bg-gray-800/80 hover:border-l-4 hover:border-orange-500">
-                <DollarSign className="w-5 h-5 text-orange-400 group-hover:scale-110 transition-transform" /> Latest Deals
-              </Link>
-            </DropdownMenu.Item>
-            <DropdownMenu.Item>
-              <Link to="/browse-lists" className="flex items-center gap-3 px-4 py-3 text-base font-medium text-white rounded-lg transition group hover:bg-gray-800/80 hover:border-l-4 hover:border-orange-500">
-                <List className="w-5 h-5 text-orange-400 group-hover:scale-110 transition-transform" /> Lists
-              </Link>
-            </DropdownMenu.Item>
-          </DropdownMenu.Items>
-        </DropdownMenu>
+          </button>
+          {activeDropdown === 'community' && (
+            <>
+              <div 
+                className="fixed inset-0 z-[9998]" 
+                onClick={() => setActiveDropdown(null)}
+              />
+              <div className="absolute bottom-full mb-2 left-0 w-64 rounded-xl shadow-2xl bg-[#232837] border border-gray-800 z-[9999] p-2">
+                <Link 
+                  to="/members" 
+                  className="flex items-center gap-3 px-4 py-3 text-base font-medium text-white rounded-lg transition group hover:bg-gray-800/80 hover:border-l-4 hover:border-orange-500"
+                  onClick={() => setActiveDropdown(null)}
+                >
+                  <Users className="w-5 h-5 text-orange-400 group-hover:scale-110 transition-transform" /> Members
+                </Link>
+                <Link 
+                  to="/shoppers-advice" 
+                  className="flex items-center gap-3 px-4 py-3 text-base font-medium text-white rounded-lg transition group hover:bg-gray-800/80 hover:border-l-4 hover:border-orange-500"
+                  onClick={() => setActiveDropdown(null)}
+                >
+                  <HelpCircle className="w-5 h-5 text-orange-400 group-hover:scale-110 transition-transform" /> Shoppers Advice
+                </Link>
+                <Link 
+                  to="/deals" 
+                  className="flex items-center gap-3 px-4 py-3 text-base font-medium text-white rounded-lg transition group hover:bg-gray-800/80 hover:border-l-4 hover:border-orange-500"
+                  onClick={() => setActiveDropdown(null)}
+                >
+                  <DollarSign className="w-5 h-5 text-orange-400 group-hover:scale-110 transition-transform" /> Latest Deals
+                </Link>
+                <Link 
+                  to="/browse-lists" 
+                  className="flex items-center gap-3 px-4 py-3 text-base font-medium text-white rounded-lg transition group hover:bg-gray-800/80 hover:border-l-4 hover:border-orange-500"
+                  onClick={() => setActiveDropdown(null)}
+                >
+                  <List className="w-5 h-5 text-orange-400 group-hover:scale-110 transition-transform" /> Lists
+                </Link>
+              </div>
+            </>
+          )}
+        </div>
 
         {/* Support Dropdown */}
-        <DropdownMenu as="div" className="relative flex-shrink-0">
-          <DropdownMenu.Button className="flex flex-col items-center justify-center py-1 px-2 text-[#232837] hover:text-[#1a1e28] transition-colors min-w-[60px]">
+        <div className="relative flex-shrink-0">
+          <button 
+            onClick={() => toggleDropdown('support')}
+            className="flex flex-col items-center justify-center py-1 px-2 text-[#232837] hover:text-[#1a1e28] transition-colors min-w-[60px]"
+          >
             <HelpCircle className="w-5 h-5 mb-1" />
             <span className="text-xs font-medium">Support</span>
-          </DropdownMenu.Button>
-          <DropdownMenu.Items className="absolute bottom-full mb-2 left-0 w-64 rounded-xl shadow-2xl bg-[#232837] border border-gray-800 focus:outline-none z-50 p-2">
-            <DropdownMenu.Item>
-              <Link to="/api" className="flex items-center gap-3 px-4 py-3 text-base font-medium text-white rounded-lg transition group hover:bg-gray-800/80 hover:border-l-4 hover:border-orange-500">
-                <HelpCircle className="w-5 h-5 text-orange-400 group-hover:scale-110 transition-transform" /> API
-              </Link>
-            </DropdownMenu.Item>
-            <DropdownMenu.Item>
-              <Link to="/faq" className="flex items-center gap-3 px-4 py-3 text-base font-medium text-white rounded-lg transition group hover:bg-gray-800/80 hover:border-l-4 hover:border-orange-500">
-                <HelpCircle className="w-5 h-5 text-orange-400 group-hover:scale-110 transition-transform" /> FAQ
-              </Link>
-            </DropdownMenu.Item>
-            <DropdownMenu.Item>
-              <Link to="/log-ticket" className="flex items-center gap-3 px-4 py-3 text-base font-medium text-white rounded-lg transition group hover:bg-gray-800/80 hover:border-l-4 hover:border-orange-500">
-                <HelpCircle className="w-5 h-5 text-orange-400 group-hover:scale-110 transition-transform" /> Log a ticket
-              </Link>
-            </DropdownMenu.Item>
-            <DropdownMenu.Item>
-              <Link to="/bug-tracker" className="flex items-center gap-3 px-4 py-3 text-base font-medium text-white rounded-lg transition group hover:bg-gray-800/80 hover:border-l-4 hover:border-orange-500">
-                <Bug className="w-5 h-5 text-orange-400 group-hover:scale-110 transition-transform" /> Bug Tracker
-              </Link>
-            </DropdownMenu.Item>
-            <DropdownMenu.Item>
-              <Link to="/howitworks" className="flex items-center gap-3 px-4 py-3 text-base font-medium text-white rounded-lg transition group hover:bg-gray-800/80 hover:border-l-4 hover:border-orange-500">
-                <HelpCircle className="w-5 h-5 text-orange-400 group-hover:scale-110 transition-transform" /> How it works
-              </Link>
-            </DropdownMenu.Item>
-            <DropdownMenu.Item>
-              <Link to="/system-status" className="flex items-center gap-3 px-4 py-3 text-base font-medium text-white rounded-lg transition group hover:bg-gray-800/80 hover:border-l-4 hover:border-orange-500">
-                <HelpCircle className="w-5 h-5 text-orange-400 group-hover:scale-110 transition-transform" /> Service Status
-              </Link>
-            </DropdownMenu.Item>
-            <DropdownMenu.Item>
-              <Link to="/roadmap" className="flex items-center gap-3 px-4 py-3 text-base font-medium text-white rounded-lg transition group hover:bg-gray-800/80 hover:border-l-4 hover:border-orange-500">
-                <HelpCircle className="w-5 h-5 text-orange-400 group-hover:scale-110 transition-transform" /> Roadmap & Changelog
-              </Link>
-            </DropdownMenu.Item>
-          </DropdownMenu.Items>
-        </DropdownMenu>
+          </button>
+          {activeDropdown === 'support' && (
+            <>
+              <div 
+                className="fixed inset-0 z-[9998]" 
+                onClick={() => setActiveDropdown(null)}
+              />
+              <div className="absolute bottom-full mb-2 left-0 w-64 rounded-xl shadow-2xl bg-[#232837] border border-gray-800 z-[9999] p-2">
+                <Link 
+                  to="/api" 
+                  className="flex items-center gap-3 px-4 py-3 text-base font-medium text-white rounded-lg transition group hover:bg-gray-800/80 hover:border-l-4 hover:border-orange-500"
+                  onClick={() => setActiveDropdown(null)}
+                >
+                  <HelpCircle className="w-5 h-5 text-orange-400 group-hover:scale-110 transition-transform" /> API
+                </Link>
+                <Link 
+                  to="/faq" 
+                  className="flex items-center gap-3 px-4 py-3 text-base font-medium text-white rounded-lg transition group hover:bg-gray-800/80 hover:border-l-4 hover:border-orange-500"
+                  onClick={() => setActiveDropdown(null)}
+                >
+                  <HelpCircle className="w-5 h-5 text-orange-400 group-hover:scale-110 transition-transform" /> FAQ
+                </Link>
+                <Link 
+                  to="/log-ticket" 
+                  className="flex items-center gap-3 px-4 py-3 text-base font-medium text-white rounded-lg transition group hover:bg-gray-800/80 hover:border-l-4 hover:border-orange-500"
+                  onClick={() => setActiveDropdown(null)}
+                >
+                  <HelpCircle className="w-5 h-5 text-orange-400 group-hover:scale-110 transition-transform" /> Log a ticket
+                </Link>
+                <Link 
+                  to="/bug-tracker" 
+                  className="flex items-center gap-3 px-4 py-3 text-base font-medium text-white rounded-lg transition group hover:bg-gray-800/80 hover:border-l-4 hover:border-orange-500"
+                  onClick={() => setActiveDropdown(null)}
+                >
+                  <Bug className="w-5 h-5 text-orange-400 group-hover:scale-110 transition-transform" /> Bug Tracker
+                </Link>
+                <Link 
+                  to="/howitworks" 
+                  className="flex items-center gap-3 px-4 py-3 text-base font-medium text-white rounded-lg transition group hover:bg-gray-800/80 hover:border-l-4 hover:border-orange-500"
+                  onClick={() => setActiveDropdown(null)}
+                >
+                  <HelpCircle className="w-5 h-5 text-orange-400 group-hover:scale-110 transition-transform" /> How it works
+                </Link>
+                <Link 
+                  to="/system-status" 
+                  className="flex items-center gap-3 px-4 py-3 text-base font-medium text-white rounded-lg transition group hover:bg-gray-800/80 hover:border-l-4 hover:border-orange-500"
+                  onClick={() => setActiveDropdown(null)}
+                >
+                  <HelpCircle className="w-5 h-5 text-orange-400 group-hover:scale-110 transition-transform" /> Service Status
+                </Link>
+                <Link 
+                  to="/roadmap" 
+                  className="flex items-center gap-3 px-4 py-3 text-base font-medium text-white rounded-lg transition group hover:bg-gray-800/80 hover:border-l-4 hover:border-orange-500"
+                  onClick={() => setActiveDropdown(null)}
+                >
+                  <HelpCircle className="w-5 h-5 text-orange-400 group-hover:scale-110 transition-transform" /> Roadmap & Changelog
+                </Link>
+              </div>
+            </>
+          )}
+        </div>
 
         {/* Retailers Dropdown */}
-        <DropdownMenu as="div" className="relative flex-shrink-0">
-          <DropdownMenu.Button className="flex flex-col items-center justify-center py-1 px-2 text-[#232837] hover:text-[#1a1e28] transition-colors min-w-[60px]">
+        <div className="relative flex-shrink-0">
+          <button 
+            onClick={() => toggleDropdown('retailers')}
+            className="flex flex-col items-center justify-center py-1 px-2 text-[#232837] hover:text-[#1a1e28] transition-colors min-w-[60px]"
+          >
             <Store className="w-5 h-5 mb-1" />
             <span className="text-xs font-medium">Retailers</span>
-          </DropdownMenu.Button>
-          <DropdownMenu.Items className="absolute bottom-full mb-2 left-0 w-64 rounded-xl shadow-2xl bg-[#232837] border border-gray-800 focus:outline-none z-50 p-2">
-            <DropdownMenu.Item>
-              <Link to="/retailers" className="flex items-center gap-3 px-4 py-3 text-base font-medium text-white rounded-lg transition group hover:bg-gray-800/80 hover:border-l-4 hover:border-orange-500">
-                <Store className="w-5 h-5 text-orange-400 group-hover:scale-110 transition-transform" /> Browse Retailers
-              </Link>
-            </DropdownMenu.Item>
-            <DropdownMenu.Item>
-              <Link to="/retailers/become" className="flex items-center gap-3 px-4 py-3 text-base font-medium text-white rounded-lg transition group hover:bg-gray-800/80 hover:border-l-4 hover:border-orange-500">
-                <Store className="w-5 h-5 text-orange-400 group-hover:scale-110 transition-transform" /> Add your business
-              </Link>
-            </DropdownMenu.Item>
-          </DropdownMenu.Items>
-        </DropdownMenu>
+          </button>
+          {activeDropdown === 'retailers' && (
+            <>
+              <div 
+                className="fixed inset-0 z-[9998]" 
+                onClick={() => setActiveDropdown(null)}
+              />
+              <div className="absolute bottom-full mb-2 left-0 w-64 rounded-xl shadow-2xl bg-[#232837] border border-gray-800 z-[9999] p-2">
+                <Link 
+                  to="/retailers" 
+                  className="flex items-center gap-3 px-4 py-3 text-base font-medium text-white rounded-lg transition group hover:bg-gray-800/80 hover:border-l-4 hover:border-orange-500"
+                  onClick={() => setActiveDropdown(null)}
+                >
+                  <Store className="w-5 h-5 text-orange-400 group-hover:scale-110 transition-transform" /> Browse Retailers
+                </Link>
+                <Link 
+                  to="/retailers/become" 
+                  className="flex items-center gap-3 px-4 py-3 text-base font-medium text-white rounded-lg transition group hover:bg-gray-800/80 hover:border-l-4 hover:border-orange-500"
+                  onClick={() => setActiveDropdown(null)}
+                >
+                  <Store className="w-5 h-5 text-orange-400 group-hover:scale-110 transition-transform" /> Add your business
+                </Link>
+              </div>
+            </>
+          )}
+        </div>
 
         {/* Dashboard Link (if user logged in) */}
         {user && (
