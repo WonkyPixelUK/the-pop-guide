@@ -670,9 +670,9 @@ const SupportCenter = () => {
             <Card className="bg-gray-800/50 border-gray-700">
               <CardContent className="p-6 text-center">
                 <MessageSquare className="w-8 h-8 text-orange-500 mx-auto mb-4" />
-                <h4 className="font-semibold text-white mb-2">Live Chat</h4>
-                <p className="text-gray-400 text-sm mb-4">Chat with our team</p>
-                <p className="text-orange-400 font-medium">Available 9 AM - 5 PM BST</p>
+                <h4 className="font-semibold text-white mb-2">Contact Form</h4>
+                <p className="text-gray-400 text-sm mb-4">Send us a message</p>
+                <p className="text-orange-400 font-medium">24 hour response time</p>
               </CardContent>
             </Card>
 

@@ -73,9 +73,9 @@ const Contact = () => {
     },
     {
       icon: MessageSquare,
-      title: "Live Chat",
-      description: "Chat with our support team",
-      contact: "Available 9 AM - 5 PM BST"
+      title: "Support",
+      description: "Email support response",
+      contact: "Within 24 hours"
     },
     {
       icon: MessageSquare,
@@ -233,7 +233,7 @@ const Contact = () => {
                 <AccordionItem value="faq6">
                   <AccordionTrigger>How do I get support?</AccordionTrigger>
                   <AccordionContent>
-                    Use the contact form above or our live chat. We respond within 24 hours.
+                    Use the contact form above or email us directly. We respond within 24 hours.
                   </AccordionContent>
                 </AccordionItem>
                 <AccordionItem value="faq7">

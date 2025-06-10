@@ -43,7 +43,7 @@ const Faq = () => (
             <AccordionItem value="faq6">
               <AccordionTrigger>How do I get support?</AccordionTrigger>
               <AccordionContent>
-                Use the contact form above or our live chat. We respond within 24 hours.
+                Use the contact form on our contact page or email us directly. We respond within 24 hours.
               </AccordionContent>
             </AccordionItem>
             <AccordionItem value="faq7">
