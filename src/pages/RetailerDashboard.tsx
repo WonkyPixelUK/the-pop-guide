@@ -74,7 +74,7 @@ const RetailerDashboard = () => {
         const { data } = await supabase.auth.getSession();
         const token = data?.session?.access_token;
         
-        const res = await fetch(`https://pafgjwmgueerxdxtneyg.functions.supabase.co/retailer-manager?action=get`, {
+        const res = await fetch(`https://db.popguide.co.uk/functions/v1/retailer-manager?action=get`, {
           method: 'GET',
           headers: {
             'Authorization': `Bearer ${token}`,
@@ -115,7 +115,7 @@ const RetailerDashboard = () => {
       const { data } = await supabase.auth.getSession();
       const token = data?.session?.access_token;
       
-      const res = await fetch(`https://pafgjwmgueerxdxtneyg.functions.supabase.co/retailer-manager?action=get_inventory`, {
+      const res = await fetch(`https://db.popguide.co.uk/functions/v1/retailer-manager?action=get_inventory`, {
         method: 'GET',
         headers: {
           'Authorization': `Bearer ${token}`,
@@ -137,7 +137,7 @@ const RetailerDashboard = () => {
       const { data } = await supabase.auth.getSession();
       const token = data?.session?.access_token;
       
-      const res = await fetch(`https://pafgjwmgueerxdxtneyg.functions.supabase.co/retailer-manager?action=get_reviews`, {
+      const res = await fetch(`https://db.popguide.co.uk/functions/v1/retailer-manager?action=get_reviews`, {
         method: 'GET',
         headers: {
           'Authorization': `Bearer ${token}`,
@@ -159,7 +159,7 @@ const RetailerDashboard = () => {
       const { data } = await supabase.auth.getSession();
       const token = data?.session?.access_token;
       
-      const res = await fetch(`https://pafgjwmgueerxdxtneyg.functions.supabase.co/retailer-manager?action=update_inventory`, {
+      const res = await fetch(`https://db.popguide.co.uk/functions/v1/retailer-manager?action=update_inventory`, {
         method: 'POST',
         headers: {
           'Authorization': `Bearer ${token}`,

@@ -12,8 +12,8 @@ import Footer from '@/components/Footer';
 import PaymentMethodSelector from '@/components/PaymentMethodSelector';
 import { Badge } from '@/components/ui/badge';
 
-const STRIPE_FUNCTION_URL = "https://pafgjwmgueerxdxtneyg.functions.supabase.co/stripe-checkout-public";
-const CRYPTO_FUNCTION_URL = "https://pafgjwmgueerxdxtneyg.functions.supabase.co/crypto-checkout";
+const STRIPE_FUNCTION_URL = "https://db.popguide.co.uk/functions/v1/stripe-checkout-public";
+const CRYPTO_FUNCTION_URL = "https://db.popguide.co.uk/functions/v1/crypto-checkout";
 
 const PricingNew = () => {
   const { user, loading: authLoading } = useAuth();

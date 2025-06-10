@@ -12,11 +12,14 @@ import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger } from 
 import { useState, useEffect } from 'react';
 import { supabase } from '@/integrations/supabase/client';
 import CollectionGrid from '@/components/CollectionGrid';
+import { useCurrency } from '@/contexts/CurrencyContext';
+import { formatCurrency } from '@/utils/formatCurrency';
 
 const PublicListView = () => {
   const { listId } = useParams<{ listId: string }>();
   const { toast } = useToast();
   const { user } = useAuth();
+  const { currency, setCurrency, isLoading } = useCurrency();
   const [shareDialogOpen, setShareDialogOpen] = useState(false);
   const [list, setList] = useState<any>(null);
   const [loading, setLoading] = useState(true);
@@ -250,6 +253,25 @@ const PublicListView = () => {
   const totalValue = listItems.reduce((sum: number, item: any) => sum + (item.value || 0), 0);
   const totalItems = listItems.length;
 
+  // Debug currency and localStorage
+  console.log('🔍 PublicListView Currency Debug:', { 
+    currency, 
+    totalValue, 
+    formattedValue: formatCurrency(totalValue, currency),
+    localStorage_currency: localStorage.getItem('preferred-currency'),
+    isLoading
+  });
+  
+  // Simple currency debug without useEffect to avoid hook order issues
+  if (!isLoading && process.env.NODE_ENV === 'development') {
+    const savedCurrency = localStorage.getItem('preferred-currency');
+    console.log('💱 Currency Debug:', {
+      currentCurrency: currency,
+      savedInLocalStorage: savedCurrency,
+      expectedDefault: 'GBP'
+    });
+  }
+
   const handleShare = async () => {
     if (navigator.share) {
       try {
@@ -312,7 +334,7 @@ const PublicListView = () => {
                   <Button onClick={copyToClipboard} className="flex-1 bg-orange-500 hover:bg-orange-600">
                     Copy Link
                   </Button>
-                  <Button onClick={handleShare} variant="outline" className="flex-1 border-gray-600 hover:bg-gray-800">
+                  <Button onClick={handleShare} variant="outline" className="flex-1 border-gray-600 hover:bg-gray-800 text-white hover:text-white">
                     Native Share
                   </Button>
                 </div>
@@ -354,7 +376,7 @@ const PublicListView = () => {
                 <div className="text-gray-400 text-sm">Items</div>
               </div>
               <div className="text-center">
-                <div className="text-3xl font-bold text-green-500 mb-1">${totalValue.toFixed(2)}</div>
+                <div className="text-3xl font-bold text-green-500 mb-1">{formatCurrency(totalValue, currency)}</div>
                 <div className="text-gray-400 text-sm">Est. Value</div>
               </div>
               <div className="text-center">

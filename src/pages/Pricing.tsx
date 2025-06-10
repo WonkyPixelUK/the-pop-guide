@@ -11,7 +11,7 @@ import MobileBottomNav from '@/components/MobileBottomNav';
 import Footer from '@/components/Footer';
 import { Badge } from '@/components/ui/badge';
 
-const SUPABASE_FUNCTION_URL = "https://pafgjwmgueerxdxtneyg.functions.supabase.co/stripe-checkout-public";
+const SUPABASE_FUNCTION_URL = "https://db.popguide.co.uk/functions/v1/stripe-checkout-public";
 
 const Pricing = () => {
   const { user, loading: authLoading } = useAuth();
@@ -103,7 +103,7 @@ const Pricing = () => {
   };
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-gray-900 via-gray-800 to-black">
+          <div className="min-h-screen bg-gradient-to-br from-gray-900 via-gray-800 to-black">
       <Navigation className="hidden md:block" />
 
       {/* Hero Section */}

@@ -1,7 +1,7 @@
 import { createClient } from '@supabase/supabase-js';
 import fs from 'fs';
 
-const supabaseUrl = process.env.SUPABASE_URL || 'https://pafgjwmgueerxdxtneyg.supabase.co';
+const supabaseUrl = process.env.SUPABASE_URL || 'https://db.popguide.co.uk';
 const supabaseKey = process.env.SUPABASE_SERVICE_ROLE_KEY;
 
 if (!supabaseKey) {

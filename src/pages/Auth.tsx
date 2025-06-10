@@ -10,9 +10,9 @@ import { useWelcomeEmail } from '@/hooks/useWelcomeEmail';
 import { useToast } from '@/hooks/use-toast';
 import { useNavigate, Link, useLocation } from 'react-router-dom';
 
-const STRIPE_FUNCTION_URL = "https://pafgjwmgueerxdxtneyg.functions.supabase.co/stripe-checkout-public";
-const CRYPTO_FUNCTION_URL = "https://pafgjwmgueerxdxtneyg.functions.supabase.co/crypto-checkout";
-const SEND_EMAIL_ENDPOINT = "https://pafgjwmgueerxdxtneyg.functions.supabase.co/send-email";
+const STRIPE_FUNCTION_URL = "https://db.popguide.co.uk/functions/v1/stripe-checkout-public";
+const CRYPTO_FUNCTION_URL = "https://db.popguide.co.uk/functions/v1/crypto-checkout";
+const SEND_EMAIL_ENDPOINT = "https://db.popguide.co.uk/functions/v1/send-email";
 
 const Auth = () => {
   const [isSignUp, setIsSignUp] = useState(false);

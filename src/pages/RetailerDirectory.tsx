@@ -45,7 +45,7 @@ const RetailerDirectory = () => {
         const { data } = await supabase.auth.getSession();
         const token = data?.session?.access_token;
         
-        const res = await fetch(`https://pafgjwmgueerxdxtneyg.functions.supabase.co/retailer-manager?action=directory`, {
+        const res = await fetch(`https://db.popguide.co.uk/functions/v1/retailer-manager?action=directory`, {
           method: 'GET',
           headers: {
             'Authorization': `Bearer ${token}`,

@@ -9,7 +9,7 @@ import Footer from '@/components/Footer';
 import { supabase } from '@/integrations/supabase/client';
 
 const PRODUCT_ID = 'prod_SNsIp44U71FGP5';
-const SUPABASE_FUNCTION_URL = "https://pafgjwmgueerxdxtneyg.functions.supabase.co/stripe-checkout-public";
+const SUPABASE_FUNCTION_URL = "https://db.popguide.co.uk/functions/v1/stripe-checkout-public";
 
 const features = [
   {

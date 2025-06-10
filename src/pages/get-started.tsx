@@ -8,8 +8,8 @@ import { useToast } from '@/hooks/use-toast';
 import { CreditCard, Bitcoin, ArrowRight } from 'lucide-react';
 import PaymentMethodSelector from '@/components/PaymentMethodSelector';
 
-const STRIPE_FUNCTION_URL = "https://pafgjwmgueerxdxtneyg.functions.supabase.co/stripe-checkout-public";
-const CRYPTO_FUNCTION_URL = "https://pafgjwmgueerxdxtneyg.functions.supabase.co/crypto-checkout";
+const STRIPE_FUNCTION_URL = "https://db.popguide.co.uk/functions/v1/stripe-checkout-public";
+const CRYPTO_FUNCTION_URL = "https://db.popguide.co.uk/functions/v1/crypto-checkout";
 
 const GetStarted = () => {
   const [showPaymentSelector, setShowPaymentSelector] = useState(false);

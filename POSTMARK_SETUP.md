@@ -214,7 +214,7 @@ curl -d '{"type": "contact_confirmation", "to": "brains@popguide.co.uk", "data":
 
 ```bash
 # Test any of the 43 templates
-curl -X POST "https://pafgjwmgueerxdxtneyg.supabase.co/functions/v1/send-email" \
+curl -X POST "https://db.popguide.co.uk/functions/v1/send-email" \
   -H "Content-Type: application/json" \
   -H "Authorization: Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InBhZmdqd21ndWVlcnhkeHRuZXlnIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NDgwODgxODIsImV4cCI6MjA2MzY2NDE4Mn0.YInSl_Ct_ZM_fyZ1j2rgNQFacHDGTjg64vJGTtSb9FI" \
   -d '{"type": "TEMPLATE_NAME", "to": "brains@popguide.co.uk", "data": {...}}'

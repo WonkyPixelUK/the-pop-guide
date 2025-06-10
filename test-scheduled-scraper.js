@@ -1,5 +1,5 @@
 // Test script for the scheduled Funko Europe scraper
-const SUPABASE_URL = 'https://pafgjwmgueerxdxtneyg.supabase.co';
+const SUPABASE_URL = 'https://db.popguide.co.uk';
 const FUNCTION_URL = `${SUPABASE_URL}/functions/v1/scheduled-funko-europe-scraper`;
 
 async function testScheduledScraper() {

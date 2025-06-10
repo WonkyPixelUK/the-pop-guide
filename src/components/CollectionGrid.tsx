@@ -6,6 +6,8 @@ import { useAuth } from "@/hooks/useAuth";
 import { useAddToCollection, useRemoveFromCollection } from "@/hooks/useFunkoPops";
 import { useManualScraping } from "@/hooks/useManualScraping";
 import { useToast } from "@/hooks/use-toast";
+import { useCurrency } from "@/contexts/CurrencyContext";
+import { formatCurrency } from "@/utils/formatCurrency";
 
 interface CollectionItem {
   id: string;
@@ -30,6 +32,7 @@ interface CollectionGridProps {
 const CollectionGrid = ({ items, onItemClick, searchQuery, showWishlistOnly = false }: CollectionGridProps) => {
   const { user } = useAuth();
   const { toast } = useToast();
+  const { currency } = useCurrency();
   const addToCollection = useAddToCollection();
   const removeFromCollection = useRemoveFromCollection();
   const manualScraping = useManualScraping();
@@ -202,7 +205,7 @@ const CollectionGrid = ({ items, onItemClick, searchQuery, showWishlistOnly = fa
                   {item.rarity}
                 </Badge>
                 <span className="text-orange-500 font-semibold text-sm">
-                  ${typeof item.value === 'number' ? item.value.toFixed(2) : '0.00'}
+                  {typeof item.value === 'number' ? formatCurrency(item.value, currency) : formatCurrency(0, currency)}
                 </span>
               </div>
 

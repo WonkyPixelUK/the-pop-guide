@@ -9,7 +9,7 @@
     "tabs"
   ],
   "host_permissions": [
-    "https://pafgjwmgueerxdxtneyg.supabase.co/*"
+    "https://db.popguide.co.uk/*"
   ],
   "background": {
     "service_worker": "background.js"

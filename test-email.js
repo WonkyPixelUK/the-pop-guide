@@ -3,7 +3,7 @@
 
 const testEmail = async () => {
   try {
-    const response = await fetch('https://pafgjwmgueerxdxtneyg.supabase.co/functions/v1/send-email', {
+    const response = await fetch('https://db.popguide.co.uk/functions/v1/send-email', {
       method: 'POST',
       headers: {
         'Content-Type': 'application/json',

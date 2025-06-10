@@ -14,7 +14,7 @@ import { useToast } from '@/hooks/use-toast';
 import { useFunkoPops, useUserCollection } from '@/hooks/useFunkoPops';
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger } from '@/components/ui/dialog';
 
-const SUPABASE_FUNCTION_URL = "https://pafgjwmgueerxdxtneyg.functions.supabase.co/stripe-checkout-public";
+const SUPABASE_FUNCTION_URL = "https://db.popguide.co.uk/functions/v1/stripe-checkout-public";
 
 const TABS = [
   { key: 'profile', label: 'Profile', icon: User },
@@ -120,7 +120,7 @@ const ProfileSettings = () => {
               const { data: sessionData } = await supabase.auth.getSession();
               console.log('🔑 Session data available:', !!sessionData.session?.access_token);
               
-              const res = await fetch(`https://pafgjwmgueerxdxtneyg.functions.supabase.co/get-customer-details`, {
+              const res = await fetch(`https://db.popguide.co.uk/functions/v1/get-customer-details`, {
                 method: 'POST',
                 headers: { 
                   'Content-Type': 'application/json',
@@ -143,7 +143,7 @@ const ProfileSettings = () => {
 
               // Fetch invoices
               console.log('📄 Fetching invoices...');
-              const invoiceRes = await fetch(`https://pafgjwmgueerxdxtneyg.functions.supabase.co/get-invoices`, {
+              const invoiceRes = await fetch(`https://db.popguide.co.uk/functions/v1/get-invoices`, {
                 method: 'POST',
                 headers: { 
                   'Content-Type': 'application/json',
@@ -184,7 +184,7 @@ const ProfileSettings = () => {
       supabase.auth.getSession().then(async ({ data }) => {
         const token = data?.session?.access_token;
         try {
-          const res = await fetch(`https://pafgjwmgueerxdxtneyg.functions.supabase.co/api-key-manager`, {
+          const res = await fetch(`https://db.popguide.co.uk/functions/v1/api-key-manager`, {
             method: 'GET',
             headers: {
               'Authorization': `Bearer ${token}`,
@@ -240,7 +240,7 @@ const ProfileSettings = () => {
       const { data } = await supabase.auth.getSession();
       const token = data?.session?.access_token;
       
-      const res = await fetch(`https://pafgjwmgueerxdxtneyg.functions.supabase.co/api-key-manager`, {
+      const res = await fetch(`https://db.popguide.co.uk/functions/v1/api-key-manager`, {
         method: 'POST',
         headers: {
           'Authorization': `Bearer ${token}`,
@@ -274,7 +274,7 @@ const ProfileSettings = () => {
       const { data } = await supabase.auth.getSession();
       const token = data?.session?.access_token;
       
-      const res = await fetch(`https://pafgjwmgueerxdxtneyg.functions.supabase.co/api-key-manager`, {
+      const res = await fetch(`https://db.popguide.co.uk/functions/v1/api-key-manager`, {
         method: 'DELETE',
         headers: {
           'Authorization': `Bearer ${token}`,
@@ -370,7 +370,7 @@ const ProfileSettings = () => {
     setCancelLoading(true);
     try {
       const { data: sessionData } = await supabase.auth.getSession();
-      const res = await fetch(`https://pafgjwmgueerxdxtneyg.functions.supabase.co/cancel-subscription`, {
+      const res = await fetch(`https://db.popguide.co.uk/functions/v1/cancel-subscription`, {
         method: 'POST',
         headers: { 
           'Content-Type': 'application/json',
@@ -405,7 +405,7 @@ const ProfileSettings = () => {
     setCancelLoading(true);
     try {
       const { data: sessionData } = await supabase.auth.getSession();
-      const res = await fetch(`https://pafgjwmgueerxdxtneyg.functions.supabase.co/cancel-subscription`, {
+      const res = await fetch(`https://db.popguide.co.uk/functions/v1/cancel-subscription`, {
         method: 'POST',
         headers: { 
           'Content-Type': 'application/json',
@@ -452,7 +452,7 @@ const ProfileSettings = () => {
       const { data: sessionData } = await supabase.auth.getSession();
       const action = cancelType === 'immediately' ? 'cancel_immediately' : 'cancel_at_period_end';
       
-      const res = await fetch(`https://pafgjwmgueerxdxtneyg.functions.supabase.co/cancel-subscription`, {
+      const res = await fetch(`https://db.popguide.co.uk/functions/v1/cancel-subscription`, {
         method: 'POST',
         headers: { 
           'Content-Type': 'application/json',
@@ -497,7 +497,7 @@ const ProfileSettings = () => {
       supabase.auth.getSession().then(async ({ data }) => {
         const token = data?.session?.access_token;
         try {
-          const res = await fetch(`https://pafgjwmgueerxdxtneyg.functions.supabase.co/retailer-manager?action=get`, {
+          const res = await fetch(`https://db.popguide.co.uk/functions/v1/retailer-manager?action=get`, {
             method: 'GET',
             headers: {
               'Authorization': `Bearer ${token}`,
@@ -528,7 +528,7 @@ const ProfileSettings = () => {
       const { data } = await supabase.auth.getSession();
       const token = data?.session?.access_token;
       
-      const res = await fetch(`https://pafgjwmgueerxdxtneyg.functions.supabase.co/retailer-manager?action=create_profile`, {
+      const res = await fetch(`https://db.popguide.co.uk/functions/v1/retailer-manager?action=create_profile`, {
         method: 'POST',
         headers: {
           'Authorization': `Bearer ${token}`,
@@ -567,7 +567,7 @@ const ProfileSettings = () => {
       const { data } = await supabase.auth.getSession();
       const token = data?.session?.access_token;
       
-      const res = await fetch(`https://pafgjwmgueerxdxtneyg.functions.supabase.co/retailer-checkout`, {
+      const res = await fetch(`https://db.popguide.co.uk/functions/v1/retailer-checkout`, {
         method: 'POST',
         headers: {
           'Authorization': `Bearer ${token}`,
@@ -814,7 +814,7 @@ const ProfileSettings = () => {
                   if (customerId) {
                               // Use the correct Supabase Edge Function URL for portal
                               const { data: sessionData } = await supabase.auth.getSession();
-                              const res = await fetch(`https://pafgjwmgueerxdxtneyg.functions.supabase.co/stripe-portal`, {
+                              const res = await fetch(`https://db.popguide.co.uk/functions/v1/stripe-portal`, {
                       method: 'POST',
                                 headers: { 
                                   'Content-Type': 'application/json',
@@ -878,7 +878,7 @@ const ProfileSettings = () => {
                                   setPortalLoading(true);
                                   try {
                                     const { data: sessionData } = await supabase.auth.getSession();
-                                    const res = await fetch(`https://pafgjwmgueerxdxtneyg.functions.supabase.co/stripe-portal`, {
+                                    const res = await fetch(`https://db.popguide.co.uk/functions/v1/stripe-portal`, {
                                       method: 'POST',
                                       headers: { 
                                         'Content-Type': 'application/json',
@@ -926,7 +926,7 @@ const ProfileSettings = () => {
                                     console.log('🔄 Manual refresh of card details...');
                                     try {
                                       const { data: sessionData } = await supabase.auth.getSession();
-                                      const res = await fetch(`https://pafgjwmgueerxdxtneyg.functions.supabase.co/get-customer-details`, {
+                                      const res = await fetch(`https://db.popguide.co.uk/functions/v1/get-customer-details`, {
                                         method: 'POST',
                                         headers: { 
                                           'Content-Type': 'application/json',
@@ -977,7 +977,7 @@ const ProfileSettings = () => {
                                     console.log('🔄 Manual refresh of billing details...');
                                     try {
                                       const { data: sessionData } = await supabase.auth.getSession();
-                                      const res = await fetch(`https://pafgjwmgueerxdxtneyg.functions.supabase.co/get-customer-details`, {
+                                      const res = await fetch(`https://db.popguide.co.uk/functions/v1/get-customer-details`, {
                                         method: 'POST',
                                         headers: { 
                                           'Content-Type': 'application/json',
@@ -1016,7 +1016,7 @@ const ProfileSettings = () => {
                             onClick={async () => {
                               try {
                                 const { data: sessionData } = await supabase.auth.getSession();
-                                const res = await fetch(`https://pafgjwmgueerxdxtneyg.functions.supabase.co/get-invoices`, {
+                                const res = await fetch(`https://db.popguide.co.uk/functions/v1/get-invoices`, {
                                   method: 'POST',
                                   headers: { 
                                     'Content-Type': 'application/json',
@@ -1708,7 +1708,7 @@ const ProfileSettings = () => {
                           <div>
                             <h4 className="font-medium text-orange-400 mb-2">Base URL</h4>
                             <code className="block p-2 bg-gray-800 rounded text-green-400">
-                              https://pafgjwmgueerxdxtneyg.functions.supabase.co
+                              https://db.popguide.co.uk/functions/v1
                             </code>
                           </div>
                           
@@ -1738,7 +1738,7 @@ const ProfileSettings = () => {
                             <h4 className="font-medium text-orange-400 mb-2">Example Request</h4>
                             <div className="p-2 bg-gray-800 rounded">
                               <code className="text-green-400 text-xs block">
-                                curl -X GET "https://pafgjwmgueerxdxtneyg.functions.supabase.co/api-v1-collection" \<br/>
+                                curl -X GET "https://db.popguide.co.uk/functions/v1/api-v1-collection" \<br/>
                                 &nbsp;&nbsp;-H "Authorization: Bearer {apiKey || 'YOUR_API_KEY'}" \<br/>
                                 &nbsp;&nbsp;-H "Content-Type: application/json"
                               </code>
@@ -1761,7 +1761,7 @@ const ProfileSettings = () => {
                               <Button
                                 onClick={async () => {
                                   try {
-                                    const res = await fetch(`https://pafgjwmgueerxdxtneyg.functions.supabase.co/api-v1-collection`, {
+                                    const res = await fetch(`https://db.popguide.co.uk/functions/v1/api-v1-collection`, {
                                       method: 'GET',
                                       headers: {
                                         'Authorization': `Bearer ${apiKey}`,
@@ -1804,7 +1804,7 @@ const ProfileSettings = () => {
                                 onClick={() => {
                                   // Create a simple example and copy to clipboard
                                   const exampleCode = `// Example: Get your collection using the PopGuide API
-fetch('https://pafgjwmgueerxdxtneyg.functions.supabase.co/api-v1-collection', {
+fetch('https://db.popguide.co.uk/functions/v1/api-v1-collection', {
   method: 'GET',
   headers: {
     'Authorization': 'Bearer ${apiKey || 'YOUR_API_KEY'}',
@@ -1819,7 +1819,7 @@ fetch('https://pafgjwmgueerxdxtneyg.functions.supabase.co/api-v1-collection', {
 .catch(error => console.error('Error:', error));
 
 // Example: Add item to collection
-fetch('https://pafgjwmgueerxdxtneyg.functions.supabase.co/api-v1-collection', {
+fetch('https://db.popguide.co.uk/functions/v1/api-v1-collection', {
   method: 'POST',
   headers: {
     'Authorization': 'Bearer ${apiKey || 'YOUR_API_KEY'}',

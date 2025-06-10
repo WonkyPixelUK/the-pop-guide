@@ -1,5 +1,5 @@
 // Direct MCP Funko Europe Scraper - No Docker needed!
-const SUPABASE_URL = 'https://pafgjwmgueerxdxtneyg.supabase.co';
+const SUPABASE_URL = 'https://db.popguide.co.uk';
 const SUPABASE_ANON_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InBhZmdqd21ndWVlcnhkeHRuZXlnIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NDgwODgxODIsImV4cCI6MjA2MzY2NDE4Mn0.YInSl_Ct_ZM_fyZ1j2rgNQFacHDGTjg64vJGTtSb9FI';
 // Service role key for database operations (from environment or hardcoded for testing)
 const SUPABASE_SERVICE_KEY = process.env.SUPABASE_SERVICE_ROLE_KEY || 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InBhZmdqd21ndWVlcnhkeHRuZXlnIiwicm9sZSI6InNlcnZpY2Vfcm9sZSIsImlhdCI6MTc0ODA4ODE4MiwiZXhwIjoyMDYzNjY0MTgyfQ.GV-4IHWm6K03BKdqFZZaTnJiIRv6vpkAXgSo-wNgT1s';

@@ -19,7 +19,7 @@ import { ForgotPasswordScreen } from './src/screens/ForgotPasswordScreen';
 import { SubscriptionScreen } from './src/screens/SubscriptionScreen';
 
 // 🎯 SUPABASE CONFIGURATION WITH TRANSACTION POOLER
-const supabaseUrl = 'https://pafgjwmgueerxdxtneyg.supabase.co';
+const supabaseUrl = 'https://db.popguide.co.uk';
 const supabaseAnonKey = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InBhZmdqd21ndWVlcnhkeHRuZXlnIiwicm9sZSI6ImFub24iLCJpYXQiOjE3MzE1OTA5MzMsImV4cCI6MjA0NzE2NjkzM30.ToHsNSuYgfKkJVcjL1xXTGlQm3MIfIjI1YaQUJOdIDY';
 
 export const supabase = createClient(supabaseUrl, supabaseAnonKey, {

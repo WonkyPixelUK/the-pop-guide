@@ -43,7 +43,7 @@ SUPABASE_URL=your_supabase_url
 SUPABASE_SERVICE_ROLE_KEY=your_service_role_key
 
 # Email function endpoint
-SEND_EMAIL_ENDPOINT=https://pafgjwmgueerxdxtneyg.functions.supabase.co/send-email
+SEND_EMAIL_ENDPOINT=https://db.popguide.co.uk/functions/v1/send-email
 ```
 
 ### 1.2 Add Supabase Function Environment Variables:
@@ -54,7 +54,7 @@ In your Supabase dashboard (pafgjwmgueerxdxtneyg), go to **Settings > Edge Funct
 COINBASE_COMMERCE_API_KEY=0fa56542-5679-492b-aeda-b086f1200a9f
 COINBASE_COMMERCE_WEBHOOK_SECRET=your_webhook_secret_here
 SITE_URL=http://localhost:8081
-SEND_EMAIL_ENDPOINT=https://pafgjwmgueerxdxtneyg.functions.supabase.co/send-email
+SEND_EMAIL_ENDPOINT=https://db.popguide.co.uk/functions/v1/send-email
 ```
 
 ---
@@ -88,8 +88,8 @@ supabase functions deploy coinbase-webhook
 ```
 
 ### Function URLs will be:
-- **Crypto Checkout**: `https://pafgjwmgueerxdxtneyg.functions.supabase.co/crypto-checkout`
-- **Webhook Handler**: `https://pafgjwmgueerxdxtneyg.functions.supabase.co/coinbase-webhook`
+- **Crypto Checkout**: `https://db.popguide.co.uk/functions/v1/crypto-checkout`
+- **Webhook Handler**: `https://db.popguide.co.uk/functions/v1/coinbase-webhook`
 
 ---
 
@@ -103,7 +103,7 @@ supabase functions deploy coinbase-webhook
 
 ### 4.2 Add Webhook Endpoint
 
-- **Endpoint URL**: `https://pafgjwmgueerxdxtneyg.functions.supabase.co/coinbase-webhook`
+- **Endpoint URL**: `https://db.popguide.co.uk/functions/v1/coinbase-webhook`
 - **Events to subscribe to**:
   - ✅ `charge:confirmed`
   - ✅ `charge:failed` 
@@ -186,7 +186,7 @@ SITE_URL=https://popguide.co.uk
 
 Change webhook URL to:
 ```
-https://pafgjwmgueerxdxtneyg.functions.supabase.co/coinbase-webhook
+https://db.popguide.co.uk/functions/v1/coinbase-webhook
 ```
 
 ### 7.3 Switch to Live Mode

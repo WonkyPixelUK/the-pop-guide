@@ -24,7 +24,7 @@ import { Input } from '@/components/ui/input';
 import EnhancedAddItemDialog from '@/components/EnhancedAddItemDialog';
 import { useToast } from '@/hooks/use-toast';
 
-const SEND_EMAIL_ENDPOINT = "https://pafgjwmgueerxdxtneyg.functions.supabase.co/send-email";
+const SEND_EMAIL_ENDPOINT = "https://db.popguide.co.uk/functions/v1/send-email";
 
 const Profile = () => {
   const { username } = useParams<{ username: string }>();
