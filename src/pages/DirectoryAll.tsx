@@ -417,6 +417,10 @@ const DirectoryAll = () => {
               }
               onClick={(e) => {
                 e.stopPropagation();
+                if (!user) {
+                  navigate('/auth');
+                  return;
+                }
                 handleAddToCollection(pop);
               }}
               disabled={pop.owned || ownedConfirmed || addingToCollection}
@@ -434,7 +438,7 @@ const DirectoryAll = () => {
               ) : (
                 <>
                   <Plus className="w-4 h-4 mr-1.5" />
-                  Own this Pop
+                  {user ? 'Own this Pop' : 'Sign in to own'}
                 </>
               )}
             </Button>
@@ -448,11 +452,18 @@ const DirectoryAll = () => {
               }`}
               onClick={(e) => {
                 e.stopPropagation();
+                if (!user) {
+                  navigate('/auth');
+                  return;
+                }
                 handleWishlist(pop);
               }}
             >
               <Heart className={`w-4 h-4 mr-1.5 ${wishlist.some((w) => w.funko_pop_id === pop.id) ? 'fill-current' : ''}`} />
-              {wishlist.some((w) => w.funko_pop_id === pop.id) ? 'Remove from Wishlist' : 'Add to Wishlist'}
+              {user 
+                ? (wishlist.some((w) => w.funko_pop_id === pop.id) ? 'Remove from Wishlist' : 'Add to Wishlist')
+                : 'Sign in for Wishlist'
+              }
             </Button>
 
             <Button 
@@ -460,11 +471,15 @@ const DirectoryAll = () => {
               className="border border-purple-500/50 text-purple-400 hover:bg-purple-500 hover:text-white hover:border-purple-500 hover:shadow-md hover:shadow-purple-500/20 h-9 text-sm font-medium transition-all duration-200 bg-purple-500/5"
               onClick={(e) => {
                 e.stopPropagation();
+                if (!user) {
+                  navigate('/auth');
+                  return;
+                }
                 handleAddToList(pop);
               }}
             >
               <List className="w-4 h-4 mr-1.5" />
-              Add to List
+              {user ? 'Add to List' : 'Sign in for Lists'}
             </Button>
             
             <Button 
@@ -589,121 +604,208 @@ const DirectoryAll = () => {
             </div>
           </div>
 
-          {/* Product Details - New Fields in Compact Format */}
-          {(pop.upc || pop.upc_a || pop.ean_13 || pop.amazon_asin || pop.country_of_registration || pop.brand || pop.model_number || pop.size || pop.color || pop.weight || pop.product_dimensions) && (
-            <div className="bg-gray-700/50 p-4 rounded-lg border border-gray-600 mb-6">
-              <h4 className="font-semibold mb-3 text-white text-lg">Product Details</h4>
-              <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-3 text-sm">
-                {pop.upc && (
-                  <div className="flex flex-col">
-                    <span className="text-gray-400 text-xs mb-1">UPC</span>
-                    <span className="text-white font-medium">{pop.upc}</span>
+          {/* Product Details - Protected Content */}
+          {user ? (
+            (pop.upc || pop.upc_a || pop.ean_13 || pop.amazon_asin || pop.country_of_registration || pop.brand || pop.model_number || pop.size || pop.color || pop.weight || pop.product_dimensions) && (
+              <div className="bg-gray-700/50 p-4 rounded-lg border border-gray-600 mb-6">
+                <h4 className="font-semibold mb-3 text-white text-lg">Product Details</h4>
+                <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-3 text-sm">
+                  {pop.upc && (
+                    <div className="flex flex-col">
+                      <span className="text-gray-400 text-xs mb-1">UPC</span>
+                      <span className="text-white font-medium">{pop.upc}</span>
+                    </div>
+                  )}
+                  {pop.upc_a && (
+                    <div className="flex flex-col">
+                      <span className="text-gray-400 text-xs mb-1">UPC-A</span>
+                      <span className="text-white font-medium">{pop.upc_a}</span>
+                    </div>
+                  )}
+                  {pop.ean_13 && (
+                    <div className="flex flex-col">
+                      <span className="text-gray-400 text-xs mb-1">EAN-13</span>
+                      <span className="text-white font-medium">{pop.ean_13}</span>
+                    </div>
+                  )}
+                  {pop.amazon_asin && (
+                    <div className="flex flex-col">
+                      <span className="text-gray-400 text-xs mb-1">Amazon ASIN</span>
+                      <span className="text-white font-medium">{pop.amazon_asin}</span>
+                    </div>
+                  )}
+                  {pop.country_of_registration && (
+                    <div className="flex flex-col">
+                      <span className="text-gray-400 text-xs mb-1">Country</span>
+                      <span className="text-white font-medium">{pop.country_of_registration}</span>
+                    </div>
+                  )}
+                  {pop.brand && (
+                    <div className="flex flex-col">
+                      <span className="text-gray-400 text-xs mb-1">Brand</span>
+                      <span className="text-white font-medium">{pop.brand}</span>
+                    </div>
+                  )}
+                  {pop.model_number && (
+                    <div className="flex flex-col">
+                      <span className="text-gray-400 text-xs mb-1">Model #</span>
+                      <span className="text-white font-medium">{pop.model_number}</span>
+                    </div>
+                  )}
+                  {pop.size && (
+                    <div className="flex flex-col">
+                      <span className="text-gray-400 text-xs mb-1">Size</span>
+                      <span className="text-white font-medium">{pop.size}</span>
+                    </div>
+                  )}
+                  {pop.color && (
+                    <div className="flex flex-col">
+                      <span className="text-gray-400 text-xs mb-1">Color</span>
+                      <span className="text-white font-medium">{pop.color}</span>
+                    </div>
+                  )}
+                  {pop.weight && (
+                    <div className="flex flex-col">
+                      <span className="text-gray-400 text-xs mb-1">Weight</span>
+                      <span className="text-white font-medium">{pop.weight}</span>
+                    </div>
+                  )}
+                  {pop.product_dimensions && (
+                    <div className="flex flex-col">
+                      <span className="text-gray-400 text-xs mb-1">Dimensions</span>
+                      <span className="text-white font-medium">{pop.product_dimensions}</span>
+                    </div>
+                  )}
+                </div>
+              </div>
+            )
+          ) : (
+            <div className="bg-gray-700/50 p-6 rounded-lg border border-gray-600 mb-6 text-center">
+              <div className="flex flex-col items-center gap-4">
+                <div className="p-3 bg-orange-500/20 rounded-full">
+                  <User className="w-6 h-6 text-orange-400" />
+                </div>
+                <div>
+                  <h4 className="font-semibold mb-2 text-white text-lg">Product Details</h4>
+                  <p className="text-gray-400 mb-4">Access detailed product information including UPC codes, dimensions, and more.</p>
+                  <div className="flex gap-3 justify-center">
+                    <Button 
+                      onClick={() => navigate('/auth')}
+                      className="bg-orange-500 hover:bg-orange-600 text-white"
+                    >
+                      Sign In
+                    </Button>
+                    <Button 
+                      onClick={() => navigate('/auth')}
+                      variant="outline"
+                      className="border-orange-500 text-orange-400 hover:bg-orange-500 hover:text-white"
+                    >
+                      Join Now
+                    </Button>
                   </div>
-                )}
-                {pop.upc_a && (
-                  <div className="flex flex-col">
-                    <span className="text-gray-400 text-xs mb-1">UPC-A</span>
-                    <span className="text-white font-medium">{pop.upc_a}</span>
-                  </div>
-                )}
-                {pop.ean_13 && (
-                  <div className="flex flex-col">
-                    <span className="text-gray-400 text-xs mb-1">EAN-13</span>
-                    <span className="text-white font-medium">{pop.ean_13}</span>
-                  </div>
-                )}
-                {pop.amazon_asin && (
-                  <div className="flex flex-col">
-                    <span className="text-gray-400 text-xs mb-1">Amazon ASIN</span>
-                    <span className="text-white font-medium">{pop.amazon_asin}</span>
-                  </div>
-                )}
-                {pop.country_of_registration && (
-                  <div className="flex flex-col">
-                    <span className="text-gray-400 text-xs mb-1">Country</span>
-                    <span className="text-white font-medium">{pop.country_of_registration}</span>
-                  </div>
-                )}
-                {pop.brand && (
-                  <div className="flex flex-col">
-                    <span className="text-gray-400 text-xs mb-1">Brand</span>
-                    <span className="text-white font-medium">{pop.brand}</span>
-                  </div>
-                )}
-                {pop.model_number && (
-                  <div className="flex flex-col">
-                    <span className="text-gray-400 text-xs mb-1">Model #</span>
-                    <span className="text-white font-medium">{pop.model_number}</span>
-                  </div>
-                )}
-                {pop.size && (
-                  <div className="flex flex-col">
-                    <span className="text-gray-400 text-xs mb-1">Size</span>
-                    <span className="text-white font-medium">{pop.size}</span>
-                  </div>
-                )}
-                {pop.color && (
-                  <div className="flex flex-col">
-                    <span className="text-gray-400 text-xs mb-1">Color</span>
-                    <span className="text-white font-medium">{pop.color}</span>
-                  </div>
-                )}
-                {pop.weight && (
-                  <div className="flex flex-col">
-                    <span className="text-gray-400 text-xs mb-1">Weight</span>
-                    <span className="text-white font-medium">{pop.weight}</span>
-                  </div>
-                )}
-                {pop.product_dimensions && (
-                  <div className="flex flex-col">
-                    <span className="text-gray-400 text-xs mb-1">Dimensions</span>
-                    <span className="text-white font-medium">{pop.product_dimensions}</span>
-                  </div>
-                )}
+                </div>
               </div>
             </div>
           )}
 
-          {/* Additional Details */}
-          {(pop.variant || pop.is_exclusive || pop.is_chase) && (
-            <div className="bg-gray-700 p-4 rounded-lg border border-gray-600 mb-6">
-              <h4 className="font-semibold mb-3 text-white text-lg">Additional Details</h4>
-              <div className="space-y-2 text-sm">
-                {pop.variant && (
-                  <div className="flex justify-between">
-                    <span className="text-gray-400">Variant:</span>
-                    <span className="text-white">{pop.variant}</span>
+          {/* Additional Details - Protected Content */}
+          {user ? (
+            (pop.variant || pop.is_exclusive || pop.is_chase) && (
+              <div className="bg-gray-700 p-4 rounded-lg border border-gray-600 mb-6">
+                <h4 className="font-semibold mb-3 text-white text-lg">Additional Details</h4>
+                <div className="space-y-2 text-sm">
+                  {pop.variant && (
+                    <div className="flex justify-between">
+                      <span className="text-gray-400">Variant:</span>
+                      <span className="text-white">{pop.variant}</span>
+                    </div>
+                  )}
+                  {pop.is_exclusive && (
+                    <div className="flex justify-between">
+                      <span className="text-gray-400">Exclusive to:</span>
+                      <span className="text-white">{pop.exclusive_to || 'Yes'}</span>
+                    </div>
+                  )}
+                  {pop.is_chase && (
+                    <div className="flex justify-between">
+                      <span className="text-gray-400">Chase:</span>
+                      <span className="text-yellow-400">Yes</span>
+                    </div>
+                  )}
+                </div>
+              </div>
+            )
+          ) : (
+            <div className="bg-gray-700/50 p-6 rounded-lg border border-gray-600 mb-6 text-center">
+              <div className="flex flex-col items-center gap-4">
+                <div className="p-3 bg-orange-500/20 rounded-full">
+                  <Sparkles className="w-6 h-6 text-orange-400" />
+                </div>
+                <div>
+                  <h4 className="font-semibold mb-2 text-white text-lg">Additional Details</h4>
+                  <p className="text-gray-400 mb-4">View variant information, exclusivity details, and chase status.</p>
+                  <div className="flex gap-3 justify-center">
+                    <Button 
+                      onClick={() => navigate('/auth')}
+                      className="bg-orange-500 hover:bg-orange-600 text-white"
+                    >
+                      Sign In
+                    </Button>
+                    <Button 
+                      onClick={() => navigate('/auth')}
+                      variant="outline"
+                      className="border-orange-500 text-orange-400 hover:bg-orange-500 hover:text-white"
+                    >
+                      Join Now
+                    </Button>
                   </div>
-                )}
-                {pop.is_exclusive && (
-                  <div className="flex justify-between">
-                    <span className="text-gray-400">Exclusive to:</span>
-                    <span className="text-white">{pop.exclusive_to || 'Yes'}</span>
-                  </div>
-                )}
-                {pop.is_chase && (
-                  <div className="flex justify-between">
-                    <span className="text-gray-400">Chase:</span>
-                    <span className="text-yellow-400">Yes</span>
-                  </div>
-                )}
+                </div>
               </div>
             </div>
           )}
 
-          {/* Price History */}
+          {/* Price History - Protected Content */}
           <div className="border-t border-gray-600 pt-6">
-            <PriceHistory 
-              funkoPopId={pop.id} 
-              funkoPop={{
-                id: pop.id,
-                name: pop.name,
-                series: pop.series,
-                number: pop.number,
-                image_url: getPrimaryImageUrl(pop),
-                estimated_value: getUserPurchasePrice(pop.id) || pop.estimated_value
-              }}
-            />
+            {user ? (
+              <PriceHistory 
+                funkoPopId={pop.id} 
+                funkoPop={{
+                  id: pop.id,
+                  name: pop.name,
+                  series: pop.series,
+                  number: pop.number,
+                  image_url: getPrimaryImageUrl(pop),
+                  estimated_value: getUserPurchasePrice(pop.id) || pop.estimated_value
+                }}
+              />
+            ) : (
+              <div className="bg-gray-700/50 p-6 rounded-lg border border-gray-600 text-center">
+                <div className="flex flex-col items-center gap-4">
+                  <div className="p-3 bg-orange-500/20 rounded-full">
+                    <Package className="w-6 h-6 text-orange-400" />
+                  </div>
+                  <div>
+                    <h4 className="font-semibold mb-2 text-white text-lg">Price History & Analytics</h4>
+                    <p className="text-gray-400 mb-4">Track price changes, view detailed analytics, and get market insights.</p>
+                    <div className="flex gap-3 justify-center">
+                      <Button 
+                        onClick={() => navigate('/auth')}
+                        className="bg-orange-500 hover:bg-orange-600 text-white"
+                      >
+                        Sign In
+                      </Button>
+                      <Button 
+                        onClick={() => navigate('/auth')}
+                        variant="outline"
+                        className="border-orange-500 text-orange-400 hover:bg-orange-500 hover:text-white"
+                      >
+                        Join Now
+                      </Button>
+                    </div>
+                  </div>
+                </div>
+              </div>
+            )}
           </div>
         </div>
       </div>
