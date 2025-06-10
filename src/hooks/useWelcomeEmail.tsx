@@ -1,42 +1,57 @@
 
-import { useEffect } from 'react';
 import { supabase } from '@/integrations/supabase/client';
-import { useAuth } from './useAuth';
 
-export const useWelcomeEmail = () => {
-  const { user } = useAuth();
+// This should only be called explicitly on signup, not on every auth state change
+export const sendWelcomeEmailOnSignup = async (userEmail: string, fullName?: string) => {
+  try {
+    // Check if this is a genuinely new user by checking when they were created
+    const { data: { user } } = await supabase.auth.getUser();
+    
+    if (!user || !user.email) {
+      console.log('No user found for welcome email');
+      return;
+    }
 
-  useEffect(() => {
-    const sendWelcomeEmail = async () => {
-      if (user && user.email) {
-        try {
-          await supabase.functions.invoke('send-email', {
-            body: {
-              type: 'welcome',
-              to: user.email,
-              data: {
-                fullName: user.user_metadata?.full_name || 'Collector'
-              }
-            }
-          });
-          console.log('Welcome email sent successfully');
-        } catch (error) {
-          console.error('Error sending welcome email:', error);
+    // Only send if user was created within the last 5 minutes (indicating new signup)
+    const userCreated = new Date(user.created_at);
+    const now = new Date();
+    const fiveMinutesAgo = new Date(now.getTime() - 5 * 60 * 1000);
+    
+    if (userCreated < fiveMinutesAgo) {
+      console.log('User is not new, skipping welcome email');
+      return;
+    }
+
+    // Check if we've already sent a welcome email for this user
+    const sentFlag = `welcome_email_sent_${user.id}`;
+    const alreadySent = localStorage.getItem(sentFlag);
+    
+    if (alreadySent) {
+      console.log('Welcome email already sent for this user');
+      return;
+    }
+
+    await supabase.functions.invoke('send-email', {
+      body: {
+        type: 'welcome',
+        to: userEmail,
+        data: {
+          fullName: fullName || user.user_metadata?.full_name || 'Collector'
         }
       }
-    };
+    });
+    
+    // Mark as sent to prevent duplicates
+    localStorage.setItem(sentFlag, 'true');
+    console.log('Welcome email sent successfully to new user');
+    
+  } catch (error) {
+    console.error('Error sending welcome email:', error);
+  }
+};
 
-    // Only send welcome email for new users
-    const checkAndSendWelcome = () => {
-      const welcomeEmailSent = localStorage.getItem(`welcome_sent_${user?.id}`);
-      if (user && !welcomeEmailSent) {
-        sendWelcomeEmail();
-        localStorage.setItem(`welcome_sent_${user?.id}`, 'true');
-      }
-    };
-
-    if (user) {
-      checkAndSendWelcome();
-    }
-  }, [user]);
+// Legacy hook - now just a placeholder to prevent breaking changes
+export const useWelcomeEmail = () => {
+  // This hook no longer automatically sends emails
+  // Welcome emails should be explicitly triggered on signup only
 };

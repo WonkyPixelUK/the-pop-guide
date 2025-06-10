@@ -725,31 +725,143 @@ const Dashboard = () => {
 
                             {/* Right Side - Details */}
                             <div className="flex-1 min-w-0">
+                              {/* Basic Info Grid */}
                               <div className="grid grid-cols-2 md:grid-cols-3 gap-4 mb-6">
                                 <div className="bg-gray-700 p-4 rounded-lg border border-gray-600">
                                   <div className="text-sm text-gray-400 mb-1 flex items-center">
+                                    <span className="mr-2">🏷️</span>
+                                    Category
+                                  </div>
+                                  <div className="font-semibold text-white text-lg">{pop.category || 'Pop!'}</div>
+                                </div>
+                                
+                                <div className="bg-gray-700 p-4 rounded-lg border border-gray-600">
+                                  <div className="text-sm text-gray-400 mb-1 flex items-center">
+                                    <span className="mr-2">📝</span>
+                                    Number
+                                  </div>
+                                  <div className="font-semibold text-white text-lg">{pop.number || '—'}</div>
+                                </div>
+                                
+                                <div className="bg-gray-700 p-4 rounded-lg border border-gray-600">
+                                  <div className="text-sm text-gray-400 mb-1 flex items-center">
                                     <span className="mr-2">💎</span>
-                                    Value
+                                    {item.purchase_price ? 'Your Purchase Price' : 'Estimated Value'}
                                   </div>
                                   <div className="font-semibold text-white text-lg">
-                                    {formatCurrency(pop.estimated_value || 0, currency)}
+                                    {item.purchase_price ? formatCurrency(item.purchase_price, currency) : formatCurrency(pop.estimated_value || 0, currency)}
                                   </div>
+                                  {item.purchase_price && (
+                                    <div className="text-xs text-blue-400 mt-1">
+                                      Market pricing updates within 5 working days
+                                    </div>
+                                  )}
+                                </div>
+                                
+                                <div className="bg-gray-700 p-4 rounded-lg border border-gray-600">
+                                  <div className="text-sm text-gray-400 mb-1 flex items-center">
+                                    <span className="mr-2">🎭</span>
+                                    Fandom
+                                  </div>
+                                  <div className="font-semibold text-white text-lg">{pop.fandom || '—'}</div>
                                 </div>
                                 
                                 <div className="bg-gray-700 p-4 rounded-lg border border-gray-600">
                                   <div className="text-sm text-gray-400 mb-1 flex items-center">
                                     <span className="mr-2">🎬</span>
-                                    Series
+                                    Genre
                                   </div>
-                                  <div className="font-semibold text-white text-lg">{pop.series || '—'}</div>
+                                  <div className="font-semibold text-white text-lg">{pop.genre || '—'}</div>
                                 </div>
                                 
                                 <div className="bg-gray-700 p-4 rounded-lg border border-gray-600">
                                   <div className="text-sm text-gray-400 mb-1 flex items-center">
-                                    <span className="mr-2">🏷️</span>
-                                    Condition
+                                    <span className="mr-2">📦</span>
+                                    Edition
                                   </div>
-                                  <div className="font-semibold text-white text-lg">{item.condition || 'Mint'}</div>
+                                  <div className="font-semibold text-white text-lg">{pop.edition || '—'}</div>
+                                </div>
+                                
+                                <div className="bg-gray-700 p-4 rounded-lg border border-gray-600">
+                                  <div className="text-sm text-gray-400 mb-1 flex items-center">
+                                    <span className="mr-2">📅</span>
+                                    Release Year
+                                  </div>
+                                  <div className="font-semibold text-white text-lg">{pop.created_at ? new Date(pop.created_at).getFullYear() : '—'}</div>
+                                </div>
+                                
+                                <div className="bg-gray-700 p-4 rounded-lg border border-gray-600">
+                                  <div className="text-sm text-gray-400 mb-1 flex items-center">
+                                    <span className="mr-2">🔒</span>
+                                    Vaulted
+                                  </div>
+                                  <div className="font-semibold text-white text-lg">{pop.is_vaulted ? 'Yes' : 'No'}</div>
+                                </div>
+                                
+                                <div className="bg-gray-700 p-4 rounded-lg border border-gray-600">
+                                  <div className="text-sm text-gray-400 mb-1 flex items-center">
+                                    <span className="mr-2">👤</span>
+                                    Owned
+                                  </div>
+                                  <div className="font-semibold text-white text-lg">{pop.owned ? 'Yes' : 'No'}</div>
+                                </div>
+                              </div>
+
+                              {/* Product Details Section */}
+                              <div className="bg-gray-800 border border-gray-600 rounded-lg p-6 mb-6">
+                                <h3 className="text-lg font-semibold text-white mb-4">Product Details</h3>
+                                <div className="grid grid-cols-1 md:grid-cols-2 gap-4 text-sm">
+                                  <div>
+                                    <span className="text-gray-400">UPC:</span>
+                                    <span className="text-white ml-2">{pop.upc || '—'}</span>
+                                  </div>
+                                  <div>
+                                    <span className="text-gray-400">UPC-A:</span>
+                                    <span className="text-white ml-2">{pop.upc_a || '—'}</span>
+                                  </div>
+                                  <div>
+                                    <span className="text-gray-400">EAN-13:</span>
+                                    <span className="text-white ml-2">{pop.ean13 || '—'}</span>
+                                  </div>
+                                  <div>
+                                    <span className="text-gray-400">Brand:</span>
+                                    <span className="text-white ml-2">{pop.brand || 'Funko'}</span>
+                                  </div>
+                                  <div>
+                                    <span className="text-gray-400">Color:</span>
+                                    <span className="text-white ml-2">{pop.color || '—'}</span>
+                                  </div>
+                                  <div>
+                                    <span className="text-gray-400">Dimensions:</span>
+                                    <span className="text-white ml-2">{pop.dimensions || '6.25 in'}</span>
+                                  </div>
+                                </div>
+                              </div>
+
+                              {/* Additional Details Section */}
+                              <div className="bg-gray-800 border border-gray-600 rounded-lg p-6 mb-6">
+                                <h3 className="text-lg font-semibold text-white mb-4">Additional Details</h3>
+                                <div className="grid grid-cols-1 md:grid-cols-2 gap-4 text-sm">
+                                  <div>
+                                    <span className="text-gray-400">Variant:</span>
+                                    <span className="text-white ml-2">{pop.is_exclusive ? 'Exclusive' : pop.is_chase ? 'Chase' : 'Standard'}</span>
+                                  </div>
+                                  <div>
+                                    <span className="text-gray-400">Exclusive to:</span>
+                                    <span className="text-white ml-2">{pop.is_exclusive ? 'Yes' : '—'}</span>
+                                  </div>
+                                  {pop.description && (
+                                    <div className="col-span-1 md:col-span-2">
+                                      <span className="text-gray-400">Description:</span>
+                                      <p className="text-white mt-1">{pop.description}</p>
+                                    </div>
+                                  )}
+                                  {item.personal_notes && (
+                                    <div className="col-span-1 md:col-span-2">
+                                      <span className="text-gray-400">Your Notes:</span>
+                                      <p className="text-white mt-1">{item.personal_notes}</p>
+                                    </div>
+                                  )}
                                 </div>
                               </div>
 
@@ -1056,7 +1168,24 @@ const Dashboard = () => {
 
                             {/* Right Side - Details */}
                             <div className="flex-1 min-w-0">
+                              {/* Basic Info Grid */}
                               <div className="grid grid-cols-2 md:grid-cols-3 gap-4 mb-6">
+                                <div className="bg-gray-700 p-4 rounded-lg border border-gray-600">
+                                  <div className="text-sm text-gray-400 mb-1 flex items-center">
+                                    <span className="mr-2">🏷️</span>
+                                    Category
+                                  </div>
+                                  <div className="font-semibold text-white text-lg">{pop.category || 'Pop!'}</div>
+                                </div>
+                                
+                                <div className="bg-gray-700 p-4 rounded-lg border border-gray-600">
+                                  <div className="text-sm text-gray-400 mb-1 flex items-center">
+                                    <span className="mr-2">📝</span>
+                                    Number
+                                  </div>
+                                  <div className="font-semibold text-white text-lg">{pop.number || '—'}</div>
+                                </div>
+                                
                                 <div className="bg-gray-700 p-4 rounded-lg border border-gray-600">
                                   <div className="text-sm text-gray-400 mb-1 flex items-center">
                                     <span className="mr-2">💎</span>
@@ -1074,18 +1203,108 @@ const Dashboard = () => {
                                 
                                 <div className="bg-gray-700 p-4 rounded-lg border border-gray-600">
                                   <div className="text-sm text-gray-400 mb-1 flex items-center">
-                                    <span className="mr-2">🎬</span>
-                                    Series
+                                    <span className="mr-2">🎭</span>
+                                    Fandom
                                   </div>
-                                  <div className="font-semibold text-white text-lg">{pop.series || '—'}</div>
+                                  <div className="font-semibold text-white text-lg">{pop.fandom || '—'}</div>
                                 </div>
                                 
                                 <div className="bg-gray-700 p-4 rounded-lg border border-gray-600">
                                   <div className="text-sm text-gray-400 mb-1 flex items-center">
-                                    <span className="mr-2">🏷️</span>
-                                    Condition
+                                    <span className="mr-2">🎬</span>
+                                    Genre
                                   </div>
-                                  <div className="font-semibold text-white text-lg">{item.condition || 'Mint'}</div>
+                                  <div className="font-semibold text-white text-lg">{pop.genre || '—'}</div>
+                                </div>
+                                
+                                <div className="bg-gray-700 p-4 rounded-lg border border-gray-600">
+                                  <div className="text-sm text-gray-400 mb-1 flex items-center">
+                                    <span className="mr-2">📦</span>
+                                    Edition
+                                  </div>
+                                  <div className="font-semibold text-white text-lg">{pop.edition || '—'}</div>
+                                </div>
+                                
+                                <div className="bg-gray-700 p-4 rounded-lg border border-gray-600">
+                                  <div className="text-sm text-gray-400 mb-1 flex items-center">
+                                    <span className="mr-2">📅</span>
+                                    Release Year
+                                  </div>
+                                  <div className="font-semibold text-white text-lg">{pop.created_at ? new Date(pop.created_at).getFullYear() : '—'}</div>
+                                </div>
+                                
+                                <div className="bg-gray-700 p-4 rounded-lg border border-gray-600">
+                                  <div className="text-sm text-gray-400 mb-1 flex items-center">
+                                    <span className="mr-2">🔒</span>
+                                    Vaulted
+                                  </div>
+                                  <div className="font-semibold text-white text-lg">{pop.is_vaulted ? 'Yes' : 'No'}</div>
+                                </div>
+                                
+                                <div className="bg-gray-700 p-4 rounded-lg border border-gray-600">
+                                  <div className="text-sm text-gray-400 mb-1 flex items-center">
+                                    <span className="mr-2">👤</span>
+                                    Owned
+                                  </div>
+                                  <div className="font-semibold text-white text-lg">{pop.owned ? 'Yes' : 'No'}</div>
+                                </div>
+                              </div>
+
+                              {/* Product Details Section */}
+                              <div className="bg-gray-800 border border-gray-600 rounded-lg p-6 mb-6">
+                                <h3 className="text-lg font-semibold text-white mb-4">Product Details</h3>
+                                <div className="grid grid-cols-1 md:grid-cols-2 gap-4 text-sm">
+                                  <div>
+                                    <span className="text-gray-400">UPC:</span>
+                                    <span className="text-white ml-2">{pop.upc || '—'}</span>
+                                  </div>
+                                  <div>
+                                    <span className="text-gray-400">UPC-A:</span>
+                                    <span className="text-white ml-2">{pop.upc_a || '—'}</span>
+                                  </div>
+                                  <div>
+                                    <span className="text-gray-400">EAN-13:</span>
+                                    <span className="text-white ml-2">{pop.ean13 || '—'}</span>
+                                  </div>
+                                  <div>
+                                    <span className="text-gray-400">Brand:</span>
+                                    <span className="text-white ml-2">{pop.brand || 'Funko'}</span>
+                                  </div>
+                                  <div>
+                                    <span className="text-gray-400">Color:</span>
+                                    <span className="text-white ml-2">{pop.color || '—'}</span>
+                                  </div>
+                                  <div>
+                                    <span className="text-gray-400">Dimensions:</span>
+                                    <span className="text-white ml-2">{pop.dimensions || '6.25 in'}</span>
+                                  </div>
+                                </div>
+                              </div>
+
+                              {/* Additional Details Section */}
+                              <div className="bg-gray-800 border border-gray-600 rounded-lg p-6 mb-6">
+                                <h3 className="text-lg font-semibold text-white mb-4">Additional Details</h3>
+                                <div className="grid grid-cols-1 md:grid-cols-2 gap-4 text-sm">
+                                  <div>
+                                    <span className="text-gray-400">Variant:</span>
+                                    <span className="text-white ml-2">{pop.is_exclusive ? 'Exclusive' : pop.is_chase ? 'Chase' : 'Standard'}</span>
+                                  </div>
+                                  <div>
+                                    <span className="text-gray-400">Exclusive to:</span>
+                                    <span className="text-white ml-2">{pop.is_exclusive ? 'Yes' : '—'}</span>
+                                  </div>
+                                  {pop.description && (
+                                    <div className="col-span-1 md:col-span-2">
+                                      <span className="text-gray-400">Description:</span>
+                                      <p className="text-white mt-1">{pop.description}</p>
+                                    </div>
+                                  )}
+                                  {item.personal_notes && (
+                                    <div className="col-span-1 md:col-span-2">
+                                      <span className="text-gray-400">Your Notes:</span>
+                                      <p className="text-white mt-1">{item.personal_notes}</p>
+                                    </div>
+                                  )}
                                 </div>
                               </div>
 
@@ -1622,23 +1841,77 @@ const Dashboard = () => {
 
                               {/* Right Side - Details */}
                               <div className="flex-1 min-w-0">
+                                {/* Basic Info Grid */}
                                 <div className="grid grid-cols-2 md:grid-cols-3 gap-4 mb-6">
                                   <div className="bg-gray-700 p-4 rounded-lg border border-gray-600">
                                     <div className="text-sm text-gray-400 mb-1 flex items-center">
+                                      <span className="mr-2">🏷️</span>
+                                      Category
+                                    </div>
+                                    <div className="font-semibold text-white text-lg">{pop.category || 'Pop!'}</div>
+                                  </div>
+                                  
+                                  <div className="bg-gray-700 p-4 rounded-lg border border-gray-600">
+                                    <div className="text-sm text-gray-400 mb-1 flex items-center">
+                                      <span className="mr-2">📝</span>
+                                      Number
+                                    </div>
+                                    <div className="font-semibold text-white text-lg">{pop.number || '—'}</div>
+                                  </div>
+                                  
+                                  <div className="bg-gray-700 p-4 rounded-lg border border-gray-600">
+                                    <div className="text-sm text-gray-400 mb-1 flex items-center">
                                       <span className="mr-2">💎</span>
-                                      Value
+                                      {item.purchase_price ? 'Your Purchase Price' : 'Estimated Value'}
                                     </div>
                                     <div className="font-semibold text-white text-lg">
-                                      {formatCurrency(pop.estimated_value || 0, currency)}
+                                      {item.purchase_price ? formatCurrency(item.purchase_price, currency) : formatCurrency(pop.estimated_value || 0, currency)}
                                     </div>
+                                    {item.purchase_price && (
+                                      <div className="text-xs text-blue-400 mt-1">
+                                        Market pricing updates within 5 working days
+                                      </div>
+                                    )}
+                                  </div>
+                                  
+                                  <div className="bg-gray-700 p-4 rounded-lg border border-gray-600">
+                                    <div className="text-sm text-gray-400 mb-1 flex items-center">
+                                      <span className="mr-2">🎭</span>
+                                      Fandom
+                                    </div>
+                                    <div className="font-semibold text-white text-lg">{pop.fandom || '—'}</div>
                                   </div>
                                   
                                   <div className="bg-gray-700 p-4 rounded-lg border border-gray-600">
                                     <div className="text-sm text-gray-400 mb-1 flex items-center">
                                       <span className="mr-2">🎬</span>
-                                      Series
+                                      Genre
                                     </div>
-                                    <div className="font-semibold text-white text-lg">{pop.series || '—'}</div>
+                                    <div className="font-semibold text-white text-lg">{pop.genre || '—'}</div>
+                                  </div>
+                                  
+                                  <div className="bg-gray-700 p-4 rounded-lg border border-gray-600">
+                                    <div className="text-sm text-gray-400 mb-1 flex items-center">
+                                      <span className="mr-2">📦</span>
+                                      Edition
+                                    </div>
+                                    <div className="font-semibold text-white text-lg">{pop.edition || '—'}</div>
+                                  </div>
+                                  
+                                  <div className="bg-gray-700 p-4 rounded-lg border border-gray-600">
+                                    <div className="text-sm text-gray-400 mb-1 flex items-center">
+                                      <span className="mr-2">📅</span>
+                                      Release Year
+                                    </div>
+                                    <div className="font-semibold text-white text-lg">{pop.created_at ? new Date(pop.created_at).getFullYear() : '—'}</div>
+                                  </div>
+                                  
+                                  <div className="bg-gray-700 p-4 rounded-lg border border-gray-600">
+                                    <div className="text-sm text-gray-400 mb-1 flex items-center">
+                                      <span className="mr-2">🔒</span>
+                                      Vaulted
+                                    </div>
+                                    <div className="font-semibold text-white text-lg">{pop.is_vaulted ? 'Yes' : 'No'}</div>
                                   </div>
                                   
                                   <div className="bg-gray-700 p-4 rounded-lg border border-gray-600">
@@ -1647,6 +1920,64 @@ const Dashboard = () => {
                                       Source
                                     </div>
                                     <div className="font-semibold text-green-300 text-lg">New Release</div>
+                                  </div>
+                                </div>
+
+                                {/* Product Details Section */}
+                                <div className="bg-gray-800 border border-gray-600 rounded-lg p-6 mb-6">
+                                  <h3 className="text-lg font-semibold text-white mb-4">Product Details</h3>
+                                  <div className="grid grid-cols-1 md:grid-cols-2 gap-4 text-sm">
+                                    <div>
+                                      <span className="text-gray-400">UPC:</span>
+                                      <span className="text-white ml-2">{pop.upc || '—'}</span>
+                                    </div>
+                                    <div>
+                                      <span className="text-gray-400">UPC-A:</span>
+                                      <span className="text-white ml-2">{pop.upc_a || '—'}</span>
+                                    </div>
+                                    <div>
+                                      <span className="text-gray-400">EAN-13:</span>
+                                      <span className="text-white ml-2">{pop.ean13 || '—'}</span>
+                                    </div>
+                                    <div>
+                                      <span className="text-gray-400">Brand:</span>
+                                      <span className="text-white ml-2">{pop.brand || 'Funko'}</span>
+                                    </div>
+                                    <div>
+                                      <span className="text-gray-400">Color:</span>
+                                      <span className="text-white ml-2">{pop.color || '—'}</span>
+                                    </div>
+                                    <div>
+                                      <span className="text-gray-400">Dimensions:</span>
+                                      <span className="text-white ml-2">{pop.dimensions || '6.25 in'}</span>
+                                    </div>
+                                  </div>
+                                </div>
+
+                                {/* Additional Details Section */}
+                                <div className="bg-gray-800 border border-gray-600 rounded-lg p-6 mb-6">
+                                  <h3 className="text-lg font-semibold text-white mb-4">Additional Details</h3>
+                                  <div className="grid grid-cols-1 md:grid-cols-2 gap-4 text-sm">
+                                    <div>
+                                      <span className="text-gray-400">Variant:</span>
+                                      <span className="text-white ml-2">{pop.is_exclusive ? 'Exclusive' : pop.is_chase ? 'Chase' : 'Standard'}</span>
+                                    </div>
+                                    <div>
+                                      <span className="text-gray-400">Exclusive to:</span>
+                                      <span className="text-white ml-2">{pop.is_exclusive ? 'Yes' : '—'}</span>
+                                    </div>
+                                    {pop.description && (
+                                      <div className="col-span-1 md:col-span-2">
+                                        <span className="text-gray-400">Description:</span>
+                                        <p className="text-white mt-1">{pop.description}</p>
+                                      </div>
+                                    )}
+                                    {item.personal_notes && (
+                                      <div className="col-span-1 md:col-span-2">
+                                        <span className="text-gray-400">Your Notes:</span>
+                                        <p className="text-white mt-1">{item.personal_notes}</p>
+                                      </div>
+                                    )}
                                   </div>
                                 </div>
 

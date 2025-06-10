@@ -6,7 +6,7 @@ import { Label } from '@/components/ui/label';
 import { Badge } from '@/components/ui/badge';
 import { CreditCard, Bitcoin } from 'lucide-react';
 import { useAuth } from '@/hooks/useAuth';
-import { useWelcomeEmail } from '@/hooks/useWelcomeEmail';
+import { sendWelcomeEmailOnSignup } from '@/hooks/useWelcomeEmail';
 import { useToast } from '@/hooks/use-toast';
 import { useNavigate, Link, useLocation } from 'react-router-dom';
 import { supabase } from '@/integrations/supabase/client';
@@ -36,8 +36,7 @@ const Auth = () => {
   const [confirmed, setConfirmed] = useState(false);
   const [plan, setPlan] = useState<'pro' | 'free' | null>(null);
 
-  // Initialize welcome email hook
-  useWelcomeEmail();
+  // Welcome email will be sent explicitly on signup only
 
   // Detect plan from query string
   useEffect(() => {
@@ -84,6 +83,10 @@ const Auth = () => {
       let result;
       if (isSignUp) {
         result = await signUp(email, password, fullName);
+        // Only send welcome email on actual signup
+        if (result && !result.error) {
+          await sendWelcomeEmailOnSignup(email, fullName);
+        }
       } else {
         // Handle sign in based on selected method
         if (useMagicLink) {
