@@ -436,6 +436,17 @@ const PublicPopView = () => {
                       {isWishlisted ? 'Remove from Wishlist' : 'Add to Wishlist'}
                     </Button>
 
+                    <Button 
+                      asChild
+                      variant="outline"
+                      className="border-green-600 text-green-600 hover:bg-green-50 hover:bg-gray-700"
+                    >
+                      <Link to={`/where-to-buy/${pop.id}`}>
+                        <Package className="w-4 h-4 mr-2" />
+                        Where to Buy
+                      </Link>
+                    </Button>
+
                     <Dialog open={shareDialogOpen} onOpenChange={setShareDialogOpen}>
                       <DialogTrigger asChild>
                         <Button variant="outline" className="border-blue-600 text-blue-600 hover:bg-gray-700">

@@ -1,600 +1,540 @@
-import { useEffect, useState } from 'react';
-import { useAuth } from '@/hooks/useAuth';
-import { useNavigate } from 'react-router-dom';
-import { supabase } from '@/integrations/supabase/client';
-import Navigation from '@/components/Navigation';
-import MobileBottomNav from '@/components/MobileBottomNav';
-import Footer from '@/components/Footer';
+import { useState, useEffect } from 'react';
+import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
-import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
-import { useToast } from '@/hooks/use-toast';
+import { Label } from '@/components/ui/label';
+import { Textarea } from '@/components/ui/textarea';
+import { Badge } from '@/components/ui/badge';
+import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
+import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger } from '@/components/ui/dialog';
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { 
-  Store, 
-  Package, 
-  Star, 
-  TrendingUp, 
-  Users, 
-  Camera, 
   Plus, 
   Edit, 
-  Trash2,
-  Save,
-  BarChart3,
+  Trash2, 
+  Eye, 
+  Package, 
+  DollarSign, 
   MessageSquare,
-  MapPin,
-  Globe,
-  DollarSign
+  Star,
+  TrendingUp,
+  Store,
+  Settings,
+  Upload,
+  Search
 } from 'lucide-react';
-
-interface InventoryItem {
-  id: string;
-  funko_pop_id: string;
-  stock_quantity: number;
-  price: number;
-  condition: string;
-  funko_pops?: {
-    name: string;
-    image_url: string;
-    series: string;
-    number: string;
-  };
-}
-
-interface Review {
-  id: string;
-  reviewer_id: string;
-  rating: number;
-  review_text: string;
-  created_at: string;
-  reviewer_name: string;
-}
+import { RetailerService } from '@/services/retailerService';
+import { useAuth } from '@/hooks/useAuth';
+import { useToast } from '@/hooks/use-toast';
+import type { Retailer, RetailerListing, CreateListingData } from '@/types/retailer';
 
 const RetailerDashboard = () => {
   const { user } = useAuth();
-  const navigate = useNavigate();
   const { toast } = useToast();
-  
-  const [retailerProfile, setRetailerProfile] = useState<any>(null);
+  const [retailer, setRetailer] = useState<Retailer | null>(null);
+  const [listings, setListings] = useState<RetailerListing[]>([]);
+  const [stats, setStats] = useState<any>(null);
   const [loading, setLoading] = useState(true);
-  const [inventory, setInventory] = useState<InventoryItem[]>([]);
-  const [reviews, setReviews] = useState<Review[]>([]);
+  const [isCreateListingOpen, setIsCreateListingOpen] = useState(false);
+  const [selectedListing, setSelectedListing] = useState<RetailerListing | null>(null);
   const [activeTab, setActiveTab] = useState('overview');
-  const [editingItem, setEditingItem] = useState<string | null>(null);
 
-  // Check if user is a retailer
+  // Form states
+  const [searchQuery, setSearchQuery] = useState('');
+  const [newListing, setNewListing] = useState<Partial<CreateListingData>>({
+    funko_pop_id: '',
+    price: 0,
+    condition: 'Mint',
+    quantity_available: 1,
+    description: '',
+    how_to_buy: '',
+    shipping_info: '',
+    is_in_store_only: false,
+    is_negotiable: false
+  });
+
   useEffect(() => {
-    if (!user) {
-      navigate('/auth');
+    if (user) {
+      loadRetailerData();
+    }
+  }, [user]);
+
+  const loadRetailerData = async () => {
+    try {
+      setLoading(true);
+      const retailerData = await RetailerService.getRetailerByUserId(user!.id);
+      
+      if (!retailerData) {
+        // Redirect to become retailer page
+        window.location.href = '/become-retailer';
+        return;
+      }
+      
+      setRetailer(retailerData);
+      
+      // Load listings and stats
+      const [listingsData, statsData] = await Promise.all([
+        RetailerService.getRetailerListings(retailerData.id),
+        RetailerService.getRetailerStats(retailerData.id)
+      ]);
+      
+      setListings(listingsData);
+      setStats(statsData);
+    } catch (error) {
+      console.error('Error loading retailer data:', error);
+      toast({
+        title: "Error",
+        description: "Failed to load retailer data",
+        variant: "destructive",
+      });
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  const handleCreateListing = async () => {
+    if (!retailer || !newListing.funko_pop_id || !newListing.price) {
+      toast({
+        title: "Error",
+        description: "Please fill in all required fields",
+        variant: "destructive",
+      });
       return;
     }
 
-    const checkRetailerStatus = async () => {
-      try {
-        const { data } = await supabase.auth.getSession();
-        const token = data?.session?.access_token;
-        
-        const res = await fetch(`https://db.popguide.co.uk/functions/v1/retailer-manager?action=get`, {
-          method: 'GET',
-          headers: {
-            'Authorization': `Bearer ${token}`,
-            'Content-Type': 'application/json'
-          },
-        });
-        
-        if (res.ok) {
-          const data = await res.json();
-          if (!data.has_profile) {
-            toast({
-              title: "Access Denied",
-              description: "You need a retailer profile to access this dashboard.",
-              variant: "destructive",
-            });
-            navigate('/profile-settings?tab=subscription');
-            return;
-          }
-          setRetailerProfile(data.retailer_profile);
-          await fetchInventory();
-          await fetchReviews();
-        } else {
-          navigate('/profile-settings?tab=subscription');
-        }
-      } catch (error) {
-        console.error('Error checking retailer status:', error);
-        navigate('/profile-settings?tab=subscription');
-      } finally {
-        setLoading(false);
-      }
-    };
-
-    checkRetailerStatus();
-  }, [user]);
-
-  const fetchInventory = async () => {
     try {
-      const { data } = await supabase.auth.getSession();
-      const token = data?.session?.access_token;
+      const listingData: CreateListingData = {
+        retailer_id: retailer.id,
+        ...newListing as CreateListingData
+      };
       
-      const res = await fetch(`https://db.popguide.co.uk/functions/v1/retailer-manager?action=get_inventory`, {
-        method: 'GET',
-        headers: {
-          'Authorization': `Bearer ${token}`,
-          'Content-Type': 'application/json'
-        },
+      await RetailerService.createListing(listingData);
+      
+      toast({
+        title: "Success",
+        description: "Listing created successfully",
       });
       
-      if (res.ok) {
-        const data = await res.json();
-        setInventory(data.inventory || []);
-      }
-    } catch (error) {
-      console.error('Error fetching inventory:', error);
-    }
-  };
-
-  const fetchReviews = async () => {
-    try {
-      const { data } = await supabase.auth.getSession();
-      const token = data?.session?.access_token;
-      
-      const res = await fetch(`https://db.popguide.co.uk/functions/v1/retailer-manager?action=get_reviews`, {
-        method: 'GET',
-        headers: {
-          'Authorization': `Bearer ${token}`,
-          'Content-Type': 'application/json'
-        },
+      setIsCreateListingOpen(false);
+      setNewListing({
+        funko_pop_id: '',
+        price: 0,
+        condition: 'Mint',
+        quantity_available: 1,
+        description: '',
+        how_to_buy: '',
+        shipping_info: '',
+        is_in_store_only: false,
+        is_negotiable: false
       });
       
-      if (res.ok) {
-        const data = await res.json();
-        setReviews(data.reviews || []);
-      }
+      loadRetailerData();
     } catch (error) {
-      console.error('Error fetching reviews:', error);
-    }
-  };
-
-  const handleUpdateInventory = async (itemId: string, updates: Partial<InventoryItem>) => {
-    try {
-      const { data } = await supabase.auth.getSession();
-      const token = data?.session?.access_token;
-      
-      const res = await fetch(`https://db.popguide.co.uk/functions/v1/retailer-manager?action=update_inventory`, {
-        method: 'POST',
-        headers: {
-          'Authorization': `Bearer ${token}`,
-          'Content-Type': 'application/json'
-        },
-        body: JSON.stringify({ item_id: itemId, updates })
-      });
-      
-      if (res.ok) {
-        await fetchInventory();
-        setEditingItem(null);
-        toast({
-          title: "Updated! ✅",
-          description: "Inventory item updated successfully",
-        });
-      } else {
-        throw new Error('Failed to update inventory');
-      }
-    } catch (error) {
-      console.error('Error updating inventory:', error);
+      console.error('Error creating listing:', error);
       toast({
         title: "Error",
-        description: "Failed to update inventory item",
+        description: "Failed to create listing",
         variant: "destructive",
       });
     }
   };
 
-  const calculateAnalytics = () => {
-    const totalItems = inventory.reduce((sum, item) => sum + item.stock_quantity, 0);
-    const totalValue = inventory.reduce((sum, item) => sum + (item.price * item.stock_quantity), 0);
-    const avgRating = reviews.length > 0 
-      ? reviews.reduce((sum, review) => sum + review.rating, 0) / reviews.length 
-      : 0;
-    
-    return {
-      totalItems,
-      totalValue,
-      avgRating,
-      totalReviews: reviews.length
-    };
+  const handleDeleteListing = async (listingId: string) => {
+    if (!confirm('Are you sure you want to delete this listing?')) return;
+
+    try {
+      await RetailerService.deleteListing(listingId);
+      toast({
+        title: "Success",
+        description: "Listing deleted successfully",
+      });
+      loadRetailerData();
+    } catch (error) {
+      console.error('Error deleting listing:', error);
+      toast({
+        title: "Error",
+        description: "Failed to delete listing",
+        variant: "destructive",
+      });
+    }
   };
+
+  const handleUpdateListingStatus = async (listingId: string, status: 'active' | 'sold' | 'inactive') => {
+    try {
+      await RetailerService.updateListing(listingId, { status });
+      toast({
+        title: "Success",
+        description: "Listing status updated",
+      });
+      loadRetailerData();
+    } catch (error) {
+      console.error('Error updating listing:', error);
+      toast({
+        title: "Error",
+        description: "Failed to update listing",
+        variant: "destructive",
+      });
+    }
+  };
+
+  const formatPrice = (price: number) => {
+    return new Intl.NumberFormat('en-GB', {
+      style: 'currency',
+      currency: 'GBP'
+    }).format(price);
+  };
+
+  const getStatusColor = (status: string) => {
+    switch (status) {
+      case 'active':
+        return 'bg-green-500';
+      case 'sold':
+        return 'bg-blue-500';
+      case 'inactive':
+        return 'bg-gray-500';
+      default:
+        return 'bg-gray-500';
+    }
+  };
+
+  const filteredListings = listings.filter(listing =>
+    listing.funko_pop_id.toLowerCase().includes(searchQuery.toLowerCase()) ||
+    listing.description?.toLowerCase().includes(searchQuery.toLowerCase())
+  );
 
   if (loading) {
     return (
-      <div className="min-h-screen bg-gradient-to-br from-gray-900 via-gray-800 to-black">
-        <Navigation />
-        <div className="flex items-center justify-center min-h-[60vh]">
-          <div className="text-white text-xl">Loading dashboard...</div>
+      <div className="min-h-screen bg-gray-900 text-white">
+        <div className="container mx-auto px-4 py-8 max-w-6xl">
+          <div className="animate-pulse space-y-6">
+            <div className="h-8 bg-gray-700 rounded w-1/3"></div>
+            <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
+              {[1, 2, 3].map((i) => (
+                <div key={i} className="h-32 bg-gray-700 rounded-lg"></div>
+              ))}
+            </div>
+          </div>
         </div>
       </div>
     );
   }
 
-  const analytics = calculateAnalytics();
-
   return (
-    <div className="min-h-screen bg-gradient-to-br from-gray-900 via-gray-800 to-black">
-      <Navigation />
-      
-      {/* Header */}
-      <div className="px-6 py-8">
-        <div className="max-w-7xl mx-auto">
-          <div className="flex items-center justify-between mb-8">
-            <div>
-              <h1 className="text-4xl font-bold text-white mb-2">🏪 Retailer Dashboard</h1>
-              <p className="text-gray-400">
-                {retailerProfile?.business_name} • {retailerProfile?.retailer_tier} Plan
-              </p>
+    <div className="min-h-screen bg-gray-900 text-white">
+      <div className="container mx-auto px-4 py-8 max-w-6xl">
+        {/* Header */}
+        <div className="flex items-center justify-between mb-8">
+          <div>
+            <h1 className="text-3xl font-bold text-white mb-2">
+              {retailer?.business_name} Dashboard
+            </h1>
+            <div className="flex items-center gap-4">
+              <Badge 
+                variant={retailer?.status === 'approved' ? 'default' : 'secondary'}
+                className={retailer?.status === 'approved' ? 'bg-green-500' : 'bg-yellow-500'}
+              >
+                {retailer?.status === 'approved' ? 'Approved' : 'Pending Approval'}
+              </Badge>
+              <div className="flex items-center text-gray-400">
+                <Star className="w-4 h-4 mr-1 text-yellow-400 fill-current" />
+                <span>{retailer?.rating.toFixed(1)} ({retailer?.total_reviews} reviews)</span>
+              </div>
             </div>
-            <Button
-              onClick={() => navigate('/retailers')}
-              className="bg-purple-500 hover:bg-purple-600 text-white"
-            >
-              <Globe className="w-4 h-4 mr-2" />
-              View Public Profile
+          </div>
+          
+          <div className="flex gap-3">
+            <Button asChild variant="outline">
+              <a href={`/retailer/${retailer?.id}`} target="_blank">
+                <Eye className="w-4 h-4 mr-2" />
+                View Public Profile
+              </a>
+            </Button>
+            <Button variant="outline">
+              <Settings className="w-4 h-4 mr-2" />
+              Settings
             </Button>
           </div>
+        </div>
 
-          {/* Stats Overview */}
-          <div className="grid grid-cols-1 md:grid-cols-4 gap-6 mb-8">
-            <Card className="bg-gray-800/30 border-gray-700">
-              <CardContent className="p-6">
-                <div className="flex items-center justify-between">
-                  <div>
-                    <p className="text-gray-400 text-sm">Total Inventory</p>
-                    <p className="text-2xl font-bold text-white">{analytics.totalItems}</p>
+        <Tabs value={activeTab} onValueChange={setActiveTab}>
+          <TabsList className="grid w-full grid-cols-4 bg-gray-800">
+            <TabsTrigger value="overview">Overview</TabsTrigger>
+            <TabsTrigger value="listings">Listings</TabsTrigger>
+            <TabsTrigger value="messages">Messages</TabsTrigger>
+            <TabsTrigger value="analytics">Analytics</TabsTrigger>
+          </TabsList>
+
+          {/* Overview Tab */}
+          <TabsContent value="overview" className="space-y-6">
+            {/* Stats Cards */}
+            <div className="grid grid-cols-1 md:grid-cols-4 gap-6">
+              <Card className="bg-gray-800 border-gray-700">
+                <CardContent className="p-6">
+                  <div className="flex items-center justify-between">
+                    <div>
+                      <p className="text-gray-400 text-sm">Total Listings</p>
+                      <p className="text-2xl font-bold text-white">{stats?.totalListings || 0}</p>
+                    </div>
+                    <Package className="w-8 h-8 text-orange-400" />
                   </div>
-                  <Package className="w-8 h-8 text-blue-400" />
-                </div>
-              </CardContent>
-            </Card>
+                </CardContent>
+              </Card>
 
-            <Card className="bg-gray-800/30 border-gray-700">
-              <CardContent className="p-6">
-                <div className="flex items-center justify-between">
-                  <div>
-                    <p className="text-gray-400 text-sm">Inventory Value</p>
-                    <p className="text-2xl font-bold text-white">${analytics.totalValue.toFixed(0)}</p>
+              <Card className="bg-gray-800 border-gray-700">
+                <CardContent className="p-6">
+                  <div className="flex items-center justify-between">
+                    <div>
+                      <p className="text-gray-400 text-sm">Active Listings</p>
+                      <p className="text-2xl font-bold text-white">{stats?.activeListings || 0}</p>
+                    </div>
+                    <Store className="w-8 h-8 text-green-400" />
                   </div>
-                  <DollarSign className="w-8 h-8 text-green-400" />
-                </div>
-              </CardContent>
-            </Card>
+                </CardContent>
+              </Card>
 
-            <Card className="bg-gray-800/30 border-gray-700">
-              <CardContent className="p-6">
-                <div className="flex items-center justify-between">
-                  <div>
-                    <p className="text-gray-400 text-sm">Average Rating</p>
-                    <p className="text-2xl font-bold text-white">{analytics.avgRating.toFixed(1)}</p>
+              <Card className="bg-gray-800 border-gray-700">
+                <CardContent className="p-6">
+                  <div className="flex items-center justify-between">
+                    <div>
+                      <p className="text-gray-400 text-sm">Average Price</p>
+                      <p className="text-2xl font-bold text-white">
+                        {formatPrice(stats?.averagePrice || 0)}
+                      </p>
+                    </div>
+                    <DollarSign className="w-8 h-8 text-blue-400" />
+                  </div>
+                </CardContent>
+              </Card>
+
+              <Card className="bg-gray-800 border-gray-700">
+                <CardContent className="p-6">
+                  <div className="flex items-center justify-between">
+                    <div>
+                      <p className="text-gray-400 text-sm">Messages</p>
+                      <p className="text-2xl font-bold text-white">{stats?.totalContacts || 0}</p>
+                    </div>
+                    <MessageSquare className="w-8 h-8 text-purple-400" />
+                  </div>
+                </CardContent>
+              </Card>
             </div>
-                  <Star className="w-8 h-8 text-yellow-400" />
-                        </div>
-                    </CardContent>
-                  </Card>
 
-            <Card className="bg-gray-800/30 border-gray-700">
-              <CardContent className="p-6">
-                <div className="flex items-center justify-between">
-                  <div>
-                    <p className="text-gray-400 text-sm">Total Reviews</p>
-                    <p className="text-2xl font-bold text-white">{analytics.totalReviews}</p>
-            </div>
-                  <MessageSquare className="w-8 h-8 text-purple-400" />
-                </div>
-              </CardContent>
-            </Card>
-          </div>
-
-          {/* Tab Navigation */}
-          <div className="flex gap-2 mb-8 overflow-x-auto">
-            {[
-              { key: 'overview', label: 'Overview', icon: Store },
-              { key: 'inventory', label: 'Inventory', icon: Package },
-              { key: 'reviews', label: 'Reviews', icon: Star },
-              { key: 'analytics', label: 'Analytics', icon: BarChart3 },
-              { key: 'photos', label: 'Gallery', icon: Camera },
-            ].map(tab => {
-              const Icon = tab.icon;
-              return (
-                <Button
-                  key={tab.key}
-                  onClick={() => setActiveTab(tab.key)}
-                  variant={activeTab === tab.key ? "default" : "outline"}
-                  className={`flex items-center gap-2 ${
-                    activeTab === tab.key 
-                      ? 'bg-purple-500 hover:bg-purple-600 text-white' 
-                      : 'border-gray-600 text-gray-300 hover:bg-gray-700'
-                  }`}
-                >
-                  <Icon className="w-4 h-4" />
-                  {tab.label}
-                </Button>
-              );
-            })}
-          </div>
-
-          {/* Tab Content */}
-          <div className="space-y-6">
-            {/* Overview Tab */}
-            {activeTab === 'overview' && (
-              <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
-                <Card className="bg-gray-800/30 border-gray-700">
-                  <CardHeader>
-                    <CardTitle className="text-white">Business Profile</CardTitle>
-                  </CardHeader>
-                  <CardContent className="space-y-4">
-                    <div className="flex items-center gap-3">
-                      <Store className="w-5 h-5 text-purple-400" />
-                      <div>
-                        <p className="text-white font-medium">{retailerProfile?.business_name}</p>
-                        <p className="text-gray-400 text-sm">{retailerProfile?.business_type}</p>
-                      </div>
-                    </div>
-                    <div className="flex items-center gap-3">
-                      <MapPin className="w-5 h-5 text-purple-400" />
-                      <p className="text-gray-300">{retailerProfile?.city}, {retailerProfile?.country}</p>
-                    </div>
-                    <p className="text-gray-300">{retailerProfile?.description}</p>
-                    
-                    <div className="grid grid-cols-2 gap-4 pt-4">
-                      <div className="text-center p-3 bg-gray-700/50 rounded-lg">
-                        <div className="text-lg font-bold text-purple-400">
-                          {retailerProfile?.is_verified ? '✓' : '⏳'}
-                        </div>
-                        <div className="text-xs text-gray-400">Verified</div>
-                      </div>
-                      <div className="text-center p-3 bg-gray-700/50 rounded-lg">
-                        <div className="text-lg font-bold text-purple-400">
-                          {retailerProfile?.is_featured ? '⭐' : '📍'}
-                        </div>
-                        <div className="text-xs text-gray-400">
-                          {retailerProfile?.is_featured ? 'Featured' : 'Listed'}
-                        </div>
-                      </div>
-                    </div>
-                  </CardContent>
-                </Card>
-
-                <Card className="bg-gray-800/30 border-gray-700">
+            {/* Recent Activity */}
+            <Card className="bg-gray-800 border-gray-700">
               <CardHeader>
-                    <CardTitle className="text-white">Recent Activity</CardTitle>
+                <CardTitle className="text-white">Recent Listings</CardTitle>
               </CardHeader>
               <CardContent>
-                    <div className="space-y-3">
-                      <div className="flex items-center gap-3 p-2 bg-gray-700/50 rounded">
-                        <div className="w-2 h-2 bg-green-400 rounded-full"></div>
-                        <span className="text-gray-300 text-sm">Profile created</span>
+                <div className="space-y-4">
+                  {listings.slice(0, 5).map((listing) => (
+                    <div key={listing.id} className="flex items-center justify-between p-4 bg-gray-700 rounded-lg">
+                      <div>
+                        <p className="text-white font-medium">{listing.funko_pop_id}</p>
+                        <p className="text-gray-400 text-sm">{listing.condition} • {formatPrice(listing.price)}</p>
                       </div>
-                      {inventory.length > 0 && (
-                        <div className="flex items-center gap-3 p-2 bg-gray-700/50 rounded">
-                          <div className="w-2 h-2 bg-blue-400 rounded-full"></div>
-                          <span className="text-gray-300 text-sm">Added {inventory.length} inventory items</span>
-                        </div>
-                      )}
-                      {reviews.length > 0 && (
-                        <div className="flex items-center gap-3 p-2 bg-gray-700/50 rounded">
-                          <div className="w-2 h-2 bg-yellow-400 rounded-full"></div>
-                          <span className="text-gray-300 text-sm">Received {reviews.length} reviews</span>
-                        </div>
-                      )}
+                      <Badge className={getStatusColor(listing.status)}>
+                        {listing.status}
+                      </Badge>
                     </div>
-                  </CardContent>
-                </Card>
-              </div>
-            )}
-
-            {/* Inventory Tab */}
-            {activeTab === 'inventory' && (
-              <Card className="bg-gray-800/30 border-gray-700">
-                <CardHeader>
-                  <div className="flex items-center justify-between">
-                    <CardTitle className="text-white">Inventory Management</CardTitle>
-                    <Button className="bg-purple-500 hover:bg-purple-600 text-white">
-                      <Plus className="w-4 h-4 mr-2" />
-                      Add Item
-                    </Button>
-                  </div>
-                </CardHeader>
-                <CardContent>
-                  {inventory.length === 0 ? (
-                    <div className="text-center py-12">
-                      <Package className="w-16 h-16 text-gray-400 mx-auto mb-4" />
-                      <h3 className="text-xl font-semibold text-white mb-2">No Inventory Yet</h3>
-                      <p className="text-gray-400 mb-4">Start adding Funko Pops to your inventory</p>
-                      <Button className="bg-purple-500 hover:bg-purple-600 text-white">
-                        Add Your First Item
-                      </Button>
-                    </div>
-                  ) : (
-                    <div className="space-y-4">
-                      {inventory.map(item => (
-                        <div key={item.id} className="flex items-center gap-4 p-4 bg-gray-700/30 rounded-lg">
-                          <img
-                            src={item.funko_pops?.image_url || '/placeholder-funko.png'}
-                            alt={item.funko_pops?.name}
-                            className="w-16 h-16 object-contain rounded"
-                          />
-                        <div className="flex-1">
-                            <h4 className="text-white font-medium">{item.funko_pops?.name}</h4>
-                            <p className="text-gray-400 text-sm">
-                              {item.funko_pops?.series} #{item.funko_pops?.number}
-                            </p>
-                            <p className="text-gray-300 text-sm">Condition: {item.condition}</p>
-                          </div>
-                          
-                          {editingItem === item.id ? (
-                            <div className="flex items-center gap-2">
-                              <Input
-                                type="number"
-                                defaultValue={item.stock_quantity}
-                                className="w-20 bg-gray-700 border-gray-600 text-white"
-                                placeholder="Qty"
-                              />
-                              <Input
-                                type="number"
-                                defaultValue={item.price}
-                                className="w-24 bg-gray-700 border-gray-600 text-white"
-                                placeholder="Price"
-                              />
-                              <Button
-                                size="sm"
-                                onClick={() => handleUpdateInventory(item.id, { 
-                                  stock_quantity: 5, // TODO: Get from form
-                                  price: 15.99 // TODO: Get from form
-                                })}
-                                className="bg-green-500 hover:bg-green-600"
-                              >
-                                <Save className="w-4 h-4" />
-                              </Button>
-                            </div>
-                          ) : (
-                            <div className="flex items-center gap-4">
-                              <div className="text-right">
-                                <p className="text-white font-medium">Qty: {item.stock_quantity}</p>
-                                <p className="text-green-400">${item.price}</p>
-                              </div>
-                              <Button
-                                size="sm"
-                                variant="outline"
-                                onClick={() => setEditingItem(item.id)}
-                                className="border-gray-600 text-gray-300 hover:bg-gray-700"
-                              >
-                                <Edit className="w-4 h-4" />
-                              </Button>
-                            </div>
-                          )}
-                        </div>
-                      ))}
-                    </div>
-                  )}
-                </CardContent>
-              </Card>
-            )}
-
-            {/* Reviews Tab */}
-            {activeTab === 'reviews' && (
-              <Card className="bg-gray-800/30 border-gray-700">
-                <CardHeader>
-                  <CardTitle className="text-white">Customer Reviews</CardTitle>
-                </CardHeader>
-                <CardContent>
-                  {reviews.length === 0 ? (
-                    <div className="text-center py-12">
-                      <Star className="w-16 h-16 text-gray-400 mx-auto mb-4" />
-                      <h3 className="text-xl font-semibold text-white mb-2">No Reviews Yet</h3>
-                      <p className="text-gray-400">Reviews from customers will appear here</p>
-                    </div>
-                  ) : (
-                    <div className="space-y-4">
-                      {reviews.map(review => (
-                        <div key={review.id} className="p-4 bg-gray-700/30 rounded-lg">
-                          <div className="flex items-center justify-between mb-2">
-                            <div className="flex items-center gap-2">
-                              <div className="flex">
-                                {[...Array(5)].map((_, i) => (
-                                  <Star
-                                    key={i}
-                                    className={`w-4 h-4 ${
-                                      i < review.rating ? 'text-yellow-400 fill-current' : 'text-gray-600'
-                                    }`}
-                                  />
-                                ))}
-                              </div>
-                              <span className="text-white font-medium">{review.reviewer_name}</span>
-                            </div>
-                            <span className="text-gray-400 text-sm">
-                              {new Date(review.created_at).toLocaleDateString()}
-                            </span>
-                          </div>
-                          <p className="text-gray-300">{review.review_text}</p>
-                      </div>
-                    ))}
-                  </div>
-                )}
+                  ))}
+                </div>
               </CardContent>
             </Card>
-            )}
+          </TabsContent>
 
-            {/* Analytics Tab */}
-            {activeTab === 'analytics' && (
-              <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
-                <Card className="bg-gray-800/30 border-gray-700">
-                  <CardHeader>
-                    <CardTitle className="text-white">Performance Metrics</CardTitle>
-                  </CardHeader>
-                  <CardContent>
-                    <div className="space-y-4">
-                      <div className="flex justify-between items-center">
-                        <span className="text-gray-300">Total Inventory Items</span>
-                        <span className="text-white font-bold">{analytics.totalItems}</span>
-                      </div>
-                      <div className="flex justify-between items-center">
-                        <span className="text-gray-300">Inventory Value</span>
-                        <span className="text-white font-bold">${analytics.totalValue.toFixed(2)}</span>
-                      </div>
-                      <div className="flex justify-between items-center">
-                        <span className="text-gray-300">Customer Rating</span>
-                        <span className="text-white font-bold">{analytics.avgRating.toFixed(1)}/5</span>
-                      </div>
-                      <div className="flex justify-between items-center">
-                        <span className="text-gray-300">Total Reviews</span>
-                        <span className="text-white font-bold">{analytics.totalReviews}</span>
-                      </div>
-                    </div>
-                  </CardContent>
-                </Card>
-
-                <Card className="bg-gray-800/30 border-gray-700">
-                  <CardHeader>
-                    <CardTitle className="text-white">Growth Insights</CardTitle>
-                  </CardHeader>
-                  <CardContent>
-                    <div className="text-center py-8">
-                      <TrendingUp className="w-12 h-12 text-green-400 mx-auto mb-4" />
-                      <p className="text-gray-300">Analytics features coming soon for Premium & Enterprise retailers!</p>
-                    </div>
-                  </CardContent>
-                </Card>
+          {/* Listings Tab */}
+          <TabsContent value="listings" className="space-y-6">
+            {/* Listings Header */}
+            <div className="flex items-center justify-between">
+              <div className="flex items-center gap-4">
+                <div className="relative">
+                  <Search className="w-4 h-4 absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400" />
+                  <Input
+                    placeholder="Search listings..."
+                    value={searchQuery}
+                    onChange={(e) => setSearchQuery(e.target.value)}
+                    className="pl-10 bg-gray-800 border-gray-600 text-white"
+                  />
+                </div>
               </div>
-            )}
+              
+              <Dialog open={isCreateListingOpen} onOpenChange={setIsCreateListingOpen}>
+                <DialogTrigger asChild>
+                  <Button className="bg-orange-500 hover:bg-orange-600">
+                    <Plus className="w-4 h-4 mr-2" />
+                    Add Listing
+                  </Button>
+                </DialogTrigger>
+                <DialogContent className="bg-gray-800 border-gray-700 text-white max-w-2xl">
+                  <DialogHeader>
+                    <DialogTitle>Create New Listing</DialogTitle>
+                  </DialogHeader>
+                  <div className="space-y-4">
+                    <div>
+                      <Label htmlFor="funko_pop_id">Funko Pop ID</Label>
+                      <Input
+                        id="funko_pop_id"
+                        value={newListing.funko_pop_id}
+                        onChange={(e) => setNewListing({...newListing, funko_pop_id: e.target.value})}
+                        className="bg-gray-700 border-gray-600"
+                        placeholder="Enter Funko Pop ID"
+                      />
+                    </div>
+                    
+                    <div className="grid grid-cols-2 gap-4">
+                      <div>
+                        <Label htmlFor="price">Price (£)</Label>
+                        <Input
+                          id="price"
+                          type="number"
+                          step="0.01"
+                          value={newListing.price}
+                          onChange={(e) => setNewListing({...newListing, price: parseFloat(e.target.value)})}
+                          className="bg-gray-700 border-gray-600"
+                        />
+                      </div>
+                      <div>
+                        <Label htmlFor="condition">Condition</Label>
+                        <Select value={newListing.condition} onValueChange={(value) => setNewListing({...newListing, condition: value})}>
+                          <SelectTrigger className="bg-gray-700 border-gray-600">
+                            <SelectValue />
+                          </SelectTrigger>
+                          <SelectContent>
+                            <SelectItem value="Mint">Mint</SelectItem>
+                            <SelectItem value="Near Mint">Near Mint</SelectItem>
+                            <SelectItem value="Very Fine">Very Fine</SelectItem>
+                            <SelectItem value="Fine">Fine</SelectItem>
+                            <SelectItem value="Good">Good</SelectItem>
+                            <SelectItem value="Poor">Poor</SelectItem>
+                          </SelectContent>
+                        </Select>
+                      </div>
+                    </div>
+                    
+                    <div>
+                      <Label htmlFor="description">Description</Label>
+                      <Textarea
+                        id="description"
+                        value={newListing.description}
+                        onChange={(e) => setNewListing({...newListing, description: e.target.value})}
+                        className="bg-gray-700 border-gray-600"
+                        placeholder="Describe the condition and any special details..."
+                      />
+                    </div>
+                    
+                    <div>
+                      <Label htmlFor="how_to_buy">How to Buy</Label>
+                      <Textarea
+                        id="how_to_buy"
+                        value={newListing.how_to_buy}
+                        onChange={(e) => setNewListing({...newListing, how_to_buy: e.target.value})}
+                        className="bg-gray-700 border-gray-600"
+                        placeholder="Instructions for customers on how to purchase..."
+                      />
+                    </div>
+                    
+                    <div className="flex gap-4">
+                      <Button 
+                        variant="outline" 
+                        onClick={() => setIsCreateListingOpen(false)}
+                        className="flex-1"
+                      >
+                        Cancel
+                      </Button>
+                      <Button 
+                        onClick={handleCreateListing}
+                        className="flex-1 bg-orange-500 hover:bg-orange-600"
+                      >
+                        Create Listing
+                      </Button>
+                    </div>
+                  </div>
+                </DialogContent>
+              </Dialog>
+            </div>
 
-            {/* Photo Gallery Tab */}
-            {activeTab === 'photos' && (
-              <Card className="bg-gray-800/30 border-gray-700">
-                <CardHeader>
-                  <div className="flex items-center justify-between">
-                    <CardTitle className="text-white">Photo Gallery</CardTitle>
-                    <Button className="bg-purple-500 hover:bg-purple-600 text-white">
-                      <Camera className="w-4 h-4 mr-2" />
-                      Upload Photos
-                    </Button>
-                  </div>
-                </CardHeader>
-                <CardContent>
-                  <div className="text-center py-12">
-                    <Camera className="w-16 h-16 text-gray-400 mx-auto mb-4" />
-                    <h3 className="text-xl font-semibold text-white mb-2">No Photos Yet</h3>
-                    <p className="text-gray-400 mb-4">
-                      Upload photos of your store, events, and special collections
-                    </p>
-                    <Button className="bg-purple-500 hover:bg-purple-600 text-white">
-                      Upload Your First Photo
-                    </Button>
-                  </div>
-                </CardContent>
-              </Card>
-            )}
-          </div>
-        </div>
+            {/* Listings Grid */}
+            <div className="grid gap-4">
+              {filteredListings.map((listing) => (
+                <Card key={listing.id} className="bg-gray-800 border-gray-700">
+                  <CardContent className="p-6">
+                    <div className="flex items-center justify-between">
+                      <div className="flex-1">
+                        <div className="flex items-center gap-3 mb-2">
+                          <h3 className="text-lg font-semibold text-white">{listing.funko_pop_id}</h3>
+                          <Badge className={getStatusColor(listing.status)}>
+                            {listing.status}
+                          </Badge>
+                        </div>
+                        <p className="text-gray-400 mb-2">{listing.description}</p>
+                        <div className="flex items-center gap-6 text-sm text-gray-400">
+                          <span>Condition: {listing.condition}</span>
+                          <span>Quantity: {listing.quantity_available}</span>
+                          <span>Price: {formatPrice(listing.price)}</span>
+                          <span>Listed: {new Date(listing.created_at).toLocaleDateString()}</span>
+                        </div>
+                      </div>
+                      
+                      <div className="flex items-center gap-2">
+                        <Button 
+                          variant="outline" 
+                          size="sm"
+                          onClick={() => setSelectedListing(listing)}
+                        >
+                          <Edit className="w-4 h-4" />
+                        </Button>
+                        <Button 
+                          variant="outline" 
+                          size="sm"
+                          onClick={() => handleDeleteListing(listing.id)}
+                          className="text-red-400 hover:text-red-300"
+                        >
+                          <Trash2 className="w-4 h-4" />
+                        </Button>
+                        
+                        {listing.status === 'active' && (
+                          <Button 
+                            variant="outline" 
+                            size="sm"
+                            onClick={() => handleUpdateListingStatus(listing.id, 'sold')}
+                            className="text-blue-400"
+                          >
+                            Mark Sold
+                          </Button>
+                        )}
+                      </div>
+                    </div>
+                  </CardContent>
+                </Card>
+              ))}
+            </div>
+          </TabsContent>
+
+          {/* Messages Tab */}
+          <TabsContent value="messages">
+            <Card className="bg-gray-800 border-gray-700">
+              <CardHeader>
+                <CardTitle className="text-white">Customer Messages</CardTitle>
+              </CardHeader>
+              <CardContent>
+                <p className="text-gray-400">Message system coming soon...</p>
+              </CardContent>
+            </Card>
+          </TabsContent>
+
+          {/* Analytics Tab */}
+          <TabsContent value="analytics">
+            <Card className="bg-gray-800 border-gray-700">
+              <CardHeader>
+                <CardTitle className="text-white">Sales Analytics</CardTitle>
+              </CardHeader>
+              <CardContent>
+                <p className="text-gray-400">Analytics dashboard coming soon...</p>
+              </CardContent>
+            </Card>
+          </TabsContent>
+        </Tabs>
       </div>
-
-      <Footer />
-      <MobileBottomNav />
     </div>
   );
 };

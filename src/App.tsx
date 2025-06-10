@@ -38,6 +38,7 @@ import LogTicket from './pages/LogTicket';
 import MobileBottomNav from './components/MobileBottomNav';
 import BecomeRetailer from "./pages/retailers/become";
 import RetailerDashboard from "./pages/RetailerDashboard";
+import WhereToBuy from "./pages/WhereToBuy";
 import StickerGuide from "./pages/StickerGuide";
 import Privacy from "./pages/Privacy";
 import CookiePolicy from "./pages/CookiePolicy";
@@ -118,6 +119,7 @@ const App = () => (
             <Route path="/retailers/become" element={<BecomeRetailer />} />
             <Route path="/retailers/dashboard" element={<RetailerDashboard />} />
             <Route path="/retailers/:slug" element={<RetailerProfile />} />
+            <Route path="/where-to-buy/:popId" element={<WhereToBuy />} />
             <Route path="/get-started" element={<GetStarted />} />
             <Route path="/howitworks" element={<HowItWorks />} />
             <Route path="/faq" element={<Faq />} />
