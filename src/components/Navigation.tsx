@@ -13,6 +13,7 @@ import { useCurrency } from '@/contexts/CurrencyContext';
 import { useMutation } from '@tanstack/react-query';
 import { supabase } from '@/integrations/supabase/client';
 import { formatCurrency } from '@/utils/formatCurrency';
+import { useIsMobile } from '@/hooks/use-mobile';
 
 const getInitialTheme = () => {
   if (typeof window === 'undefined') return 'system';
@@ -387,7 +388,208 @@ const Navigation = () => {
           )}
         </CommandList>
       </CommandDialog>
+
+      {/* Mobile Sticky Footer Menu */}
+      <MobileStickyFooterMenu />
     </>
+  );
+};
+
+// Mobile Sticky Footer Menu Component
+const MobileStickyFooterMenu = () => {
+  const isMobile = useIsMobile();
+  const location = useLocation();
+  const { user } = useAuth();
+  
+  // Don't show on auth pages or if not mobile
+  if (!isMobile || location.pathname.startsWith('/auth')) {
+    return null;
+  }
+
+  return (
+    <nav className="md:hidden fixed bottom-0 left-0 right-0 z-50 bg-[#FEF6ED] border-t border-orange-200">
+      {/* Scroll indicator gradients */}
+      <div className="absolute left-0 top-0 bottom-0 w-4 bg-gradient-to-r from-[#FEF6ED] to-transparent pointer-events-none z-10"></div>
+      <div className="absolute right-0 top-0 bottom-0 w-4 bg-gradient-to-l from-[#FEF6ED] to-transparent pointer-events-none z-10"></div>
+      
+      <div className="flex items-center justify-start px-2 py-2 overflow-x-auto gap-1 scrollbar-hide">
+        {/* Database Dropdown */}
+        <DropdownMenu as="div" className="relative flex-shrink-0">
+          <DropdownMenu.Button className="flex flex-col items-center justify-center py-1 px-2 text-[#232837] hover:text-[#1a1e28] transition-colors min-w-[60px]">
+            <Search className="w-5 h-5 mb-1" />
+            <span className="text-xs font-medium">Database</span>
+          </DropdownMenu.Button>
+          <DropdownMenu.Items className="absolute bottom-full mb-2 left-0 w-64 rounded-xl shadow-2xl bg-[#232837] border border-gray-800 focus:outline-none z-50 p-2">
+            <DropdownMenu.Item>
+              <Link to="/directory-all" className="flex items-center gap-3 px-4 py-3 text-base font-medium text-white rounded-lg transition group hover:bg-gray-800/80 hover:border-l-4 hover:border-orange-500">
+                <Search className="w-5 h-5 text-orange-400 group-hover:scale-110 transition-transform" /> Browse Database
+              </Link>
+            </DropdownMenu.Item>
+            <DropdownMenu.Item>
+              <Link to="/pricing-dashboard" className="flex items-center gap-3 px-4 py-3 text-base font-medium text-white rounded-lg transition group hover:bg-gray-800/80 hover:border-l-4 hover:border-orange-500">
+                <DollarSign className="w-5 h-5 text-orange-400 group-hover:scale-110 transition-transform" /> Live Pricing
+              </Link>
+            </DropdownMenu.Item>
+            <DropdownMenu.Item>
+              <Link to="/new-releases" className="flex items-center gap-3 px-4 py-3 text-base font-medium text-white rounded-lg transition group hover:bg-gray-800/80 hover:border-l-4 hover:border-orange-500">
+                <Sparkles className="w-5 h-5 text-orange-400 group-hover:scale-110 transition-transform" /> New Releases
+              </Link>
+            </DropdownMenu.Item>
+            <DropdownMenu.Item>
+              <Link to="/coming-soon" className="flex items-center gap-3 px-4 py-3 text-base font-medium text-white rounded-lg transition group hover:bg-gray-800/80 hover:border-l-4 hover:border-orange-500">
+                <Star className="w-5 h-5 text-orange-400 group-hover:scale-110 transition-transform" /> Coming Soon
+              </Link>
+            </DropdownMenu.Item>
+            <DropdownMenu.Item>
+              <Link to="/funko-exclusives" className="flex items-center gap-3 px-4 py-3 text-base font-medium text-white rounded-lg transition group hover:bg-gray-800/80 hover:border-l-4 hover:border-orange-500">
+                <Sparkles className="w-5 h-5 text-orange-400 group-hover:scale-110 transition-transform" /> Funko Exclusives
+              </Link>
+            </DropdownMenu.Item>
+          </DropdownMenu.Items>
+        </DropdownMenu>
+
+        {/* Features Direct Link */}
+        <Link to="/features" className="flex flex-col items-center justify-center py-1 px-2 text-[#232837] hover:text-[#1a1e28] transition-colors flex-shrink-0 min-w-[60px]">
+          <Star className="w-5 h-5 mb-1" />
+          <span className="text-xs font-medium">Features</span>
+        </Link>
+
+        {/* Pricing Direct Link */}
+        <Link to="/pricing" className="flex flex-col items-center justify-center py-1 px-2 text-[#232837] hover:text-[#1a1e28] transition-colors flex-shrink-0 min-w-[60px]">
+          <DollarSign className="w-5 h-5 mb-1" />
+          <span className="text-xs font-medium">Pricing</span>
+        </Link>
+
+        {/* Lists Direct Link */}
+        <Link to="/browse-lists" className="flex flex-col items-center justify-center py-1 px-2 text-[#232837] hover:text-[#1a1e28] transition-colors flex-shrink-0 min-w-[60px]">
+          <List className="w-5 h-5 mb-1" />
+          <span className="text-xs font-medium">Lists</span>
+        </Link>
+
+        {/* Tools Dropdown */}
+        <DropdownMenu as="div" className="relative flex-shrink-0">
+          <DropdownMenu.Button className="flex flex-col items-center justify-center py-1 px-2 text-[#232837] hover:text-[#1a1e28] transition-colors min-w-[60px]">
+            <Zap className="w-5 h-5 mb-1" />
+            <span className="text-xs font-medium">Tools</span>
+          </DropdownMenu.Button>
+          <DropdownMenu.Items className="absolute bottom-full mb-2 left-0 w-64 rounded-xl shadow-2xl bg-[#232837] border border-gray-800 focus:outline-none z-50 p-2">
+            <DropdownMenu.Item>
+              <Link to="/time-machine" className="flex items-center gap-3 px-4 py-3 text-base font-medium text-white rounded-lg transition group hover:bg-gray-800/80 hover:border-l-4 hover:border-orange-500">
+                <Clock className="w-5 h-5 text-orange-400 group-hover:scale-110 transition-transform" /> Time Machine
+              </Link>
+            </DropdownMenu.Item>
+            <DropdownMenu.Item>
+              <Link to="/grail-galaxy" className="flex items-center gap-3 px-4 py-3 text-base font-medium text-white rounded-lg transition group hover:bg-gray-800/80 hover:border-l-4 hover:border-orange-500">
+                <Castle className="w-5 h-5 text-orange-400 group-hover:scale-110 transition-transform" /> Grail-Galaxy
+              </Link>
+            </DropdownMenu.Item>
+          </DropdownMenu.Items>
+        </DropdownMenu>
+
+        {/* Community Dropdown */}
+        <DropdownMenu as="div" className="relative flex-shrink-0">
+          <DropdownMenu.Button className="flex flex-col items-center justify-center py-1 px-2 text-[#232837] hover:text-[#1a1e28] transition-colors min-w-[60px]">
+            <Users className="w-5 h-5 mb-1" />
+            <span className="text-xs font-medium">Community</span>
+          </DropdownMenu.Button>
+          <DropdownMenu.Items className="absolute bottom-full mb-2 left-0 w-64 rounded-xl shadow-2xl bg-[#232837] border border-gray-800 focus:outline-none z-50 p-2">
+            <DropdownMenu.Item>
+              <Link to="/members" className="flex items-center gap-3 px-4 py-3 text-base font-medium text-white rounded-lg transition group hover:bg-gray-800/80 hover:border-l-4 hover:border-orange-500">
+                <Users className="w-5 h-5 text-orange-400 group-hover:scale-110 transition-transform" /> Members
+              </Link>
+            </DropdownMenu.Item>
+            <DropdownMenu.Item>
+              <Link to="/shoppers-advice" className="flex items-center gap-3 px-4 py-3 text-base font-medium text-white rounded-lg transition group hover:bg-gray-800/80 hover:border-l-4 hover:border-orange-500">
+                <HelpCircle className="w-5 h-5 text-orange-400 group-hover:scale-110 transition-transform" /> Shoppers Advice
+              </Link>
+            </DropdownMenu.Item>
+            <DropdownMenu.Item>
+              <Link to="/deals" className="flex items-center gap-3 px-4 py-3 text-base font-medium text-white rounded-lg transition group hover:bg-gray-800/80 hover:border-l-4 hover:border-orange-500">
+                <DollarSign className="w-5 h-5 text-orange-400 group-hover:scale-110 transition-transform" /> Latest Deals
+              </Link>
+            </DropdownMenu.Item>
+            <DropdownMenu.Item>
+              <Link to="/browse-lists" className="flex items-center gap-3 px-4 py-3 text-base font-medium text-white rounded-lg transition group hover:bg-gray-800/80 hover:border-l-4 hover:border-orange-500">
+                <List className="w-5 h-5 text-orange-400 group-hover:scale-110 transition-transform" /> Lists
+              </Link>
+            </DropdownMenu.Item>
+          </DropdownMenu.Items>
+        </DropdownMenu>
+
+        {/* Support Dropdown */}
+        <DropdownMenu as="div" className="relative flex-shrink-0">
+          <DropdownMenu.Button className="flex flex-col items-center justify-center py-1 px-2 text-[#232837] hover:text-[#1a1e28] transition-colors min-w-[60px]">
+            <HelpCircle className="w-5 h-5 mb-1" />
+            <span className="text-xs font-medium">Support</span>
+          </DropdownMenu.Button>
+          <DropdownMenu.Items className="absolute bottom-full mb-2 left-0 w-64 rounded-xl shadow-2xl bg-[#232837] border border-gray-800 focus:outline-none z-50 p-2">
+            <DropdownMenu.Item>
+              <Link to="/api" className="flex items-center gap-3 px-4 py-3 text-base font-medium text-white rounded-lg transition group hover:bg-gray-800/80 hover:border-l-4 hover:border-orange-500">
+                <HelpCircle className="w-5 h-5 text-orange-400 group-hover:scale-110 transition-transform" /> API
+              </Link>
+            </DropdownMenu.Item>
+            <DropdownMenu.Item>
+              <Link to="/faq" className="flex items-center gap-3 px-4 py-3 text-base font-medium text-white rounded-lg transition group hover:bg-gray-800/80 hover:border-l-4 hover:border-orange-500">
+                <HelpCircle className="w-5 h-5 text-orange-400 group-hover:scale-110 transition-transform" /> FAQ
+              </Link>
+            </DropdownMenu.Item>
+            <DropdownMenu.Item>
+              <Link to="/log-ticket" className="flex items-center gap-3 px-4 py-3 text-base font-medium text-white rounded-lg transition group hover:bg-gray-800/80 hover:border-l-4 hover:border-orange-500">
+                <HelpCircle className="w-5 h-5 text-orange-400 group-hover:scale-110 transition-transform" /> Log a ticket
+              </Link>
+            </DropdownMenu.Item>
+            <DropdownMenu.Item>
+              <Link to="/bug-tracker" className="flex items-center gap-3 px-4 py-3 text-base font-medium text-white rounded-lg transition group hover:bg-gray-800/80 hover:border-l-4 hover:border-orange-500">
+                <Bug className="w-5 h-5 text-orange-400 group-hover:scale-110 transition-transform" /> Bug Tracker
+              </Link>
+            </DropdownMenu.Item>
+            <DropdownMenu.Item>
+              <Link to="/howitworks" className="flex items-center gap-3 px-4 py-3 text-base font-medium text-white rounded-lg transition group hover:bg-gray-800/80 hover:border-l-4 hover:border-orange-500">
+                <HelpCircle className="w-5 h-5 text-orange-400 group-hover:scale-110 transition-transform" /> How it works
+              </Link>
+            </DropdownMenu.Item>
+            <DropdownMenu.Item>
+              <Link to="/system-status" className="flex items-center gap-3 px-4 py-3 text-base font-medium text-white rounded-lg transition group hover:bg-gray-800/80 hover:border-l-4 hover:border-orange-500">
+                <HelpCircle className="w-5 h-5 text-orange-400 group-hover:scale-110 transition-transform" /> Service Status
+              </Link>
+            </DropdownMenu.Item>
+            <DropdownMenu.Item>
+              <Link to="/roadmap" className="flex items-center gap-3 px-4 py-3 text-base font-medium text-white rounded-lg transition group hover:bg-gray-800/80 hover:border-l-4 hover:border-orange-500">
+                <HelpCircle className="w-5 h-5 text-orange-400 group-hover:scale-110 transition-transform" /> Roadmap & Changelog
+              </Link>
+            </DropdownMenu.Item>
+          </DropdownMenu.Items>
+        </DropdownMenu>
+
+        {/* Retailers Dropdown */}
+        <DropdownMenu as="div" className="relative flex-shrink-0">
+          <DropdownMenu.Button className="flex flex-col items-center justify-center py-1 px-2 text-[#232837] hover:text-[#1a1e28] transition-colors min-w-[60px]">
+            <Store className="w-5 h-5 mb-1" />
+            <span className="text-xs font-medium">Retailers</span>
+          </DropdownMenu.Button>
+          <DropdownMenu.Items className="absolute bottom-full mb-2 left-0 w-64 rounded-xl shadow-2xl bg-[#232837] border border-gray-800 focus:outline-none z-50 p-2">
+            <DropdownMenu.Item>
+              <Link to="/retailers" className="flex items-center gap-3 px-4 py-3 text-base font-medium text-white rounded-lg transition group hover:bg-gray-800/80 hover:border-l-4 hover:border-orange-500">
+                <Store className="w-5 h-5 text-orange-400 group-hover:scale-110 transition-transform" /> Browse Retailers
+              </Link>
+            </DropdownMenu.Item>
+            <DropdownMenu.Item>
+              <Link to="/retailers/become" className="flex items-center gap-3 px-4 py-3 text-base font-medium text-white rounded-lg transition group hover:bg-gray-800/80 hover:border-l-4 hover:border-orange-500">
+                <Store className="w-5 h-5 text-orange-400 group-hover:scale-110 transition-transform" /> Add your business
+              </Link>
+            </DropdownMenu.Item>
+          </DropdownMenu.Items>
+        </DropdownMenu>
+
+        {/* Dashboard Link (if user logged in) */}
+        {user && (
+          <Link to="/dashboard" className="flex flex-col items-center justify-center py-1 px-2 text-[#232837] hover:text-[#1a1e28] transition-colors flex-shrink-0 min-w-[60px]">
+            <Home className="w-5 h-5 mb-1" />
+            <span className="text-xs font-medium">Dashboard</span>
+          </Link>
+        )}
+      </div>
+    </nav>
   );
 };
 
