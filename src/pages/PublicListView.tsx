@@ -86,10 +86,6 @@ const PublicListView = () => {
           .from('custom_lists')
           .select(`
             *,
-            profiles!custom_lists_user_id_fkey (
-              full_name,
-              username
-            ),
             list_items (
               id,
               funko_pops (
@@ -129,7 +125,22 @@ const PublicListView = () => {
           console.log('✅ Successfully fetched full list data');
           console.log('📊 List items raw data:', fullList?.list_items);
           console.log('📊 First list item details:', fullList?.list_items?.[0]);
-          setList(fullList);
+          
+          // Get profile info separately if needed
+          let profileData = null;
+          if (basicList.user_id) {
+            const { data: profile } = await supabase
+              .from('profiles')
+              .select('full_name, username')
+              .eq('id', basicList.user_id)
+              .single();
+            profileData = profile;
+          }
+          
+          setList({
+            ...fullList,
+            profiles: profileData
+          });
         }
 
       } catch (error) {
@@ -383,32 +394,32 @@ const PublicListView = () => {
         </div>
 
         {/* Development Debug Info */}
-        <Card className="bg-gray-800/30 border-gray-700 mt-8">
-          <CardHeader>
-            <CardTitle className="text-white text-lg">Debug Information</CardTitle>
-          </CardHeader>
-          <CardContent>
-            <div className="text-white mb-4">
-              <p><strong>List Items Count:</strong> {list?.list_items?.length || 0}</p>
-              <p><strong>Transformed Items Count:</strong> {listItems.length}</p>
-              <p><strong>List Name:</strong> {list?.name}</p>
-              <p><strong>Is Public:</strong> {list?.is_public ? 'Yes' : 'No'}</p>
-            </div>
-            {debugInfo && (
+        {process.env.NODE_ENV === 'development' && debugInfo && (
+          <Card className="bg-gray-800/30 border-gray-700 mt-8">
+            <CardHeader>
+              <CardTitle className="text-white text-lg">Debug Information</CardTitle>
+            </CardHeader>
+            <CardContent>
+              <div className="text-white mb-4">
+                <p><strong>List Items Count:</strong> {list?.list_items?.length || 0}</p>
+                <p><strong>Transformed Items Count:</strong> {listItems.length}</p>
+                <p><strong>List Name:</strong> {list?.name}</p>
+                <p><strong>Is Public:</strong> {list?.is_public ? 'Yes' : 'No'}</p>
+              </div>
               <pre className="text-xs text-gray-400 overflow-auto max-h-60">
                 {JSON.stringify(debugInfo, null, 2)}
               </pre>
-            )}
-            {list?.list_items && (
-              <div className="mt-4">
-                <p className="text-white mb-2">Raw List Items (first 3):</p>
-                <pre className="text-xs text-gray-400 overflow-auto max-h-40">
-                  {JSON.stringify(list.list_items.slice(0, 3), null, 2)}
-                </pre>
-              </div>
-            )}
-          </CardContent>
-        </Card>
+              {list?.list_items && (
+                <div className="mt-4">
+                  <p className="text-white mb-2">Raw List Items (first 3):</p>
+                  <pre className="text-xs text-gray-400 overflow-auto max-h-40">
+                    {JSON.stringify(list.list_items.slice(0, 3), null, 2)}
+                  </pre>
+                </div>
+              )}
+            </CardContent>
+          </Card>
+        )}
       </div>
 
       <MobileBottomNav />
