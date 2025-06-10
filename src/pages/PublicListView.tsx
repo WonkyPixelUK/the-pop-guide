@@ -127,6 +127,8 @@ const PublicListView = () => {
           });
         } else {
           console.log('✅ Successfully fetched full list data');
+          console.log('📊 List items raw data:', fullList?.list_items);
+          console.log('📊 First list item details:', fullList?.list_items?.[0]);
           setList(fullList);
         }
 
@@ -219,7 +221,8 @@ const PublicListView = () => {
   }
 
   // Transform list items to collection grid format
-  const listItems = list.list_items?.map((item: any) => ({
+  console.log('🔄 Transforming list items:', list?.list_items);
+  const listItems = list.list_items?.filter((item: any) => item.funko_pops).map((item: any) => ({
     id: item.funko_pops?.id,
     name: item.funko_pops?.name,
     series: item.funko_pops?.series,
@@ -229,6 +232,9 @@ const PublicListView = () => {
     rarity: item.funko_pops?.is_chase ? "Chase" : item.funko_pops?.is_exclusive ? "Exclusive" : "Common",
     owned: false, // This is a list view, not personal collection
   })) || [];
+  
+  console.log('✨ Transformed list items:', listItems);
+  console.log('🔢 Total items after transformation:', listItems.length);
 
   const totalValue = listItems.reduce((sum: number, item: any) => sum + (item.value || 0), 0);
   const totalItems = listItems.length;
@@ -377,18 +383,32 @@ const PublicListView = () => {
         </div>
 
         {/* Development Debug Info */}
-        {process.env.NODE_ENV === 'development' && debugInfo && (
-          <Card className="bg-gray-800/30 border-gray-700 mt-8">
-            <CardHeader>
-              <CardTitle className="text-white text-lg">Debug Information</CardTitle>
-            </CardHeader>
-            <CardContent>
+        <Card className="bg-gray-800/30 border-gray-700 mt-8">
+          <CardHeader>
+            <CardTitle className="text-white text-lg">Debug Information</CardTitle>
+          </CardHeader>
+          <CardContent>
+            <div className="text-white mb-4">
+              <p><strong>List Items Count:</strong> {list?.list_items?.length || 0}</p>
+              <p><strong>Transformed Items Count:</strong> {listItems.length}</p>
+              <p><strong>List Name:</strong> {list?.name}</p>
+              <p><strong>Is Public:</strong> {list?.is_public ? 'Yes' : 'No'}</p>
+            </div>
+            {debugInfo && (
               <pre className="text-xs text-gray-400 overflow-auto max-h-60">
                 {JSON.stringify(debugInfo, null, 2)}
               </pre>
-            </CardContent>
-          </Card>
-        )}
+            )}
+            {list?.list_items && (
+              <div className="mt-4">
+                <p className="text-white mb-2">Raw List Items (first 3):</p>
+                <pre className="text-xs text-gray-400 overflow-auto max-h-40">
+                  {JSON.stringify(list.list_items.slice(0, 3), null, 2)}
+                </pre>
+              </div>
+            )}
+          </CardContent>
+        </Card>
       </div>
 
       <MobileBottomNav />
