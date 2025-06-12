@@ -2,7 +2,7 @@ import React, { useState, useEffect, useRef, Suspense } from 'react';
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Card, CardContent } from "@/components/ui/card";
-import { Search, Plus, BarChart3, Users, Zap, LogOut, Settings, Heart, List, TrendingUp, MessageCircle, ChevronLeft, ChevronRight, Download, Badge, Filter, ArrowDownAZ, ArrowUpAZ, ArrowDownWideNarrow, ArrowUpWideNarrow, ArrowUpDown, ChevronDown, ChevronUp, User, Share2, HelpCircle, Menu, X, CheckCircle, Loader2 } from "lucide-react";
+import { Search, Plus, BarChart3, Users, Zap, LogOut, Settings, Heart, List, TrendingUp, MessageCircle, ChevronLeft, ChevronRight, Download, Badge, Filter, ArrowDownAZ, ArrowUpAZ, ArrowDownWideNarrow, ArrowUpWideNarrow, ArrowUpDown, ChevronDown, ChevronUp, User, Share2, HelpCircle, Menu, X, CheckCircle, Loader2, Package } from "lucide-react";
 import CollectionGrid from "@/components/CollectionGrid";
 import WishlistGrid from "@/components/WishlistGrid";
 import CustomListsManager from "@/components/CustomListsManager";
@@ -34,6 +34,7 @@ import { useCurrency } from '@/contexts/CurrencyContext';
 import { formatCurrency } from '@/utils/formatCurrency';
 import AdvancedAnalytics from '@/components/AdvancedAnalytics';
 import { Sheet, SheetContent, SheetTrigger } from '@/components/ui/sheet';
+import '@/utils/adminTools'; // Load admin tools for console access
 
 const AnimatedFallback = ({ icon: Icon, message }: { icon: any, message: string }) => (
   <div className="flex flex-col items-center justify-center py-16">
@@ -1151,6 +1152,17 @@ const Dashboard = () => {
                                 >
                                   <Share2 className="w-4 h-4 mr-1.5" />
                                   Share
+                                </Button>
+
+                                <Button 
+                                  asChild
+                                  variant="outline" 
+                                  className="border border-green-500/50 text-green-400 hover:bg-green-500 hover:text-white hover:border-green-500 hover:shadow-md hover:shadow-green-500/20 h-9 text-sm font-medium transition-all duration-200 bg-green-500/5"
+                                >
+                                  <Link to={`/where-to-buy/${pop.id}`} className="flex items-center justify-center">
+                                    <Package className="w-4 h-4 mr-1.5" />
+                                    Where to Buy
+                                  </Link>
                                 </Button>
 
                                 {/* View Full Details Button - spans both columns */}

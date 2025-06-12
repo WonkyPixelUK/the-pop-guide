@@ -265,7 +265,7 @@ const BecomeRetailer = () => {
               </div>
               <CardContent className="p-8 pt-12">
                 <div className="text-center mb-6">
-                  <div className="text-5xl font-bold text-white mb-2">£25</div>
+                  <div className="text-5xl font-bold text-white mb-2">£30</div>
                   <div className="text-gray-400">per year</div>
                 </div>
                 <ul className="text-left space-y-3 mb-8">
@@ -288,7 +288,14 @@ const BecomeRetailer = () => {
                       <path d="M22 11.08V12a10 10 0 11-5.93-9.14" stroke="currentColor" strokeWidth="2"/>
                       <path d="M22 4L12 14.01l-3-3" stroke="currentColor" strokeWidth="2"/>
                     </svg>
-                    <span className="text-gray-300">Unlimited product listings</span>
+                    <span className="text-gray-300">Unlimited Funko Pop listings with wishlist notifications</span>
+                  </li>
+                  <li className="flex items-center gap-3">
+                    <svg className="w-5 h-5 text-green-400 flex-shrink-0" fill="none" viewBox="0 0 24 24">
+                      <path d="M22 11.08V12a10 10 0 11-5.93-9.14" stroke="currentColor" strokeWidth="2"/>
+                      <path d="M22 4L12 14.01l-3-3" stroke="currentColor" strokeWidth="2"/>
+                    </svg>
+                    <span className="text-gray-300">Automatic customer alerts when you add new stock</span>
                   </li>
                   <li className="flex items-center gap-3">
                     <svg className="w-5 h-5 text-green-400 flex-shrink-0" fill="none" viewBox="0 0 24 24">
@@ -333,7 +340,7 @@ const BecomeRetailer = () => {
                       Processing...
                     </div>
                   ) : (
-                    'Start Your Retailer Journey - £25/year'
+                    'Start Your Retailer Journey - £30/year'
                   )}
                 </Button>
                 <p className="text-gray-500 text-sm text-center mt-4">
@@ -382,7 +389,7 @@ const BecomeRetailer = () => {
             <Card className="bg-gray-800/70 border border-gray-700">
               <CardContent className="p-6">
                 <h3 className="font-bold text-white mb-2">Do you take a commission on sales?</h3>
-                <p className="text-gray-400">No! We only charge the annual £25 fee. We don't take any commission from your sales - you keep 100% of your profits.</p>
+                <p className="text-gray-400">No! We only charge the annual £30 fee. We don't take any commission from your sales - you keep 100% of your profits.</p>
               </CardContent>
             </Card>
             <Card className="bg-gray-800/70 border border-gray-700">

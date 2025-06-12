@@ -1,9 +1,9 @@
-import { CheckCircle, Loader, Lightbulb, ClipboardList, Rocket, ThumbsUp, ThumbsDown, Plus, Monitor, Chrome, Smartphone, Tablet } from 'lucide-react';
+import { CheckCircle, Loader, Lightbulb, ClipboardList, Rocket, ThumbsUp, ThumbsDown, Plus, Monitor, Chrome, Smartphone, Tablet, ChevronRight } from 'lucide-react';
 import { Card, CardContent } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import Navigation from '@/components/Navigation';
 import Footer from '@/components/Footer';
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useRef } from 'react';
 import { supabase } from '@/integrations/supabase/client';
 import { FeatureRequest, FeatureRequestVote } from '@/types/supabase';
 
@@ -25,6 +25,13 @@ const webAppData = {
     'Currency Support (£/$/€)',
     'Dashboard 2.0 with Accordion UI',
     'Enhanced Pro Features (24 total)',
+    'Database Mega Menu (Segment-style)',
+    'All group pages scaffolded and routed',
+    'Modernised navigation and breadcrumbs',
+    'Improved admin dashboard and user management',
+    'Live Supabase integration for all data',
+    'Visual polish and accessibility improvements',
+    'Performance and bug fixes',
   ],
   beingBuilt: [
     'Referral Program',
@@ -42,13 +49,14 @@ const webAppData = {
     'More Gamification',
   ],
   changelog: [
-    { version: 'v1.2.0', date: '02/06/2025', details: 'Major feature update: Added comprehensive friend request and DM functionality to public profiles, enhanced pricing system with accurate £3.99/£3.49 Pro pricing, implemented New Releases tracking system with Funko Europe integration, upgraded Dashboard with accordion-style interface and currency support (£/$/€), expanded Pro plan features list to 24 comprehensive features, added performance optimizations and improved user experience across the platform.' },
+    { version: 'v1.3.0', date: '12/06/2025', details: '▶️ Major update: New Segment-style Database Mega Menu, all "Browse by" group pages scaffolded and routed, modernised navigation and breadcrumbs, improved admin dashboard and user management, live Supabase integration for all data, visual polish, accessibility improvements, and performance/bug fixes.' },
+    { version: 'v1.2.0', date: '02/06/2025', details: 'Major feature update: Friend requests, DM functionality, New Releases tracking, enhanced Dashboard with currency support, and expanded Pro features.' },
     { version: 'v1.1.2', date: '31/01/2025', details: 'Platform section enhancements: Added styled buttons with gradients and hover effects across all platform cards (Web App, iOS, Android, Chrome Extension). Completely reworked Chrome Extension page to match Android/iOS layout with hero section, compatibility info, features grid, and installation guide. Removed "Coming Soon" from iOS platform card. Fixed syntax errors and improved button alignment consistency. Enhanced mobile app with comprehensive Expo development setup.' },
     { version: 'v1.1.1', date: '29/04/2025', details: 'Added 60+ new feature requests for voting and improved roadmap display.' },
     { version: 'v1.1.0', date: '12/06/2024', details: 'Bulk actions, CSV import/export, value alerts, insurance report, social upgrades, analytics, wish tracker, gamification, recommendations, showcase/shelf.' },
     { version: 'v1.0.0', date: '01/05/2024', details: 'Initial launch, collection tracking, wishlist, analytics, notifications, public profiles.' },
   ],
-  latestVersion: { version: 'v1.2.0', date: '02/06/2025', details: 'Major feature update: Friend requests, DM functionality, New Releases tracking, enhanced Dashboard with currency support, and expanded Pro features.' }
+  latestVersion: { version: 'v1.3.0', date: '12/06/2025', details: 'Segment-style Database Mega Menu, all group pages scaffolded, navigation/UX overhaul, admin/user management upgrades, and more.' }
 };
 
 // Chrome Extension Data
@@ -176,6 +184,9 @@ export default function Roadmap() {
   const [loading, setLoading] = useState(true);
   const [submitting, setSubmitting] = useState(false);
   const [voteLoading, setVoteLoading] = useState<string | null>(null);
+  const [changelogOpen, setChangelogOpen] = useState(false);
+
+  const changelogRef = useRef<HTMLDivElement>(null);
 
   const activePlatform = platforms.find(p => p.id === activeTab);
   const { deployed, beingBuilt, approved, inPlanning, changelog, latestVersion } = activePlatform?.data || webAppData;
@@ -256,6 +267,10 @@ export default function Roadmap() {
     req.platform === activeTab || (!req.platform && activeTab === 'webapp')
   );
 
+  const handleChevronClick = () => {
+    changelogRef.current?.scrollIntoView({ behavior: 'smooth' });
+  };
+
   return (
     <div className="min-h-screen bg-gradient-to-br from-gray-900 via-gray-800 to-black pb-20">
       <Navigation />
@@ -298,15 +313,39 @@ export default function Roadmap() {
 
         {/* Latest Version Highlight */}
         <div className="mb-10">
-          <div className="bg-gradient-to-r from-green-500 to-green-700 rounded-xl shadow-lg p-6 flex flex-col md:flex-row md:items-center md:justify-between border-4 border-green-300 animate-pop">
-            <div>
+          <div className="bg-gradient-to-r from-green-500 to-green-700 rounded-xl shadow-lg p-6 flex flex-col md:flex-row md:items-center md:justify-between border-4 border-green-300 animate-pop relative transition-all duration-300">
+            <div className="flex-1">
               <div className="text-2xl md:text-3xl font-extrabold text-white mb-2 flex items-center gap-3">
                 {activePlatform?.icon}
                 <Rocket className="w-8 h-8 text-white animate-bounce" />
                 {latestVersion.version} <span className="text-green-200 text-lg font-bold ml-3">({latestVersion.date})</span>
               </div>
-              <div className="text-lg text-white font-semibold">{latestVersion.details}</div>
+              <div className="text-lg text-white font-semibold mb-2">{latestVersion.details}</div>
+              {/* Expandable bullet list for v1.3.0 */}
+              {latestVersion.version === 'v1.3.0' && changelogOpen && (
+                <ul className="list-disc pl-6 text-white/90 text-base space-y-1 mt-2 transition-all duration-300">
+                  <li>Segment-style Database Mega Menu with grouped navigation and descriptions</li>
+                  <li>All "Browse by" group pages (Status, Category, Fandom, Genre, Edition, Character, Series) scaffolded and routed</li>
+                  <li>Modernised navigation, breadcrumbs, and consistent UX across the app</li>
+                  <li>Admin dashboard and user management improvements</li>
+                  <li>Live Supabase integration for all data and CRUD actions</li>
+                  <li>Visual polish: white glow on menus, icon and text alignment, color consistency</li>
+                  <li>Performance optimisations and bug fixes (React hook order, linter/type errors, routing bugs)</li>
+                  <li>Footer and homepage banner updated to reflect new version and features</li>
+                  <li>Changelog and roadmap now more detailed and user-friendly</li>
+                </ul>
+              )}
             </div>
+            <button
+              onClick={() => setChangelogOpen((v) => !v)}
+              className={`absolute right-6 top-1/2 -translate-y-1/2 md:static md:ml-6 md:translate-y-0 transition-transform duration-300 focus:outline-none
+                ${changelogOpen ? 'rotate-90 animate-pulse text-green-200' : 'animate-bounce'}
+              `}
+              title={changelogOpen ? 'Hide details' : 'Show details'}
+              aria-label="Expand changelog details"
+            >
+              <ChevronRight className="w-10 h-10" />
+            </button>
           </div>
         </div>
 
@@ -366,7 +405,7 @@ export default function Roadmap() {
         </div>
 
         {/* Changelog/Version Control */}
-        <div className="bg-gray-900 border border-gray-700 rounded p-6 text-sm text-gray-300 mb-8">
+        <div ref={changelogRef} className="bg-gray-900 border border-gray-700 rounded p-6 text-sm text-gray-300 mb-8">
           <h2 className="text-xl font-bold text-white mb-4 flex items-center gap-2">
             {activePlatform?.icon}
             {activePlatform?.name} Changelog

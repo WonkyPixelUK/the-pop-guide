@@ -13,6 +13,7 @@ import {
   DropdownMenuContent,
 } from '@/components/ui/dropdown-menu';
 import { Input } from '@/components/ui/input';
+import { Link } from 'react-router-dom';
 
 // Filters matching the main database page EXACTLY
 const STATIC_FILTERS = {
@@ -119,90 +120,93 @@ const NewReleases = () => {
         
         {/* Header */}
         <div className="container mx-auto px-4 pt-8 pb-4">
-          <div className="text-center mb-6">
-            <div className="flex items-center justify-center gap-3 mb-4">
-              <Sparkles className="w-8 h-8 text-orange-400" />
-              <h1 className="text-4xl font-bold text-white">New Releases</h1>
-              <Sparkles className="w-8 h-8 text-orange-400" />
-            </div>
-            <p className="text-xl text-gray-300 mb-6 max-w-2xl mx-auto">
-              Discover the latest Funko Pop releases from Funko Europe and other trusted sources
-            </p>
-            
-            {/* Filter Buttons */}
-            <div className="flex flex-wrap justify-center gap-3 mb-6">
-              <Button
-                variant={filter === 'all' ? 'default' : 'outline'}
-                onClick={() => setFilter('all')}
-                className={`flex items-center gap-2 ${
-                  filter === 'all' 
-                    ? 'bg-orange-500 hover:bg-orange-600 text-white border-orange-500' 
-                    : 'border-gray-600 text-blue-400 hover:bg-gray-700 hover:text-white'
-                }`}
-              >
-                <Star className="w-4 h-4" />
-                All New Releases ({allNewReleases?.length || 0})
-              </Button>
-              <Button
-                variant={filter === 'funko-europe' ? 'default' : 'outline'}
-                onClick={() => setFilter('funko-europe')}
-                className={`flex items-center gap-2 ${
-                  filter === 'funko-europe' 
-                    ? 'bg-orange-500 hover:bg-orange-600 text-white border-orange-500' 
-                    : 'border-gray-600 text-blue-400 hover:bg-gray-700 hover:text-white'
-                }`}
-              >
-                <Package className="w-4 h-4" />
-                Funko Europe ({funkoEuropeReleases?.length || 0})
-              </Button>
-              <Button
-                variant={filter === 'recent-30' ? 'default' : 'outline'}
-                onClick={() => setFilter('recent-30')}
-                className={`flex items-center gap-2 ${
-                  filter === 'recent-30' 
-                    ? 'bg-orange-500 hover:bg-orange-600 text-white border-orange-500' 
-                    : 'border-gray-600 text-blue-400 hover:bg-gray-700 hover:text-white'
-                }`}
-              >
-                <Calendar className="w-4 h-4" />
-                Last 30 Days ({recent30?.length || 0})
-              </Button>
-              <Button
-                variant={filter === 'recent-7' ? 'default' : 'outline'}
-                onClick={() => setFilter('recent-7')}
-                className={`flex items-center gap-2 ${
-                  filter === 'recent-7' 
-                    ? 'bg-orange-500 hover:bg-orange-600 text-white border-orange-500' 
-                    : 'border-gray-600 text-blue-400 hover:bg-gray-700 hover:text-white'
-                }`}
-              >
-                <Calendar className="w-4 h-4" />
-                Last 7 Days ({recent7?.length || 0})
-              </Button>
-            </div>
+          {/* Breadcrumb */}
+          <nav className="flex items-center text-sm mb-6 px-4 py-2 rounded-lg bg-gray-900/80 border-l-4 border-orange-500 shadow-md" aria-label="Breadcrumb">
+            <Link to="/" className="hover:text-orange-400 font-semibold transition-colors">Home</Link>
+            <span className="mx-1 text-orange-400">/</span>
+            <Link to="/database" className="text-orange-400 font-bold tracking-wide uppercase hover:underline">Database</Link>
+            <span className="mx-1 text-orange-400">/</span>
+            <span className="text-orange-400 font-bold tracking-wide uppercase">New Releases</span>
+          </nav>
+          {/* Title & Description */}
+          <div className="mb-6 text-left">
+            <h1 className="text-4xl font-bold mb-2">New Releases</h1>
+            <p className="text-lg text-gray-200 max-w-2xl mb-2">Discover the latest Funko Pop releases. Stay up to date with the newest additions to the collection.</p>
+          </div>
+          
+          {/* Filter Buttons */}
+          <div className="flex flex-wrap justify-center gap-3 mb-6">
+            <Button
+              variant={filter === 'all' ? 'default' : 'outline'}
+              onClick={() => setFilter('all')}
+              className={`flex items-center gap-2 ${
+                filter === 'all' 
+                  ? 'bg-orange-500 hover:bg-orange-600 text-white border-orange-500' 
+                  : 'border-gray-600 text-blue-400 hover:bg-gray-700 hover:text-white'
+              }`}
+            >
+              <Star className="w-4 h-4" />
+              All New Releases ({allNewReleases?.length || 0})
+            </Button>
+            <Button
+              variant={filter === 'funko-europe' ? 'default' : 'outline'}
+              onClick={() => setFilter('funko-europe')}
+              className={`flex items-center gap-2 ${
+                filter === 'funko-europe' 
+                  ? 'bg-orange-500 hover:bg-orange-600 text-white border-orange-500' 
+                  : 'border-gray-600 text-blue-400 hover:bg-gray-700 hover:text-white'
+              }`}
+            >
+              <Package className="w-4 h-4" />
+              Funko Europe ({funkoEuropeReleases?.length || 0})
+            </Button>
+            <Button
+              variant={filter === 'recent-30' ? 'default' : 'outline'}
+              onClick={() => setFilter('recent-30')}
+              className={`flex items-center gap-2 ${
+                filter === 'recent-30' 
+                  ? 'bg-orange-500 hover:bg-orange-600 text-white border-orange-500' 
+                  : 'border-gray-600 text-blue-400 hover:bg-gray-700 hover:text-white'
+              }`}
+            >
+              <Calendar className="w-4 h-4" />
+              Last 30 Days ({recent30?.length || 0})
+            </Button>
+            <Button
+              variant={filter === 'recent-7' ? 'default' : 'outline'}
+              onClick={() => setFilter('recent-7')}
+              className={`flex items-center gap-2 ${
+                filter === 'recent-7' 
+                  ? 'bg-orange-500 hover:bg-orange-600 text-white border-orange-500' 
+                  : 'border-gray-600 text-blue-400 hover:bg-gray-700 hover:text-white'
+              }`}
+            >
+              <Calendar className="w-4 h-4" />
+              Last 7 Days ({recent7?.length || 0})
+            </Button>
+          </div>
 
-            {/* Search Bar */}
-            <div className="max-w-md mx-auto relative">
-              <Input
-                placeholder="Search new releases..."
-                value={searchTerm}
-                onChange={(e) => setSearchTerm(e.target.value)}
-                className="pl-4 bg-gray-800 border-gray-700 text-white"
-              />
-              {searchTerm && (
-                <p className="text-sm text-gray-400 mt-2">
-                  Showing {currentDataFiltered.length} results for "{searchTerm}"
-                </p>
-              )}
-            </div>
+          {/* Search Bar */}
+          <div className="max-w-md mx-auto relative">
+            <Input
+              placeholder="Search new releases..."
+              value={searchTerm}
+              onChange={(e) => setSearchTerm(e.target.value)}
+              className="pl-4 bg-gray-800 border-gray-700 text-white"
+            />
+            {searchTerm && (
+              <p className="text-sm text-gray-400 mt-2">
+                Showing {currentDataFiltered.length} results for "{searchTerm}"
+              </p>
+            )}
+          </div>
 
-            {/* Current Filter Info */}
-            <div className="text-lg text-gray-300 font-medium mt-4">
-              Showing <span className="text-orange-400 font-bold">{currentDataFiltered.length}</span> new releases
-              {filter === 'funko-europe' && ' from Funko Europe'}
-              {filter === 'recent-30' && ' from the last 30 days'}
-              {filter === 'recent-7' && ' from the last 7 days'}
-            </div>
+          {/* Current Filter Info */}
+          <div className="text-lg text-gray-300 font-medium mt-4">
+            Showing <span className="text-orange-400 font-bold">{currentDataFiltered.length}</span> new releases
+            {filter === 'funko-europe' && ' from Funko Europe'}
+            {filter === 'recent-30' && ' from the last 30 days'}
+            {filter === 'recent-7' && ' from the last 7 days'}
           </div>
         </div>
 
@@ -361,6 +365,17 @@ const NewReleases = () => {
                             Funko Europe
                           </Badge>
                         )}
+                        
+                        {/* Where to Buy Button */}
+                        <Button 
+                          size="sm"
+                          variant="outline"
+                          className="w-full text-xs border-green-500/50 text-green-400 hover:bg-green-500 hover:text-white"
+                          onClick={() => window.open(`/where-to-buy/${pop.id}`, '_self')}
+                        >
+                          <Package className="w-3 h-3 mr-1" />
+                          Where to Buy
+                        </Button>
                         
                         {/* Release Date */}
                         <p className="text-xs text-gray-500 text-center">

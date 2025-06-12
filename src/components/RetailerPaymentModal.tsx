@@ -11,7 +11,7 @@ interface RetailerPaymentModalProps {
 }
 
 const RetailerPaymentModal = ({ open, onOpenChange }: RetailerPaymentModalProps) => {
-  const [selectedPlan, setSelectedPlan] = useState("monthly");
+  const [selectedPlan, setSelectedPlan] = useState("yearly");
   const [loading, setLoading] = useState(false);
   const { user } = useAuth();
   // Get retailer from dashboard context or props if needed
@@ -58,12 +58,12 @@ const RetailerPaymentModal = ({ open, onOpenChange }: RetailerPaymentModalProps)
             <Label className="mb-2 block">Choose Plan</Label>
             <div className="flex gap-4">
               <Button
-                className={`flex-1 ${selectedPlan === "monthly" ? "bg-orange-500" : "bg-gray-800"}`}
-                onClick={() => setSelectedPlan("monthly")}
+                className={`flex-1 ${selectedPlan === "free" ? "bg-orange-500" : "bg-gray-800"}`}
+                onClick={() => setSelectedPlan("free")}
                 type="button"
                 disabled={loading}
               >
-                Monthly (£49.99)
+                Free Plan
               </Button>
               <Button
                 className={`flex-1 ${selectedPlan === "yearly" ? "bg-orange-500" : "bg-gray-800"}`}
@@ -71,17 +71,19 @@ const RetailerPaymentModal = ({ open, onOpenChange }: RetailerPaymentModalProps)
                 type="button"
                 disabled={loading}
               >
-                Yearly (£499.99)
+                Professional (£30/year)
               </Button>
             </div>
           </div>
           <div className="bg-gray-800 p-4 rounded text-sm text-gray-300">
-            <p>Get featured in the public directory, add unlimited products, deals, and Whatnot shows. Cancel anytime.</p>
+            <p>Get featured in the public directory, add unlimited Funko Pop listings, and notify customers when you have new stock.</p>
             <ul className="list-disc ml-6 mt-2">
               <li>Priority placement in directory</li>
-              <li>Retailer badge</li>
+              <li>Verified retailer badge</li>
+              <li>Unlimited Funko Pop listings</li>
+              <li>Automatic wishlist notifications</li>
+              <li>New stock alerts to customers</li>
               <li>Analytics dashboard</li>
-              <li>Deal alerts to followers</li>
             </ul>
           </div>
           <Button className="w-full bg-orange-500 hover:bg-orange-600" onClick={handleCheckout} disabled={loading || !user || !retailer}>

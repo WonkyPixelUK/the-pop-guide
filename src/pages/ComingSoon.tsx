@@ -22,6 +22,7 @@ import {
 import { Label } from '@/components/ui/label';
 import { useToast } from '@/hooks/use-toast';
 import { supabase } from '@/integrations/supabase/client';
+import { Link } from 'react-router-dom';
 
 const releaseCategories = [
   { id: 'all', title: 'All Products', icon: '⭐' },
@@ -721,29 +722,18 @@ export default function ComingSoon() {
       
       {/* Header */}
       <div className="container mx-auto px-4 pt-8 pb-4">
-        <div className="text-center mb-6">
-          <div className="flex items-center justify-center gap-3 mb-4">
-            <Package className="w-8 h-8 text-orange-400" />
-            <h1 className="text-4xl font-bold text-white">Coming Soon</h1>
-          </div>
-          <p className="text-xl text-gray-300 mb-6 max-w-2xl mx-auto">
-            Discover upcoming Funko Pop releases from Funko Europe
-          </p>
-          
-          {/* Search Bar */}
-          <div className="max-w-md mx-auto relative">
-            <Input
-              placeholder="Search coming soon items..."
-              value={searchTerm}
-              onChange={(e) => setSearchTerm(e.target.value)}
-              className="pl-4 bg-gray-800 border-gray-700 text-white"
-            />
-            {searchTerm && (
-              <p className="text-sm text-gray-400 mt-2">
-                Showing {filteredReleases.length} results for "{searchTerm}"
-              </p>
-            )}
-          </div>
+        {/* Breadcrumb */}
+        <nav className="flex items-center text-sm mb-6 px-4 py-2 rounded-lg bg-gray-900/80 border-l-4 border-orange-500 shadow-md" aria-label="Breadcrumb">
+          <Link to="/" className="hover:text-orange-400 font-semibold transition-colors">Home</Link>
+          <span className="mx-1 text-orange-400">/</span>
+          <Link to="/database" className="text-orange-400 font-bold tracking-wide uppercase hover:underline">Database</Link>
+          <span className="mx-1 text-orange-400">/</span>
+          <span className="text-orange-400 font-bold tracking-wide uppercase">Coming Soon</span>
+        </nav>
+        {/* Title & Description */}
+        <div className="mb-6 text-left">
+          <h1 className="text-4xl font-bold mb-2">Coming Soon</h1>
+          <p className="text-lg text-gray-200 max-w-2xl mb-2">See which Funko Pops are about to launch. Be the first to know about upcoming releases and pre-orders.</p>
         </div>
       </div>
 
@@ -1284,6 +1274,12 @@ export default function ComingSoon() {
                           Notify Me
                         </button>
                       )}
+                      <button 
+                        className="bg-green-500 hover:bg-green-600 text-white font-bold px-4 py-2 rounded transition-colors"
+                        onClick={() => window.open(`/where-to-buy/${release.id}`, '_self')}
+                      >
+                        <Package className="w-4 h-4" />
+                      </button>
                       <button className="bg-orange-500 hover:bg-orange-600 text-white font-bold px-4 py-2 rounded transition-colors">
                         🔔
                       </button>

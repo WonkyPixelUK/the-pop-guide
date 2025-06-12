@@ -28,7 +28,8 @@ import {
   Sparkles,
   Crown,
   ArrowLeft,
-  ExternalLink
+  ExternalLink,
+  ChevronRight
 } from 'lucide-react';
 import { supabase } from '@/integrations/supabase/client';
 import { Link } from 'react-router-dom';
@@ -330,16 +331,22 @@ const PublicPopView = () => {
     <>
       <SEO title={`${pop.name} | The Pop Guide`} description={pop.description || `${pop.name} from ${pop.series}. View pricing, stats, and add to your collection.`} />
       <Navigation />
-      
-      <div className="min-h-screen bg-gradient-to-br from-gray-900 via-gray-800 to-black">
-        <div className="container mx-auto px-4 py-8">
-          {/* Back Navigation */}
-          <div className="mb-6">
-            <Link to="/directory" className="inline-flex items-center text-orange-400 hover:text-orange-300 transition-colors">
-              <ArrowLeft className="w-4 h-4 mr-2" />
-              Back to Directory
-            </Link>
-          </div>
+      <div className="min-h-screen bg-gradient-to-br from-gray-900 via-gray-800 to-black text-white flex flex-col">
+        <div className="container mx-auto px-4 pt-8 pb-4">
+          {/* Breadcrumb */}
+          <nav className="flex items-center text-sm mb-6 px-4 py-2 rounded-lg bg-gray-900/80 border-l-4 border-orange-500 shadow-md" aria-label="Breadcrumb">
+            <Link to="/" className="hover:text-orange-400 font-semibold transition-colors">Home</Link>
+            <ChevronRight className="w-4 h-4 mx-1 text-orange-400" />
+            <Link to="/database/all" className="hover:text-orange-400 font-semibold transition-colors">Database</Link>
+            <ChevronRight className="w-4 h-4 mx-1 text-orange-400" />
+            {pop?.genre && (
+              <>
+                <Link to={`/genre/${pop.genre}`} className="hover:text-orange-400 font-semibold transition-colors">{pop.genre}</Link>
+                <ChevronRight className="w-4 h-4 mx-1 text-orange-400" />
+              </>
+            )}
+            <span className="text-orange-400 font-bold tracking-wide uppercase">{pop?.name || 'Loading...'}</span>
+          </nav>
 
           {/* Main Content */}
           <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">

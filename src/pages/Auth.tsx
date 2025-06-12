@@ -78,11 +78,13 @@ const Auth = () => {
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     setLoading(true);
-
     try {
       let result;
       if (isSignUp) {
-        result = await signUp(email, password, fullName);
+        result = await supabase.auth.signUp({
+          email,
+          password,
+        });
         // Only send welcome email on actual signup
         if (result && !result.error) {
           await sendWelcomeEmailOnSignup(email, fullName);
@@ -111,8 +113,10 @@ const Auth = () => {
             return;
           }
         } else {
-          // Traditional password sign in
-          result = await signIn(email, password);
+          result = await supabase.auth.signInWithPassword({
+            email,
+            password,
+          });
         }
       }
       

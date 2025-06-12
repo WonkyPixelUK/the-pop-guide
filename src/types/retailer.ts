@@ -129,4 +129,17 @@ export interface CreateContactData {
   message: string;
   phone_number?: string;
   preferred_contact_method?: string;
+}
+
+export interface Profile {
+  id: string;
+  user_id: string;
+  username: string | null;
+  full_name: string | null;
+  avatar_url: string | null;
+  created_at: string;
+  updated_at: string;
+  is_retailer?: boolean;
+  retailer_subscription_status?: 'none' | 'pending' | 'active' | 'expired' | 'cancelled';
+  retailer_subscription_expires_at?: string;
 } 

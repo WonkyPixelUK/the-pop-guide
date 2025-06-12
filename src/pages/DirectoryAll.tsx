@@ -96,41 +96,39 @@ const DirectoryAll = () => {
   // Memoize filtered pops
   const filteredPops = useMemo(() => {
     return allPops.filter(pop => {
+      const p: any = pop; // allow access to extended fields not in generated types
       // Enhanced search functionality - search across all identification and product fields
       const matchesSearch = !searchTerm || 
-        pop.name.toLowerCase().includes(searchTerm.toLowerCase()) ||
-        pop.series.toLowerCase().includes(searchTerm.toLowerCase()) ||
-        (pop.number && pop.number.toLowerCase().includes(searchTerm.toLowerCase())) ||
-        (pop.fandom && pop.fandom.toLowerCase().includes(searchTerm.toLowerCase())) ||
-        (pop.upc && pop.upc.toLowerCase().includes(searchTerm.toLowerCase())) ||
-        (pop.upc_a && pop.upc_a.toLowerCase().includes(searchTerm.toLowerCase())) ||
-        (pop.ean_13 && pop.ean_13.toLowerCase().includes(searchTerm.toLowerCase())) ||
-        (pop.amazon_asin && pop.amazon_asin.toLowerCase().includes(searchTerm.toLowerCase())) ||
-        (pop.country_of_registration && pop.country_of_registration.toLowerCase().includes(searchTerm.toLowerCase())) ||
-        (pop.brand && pop.brand.toLowerCase().includes(searchTerm.toLowerCase())) ||
-        (pop.model_number && pop.model_number.toLowerCase().includes(searchTerm.toLowerCase())) ||
-        (pop.size && pop.size.toLowerCase().includes(searchTerm.toLowerCase())) ||
-        (pop.color && pop.color.toLowerCase().includes(searchTerm.toLowerCase())) ||
-        (pop.weight && pop.weight.toLowerCase().includes(searchTerm.toLowerCase())) ||
-        (pop.product_dimensions && pop.product_dimensions.toLowerCase().includes(searchTerm.toLowerCase())) ||
-        (pop.variant && pop.variant.toLowerCase().includes(searchTerm.toLowerCase())) ||
-        (pop.description && pop.description.toLowerCase().includes(searchTerm.toLowerCase()));
+        p.name.toLowerCase().includes(searchTerm.toLowerCase()) ||
+        p.series.toLowerCase().includes(searchTerm.toLowerCase()) ||
+        (p.number && p.number.toLowerCase().includes(searchTerm.toLowerCase())) ||
+        (p.fandom && p.fandom.toLowerCase().includes(searchTerm.toLowerCase())) ||
+        (p.upc_a && p.upc_a.toLowerCase().includes(searchTerm.toLowerCase())) ||
+        (p.country_of_registration && p.country_of_registration.toLowerCase().includes(searchTerm.toLowerCase())) ||
+        (p.brand && p.brand.toLowerCase().includes(searchTerm.toLowerCase())) ||
+        (p.model_number && p.model_number.toLowerCase().includes(searchTerm.toLowerCase())) ||
+        (p.size && p.size.toLowerCase().includes(searchTerm.toLowerCase())) ||
+        (p.color && p.color.toLowerCase().includes(searchTerm.toLowerCase())) ||
+        (p.weight && p.weight.toLowerCase().includes(searchTerm.toLowerCase())) ||
+        (p.product_dimensions && p.product_dimensions.toLowerCase().includes(searchTerm.toLowerCase())) ||
+        (p.variant && p.variant.toLowerCase().includes(searchTerm.toLowerCase())) ||
+        (p.description && p.description.toLowerCase().includes(searchTerm.toLowerCase()));
       
       // Existing filters
-      const matchesCategory = !filters.category.length || (Array.isArray(filters.category) ? filters.category : []).includes(pop.category);
-      const matchesFandom = !filters.fandom.length || (Array.isArray(filters.fandom) ? filters.fandom : []).includes(pop.fandom);
-      const matchesGenre = !filters.genre.length || (Array.isArray(filters.genre) ? filters.genre : []).includes(pop.genre);
+      const matchesCategory = !filters.category.length || (Array.isArray(filters.category) ? filters.category : []).includes(p.category);
+      const matchesFandom = !filters.fandom.length || (Array.isArray(filters.fandom) ? filters.fandom : []).includes(p.fandom);
+      const matchesGenre = !filters.genre.length || (Array.isArray(filters.genre) ? filters.genre : []).includes(p.genre);
       
       // Enhanced edition filter to handle "New Releases"
       const matchesEdition = !filters.edition.length || (Array.isArray(filters.edition) ? filters.edition : []).some(edition => {
         if (edition === 'New Releases') {
-          return pop.data_sources && pop.data_sources.includes('new-releases');
+          return p.data_sources && p.data_sources.includes('new-releases');
         }
-        return pop.edition === edition;
+        return p.edition === edition;
       });
       
-      const matchesVaulted = filters.vaulted === 'All' || (filters.vaulted === 'Vaulted' ? pop.is_vaulted : !pop.is_vaulted);
-      const matchesYear = !filters.year || new Date(pop.created_at).getFullYear().toString() === filters.year;
+      const matchesVaulted = filters.vaulted === 'All' || (filters.vaulted === 'Vaulted' ? p.is_vaulted : !p.is_vaulted);
+      const matchesYear = !filters.year || new Date(p.created_at).getFullYear().toString() === filters.year;
       
       // Status filtering logic
       let matchesStatus = true;
@@ -138,25 +136,25 @@ const DirectoryAll = () => {
         matchesStatus = filters.status.some(status => {
           switch (status) {
             case 'Coming Soon':
-              return pop.status === 'Coming Soon' || (pop.data_sources && pop.data_sources.includes('coming-soon'));
+              return p.status === 'Coming Soon' || (p.data_sources && p.data_sources.includes('coming-soon'));
             case 'New Releases':
               // Consider items from new-releases data source or recently released
-              const releaseDate = new Date(pop.created_at);
+              const releaseDate = new Date(p.created_at);
               const threeMonthsAgo = new Date();
               threeMonthsAgo.setMonth(threeMonthsAgo.getMonth() - 3);
-              return (pop.data_sources && pop.data_sources.includes('new-releases')) || 
-                     (releaseDate >= threeMonthsAgo && !pop.is_vaulted);
+              return (p.data_sources && p.data_sources.includes('new-releases')) || 
+                     (releaseDate >= threeMonthsAgo && !p.is_vaulted);
             case 'Funko Exclusive':
-              return pop.edition && pop.edition.toLowerCase().includes('exclusive') ||
-                     pop.fandom && pop.fandom.toLowerCase().includes('funko') ||
-                     pop.category && pop.category.toLowerCase().includes('exclusive');
+              return p.edition && p.edition.toLowerCase().includes('exclusive') ||
+                     p.fandom && p.fandom.toLowerCase().includes('funko') ||
+                     p.category && p.category.toLowerCase().includes('exclusive');
             case 'Pre-Order':
-              return pop.status === 'Pre-Order' || 
-                     pop.edition && pop.edition.toLowerCase().includes('pre-order');
+              return p.status === 'Pre-Order' || 
+                     p.edition && p.edition.toLowerCase().includes('pre-order');
             case 'In Stock':
-              return !pop.is_vaulted && pop.status !== 'Sold Out' && pop.status !== 'Coming Soon';
+              return !p.is_vaulted && p.status !== 'Sold Out' && p.status !== 'Coming Soon';
             case 'Sold Out':
-              return pop.is_vaulted || pop.status === 'Sold Out';
+              return p.is_vaulted || p.status === 'Sold Out';
             case 'All':
               return true;
             default:
@@ -606,32 +604,14 @@ const DirectoryAll = () => {
 
           {/* Product Details - Protected Content */}
           {user ? (
-            (pop.upc || pop.upc_a || pop.ean_13 || pop.amazon_asin || pop.country_of_registration || pop.brand || pop.model_number || pop.size || pop.color || pop.weight || pop.product_dimensions) && (
+            (pop.upc_a || pop.country_of_registration || pop.brand || pop.model_number || pop.size || pop.color || pop.weight || pop.product_dimensions) && (
               <div className="bg-gray-700/50 p-4 rounded-lg border border-gray-600 mb-6">
                 <h4 className="font-semibold mb-3 text-white text-lg">Product Details</h4>
                 <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-3 text-sm">
-                  {pop.upc && (
-                    <div className="flex flex-col">
-                      <span className="text-gray-400 text-xs mb-1">UPC</span>
-                      <span className="text-white font-medium">{pop.upc}</span>
-                    </div>
-                  )}
                   {pop.upc_a && (
                     <div className="flex flex-col">
                       <span className="text-gray-400 text-xs mb-1">UPC-A</span>
                       <span className="text-white font-medium">{pop.upc_a}</span>
-                    </div>
-                  )}
-                  {pop.ean_13 && (
-                    <div className="flex flex-col">
-                      <span className="text-gray-400 text-xs mb-1">EAN-13</span>
-                      <span className="text-white font-medium">{pop.ean_13}</span>
-                    </div>
-                  )}
-                  {pop.amazon_asin && (
-                    <div className="flex flex-col">
-                      <span className="text-gray-400 text-xs mb-1">Amazon ASIN</span>
-                      <span className="text-white font-medium">{pop.amazon_asin}</span>
                     </div>
                   )}
                   {pop.country_of_registration && (
@@ -928,12 +908,18 @@ const DirectoryAll = () => {
         
         {/* Header with count */}
         <div className="container mx-auto px-4 pt-8 pb-4">
-          <div className="text-center mb-6">
+          {/* Breadcrumb */}
+          <nav className="flex items-center text-sm mb-6 px-4 py-2 rounded-lg bg-gray-900/80 border-l-4 border-orange-500 shadow-md" aria-label="Breadcrumb">
+            <Link to="/" className="hover:text-orange-400 font-semibold transition-colors">Home</Link>
+            <span className="mx-1 text-orange-400">/</span>
+            <Link to="/database" className="text-orange-400 font-bold tracking-wide uppercase hover:underline">Database</Link>
+            <span className="mx-1 text-orange-400">/</span>
+            <span className="text-orange-400 font-bold tracking-wide uppercase">All</span>
+          </nav>
+          {/* Title & Description */}
+          <div className="mb-6 text-left">
             <h1 className="text-4xl font-bold mb-2">Browse Database</h1>
-            <div className="flex items-center justify-center gap-2 text-xl text-gray-400 mb-4">
-              <Database className="w-6 h-6" />
-              <span>{allPops.length.toLocaleString()} Funko Pops</span>
-            </div>
+            <p className="text-lg text-gray-200 max-w-2xl mb-2">Explore our comprehensive collection of Funko Pops. Browse by genre, search for specific items, or discover new additions to your collection.</p>
             {searchTerm && (
               <p className="text-sm text-gray-400 mt-2">
                 Showing {filteredPops.length.toLocaleString()} results for "{searchTerm}"

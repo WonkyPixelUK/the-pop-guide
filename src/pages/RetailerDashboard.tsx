@@ -38,6 +38,11 @@ const RetailerDashboard = () => {
   const [isCreateListingOpen, setIsCreateListingOpen] = useState(false);
   const [selectedListing, setSelectedListing] = useState<RetailerListing | null>(null);
   const [activeTab, setActiveTab] = useState('overview');
+  const [retailerStatus, setRetailerStatus] = useState<{
+    is_retailer?: boolean;
+    retailer_subscription_status?: string;
+    retailer_subscription_expires_at?: string;
+  } | null>(null);
 
   // Form states
   const [searchQuery, setSearchQuery] = useState('');
@@ -62,11 +67,23 @@ const RetailerDashboard = () => {
   const loadRetailerData = async () => {
     try {
       setLoading(true);
+      
+      // First check retailer status
+      const status = await RetailerService.checkRetailerStatus(user!.id);
+      setRetailerStatus(status);
+      
+      // If not a retailer or subscription expired/cancelled, show upgrade page
+      if (!status.is_retailer || ['expired', 'cancelled', 'none'].includes(status.retailer_subscription_status || 'none')) {
+        setLoading(false);
+        return; // Don't redirect, show upgrade message
+      }
+      
       const retailerData = await RetailerService.getRetailerByUserId(user!.id);
       
       if (!retailerData) {
-        // Redirect to become retailer page
-        window.location.href = '/become-retailer';
+        // User is marked as retailer but no retailer profile exists
+        // This is normal when database tables don't exist yet
+        setLoading(false);
         return;
       }
       
@@ -82,10 +99,10 @@ const RetailerDashboard = () => {
       setStats(statsData);
     } catch (error) {
       console.error('Error loading retailer data:', error);
-      toast({
-        title: "Error",
-        description: "Failed to load retailer data",
-        variant: "destructive",
+      // Don't show error toast for database issues, just show default state
+      setRetailerStatus({
+        is_retailer: false,
+        retailer_subscription_status: 'none'
       });
     } finally {
       setLoading(false);
@@ -219,6 +236,121 @@ const RetailerDashboard = () => {
     );
   }
 
+  // Check if user needs to upgrade or renew subscription
+  if (!retailerStatus?.is_retailer || ['expired', 'cancelled', 'none'].includes(retailerStatus?.retailer_subscription_status || 'none')) {
+    return (
+      <div className="min-h-screen bg-gray-900 text-white">
+        <div className="container mx-auto px-4 py-8 max-w-4xl">
+          <Card className="bg-gray-800 border-gray-700">
+            <CardContent className="p-12 text-center">
+              <Store className="w-16 h-16 text-orange-400 mx-auto mb-6" />
+              <h1 className="text-3xl font-bold text-white mb-4">
+                {!retailerStatus?.is_retailer ? 'Become a Retailer' : 'Renew Your Subscription'}
+              </h1>
+              <p className="text-xl text-gray-300 mb-8">
+                {!retailerStatus?.is_retailer 
+                  ? 'Join our retailer program to start selling your Funko Pop collection and connect with collectors worldwide.'
+                  : retailerStatus?.retailer_subscription_status === 'expired'
+                  ? 'Your retailer subscription has expired. Renew now to continue accessing your retailer dashboard and listings.'
+                  : 'Your retailer subscription is not active. Please subscribe to access retailer features.'
+                }
+              </p>
+              
+              {/* Development helper */}
+              {user?.email === 'brains@popguide.co.uk' && (
+                <div className="bg-blue-900/50 border border-blue-700 rounded-lg p-4 mb-6">
+                  <p className="text-blue-300 text-sm mb-3">
+                    🔧 Development Mode: Run this in browser console to activate retailer features:
+                  </p>
+                  <code className="bg-gray-900 text-green-400 px-3 py-1 rounded text-xs">
+                    setupRetailerAccount()
+                  </code>
+                </div>
+              )}
+              
+              <div className="flex flex-col sm:flex-row gap-4 justify-center">
+                <Button
+                  onClick={() => window.location.href = '/retailers/signup'}
+                  className="bg-orange-500 hover:bg-orange-600 text-white px-8 py-3 text-lg"
+                >
+                  {!retailerStatus?.is_retailer ? 'Become a Retailer' : 'Renew Subscription'}
+                </Button>
+                <Button
+                  onClick={() => window.location.href = '/contact'}
+                  variant="outline"
+                  className="border-orange-500 text-orange-400 hover:bg-orange-500 hover:text-white px-8 py-3 text-lg"
+                >
+                  Contact Support
+                </Button>
+              </div>
+              {retailerStatus?.retailer_subscription_expires_at && (
+                <p className="text-sm text-gray-400 mt-6">
+                  Subscription expired on: {new Date(retailerStatus.retailer_subscription_expires_at).toLocaleDateString()}
+                </p>
+              )}
+            </CardContent>
+          </Card>
+        </div>
+      </div>
+    );
+  }
+
+  // If user is marked as retailer but no retailer profile exists (development mode)
+  if (retailerStatus?.is_retailer && !retailer) {
+    return (
+      <div className="min-h-screen bg-gray-900 text-white">
+        <div className="container mx-auto px-4 py-8 max-w-6xl">
+          <Card className="bg-gray-800 border-gray-700">
+            <CardContent className="p-12 text-center">
+              <Store className="w-16 h-16 text-green-400 mx-auto mb-6" />
+              <h1 className="text-3xl font-bold text-white mb-4">
+                🎉 Retailer Access Activated!
+              </h1>
+              <p className="text-xl text-gray-300 mb-8">
+                Your account has been marked as a retailer. The full retailer system is being set up.
+              </p>
+              
+              <div className="bg-green-900/50 border border-green-700 rounded-lg p-6 mb-8 text-left max-w-2xl mx-auto">
+                <h3 className="text-green-300 font-semibold mb-4">✅ What you have access to:</h3>
+                <ul className="space-y-2 text-green-200">
+                  <li>• Retailer tab in mobile navigation</li>
+                  <li>• Access to this retailer dashboard</li>
+                  <li>• POPGuide FOC subscription benefits</li>
+                  <li>• Verified retailer badge</li>
+                </ul>
+                
+                <h3 className="text-yellow-300 font-semibold mb-4 mt-6">🚧 Coming soon:</h3>
+                <ul className="space-y-2 text-yellow-200">
+                  <li>• Unlimited product listings</li>
+                  <li>• Customer messaging system</li>
+                  <li>• Sales analytics dashboard</li>
+                  <li>• Direct purchase links</li>
+                  <li>• Review and rating system</li>
+                </ul>
+              </div>
+              
+              <div className="flex flex-col sm:flex-row gap-4 justify-center">
+                <Button
+                  onClick={() => window.location.href = '/retailers/signup'}
+                  className="bg-blue-500 hover:bg-blue-600 text-white px-8 py-3"
+                >
+                  Learn More About Retailer Features
+                </Button>
+                <Button
+                  onClick={() => window.location.href = '/dashboard'}
+                  variant="outline"
+                  className="border-gray-600 text-gray-300 hover:bg-gray-700 px-8 py-3"
+                >
+                  Back to Dashboard
+                </Button>
+              </div>
+            </CardContent>
+          </Card>
+        </div>
+      </div>
+    );
+  }
+
   return (
     <div className="min-h-screen bg-gray-900 text-white">
       <div className="container mx-auto px-4 py-8 max-w-6xl">
@@ -226,7 +358,7 @@ const RetailerDashboard = () => {
         <div className="flex items-center justify-between mb-8">
           <div>
             <h1 className="text-3xl font-bold text-white mb-2">
-              {retailer?.business_name} Dashboard
+              {retailer?.business_name || 'Retailer'} Dashboard
             </h1>
             <div className="flex items-center gap-4">
               <Badge 

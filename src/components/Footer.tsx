@@ -43,7 +43,7 @@ const Footer = () => {
           <div>
             <h4 className="text-white font-semibold mb-4">Product</h4>
             <ul className="space-y-2 text-gray-400">
-              <li><Link to="/directory-all" className="hover:text-orange-500 transition-colors">Browse Database</Link></li>
+              <li><Link to="/database/all" className="hover:text-orange-500 transition-colors">Browse Database</Link></li>
               <li><Link to="/features" className="hover:text-orange-500 transition-colors">Features</Link></li>
               <li><Link to="/pricing" className="hover:text-orange-500 transition-colors">Pricing</Link></li>
             </ul>
@@ -80,7 +80,7 @@ const Footer = () => {
         <div className="border-t border-gray-700 mt-8 pt-8">
           <div className="text-center text-gray-400">
             <p>&copy; 2024-2025 PopGuide. All rights reserved.</p>
-            <p className="text-sm mt-2 text-gray-500">Version 1.2.0 • Released June 2nd, 2025</p>
+            <p className="text-sm mt-2 text-gray-500">Version 1.3.0 • Released June 12th, 2025</p>
             <div className="mt-4 flex justify-center">
               <img src="https://api.checklyhq.com/v1/badges/checks/e94c9b1a-d3da-4b89-b8d8-2606014dad8d?style=for-the-badge&theme=light" alt="Uptime monitored by Checkly" />
             </div>

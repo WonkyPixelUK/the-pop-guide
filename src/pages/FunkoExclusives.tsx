@@ -11,6 +11,7 @@ import {
   DropdownMenuContent,
 } from '@/components/ui/dropdown-menu';
 import { Input } from '@/components/ui/input';
+import { Link } from 'react-router-dom';
 
 const exclusiveCategories = [
   { id: 'all', title: 'All Exclusives', icon: '⭐', color: 'purple' },
@@ -385,30 +386,33 @@ export default function FunkoExclusives() {
       
       {/* Header */}
       <div className="container mx-auto px-4 pt-8 pb-4">
-        <div className="text-center mb-6">
-          <div className="flex items-center justify-center gap-3 mb-4">
-            <Crown className="w-8 h-8 text-orange-400" />
-            <h1 className="text-4xl font-bold text-white">Funko Exclusives</h1>
-            <Sparkles className="w-8 h-8 text-yellow-400 animate-pulse" />
-          </div>
-          <p className="text-xl text-gray-300 mb-6 max-w-2xl mx-auto">
-            Curated collection of exclusive and limited edition Funko Pop! figures
-          </p>
-          
-          {/* Search Bar */}
-          <div className="max-w-md mx-auto relative">
-            <Input
-              placeholder="Search exclusive items..."
-              value={searchTerm}
-              onChange={(e) => setSearchTerm(e.target.value)}
-              className="pl-4 bg-gray-800 border-gray-700 text-white"
-            />
-            {searchTerm && (
-              <p className="text-sm text-gray-400 mt-2">
-                Showing {filteredProducts.length} results for "{searchTerm}"
-              </p>
-            )}
-          </div>
+        {/* Breadcrumb */}
+        <nav className="flex items-center text-sm mb-6 px-4 py-2 rounded-lg bg-gray-900/80 border-l-4 border-orange-500 shadow-md" aria-label="Breadcrumb">
+          <Link to="/" className="hover:text-orange-400 font-semibold transition-colors">Home</Link>
+          <span className="mx-1 text-orange-400">/</span>
+          <Link to="/database" className="text-orange-400 font-bold tracking-wide uppercase hover:underline">Database</Link>
+          <span className="mx-1 text-orange-400">/</span>
+          <span className="text-orange-400 font-bold tracking-wide uppercase">Funko Exclusives</span>
+        </nav>
+        {/* Title & Description */}
+        <div className="mb-6 text-left">
+          <h1 className="text-4xl font-bold mb-2">Funko Exclusives</h1>
+          <p className="text-lg text-gray-200 max-w-2xl mb-2">Browse all Funko Exclusive Pops. Find rare and limited edition items only available through special releases.</p>
+        </div>
+        
+        {/* Search Bar */}
+        <div className="max-w-md mx-auto relative">
+          <Input
+            placeholder="Search exclusive items..."
+            value={searchTerm}
+            onChange={(e) => setSearchTerm(e.target.value)}
+            className="pl-4 bg-gray-800 border-gray-700 text-white"
+          />
+          {searchTerm && (
+            <p className="text-sm text-gray-400 mt-2">
+              Showing {filteredProducts.length} results for "{searchTerm}"
+            </p>
+          )}
         </div>
       </div>
 

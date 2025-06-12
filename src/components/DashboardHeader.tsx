@@ -51,9 +51,9 @@ const DashboardHeader = ({
 
   const handleDatabaseSearch = () => {
     if (searchQuery.trim()) {
-      navigate(`/directory-all?search=${encodeURIComponent(searchQuery.trim())}`);
+      navigate(`/database/all?search=${encodeURIComponent(searchQuery.trim())}`);
     } else {
-      navigate('/directory-all');
+      navigate('/database/all');
     }
   };
 

@@ -140,10 +140,29 @@ const RetailerDirectory = () => {
       {/* Header */}
       <div className="px-4 py-8">
         <div className="max-w-6xl mx-auto">
-          <h1 className="text-4xl font-bold text-white mb-4">🏪 Retailer Directory</h1>
-          <p className="text-gray-400 mb-8">
-            Find trusted Funko Pop retailers in your area and around the world
-          </p>
+          <div className="flex flex-col lg:flex-row justify-between items-start lg:items-center gap-4 mb-8">
+            <div>
+              <h1 className="text-4xl font-bold text-white mb-4">🏪 Retailer Directory</h1>
+              <p className="text-gray-400">
+                Find trusted Funko Pop retailers in your area and around the world
+              </p>
+            </div>
+            <div className="flex flex-col sm:flex-row gap-3">
+              <Button 
+                onClick={() => window.location.href = '/retailers/signup'} 
+                className="bg-orange-500 hover:bg-orange-600 text-white font-semibold"
+              >
+                Are you a retailer? Join us!
+              </Button>
+                             <Button 
+                 variant="outline" 
+                 onClick={() => window.location.href = '/retailers/signup'}
+                 className="border-purple-500 text-purple-400 hover:bg-purple-500 hover:text-white"
+               >
+                Become a Retailer
+              </Button>
+            </div>
+          </div>
           
           {/* Search and Filters */}
           <div className="grid grid-cols-1 md:grid-cols-4 gap-4 mb-8">

@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { Link, useLocation, useNavigate } from 'react-router-dom';
 import { Button } from '@/components/ui/button';
-import { Activity, LogIn, LogOut, Plus, Search, Menu, Home, List, DollarSign, Star, Server, ChevronDown, Facebook, Users, HelpCircle, Store, Clock, Castle, Zap, Sparkles, Bug } from 'lucide-react';
+import { Activity, LogIn, LogOut, Plus, Search, Menu, Home, List, DollarSign, Star, Server, ChevronDown, Facebook, Users, HelpCircle, Store, Clock, Castle, Zap, Sparkles, Bug, Database, Filter, Package, Calendar, User } from 'lucide-react';
 import { useAuth } from '@/hooks/useAuth';
 import { useToast } from '@/hooks/use-toast';
 import { CommandDialog, CommandInput, CommandList, CommandItem, CommandEmpty, CommandGroup } from '@/components/ui/command';
@@ -15,7 +15,29 @@ import { supabase } from '@/integrations/supabase/client';
 import { formatCurrency } from '@/utils/formatCurrency';
 import { useIsMobile } from '@/hooks/use-mobile';
 
+const DATABASE_MENU = [
+  { label: 'See all Funko Pops', to: '/database/all', icon: Database },
+  { label: 'Status', to: '/database/status', icon: Filter },
+  { label: 'Category', to: '/database/category', icon: Package },
+  { label: 'Fandom', to: '/database/fandom', icon: Sparkles },
+  { label: 'Genre', to: '/database/genres', icon: Star },
+  { label: 'Edition', to: '/database/edition', icon: Calendar },
+  { label: 'Character', to: '/database/character', icon: User },
+  { label: 'Series', to: '/database/series', icon: List },
+  { label: 'New Releases', to: '/database/new-releases', icon: Sparkles },
+  { label: 'Coming Soon', to: '/database/coming-soon', icon: Star },
+  { label: 'Funko Exclusives', to: '/database/funko-exclusives', icon: Sparkles },
+];
 
+const BROWSE_DESCRIPTIONS = {
+  Status: "Filter by availability and release status",
+  Category: "Browse different Funko product lines",
+  Fandom: "Explore Pops by franchise and theme",
+  Genre: "Find Pops by entertainment category",
+  Edition: "Special and limited edition releases",
+  Character: "Search your favorite characters",
+  Series: "Browse complete Pop collections"
+};
 
 const Navigation = () => {
   const location = useLocation();
@@ -29,6 +51,7 @@ const Navigation = () => {
   const [addedId, setAddedId] = useState<string | null>(null);
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
   const { currency, setCurrency } = useCurrency();
+  const [dbMenuOpen, setDbMenuOpen] = useState(false);
 
   const handleSignOut = async () => {
     const { error } = await signOut();
@@ -166,38 +189,78 @@ const Navigation = () => {
           </div>
           <nav className="flex items-center space-x-10 hidden md:flex">
             {/* Database Dropdown */}
-            <DropdownMenu as="div" className="relative inline-block text-left">
-              <DropdownMenu.Button className="flex items-center text-white hover:text-orange-500 font-normal text-base transition-colors">
+            <div className="relative">
+              <button
+                className="flex items-center text-white hover:text-orange-500 font-normal text-base transition-colors"
+                onMouseEnter={() => setDbMenuOpen(true)}
+                onMouseLeave={() => setDbMenuOpen(false)}
+                onClick={() => setDbMenuOpen(!dbMenuOpen)}
+                type="button"
+              >
                 Database <ChevronDown className="ml-1 w-5 h-5 text-[#e46c1b] animate-bounce-y" />
-              </DropdownMenu.Button>
-              <DropdownMenu.Items className="origin-top-right absolute right-0 mt-2 w-64 rounded-xl shadow-2xl bg-[#232837] border border-gray-800 focus:outline-none z-50 p-2">
-                <DropdownMenu.Item>
-                  <Link to="/directory-all" className="flex items-center gap-3 px-4 py-3 text-base font-medium text-white rounded-lg transition group hover:bg-gray-800/80 hover:border-l-4 hover:border-orange-500">
-                    <Search className="w-5 h-5 text-orange-400 group-hover:scale-110 transition-transform" /> Browse Database
-                  </Link>
-                </DropdownMenu.Item>
-                <DropdownMenu.Item>
-                  <Link to="/live-pricing" className="flex items-center gap-3 px-4 py-3 text-base font-medium text-white rounded-lg transition group hover:bg-gray-800/80 hover:border-l-4 hover:border-orange-500">
-                    <DollarSign className="w-5 h-5 text-orange-400 group-hover:scale-110 transition-transform" /> Live Pricing
-                  </Link>
-                </DropdownMenu.Item>
-                <DropdownMenu.Item>
-                  <Link to="/new-releases" className="flex items-center gap-3 px-4 py-3 text-base font-medium text-white rounded-lg transition group hover:bg-gray-800/80 hover:border-l-4 hover:border-orange-500">
-                    <Sparkles className="w-5 h-5 text-orange-400 group-hover:scale-110 transition-transform" /> New Releases
-                  </Link>
-                </DropdownMenu.Item>
-                <DropdownMenu.Item>
-                  <Link to="/coming-soon" className="flex items-center gap-3 px-4 py-3 text-base font-medium text-white rounded-lg transition group hover:bg-gray-800/80 hover:border-l-4 hover:border-orange-500">
-                    <Star className="w-5 h-5 text-orange-400 group-hover:scale-110 transition-transform" /> Coming Soon
-                  </Link>
-                </DropdownMenu.Item>
-                <DropdownMenu.Item>
-                  <Link to="/funko-exclusives" className="flex items-center gap-3 px-4 py-3 text-base font-medium text-white rounded-lg transition group hover:bg-gray-800/80 hover:border-l-4 hover:border-orange-500">
-                    <Sparkles className="w-5 h-5 text-orange-400 group-hover:scale-110 transition-transform" /> Funko Exclusives
-                  </Link>
-                </DropdownMenu.Item>
-              </DropdownMenu.Items>
-            </DropdownMenu>
+              </button>
+              {dbMenuOpen && (
+                <div
+                  className="fixed top-[80px] left-1/2 -translate-x-1/2 w-[720px] rounded-xl shadow-2xl ring-2 ring-white/20 bg-[#232837] border border-gray-800 z-50"
+                  onMouseEnter={() => setDbMenuOpen(true)}
+                  onMouseLeave={() => setDbMenuOpen(false)}
+                >
+                  <div className="p-8">
+                    {/* Main Browse Section */}
+                    <div className="mb-8">
+                      <h3 className="text-sm font-semibold text-orange-400 uppercase tracking-wider mb-4">Browse By</h3>
+                      <div className="grid grid-cols-2 gap-x-12 gap-y-6">
+                        {DATABASE_MENU.slice(1, 8).map(({ label, to, icon: Icon }) => (
+                          <Link key={to} to={to} className="group">
+                            <div className="flex items-center gap-3 mb-1">
+                              <Icon className="w-5 h-5 text-orange-400 group-hover:scale-110 transition-transform" />
+                              <span className="text-base font-medium text-white group-hover:text-orange-400 transition-colors">{label}</span>
+                            </div>
+                            <p className="text-sm text-gray-400 pl-8">{BROWSE_DESCRIPTIONS[label] || ''}</p>
+                          </Link>
+                        ))}
+                      </div>
+                    </div>
+
+                    {/* Divider */}
+                    <div className="border-t border-gray-700 my-6" />
+
+                    {/* Featured Section */}
+                    <div>
+                      <h3 className="text-sm font-semibold text-orange-400 uppercase tracking-wider mb-4">Featured Collections</h3>
+                      <div className="grid grid-cols-3 gap-4">
+                        {DATABASE_MENU.slice(8).map(({ label, to, icon: Icon }) => (
+                          <Link key={to} to={to} className="flex items-center gap-2 px-4 py-3 rounded-lg bg-gray-800/50 hover:bg-gray-800 transition-colors group">
+                            <Icon className="w-5 h-5 text-orange-400 group-hover:scale-110 transition-transform" />
+                            <span className="text-base font-medium text-white">{label}</span>
+                          </Link>
+                        ))}
+                      </div>
+                    </div>
+
+                    {/* Full Database Link */}
+                    <div className="mt-6 pt-6 border-t border-gray-700">
+                      <Link 
+                        to="/database/all" 
+                        className="flex items-center justify-between px-4 py-3 bg-orange-500 hover:bg-orange-600 rounded-lg transition-colors"
+                      >
+                        <div className="flex items-center gap-3">
+                          <Database className="w-6 h-6 text-white" />
+                          <span className="text-lg font-bold text-white">See all Funko Pops</span>
+                        </div>
+                        <span className="text-white text-sm">Browse the complete database →</span>
+                      </Link>
+                    </div>
+
+                    {/* CTA Row */}
+                    <div className="mt-8 flex items-center justify-between gap-4">
+                      <Link to="/get-started" className="bg-orange-500 hover:bg-orange-600 text-white font-semibold px-5 py-2 rounded-lg transition-colors">Get started today</Link>
+                      <a href="mailto:brains@popguide.co.uk" className="text-orange-400 hover:text-orange-500 font-medium underline">Contact us</a>
+                    </div>
+                  </div>
+                </div>
+              )}
+            </div>
             
             {/* Features Dropdown */}
             <DropdownMenu as="div" className="relative inline-block text-left">
@@ -208,6 +271,11 @@ const Navigation = () => {
                 <DropdownMenu.Item>
                   <Link to="/features" className="flex items-center gap-3 px-4 py-3 text-base font-medium text-white rounded-lg transition group hover:bg-gray-800/80 hover:border-l-4 hover:border-orange-500">
                     <Star className="w-5 h-5 text-orange-400 group-hover:scale-110 transition-transform" /> All Features
+                  </Link>
+                </DropdownMenu.Item>
+                <DropdownMenu.Item>
+                  <Link to="/live-pricing" className="flex items-center gap-3 px-4 py-3 text-base font-medium text-white rounded-lg transition group hover:bg-gray-800/80 hover:border-l-4 hover:border-orange-500">
+                    <DollarSign className="w-5 h-5 text-orange-400 group-hover:scale-110 transition-transform" /> Live Pricing
                   </Link>
                 </DropdownMenu.Item>
                 <DropdownMenu.Item>
@@ -323,9 +391,9 @@ const Navigation = () => {
             </DropdownMenu>
             {/* Dashboard Link (if user logged in) */}
             {user && (
-              <Link to="/dashboard" className="flex flex-col items-center justify-center py-1 px-2 text-[#232837] hover:text-[#1a1e28] transition-colors flex-shrink-0 min-w-[60px]">
-                <Home className="w-5 h-5 mb-1" />
-                <span className="text-xs font-medium">Dashboard</span>
+              <Link to="/dashboard" className="flex flex-row items-center justify-center py-1 px-2 text-[#232837] hover:text-[#1a1e28] transition-colors flex-shrink-0 min-w-[60px] gap-2">
+                <span className="text-base font-medium text-white">Dashboard</span>
+                <Home className="w-5 h-5 text-orange-400" />
               </Link>
             )}
            
@@ -433,37 +501,32 @@ const MobileStickyFooterMenu = () => {
               />
               <div className="absolute bottom-full mb-2 left-0 w-64 rounded-xl shadow-2xl bg-[#232837] border border-gray-800 z-[9999] p-2">
                 <Link 
-                  to="/directory-all" 
+                  to="/database/all" 
                   className="flex items-center gap-3 px-4 py-3 text-base font-medium text-white rounded-lg transition group hover:bg-gray-800/80 hover:border-l-4 hover:border-orange-500"
-                  onClick={() => setActiveDropdown(null)}
                 >
                   <Search className="w-5 h-5 text-orange-400 group-hover:scale-110 transition-transform" /> Browse Database
                 </Link>
                 <Link 
                   to="/live-pricing" 
                   className="flex items-center gap-3 px-4 py-3 text-base font-medium text-white rounded-lg transition group hover:bg-gray-800/80 hover:border-l-4 hover:border-orange-500"
-                  onClick={() => setActiveDropdown(null)}
                 >
                   <DollarSign className="w-5 h-5 text-orange-400 group-hover:scale-110 transition-transform" /> Live Pricing
                 </Link>
                 <Link 
-                  to="/new-releases" 
+                  to="/database/new-releases" 
                   className="flex items-center gap-3 px-4 py-3 text-base font-medium text-white rounded-lg transition group hover:bg-gray-800/80 hover:border-l-4 hover:border-orange-500"
-                  onClick={() => setActiveDropdown(null)}
                 >
                   <Sparkles className="w-5 h-5 text-orange-400 group-hover:scale-110 transition-transform" /> New Releases
                 </Link>
                 <Link 
-                  to="/coming-soon" 
+                  to="/database/coming-soon" 
                   className="flex items-center gap-3 px-4 py-3 text-base font-medium text-white rounded-lg transition group hover:bg-gray-800/80 hover:border-l-4 hover:border-orange-500"
-                  onClick={() => setActiveDropdown(null)}
                 >
                   <Star className="w-5 h-5 text-orange-400 group-hover:scale-110 transition-transform" /> Coming Soon
                 </Link>
                 <Link 
-                  to="/funko-exclusives" 
+                  to="/database/funko-exclusives" 
                   className="flex items-center gap-3 px-4 py-3 text-base font-medium text-white rounded-lg transition group hover:bg-gray-800/80 hover:border-l-4 hover:border-orange-500"
-                  onClick={() => setActiveDropdown(null)}
                 >
                   <Sparkles className="w-5 h-5 text-orange-400 group-hover:scale-110 transition-transform" /> Funko Exclusives
                 </Link>
@@ -491,21 +554,18 @@ const MobileStickyFooterMenu = () => {
                 <Link 
                   to="/features" 
                   className="flex items-center gap-3 px-4 py-3 text-base font-medium text-white rounded-lg transition group hover:bg-gray-800/80 hover:border-l-4 hover:border-orange-500"
-                  onClick={() => setActiveDropdown(null)}
                 >
                   <Star className="w-5 h-5 text-orange-400 group-hover:scale-110 transition-transform" /> All Features
                 </Link>
                 <Link 
                   to="/features/time-machine" 
                   className="flex items-center gap-3 px-4 py-3 text-base font-medium text-white rounded-lg transition group hover:bg-gray-800/80 hover:border-l-4 hover:border-orange-500"
-                  onClick={() => setActiveDropdown(null)}
                 >
                   <Clock className="w-5 h-5 text-orange-400 group-hover:scale-110 transition-transform" /> Time Machine
                 </Link>
                 <Link 
                   to="/features/grail-galaxy" 
                   className="flex items-center gap-3 px-4 py-3 text-base font-medium text-white rounded-lg transition group hover:bg-gray-800/80 hover:border-l-4 hover:border-orange-500"
-                  onClick={() => setActiveDropdown(null)}
                 >
                   <Castle className="w-5 h-5 text-orange-400 group-hover:scale-110 transition-transform" /> Grail-Galaxy
                 </Link>
@@ -547,28 +607,24 @@ const MobileStickyFooterMenu = () => {
                 <Link 
                   to="/members" 
                   className="flex items-center gap-3 px-4 py-3 text-base font-medium text-white rounded-lg transition group hover:bg-gray-800/80 hover:border-l-4 hover:border-orange-500"
-                  onClick={() => setActiveDropdown(null)}
                 >
                   <Users className="w-5 h-5 text-orange-400 group-hover:scale-110 transition-transform" /> Members
                 </Link>
                 <Link 
                   to="/shoppers-advice" 
                   className="flex items-center gap-3 px-4 py-3 text-base font-medium text-white rounded-lg transition group hover:bg-gray-800/80 hover:border-l-4 hover:border-orange-500"
-                  onClick={() => setActiveDropdown(null)}
                 >
                   <HelpCircle className="w-5 h-5 text-orange-400 group-hover:scale-110 transition-transform" /> Shoppers Advice
                 </Link>
                 <Link 
                   to="/deals" 
                   className="flex items-center gap-3 px-4 py-3 text-base font-medium text-white rounded-lg transition group hover:bg-gray-800/80 hover:border-l-4 hover:border-orange-500"
-                  onClick={() => setActiveDropdown(null)}
                 >
                   <DollarSign className="w-5 h-5 text-orange-400 group-hover:scale-110 transition-transform" /> Latest Deals
                 </Link>
                 <Link 
                   to="/browse-lists" 
                   className="flex items-center gap-3 px-4 py-3 text-base font-medium text-white rounded-lg transition group hover:bg-gray-800/80 hover:border-l-4 hover:border-orange-500"
-                  onClick={() => setActiveDropdown(null)}
                 >
                   <List className="w-5 h-5 text-orange-400 group-hover:scale-110 transition-transform" /> Lists
                 </Link>
@@ -596,49 +652,42 @@ const MobileStickyFooterMenu = () => {
                 <Link 
                   to="/api" 
                   className="flex items-center gap-3 px-4 py-3 text-base font-medium text-white rounded-lg transition group hover:bg-gray-800/80 hover:border-l-4 hover:border-orange-500"
-                  onClick={() => setActiveDropdown(null)}
                 >
                   <HelpCircle className="w-5 h-5 text-orange-400 group-hover:scale-110 transition-transform" /> API
                 </Link>
                 <Link 
                   to="/faq" 
                   className="flex items-center gap-3 px-4 py-3 text-base font-medium text-white rounded-lg transition group hover:bg-gray-800/80 hover:border-l-4 hover:border-orange-500"
-                  onClick={() => setActiveDropdown(null)}
                 >
                   <HelpCircle className="w-5 h-5 text-orange-400 group-hover:scale-110 transition-transform" /> FAQ
                 </Link>
                 <Link 
                   to="/log-ticket" 
                   className="flex items-center gap-3 px-4 py-3 text-base font-medium text-white rounded-lg transition group hover:bg-gray-800/80 hover:border-l-4 hover:border-orange-500"
-                  onClick={() => setActiveDropdown(null)}
                 >
                   <HelpCircle className="w-5 h-5 text-orange-400 group-hover:scale-110 transition-transform" /> Log a ticket
                 </Link>
                 <Link 
                   to="/bug-tracker" 
                   className="flex items-center gap-3 px-4 py-3 text-base font-medium text-white rounded-lg transition group hover:bg-gray-800/80 hover:border-l-4 hover:border-orange-500"
-                  onClick={() => setActiveDropdown(null)}
                 >
                   <Bug className="w-5 h-5 text-orange-400 group-hover:scale-110 transition-transform" /> Bug Tracker
                 </Link>
                 <Link 
                   to="/howitworks" 
                   className="flex items-center gap-3 px-4 py-3 text-base font-medium text-white rounded-lg transition group hover:bg-gray-800/80 hover:border-l-4 hover:border-orange-500"
-                  onClick={() => setActiveDropdown(null)}
                 >
                   <HelpCircle className="w-5 h-5 text-orange-400 group-hover:scale-110 transition-transform" /> How it works
                 </Link>
                 <Link 
                   to="/system-status" 
                   className="flex items-center gap-3 px-4 py-3 text-base font-medium text-white rounded-lg transition group hover:bg-gray-800/80 hover:border-l-4 hover:border-orange-500"
-                  onClick={() => setActiveDropdown(null)}
                 >
                   <HelpCircle className="w-5 h-5 text-orange-400 group-hover:scale-110 transition-transform" /> Service Status
                 </Link>
                 <Link 
                   to="/roadmap" 
                   className="flex items-center gap-3 px-4 py-3 text-base font-medium text-white rounded-lg transition group hover:bg-gray-800/80 hover:border-l-4 hover:border-orange-500"
-                  onClick={() => setActiveDropdown(null)}
                 >
                   <HelpCircle className="w-5 h-5 text-orange-400 group-hover:scale-110 transition-transform" /> Roadmap & Changelog
                 </Link>
@@ -666,14 +715,12 @@ const MobileStickyFooterMenu = () => {
                 <Link 
                   to="/retailers" 
                   className="flex items-center gap-3 px-4 py-3 text-base font-medium text-white rounded-lg transition group hover:bg-gray-800/80 hover:border-l-4 hover:border-orange-500"
-                  onClick={() => setActiveDropdown(null)}
                 >
                   <Store className="w-5 h-5 text-orange-400 group-hover:scale-110 transition-transform" /> Browse Retailers
                 </Link>
                 <Link 
                   to="/retailers/become" 
                   className="flex items-center gap-3 px-4 py-3 text-base font-medium text-white rounded-lg transition group hover:bg-gray-800/80 hover:border-l-4 hover:border-orange-500"
-                  onClick={() => setActiveDropdown(null)}
                 >
                   <Store className="w-5 h-5 text-orange-400 group-hover:scale-110 transition-transform" /> Add your business
                 </Link>
@@ -684,9 +731,9 @@ const MobileStickyFooterMenu = () => {
 
         {/* Dashboard Link (if user logged in) */}
         {user && (
-          <Link to="/dashboard" className="flex flex-col items-center justify-center py-1 px-2 text-[#232837] hover:text-[#1a1e28] transition-colors flex-shrink-0 min-w-[60px]">
-            <Home className="w-5 h-5 mb-1" />
-            <span className="text-xs font-medium">Dashboard</span>
+          <Link to="/dashboard" className="flex flex-row items-center justify-center py-1 px-2 text-[#232837] hover:text-[#1a1e28] transition-colors flex-shrink-0 min-w-[60px] gap-2">
+            <span className="text-base font-medium text-white">Dashboard</span>
+            <Home className="w-5 h-5 text-orange-400" />
           </Link>
         )}
       </div>

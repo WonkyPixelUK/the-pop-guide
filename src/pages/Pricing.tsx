@@ -56,7 +56,7 @@ const Pricing = () => {
     },
     {
       name: "Retailer",
-      price: "$25",
+      price: "£30",
       period: "per year",
       description: "For shops and sellers",
       features: [

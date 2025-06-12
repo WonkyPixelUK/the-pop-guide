@@ -1,6 +1,6 @@
 import { Button } from "@/components/ui/button";
 import { Card, CardContent } from "@/components/ui/card";
-import { BarChart3, Users, Zap, Star, Shield, TrendingUp, Smartphone, Globe, Monitor, Check, Puzzle, Rocket, CheckCircle, Search, Sparkles, ChevronDown, ChevronUp, Plus, Heart, List as ListIcon, Share2, Loader2 } from "lucide-react";
+import { BarChart3, Users, Zap, Star, Shield, TrendingUp, Smartphone, Globe, Monitor, Check, Puzzle, Rocket, CheckCircle, Search, Sparkles, ChevronDown, ChevronUp, Plus, Heart, List as ListIcon, Share2, Loader2, ChevronRight } from "lucide-react";
 import { Link } from "react-router-dom";
 import SEO from '@/components/SEO';
 import { useState } from 'react';
@@ -160,7 +160,15 @@ const Landing = () => {
         {/* Use shared Navigation component */}
         <Navigation />
         {/* Hero Section */}
-        <section className="py-20 px-4">
+        <section className="py-20 px-4 relative">
+          {/* Floating V1.3.0 Badge */}
+          <Link to="/roadmap" aria-label="See what's new in v1.3.0">
+            <span className="flex items-center gap-2 px-4 py-2 rounded-full bg-gradient-to-r from-orange-500 to-yellow-400 text-white font-bold shadow-lg animate-pulse hover:scale-105 transition-transform cursor-pointer absolute top-4 right-4 z-30">
+              <Sparkles className="w-5 h-5 text-white drop-shadow" />
+              V1.3.0 is here!
+              <ChevronRight className="w-4 h-4 text-white" />
+            </span>
+          </Link>
           <div className="container mx-auto text-center">
             <h1 className="text-6xl font-bold text-white mb-6">
               Your <span className="text-orange-500">Ultimate</span> Funko Pop Collection Manager
@@ -176,7 +184,7 @@ const Landing = () => {
             {/* Navigation Options - Integrated into Hero */}
             <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-5 gap-6 max-w-6xl mx-auto mb-8">
               {/* Browse Database */}
-              <Link to="/directory-all">
+              <Link to="/database/all">
                 <Card className="group bg-gradient-to-br from-orange-500 to-orange-600 border-0 transition-all duration-500 hover:scale-110 hover:shadow-2xl hover:shadow-orange-500/40 cursor-pointer h-full transform hover:-translate-y-3">
                   <CardContent className="p-6 text-center h-full flex flex-col">
                     <div className="relative mb-4">
@@ -218,7 +226,7 @@ const Landing = () => {
               </Link>
 
               {/* New Releases */}
-              <Link to="/new-releases">
+              <Link to="/database/new-releases">
                 <Card className="group bg-gradient-to-br from-pink-500 to-red-500 border-0 transition-all duration-500 hover:scale-110 hover:shadow-2xl hover:shadow-pink-500/40 cursor-pointer h-full transform hover:-translate-y-3">
                   <CardContent className="p-6 text-center h-full flex flex-col">
                     <div className="relative mb-4">
@@ -239,7 +247,7 @@ const Landing = () => {
               </Link>
 
               {/* Coming Soon */}
-              <Link to="/coming-soon">
+              <Link to="/database/coming-soon">
                 <Card className="group bg-gradient-to-br from-purple-500 to-indigo-600 border-0 transition-all duration-500 hover:scale-110 hover:shadow-2xl hover:shadow-purple-500/40 cursor-pointer h-full transform hover:-translate-y-3">
                   <CardContent className="p-6 text-center h-full flex flex-col">
                     <div className="relative mb-4">
@@ -260,7 +268,7 @@ const Landing = () => {
               </Link>
 
               {/* Funko Exclusives */}
-              <Link to="/funko-exclusives">
+              <Link to="/database/funko-exclusives">
                 <Card className="group bg-gradient-to-br from-yellow-500 to-orange-500 border-0 transition-all duration-500 hover:scale-110 hover:shadow-2xl hover:shadow-yellow-500/40 cursor-pointer h-full transform hover:-translate-y-3">
                   <CardContent className="p-6 text-center h-full flex flex-col">
                     <div className="relative mb-4">
@@ -582,7 +590,7 @@ const Landing = () => {
                 })}
             </div>
             <div className="flex justify-center mt-8">
-              <Link to="/directory-all">
+              <Link to="/database/all">
                 <Button className="bg-orange-500 hover:bg-orange-600 text-white px-8 py-3 rounded font-semibold text-lg">
                   See Entire Database
                 </Button>

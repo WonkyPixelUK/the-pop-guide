@@ -1,4 +1,3 @@
-
 import { supabase } from '@/integrations/supabase/client';
 
 // This should only be called explicitly on signup, not on every auth state change
@@ -47,6 +46,45 @@ export const sendWelcomeEmailOnSignup = async (userEmail: string, fullName?: str
     
   } catch (error) {
     console.error('Error sending welcome email:', error);
+  }
+};
+
+// Send retailer welcome email when user upgrades to retailer status
+export const sendRetailerWelcomeEmail = async (userEmail: string, fullName?: string, businessName?: string) => {
+  try {
+    const { data: { user } } = await supabase.auth.getUser();
+    
+    if (!user || !user.email) {
+      console.log('No user found for retailer welcome email');
+      return;
+    }
+
+    // Check if we've already sent a retailer welcome email for this user
+    const sentFlag = `retailer_welcome_email_sent_${user.id}`;
+    const alreadySent = localStorage.getItem(sentFlag);
+    
+    if (alreadySent) {
+      console.log('Retailer welcome email already sent for this user');
+      return;
+    }
+
+    await supabase.functions.invoke('send-email', {
+      body: {
+        type: 'retailer-welcome',
+        to: userEmail,
+        data: {
+          fullName: fullName || user.user_metadata?.full_name || 'Retailer',
+          businessName: businessName || 'Your Business'
+        }
+      }
+    });
+    
+    // Mark as sent to prevent duplicates
+    localStorage.setItem(sentFlag, 'true');
+    console.log('Retailer welcome email sent successfully');
+    
+  } catch (error) {
+    console.error('Error sending retailer welcome email:', error);
   }
 };
 
