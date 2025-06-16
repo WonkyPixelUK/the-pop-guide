@@ -86,8 +86,19 @@ import FandomGroupPage from './pages/Fandom';
 import EditionGroupPage from './pages/Edition';
 import CharacterGroupPage from './pages/Character';
 import SeriesGroupPage from './pages/Series';
+import { useEffect } from 'react';
+import { useLocation } from 'react-router-dom';
 
 const queryClient = new QueryClient();
+
+// ScrollToTop component
+function ScrollToTop() {
+  const { pathname } = useLocation();
+  useEffect(() => {
+    window.scrollTo(0, 0);
+  }, [pathname]);
+  return null;
+}
 
 const App = () => (
   <QueryClientProvider client={queryClient}>
@@ -103,6 +114,7 @@ const App = () => (
             v7_relativeSplatPath: true
           }}
         >
+          <ScrollToTop />
           <Routes>
             <Route path="/" element={<Landing />} />
             <Route path="/auth" element={<Auth />} />

@@ -225,7 +225,7 @@ const NewReleases = () => {
                 <div key={key} className="mb-4">
                   <DropdownMenu>
                     <DropdownMenuTrigger asChild>
-                      <Button variant="outline" className="w-full justify-between">
+                      <Button variant="outline" className="w-full justify-between text-white border-gray-600 hover:bg-gray-700 hover:text-orange-500">
                         {key.charAt(0).toUpperCase() + key.slice(1)}
                         <Filter className="ml-2 w-4 h-4" />
                       </Button>

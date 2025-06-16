@@ -318,7 +318,7 @@ const Navigation = () => {
                 </DropdownMenu.Item>
                 <DropdownMenu.Item>
                   <Link to="/deals" className="flex items-center gap-3 px-4 py-3 text-base font-medium text-white rounded-lg transition group hover:bg-gray-800/80 hover:border-l-4 hover:border-orange-500">
-                    <DollarSign className="w-5 h-5 text-orange-400 group-hover:scale-110 transition-transform" /> Latest Deals
+                    <DollarSign className="w-5 h-5 text-orange-400 group-hover:scale-110 transition-transform" /> Latest Deals from our Retailers
                   </Link>
                 </DropdownMenu.Item>
                 <DropdownMenu.Item>
@@ -391,9 +391,9 @@ const Navigation = () => {
             </DropdownMenu>
             {/* Dashboard Link (if user logged in) */}
             {user && (
-              <Link to="/dashboard" className="flex flex-row items-center justify-center py-1 px-2 text-[#232837] hover:text-[#1a1e28] transition-colors flex-shrink-0 min-w-[60px] gap-2">
-                <span className="text-base font-medium text-white">Dashboard</span>
-                <Home className="w-5 h-5 text-orange-400" />
+              <Link to="/dashboard" className="flex flex-col items-center justify-center py-1 px-2 text-[#232837] hover:text-[#1a1e28] transition-colors flex-shrink-0 min-w-[60px]">
+                <Home className="w-5 h-5 mb-1 text-[#232837]" />
+                <span className="text-xs font-medium">Dashboard</span>
               </Link>
             )}
            
@@ -460,14 +460,103 @@ const Navigation = () => {
   );
 };
 
+// Modal overlay and modal container styles
+const modalOverlayStyle: React.CSSProperties = {
+  position: 'fixed',
+  top: 0,
+  left: 0,
+  width: '100vw',
+  height: '100vh',
+  background: 'rgba(0,0,0,0.4)',
+  zIndex: 99998,
+  display: 'flex',
+  alignItems: 'flex-end',
+  justifyContent: 'center',
+};
+const modalSheetStyle: React.CSSProperties = {
+  position: 'fixed',
+  left: 0,
+  bottom: 0,
+  width: '100vw',
+  borderTopLeftRadius: 24,
+  borderTopRightRadius: 24,
+  background: '#fff',
+  boxShadow: '0 -8px 32px rgba(0,0,0,0.18)',
+  zIndex: 99999,
+  maxHeight: '80vh',
+  overflowY: 'auto',
+  padding: 24,
+  paddingTop: 40,
+  display: 'flex',
+  flexDirection: 'column',
+};
+const modalCloseBtnStyle: React.CSSProperties = {
+  position: 'absolute',
+  top: 12,
+  right: 16,
+  background: 'none',
+  border: 'none',
+  fontSize: 28,
+  color: '#232837',
+  cursor: 'pointer',
+  zIndex: 100000,
+};
+const funkoBgStyle: React.CSSProperties = {
+  position: 'absolute',
+  top: '50%',
+  left: '50%',
+  transform: 'translate(-50%, -50%)',
+  width: 180,
+  height: 180,
+  opacity: 0.07,
+  pointerEvents: 'none',
+  zIndex: 0,
+};
+
+function ModalDropdown({ open, onClose, children }) {
+  if (!open) return null;
+  return (
+    <>
+      <div style={modalOverlayStyle} onClick={onClose} />
+      <div style={{ ...modalSheetStyle, position: 'fixed', overflow: 'hidden' }}>
+        {/* Faint Funko Pop SVG outline as background inside modal */}
+        <div style={{
+          position: 'absolute',
+          top: '50%',
+          left: '50%',
+          transform: 'translate(-50%, -50%)',
+          width: 180,
+          height: 180,
+          opacity: 0.07,
+          pointerEvents: 'none',
+          zIndex: 0,
+        }}>
+          <svg viewBox="0 0 64 64" width="100%" height="100%" fill="none" stroke="#232837" strokeWidth="2">
+            <ellipse cx="32" cy="40" rx="20" ry="18" />
+            <rect x="16" y="12" width="32" height="24" rx="12" />
+            <circle cx="24" cy="24" r="3" />
+            <circle cx="40" cy="24" r="3" />
+            <rect x="26" y="32" width="12" height="4" rx="2" />
+          </svg>
+        </div>
+        <button style={modalCloseBtnStyle} aria-label="Close" onClick={onClose}>&times;</button>
+        <div style={{ position: 'relative', zIndex: 1, background: '#fff' }}>{children}</div>
+      </div>
+    </>
+  );
+}
+
 // Mobile Sticky Footer Menu Component
 const MobileStickyFooterMenu = () => {
   const isMobile = useIsMobile();
   const location = useLocation();
   const { user } = useAuth();
   const [activeDropdown, setActiveDropdown] = useState<string | null>(null);
-  
-  // Don't show on auth pages or if not mobile
+
+  React.useEffect(() => {
+    console.log('[MobileStickyFooterMenu] Mounted. isMobile:', isMobile, 'pathname:', location.pathname);
+  }, [isMobile, location.pathname]);
+
   if (!isMobile || location.pathname.startsWith('/auth')) {
     return null;
   }
@@ -476,12 +565,132 @@ const MobileStickyFooterMenu = () => {
     setActiveDropdown(activeDropdown === dropdown ? null : dropdown);
   };
 
+  // Modal content for each dropdown
+  const renderDatabaseDropdown = () => (
+    <>
+      <h2 className="text-xl font-bold mb-4 text-[#232837]">Database</h2>
+      <div className="mb-4">
+        <h3 className="text-xs font-semibold text-orange-400 uppercase tracking-wider mb-2">Browse By</h3>
+        <div className="flex flex-col gap-2">
+          {DATABASE_MENU.slice(1, 8).map(({ label, to, icon: Icon }) => (
+            <Link key={to} to={to} className="flex items-center gap-3 px-3 py-2 rounded-lg hover:bg-gray-100 transition group">
+              <Icon className="w-5 h-5 text-orange-400 group-hover:scale-110 transition-transform" />
+              <div>
+                <span className="text-sm font-medium text-[#232837] group-hover:text-orange-400 transition-colors">{label}</span>
+                {BROWSE_DESCRIPTIONS[label] && (
+                  <p className="text-xs text-gray-500">{BROWSE_DESCRIPTIONS[label]}</p>
+                )}
+              </div>
+            </Link>
+          ))}
+        </div>
+      </div>
+      <div className="border-t border-gray-200 my-2" />
+      <div className="mb-2">
+        <h3 className="text-xs font-semibold text-orange-400 uppercase tracking-wider mb-2">Featured Collections</h3>
+        <div className="flex flex-col gap-2">
+          {DATABASE_MENU.slice(8).map(({ label, to, icon: Icon }) => (
+            <Link key={to} to={to} className="flex items-center gap-3 px-3 py-2 rounded-lg hover:bg-gray-100 transition group">
+              <Icon className="w-5 h-5 text-orange-400 group-hover:scale-110 transition-transform" />
+              <span className="text-sm font-medium text-[#232837]">{label}</span>
+            </Link>
+          ))}
+        </div>
+      </div>
+      <div className="border-t border-gray-200 my-2" />
+      <Link 
+        to="/database/all" 
+        className="flex items-center justify-between px-3 py-2 bg-orange-500 hover:bg-orange-600 rounded-lg transition-colors mb-2 text-white"
+      >
+        <div className="flex items-center gap-3">
+          <Database className="w-5 h-5 text-white" />
+          <span className="text-base font-bold">See all Funko Pops</span>
+        </div>
+        <span className="text-xs">Browse the complete database →</span>
+      </Link>
+      <div className="flex flex-col gap-2 mt-2">
+        <Link to="/get-started" className="bg-orange-500 hover:bg-orange-600 text-white font-semibold px-3 py-2 rounded-lg transition-colors text-center">Get started today</Link>
+        <a href="mailto:brains@popguide.co.uk" className="text-orange-400 hover:text-orange-500 font-medium underline text-center">Contact us</a>
+      </div>
+    </>
+  );
+  const renderFeaturesDropdown = () => (
+    <>
+      <h2 className="text-xl font-bold mb-4 text-[#232837]">Features</h2>
+      <Link to="/features" className="flex items-center gap-3 px-3 py-2 text-base font-medium text-[#232837] rounded-lg transition group hover:bg-gray-100">
+        <Star className="w-5 h-5 text-orange-400 group-hover:scale-110 transition-transform" /> All Features
+      </Link>
+      <Link to="/live-pricing" className="flex items-center gap-3 px-3 py-2 text-base font-medium text-[#232837] rounded-lg transition group hover:bg-gray-100">
+        <DollarSign className="w-5 h-5 text-orange-400 group-hover:scale-110 transition-transform" /> Live Pricing
+      </Link>
+      <Link to="/features/time-machine" className="flex items-center gap-3 px-3 py-2 text-base font-medium text-[#232837] rounded-lg transition group hover:bg-gray-100">
+        <Clock className="w-5 h-5 text-orange-400 group-hover:scale-110 transition-transform" /> Time Machine
+      </Link>
+      <Link to="/features/grail-galaxy" className="flex items-center gap-3 px-3 py-2 text-base font-medium text-[#232837] rounded-lg transition group hover:bg-gray-100">
+        <Castle className="w-5 h-5 text-orange-400 group-hover:scale-110 transition-transform" /> Grail-Galaxy
+      </Link>
+    </>
+  );
+  const renderCommunityDropdown = () => (
+    <>
+      <h2 className="text-xl font-bold mb-4 text-[#232837]">Community</h2>
+      <Link to="/members" className="flex items-center gap-3 px-3 py-2 text-base font-medium text-[#232837] rounded-lg transition group hover:bg-gray-100">
+        <Users className="w-5 h-5 text-orange-400 group-hover:scale-110 transition-transform" /> Members
+      </Link>
+      <Link to="/shoppers-advice" className="flex items-center gap-3 px-3 py-2 text-base font-medium text-[#232837] rounded-lg transition group hover:bg-gray-100">
+        <HelpCircle className="w-5 h-5 text-orange-400 group-hover:scale-110 transition-transform" /> Shoppers Advice
+      </Link>
+      <Link to="/deals" className="flex items-center gap-3 px-3 py-2 text-base font-medium text-[#232837] rounded-lg transition group hover:bg-gray-100">
+        <DollarSign className="w-5 h-5 text-orange-400 group-hover:scale-110 transition-transform" /> Latest Deals from our Retailers
+      </Link>
+      <Link to="/browse-lists" className="flex items-center gap-3 px-3 py-2 text-base font-medium text-[#232837] rounded-lg transition group hover:bg-gray-100">
+        <List className="w-5 h-5 text-orange-400 group-hover:scale-110 transition-transform" /> Lists
+      </Link>
+    </>
+  );
+  const renderSupportDropdown = () => (
+    <>
+      <h2 className="text-xl font-bold mb-4 text-[#232837]">Support</h2>
+      <Link to="/api" className="flex items-center gap-3 px-3 py-2 text-base font-medium text-[#232837] rounded-lg transition group hover:bg-gray-100">
+        <HelpCircle className="w-5 h-5 text-orange-400 group-hover:scale-110 transition-transform" /> API
+      </Link>
+      <Link to="/faq" className="flex items-center gap-3 px-3 py-2 text-base font-medium text-[#232837] rounded-lg transition group hover:bg-gray-100">
+        <HelpCircle className="w-5 h-5 text-orange-400 group-hover:scale-110 transition-transform" /> FAQ
+      </Link>
+      <Link to="/log-ticket" className="flex items-center gap-3 px-3 py-2 text-base font-medium text-[#232837] rounded-lg transition group hover:bg-gray-100">
+        <HelpCircle className="w-5 h-5 text-orange-400 group-hover:scale-110 transition-transform" /> Log a ticket
+      </Link>
+      <Link to="/bug-tracker" className="flex items-center gap-3 px-3 py-2 text-base font-medium text-[#232837] rounded-lg transition group hover:bg-gray-100">
+        <Bug className="w-5 h-5 text-orange-400 group-hover:scale-110 transition-transform" /> Bug Tracker
+      </Link>
+      <Link to="/howitworks" className="flex items-center gap-3 px-3 py-2 text-base font-medium text-[#232837] rounded-lg transition group hover:bg-gray-100">
+        <HelpCircle className="w-5 h-5 text-orange-400 group-hover:scale-110 transition-transform" /> How it works
+      </Link>
+      <Link to="/system-status" className="flex items-center gap-3 px-3 py-2 text-base font-medium text-[#232837] rounded-lg transition group hover:bg-gray-100">
+        <HelpCircle className="w-5 h-5 text-orange-400 group-hover:scale-110 transition-transform" /> Service Status
+      </Link>
+      <Link to="/roadmap" className="flex items-center gap-3 px-3 py-2 text-base font-medium text-[#232837] rounded-lg transition group hover:bg-gray-100">
+        <HelpCircle className="w-5 h-5 text-orange-400 group-hover:scale-110 transition-transform" /> Roadmap & Changelog
+      </Link>
+    </>
+  );
+  const renderRetailersDropdown = () => (
+    <>
+      <h2 className="text-xl font-bold mb-4 text-[#232837]">Retailers</h2>
+      <Link to="/retailers" className="flex items-center gap-3 px-3 py-2 text-base font-medium text-[#232837] rounded-lg transition group hover:bg-gray-100">
+        <Store className="w-5 h-5 text-orange-400 group-hover:scale-110 transition-transform" /> Browse Retailers
+      </Link>
+      <Link to="/retailers/become" className="flex items-center gap-3 px-3 py-2 text-base font-medium text-[#232837] rounded-lg transition group hover:bg-gray-100">
+        <Store className="w-5 h-5 text-orange-400 group-hover:scale-110 transition-transform" /> Add your business
+      </Link>
+    </>
+  );
+
   return (
     <nav className="md:hidden fixed bottom-0 left-0 right-0 z-40 bg-[#FEF6ED] border-t border-orange-200">
       {/* Scroll indicator gradients */}
       <div className="absolute left-0 top-0 bottom-0 w-4 bg-gradient-to-r from-[#FEF6ED] to-transparent pointer-events-none z-10"></div>
       <div className="absolute right-0 top-0 bottom-0 w-4 bg-gradient-to-l from-[#FEF6ED] to-transparent pointer-events-none z-10"></div>
-      
       <div className="flex items-center justify-start px-2 py-2 overflow-x-auto gap-1 scrollbar-hide">
         {/* Database Dropdown */}
         <div className="relative flex-shrink-0">
@@ -492,49 +701,10 @@ const MobileStickyFooterMenu = () => {
             <Search className="w-5 h-5 mb-1" />
             <span className="text-xs font-medium">Database</span>
           </button>
-          {activeDropdown === 'database' && (
-            <>
-              {/* Backdrop to close dropdown */}
-              <div 
-                className="fixed inset-0 z-[9998]" 
-                onClick={() => setActiveDropdown(null)}
-              />
-              <div className="absolute bottom-full mb-2 left-0 w-64 rounded-xl shadow-2xl bg-[#232837] border border-gray-800 z-[9999] p-2">
-                <Link 
-                  to="/database/all" 
-                  className="flex items-center gap-3 px-4 py-3 text-base font-medium text-white rounded-lg transition group hover:bg-gray-800/80 hover:border-l-4 hover:border-orange-500"
-                >
-                  <Search className="w-5 h-5 text-orange-400 group-hover:scale-110 transition-transform" /> Browse Database
-                </Link>
-                <Link 
-                  to="/live-pricing" 
-                  className="flex items-center gap-3 px-4 py-3 text-base font-medium text-white rounded-lg transition group hover:bg-gray-800/80 hover:border-l-4 hover:border-orange-500"
-                >
-                  <DollarSign className="w-5 h-5 text-orange-400 group-hover:scale-110 transition-transform" /> Live Pricing
-                </Link>
-                <Link 
-                  to="/database/new-releases" 
-                  className="flex items-center gap-3 px-4 py-3 text-base font-medium text-white rounded-lg transition group hover:bg-gray-800/80 hover:border-l-4 hover:border-orange-500"
-                >
-                  <Sparkles className="w-5 h-5 text-orange-400 group-hover:scale-110 transition-transform" /> New Releases
-                </Link>
-                <Link 
-                  to="/database/coming-soon" 
-                  className="flex items-center gap-3 px-4 py-3 text-base font-medium text-white rounded-lg transition group hover:bg-gray-800/80 hover:border-l-4 hover:border-orange-500"
-                >
-                  <Star className="w-5 h-5 text-orange-400 group-hover:scale-110 transition-transform" /> Coming Soon
-                </Link>
-                <Link 
-                  to="/database/funko-exclusives" 
-                  className="flex items-center gap-3 px-4 py-3 text-base font-medium text-white rounded-lg transition group hover:bg-gray-800/80 hover:border-l-4 hover:border-orange-500"
-                >
-                  <Sparkles className="w-5 h-5 text-orange-400 group-hover:scale-110 transition-transform" /> Funko Exclusives
-                </Link>
-              </div>
-            </>
-          )}
+          <ModalDropdown open={activeDropdown === 'database'} onClose={() => setActiveDropdown(null)}>
+            {renderDatabaseDropdown()}
+          </ModalDropdown>
         </div>
-
         {/* Features Dropdown */}
         <div className="relative flex-shrink-0">
           <button 
@@ -544,50 +714,20 @@ const MobileStickyFooterMenu = () => {
             <Star className="w-5 h-5 mb-1" />
             <span className="text-xs font-medium">Features</span>
           </button>
-          {activeDropdown === 'features' && (
-            <>
-              <div 
-                className="fixed inset-0 z-[9998]" 
-                onClick={() => setActiveDropdown(null)}
-              />
-              <div className="absolute bottom-full mb-2 left-0 w-64 rounded-xl shadow-2xl bg-[#232837] border border-gray-800 z-[9999] p-2">
-                <Link 
-                  to="/features" 
-                  className="flex items-center gap-3 px-4 py-3 text-base font-medium text-white rounded-lg transition group hover:bg-gray-800/80 hover:border-l-4 hover:border-orange-500"
-                >
-                  <Star className="w-5 h-5 text-orange-400 group-hover:scale-110 transition-transform" /> All Features
-                </Link>
-                <Link 
-                  to="/features/time-machine" 
-                  className="flex items-center gap-3 px-4 py-3 text-base font-medium text-white rounded-lg transition group hover:bg-gray-800/80 hover:border-l-4 hover:border-orange-500"
-                >
-                  <Clock className="w-5 h-5 text-orange-400 group-hover:scale-110 transition-transform" /> Time Machine
-                </Link>
-                <Link 
-                  to="/features/grail-galaxy" 
-                  className="flex items-center gap-3 px-4 py-3 text-base font-medium text-white rounded-lg transition group hover:bg-gray-800/80 hover:border-l-4 hover:border-orange-500"
-                >
-                  <Castle className="w-5 h-5 text-orange-400 group-hover:scale-110 transition-transform" /> Grail-Galaxy
-                </Link>
-              </div>
-            </>
-          )}
+          <ModalDropdown open={activeDropdown === 'features'} onClose={() => setActiveDropdown(null)}>
+            {renderFeaturesDropdown()}
+          </ModalDropdown>
         </div>
-
         {/* Pricing Direct Link */}
         <Link to="/pricing" className="flex flex-col items-center justify-center py-1 px-2 text-[#232837] hover:text-[#1a1e28] transition-colors flex-shrink-0 min-w-[60px]">
           <DollarSign className="w-5 h-5 mb-1" />
           <span className="text-xs font-medium">Pricing</span>
         </Link>
-
         {/* Lists Direct Link */}
         <Link to="/browse-lists" className="flex flex-col items-center justify-center py-1 px-2 text-[#232837] hover:text-[#1a1e28] transition-colors flex-shrink-0 min-w-[60px]">
           <List className="w-5 h-5 mb-1" />
           <span className="text-xs font-medium">Lists</span>
         </Link>
-
-
-
         {/* Community Dropdown */}
         <div className="relative flex-shrink-0">
           <button 
@@ -597,42 +737,10 @@ const MobileStickyFooterMenu = () => {
             <Users className="w-5 h-5 mb-1" />
             <span className="text-xs font-medium">Community</span>
           </button>
-          {activeDropdown === 'community' && (
-            <>
-              <div 
-                className="fixed inset-0 z-[9998]" 
-                onClick={() => setActiveDropdown(null)}
-              />
-              <div className="absolute bottom-full mb-2 left-0 w-64 rounded-xl shadow-2xl bg-[#232837] border border-gray-800 z-[9999] p-2">
-                <Link 
-                  to="/members" 
-                  className="flex items-center gap-3 px-4 py-3 text-base font-medium text-white rounded-lg transition group hover:bg-gray-800/80 hover:border-l-4 hover:border-orange-500"
-                >
-                  <Users className="w-5 h-5 text-orange-400 group-hover:scale-110 transition-transform" /> Members
-                </Link>
-                <Link 
-                  to="/shoppers-advice" 
-                  className="flex items-center gap-3 px-4 py-3 text-base font-medium text-white rounded-lg transition group hover:bg-gray-800/80 hover:border-l-4 hover:border-orange-500"
-                >
-                  <HelpCircle className="w-5 h-5 text-orange-400 group-hover:scale-110 transition-transform" /> Shoppers Advice
-                </Link>
-                <Link 
-                  to="/deals" 
-                  className="flex items-center gap-3 px-4 py-3 text-base font-medium text-white rounded-lg transition group hover:bg-gray-800/80 hover:border-l-4 hover:border-orange-500"
-                >
-                  <DollarSign className="w-5 h-5 text-orange-400 group-hover:scale-110 transition-transform" /> Latest Deals
-                </Link>
-                <Link 
-                  to="/browse-lists" 
-                  className="flex items-center gap-3 px-4 py-3 text-base font-medium text-white rounded-lg transition group hover:bg-gray-800/80 hover:border-l-4 hover:border-orange-500"
-                >
-                  <List className="w-5 h-5 text-orange-400 group-hover:scale-110 transition-transform" /> Lists
-                </Link>
-              </div>
-            </>
-          )}
+          <ModalDropdown open={activeDropdown === 'community'} onClose={() => setActiveDropdown(null)}>
+            {renderCommunityDropdown()}
+          </ModalDropdown>
         </div>
-
         {/* Support Dropdown */}
         <div className="relative flex-shrink-0">
           <button 
@@ -642,60 +750,10 @@ const MobileStickyFooterMenu = () => {
             <HelpCircle className="w-5 h-5 mb-1" />
             <span className="text-xs font-medium">Support</span>
           </button>
-          {activeDropdown === 'support' && (
-            <>
-              <div 
-                className="fixed inset-0 z-[9998]" 
-                onClick={() => setActiveDropdown(null)}
-              />
-              <div className="absolute bottom-full mb-2 left-0 w-64 rounded-xl shadow-2xl bg-[#232837] border border-gray-800 z-[9999] p-2">
-                <Link 
-                  to="/api" 
-                  className="flex items-center gap-3 px-4 py-3 text-base font-medium text-white rounded-lg transition group hover:bg-gray-800/80 hover:border-l-4 hover:border-orange-500"
-                >
-                  <HelpCircle className="w-5 h-5 text-orange-400 group-hover:scale-110 transition-transform" /> API
-                </Link>
-                <Link 
-                  to="/faq" 
-                  className="flex items-center gap-3 px-4 py-3 text-base font-medium text-white rounded-lg transition group hover:bg-gray-800/80 hover:border-l-4 hover:border-orange-500"
-                >
-                  <HelpCircle className="w-5 h-5 text-orange-400 group-hover:scale-110 transition-transform" /> FAQ
-                </Link>
-                <Link 
-                  to="/log-ticket" 
-                  className="flex items-center gap-3 px-4 py-3 text-base font-medium text-white rounded-lg transition group hover:bg-gray-800/80 hover:border-l-4 hover:border-orange-500"
-                >
-                  <HelpCircle className="w-5 h-5 text-orange-400 group-hover:scale-110 transition-transform" /> Log a ticket
-                </Link>
-                <Link 
-                  to="/bug-tracker" 
-                  className="flex items-center gap-3 px-4 py-3 text-base font-medium text-white rounded-lg transition group hover:bg-gray-800/80 hover:border-l-4 hover:border-orange-500"
-                >
-                  <Bug className="w-5 h-5 text-orange-400 group-hover:scale-110 transition-transform" /> Bug Tracker
-                </Link>
-                <Link 
-                  to="/howitworks" 
-                  className="flex items-center gap-3 px-4 py-3 text-base font-medium text-white rounded-lg transition group hover:bg-gray-800/80 hover:border-l-4 hover:border-orange-500"
-                >
-                  <HelpCircle className="w-5 h-5 text-orange-400 group-hover:scale-110 transition-transform" /> How it works
-                </Link>
-                <Link 
-                  to="/system-status" 
-                  className="flex items-center gap-3 px-4 py-3 text-base font-medium text-white rounded-lg transition group hover:bg-gray-800/80 hover:border-l-4 hover:border-orange-500"
-                >
-                  <HelpCircle className="w-5 h-5 text-orange-400 group-hover:scale-110 transition-transform" /> Service Status
-                </Link>
-                <Link 
-                  to="/roadmap" 
-                  className="flex items-center gap-3 px-4 py-3 text-base font-medium text-white rounded-lg transition group hover:bg-gray-800/80 hover:border-l-4 hover:border-orange-500"
-                >
-                  <HelpCircle className="w-5 h-5 text-orange-400 group-hover:scale-110 transition-transform" /> Roadmap & Changelog
-                </Link>
-              </div>
-            </>
-          )}
+          <ModalDropdown open={activeDropdown === 'support'} onClose={() => setActiveDropdown(null)}>
+            {renderSupportDropdown()}
+          </ModalDropdown>
         </div>
-
         {/* Retailers Dropdown */}
         <div className="relative flex-shrink-0">
           <button 
@@ -705,35 +763,15 @@ const MobileStickyFooterMenu = () => {
             <Store className="w-5 h-5 mb-1" />
             <span className="text-xs font-medium">Retailers</span>
           </button>
-          {activeDropdown === 'retailers' && (
-            <>
-              <div 
-                className="fixed inset-0 z-[9998]" 
-                onClick={() => setActiveDropdown(null)}
-              />
-              <div className="absolute bottom-full mb-2 left-0 w-64 rounded-xl shadow-2xl bg-[#232837] border border-gray-800 z-[9999] p-2">
-                <Link 
-                  to="/retailers" 
-                  className="flex items-center gap-3 px-4 py-3 text-base font-medium text-white rounded-lg transition group hover:bg-gray-800/80 hover:border-l-4 hover:border-orange-500"
-                >
-                  <Store className="w-5 h-5 text-orange-400 group-hover:scale-110 transition-transform" /> Browse Retailers
-                </Link>
-                <Link 
-                  to="/retailers/become" 
-                  className="flex items-center gap-3 px-4 py-3 text-base font-medium text-white rounded-lg transition group hover:bg-gray-800/80 hover:border-l-4 hover:border-orange-500"
-                >
-                  <Store className="w-5 h-5 text-orange-400 group-hover:scale-110 transition-transform" /> Add your business
-                </Link>
-              </div>
-            </>
-          )}
+          <ModalDropdown open={activeDropdown === 'retailers'} onClose={() => setActiveDropdown(null)}>
+            {renderRetailersDropdown()}
+          </ModalDropdown>
         </div>
-
         {/* Dashboard Link (if user logged in) */}
         {user && (
-          <Link to="/dashboard" className="flex flex-row items-center justify-center py-1 px-2 text-[#232837] hover:text-[#1a1e28] transition-colors flex-shrink-0 min-w-[60px] gap-2">
-            <span className="text-base font-medium text-white">Dashboard</span>
-            <Home className="w-5 h-5 text-orange-400" />
+          <Link to="/dashboard" className="flex flex-col items-center justify-center py-1 px-2 text-[#232837] hover:text-[#1a1e28] transition-colors flex-shrink-0 min-w-[60px]">
+            <Home className="w-5 h-5 mb-1 text-[#232837]" />
+            <span className="text-xs font-medium">Dashboard</span>
           </Link>
         )}
       </div>
